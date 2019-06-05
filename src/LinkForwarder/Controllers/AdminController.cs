@@ -57,14 +57,14 @@ namespace LinkForwarder.Controllers
         [Route("recent-requests")]
         public async Task<IActionResult> RecentRequests()
         {
-            var response = await _linkForwarderService.GetRecentRequests(20);
+            var response = await _linkForwarderService.GetRecentRequestsAsync(20);
             return Json(response);
         }
 
         [Route("manage")]
         public async Task<IActionResult> Manage()
         {
-            var response = await _linkForwarderService.GetPagedLinks(0, 0, 0);
+            var response = await _linkForwarderService.GetPagedLinksAsync(0, 0, 0);
             if (response.IsSuccess)
             {
                 return View(response.Item);
@@ -157,7 +157,7 @@ namespace LinkForwarder.Controllers
         [Route("show-link/{token}")]
         public async Task<IActionResult> ShowLink(string token)
         {
-            var response = await _linkForwarderService.IsLinkExists(token);
+            var response = await _linkForwarderService.IsLinkExistsAsync(token);
             if (response.IsSuccess)
             {
                 if (response.Item)
