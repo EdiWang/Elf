@@ -1,8 +1,28 @@
-﻿<h3>Link Generated</h3>
+﻿@model ShowLinkViewModel
+@{
+    var actionLink = Url.Action("Forward", "Home", new { token = Model.Token });
+    var url = $"{Context.Request.Scheme}://{Context.Request.Host}{actionLink}";
+}
+@section scripts{
+<script src="~/lib/jquery-qrcode/jquery.qrcode.min.js"></script>
+<script>
+    $(function () {
+        $(".qrcode").qrcode('@url');
+    });
+</script>
+}
+<h3>Share Your Link</h3>
 <hr />
 
 <div class="alert alert-success">
     Your link has been generated succesfully. Please find the information below:
 </div>
 
-<!-- TODO: Display Link, QR Code -->
+<section class="linkcopy">
+    <div class="form-group">
+        <input id="input-link-url" type="text" value="@url" readonly="readonly" class="form-control" />
+    </div>
+    <button class="btn btn-outline-success btn-copy">Copy</button>
+</section>
+
+<section class="qrcode mt-3"></section>

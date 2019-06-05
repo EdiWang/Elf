@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using LinkForwarder.Models;
 using LinkForwarder.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -58,9 +59,8 @@ namespace LinkForwarder.Controllers
             }
         }
 
-        // TODO: Cache
         [Route("fw/{token}")]
-        public async Task<IActionResult> Forward(string token)
+        public async Task<IActionResult> Forward(string token, [FromServices] IMemoryCache cache)
         {
             try
             {
@@ -75,45 +75,62 @@ namespace LinkForwarder.Controllers
                     return BadRequest();
                 }
 
-                using (var conn = DbConnection)
+                if (!cache.TryGetValue(token, out Link linkEntry))
                 {
-                    const string sql = @"SELECT TOP 1 
-                                        l.Id,
-                                        l.OriginUrl,
-                                        l.FwToken,
-                                        l.Note,
-                                        l.IsEnabled,
-                                        l.UpdateTimeUtc
-                                        FROM Link l
-                                        WHERE l.FwToken = @fwToken";
-                    var link = await conn.QueryFirstOrDefaultAsync<Link>(sql, new { fwToken = validatedToken });
-                    if (null == link)
+                    using (var conn = DbConnection)
                     {
-                        if (string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl)) return NotFound();
-
-                        if (_appSettings.DefaultRedirectionUrl.IsValidUrl() 
-                            && !Url.IsLocalUrl(_appSettings.DefaultRedirectionUrl))
+                        const string sql = @"SELECT TOP 1 
+                                            l.Id,
+                                            l.OriginUrl,
+                                            l.FwToken,
+                                            l.Note,
+                                            l.IsEnabled,
+                                            l.UpdateTimeUtc
+                                            FROM Link l
+                                            WHERE l.FwToken = @fwToken";
+                        var link = await conn.QueryFirstOrDefaultAsync<Link>(sql, new { fwToken = validatedToken });
+                        if (null == link)
                         {
-                            return Redirect(_appSettings.DefaultRedirectionUrl);
+                            if (string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl)) return NotFound();
+
+                            if (_appSettings.DefaultRedirectionUrl.IsValidUrl()
+                                && !Url.IsLocalUrl(_appSettings.DefaultRedirectionUrl))
+                            {
+                                return Redirect(_appSettings.DefaultRedirectionUrl);
+                            }
+
+                            throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
                         }
-                        throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
+
+                        if (!link.OriginUrl.IsValidUrl())
+                        {
+                            throw new UriFormatException(
+                                $"OriginUrl '{link.OriginUrl}' is not a valid URL, link ID: {link.Id}.");
+                        }
+
+                        if (!link.IsEnabled)
+                        {
+                            return Forbid();
+                        }
+
+                        // cache valid link entity only.
+                        cache.Set(token, link, TimeSpan.FromHours(1));
                     }
-
-                    if (!link.OriginUrl.IsValidUrl())
-                    {
-                        throw new UriFormatException(
-                            $"OriginUrl '{link.OriginUrl}' is not a valid URL, link ID: {link.Id}.");
-                    }
-
-                    var ip = HttpContext.Connection.RemoteIpAddress.ToString();
-                    var ua = Request.Headers["User-Agent"];
-                    _ = Task.Run(async () =>
-                    {
-                        await TrackSucessRedirection(ip, ua, link.Id);
-                    });
-
-                    return Redirect(link.OriginUrl);
                 }
+
+                if (null == linkEntry)
+                {
+                    linkEntry = cache.Get<Link>(token);
+                }
+
+                var ip = HttpContext.Connection.RemoteIpAddress.ToString();
+                var ua = Request.Headers["User-Agent"];
+                _ = Task.Run(async () =>
+                {
+                    await TrackSucessRedirection(ip, ua, linkEntry.Id);
+                });
+
+                return Redirect(linkEntry.OriginUrl);
             }
             catch (Exception e)
             {
@@ -124,20 +141,28 @@ namespace LinkForwarder.Controllers
 
         private async Task TrackSucessRedirection(string ipAddress, string userAgent, int linkId)
         {
-            using (var conn = DbConnection)
+            try
             {
-                var lt = new LinkTracking
+                using (var conn = DbConnection)
                 {
-                    Id = Guid.NewGuid(),
-                    IpAddress = ipAddress,
-                    LinkId = linkId,
-                    RequestTimeUtc = DateTime.UtcNow,
-                    UserAgent = userAgent
-                };
+                    var lt = new LinkTracking
+                    {
+                        Id = Guid.NewGuid(),
+                        IpAddress = ipAddress,
+                        LinkId = linkId,
+                        RequestTimeUtc = DateTime.UtcNow,
+                        UserAgent = userAgent
+                    };
 
-                const string sqlInsertLt = @"INSERT INTO LinkTracking (Id, IpAddress, LinkId, RequestTimeUtc, UserAgent) 
+                    const string sqlInsertLt = @"INSERT INTO LinkTracking (Id, IpAddress, LinkId, RequestTimeUtc, UserAgent) 
                                              VALUES (@Id, @IpAddress, @LinkId, @RequestTimeUtc, @UserAgent)";
-                await conn.ExecuteAsync(sqlInsertLt, lt);
+                    await conn.ExecuteAsync(sqlInsertLt, lt);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
             }
         }
     }

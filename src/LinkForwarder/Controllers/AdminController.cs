@@ -9,6 +9,7 @@ using LinkForwarder.Models;
 using LinkForwarder.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,6 +24,7 @@ namespace LinkForwarder.Controllers
         private readonly IConfiguration _configuration;
         private readonly ITokenGenerator _tokenGenerator;
         private readonly AppSettings _appSettings;
+        private readonly IMemoryCache _memoryCache;
 
         private IDbConnection DbConnection => new SqlConnection(_configuration.GetConnectionString("LinkForwarderDatabase"));
 
@@ -30,12 +32,14 @@ namespace LinkForwarder.Controllers
             IOptions<AppSettings> settings,
             ILogger<AdminController> logger,
             IConfiguration configuration,
-            ITokenGenerator tokenGenerator)
+            ITokenGenerator tokenGenerator,
+            IMemoryCache memoryCache)
         {
             _appSettings = settings.Value;
             _logger = logger;
             _configuration = configuration;
             _tokenGenerator = tokenGenerator;
+            _memoryCache = memoryCache;
         }
 
         [Route("")]
@@ -110,6 +114,22 @@ namespace LinkForwarder.Controllers
                 string token;
                 using (var conn = DbConnection)
                 {
+                    const string sqlLinkExist = "SELECT TOP 1 FwToken FROM Link l WHERE l.OriginUrl = @originUrl";
+                    var tempToken = await conn.ExecuteScalarAsync<string>(sqlLinkExist, new { originUrl = model.OriginUrl });
+                    if (null != tempToken)
+                    {
+                        if (_tokenGenerator.TryParseToken(tempToken, out var tk))
+                        {
+                            _logger.LogInformation($"Link already exists for token '{tk}'");
+                            return RedirectToAction("ShowLink", new { token = tk });
+                        }
+
+                        string message = $"Invalid token '{tempToken}' found for existing url '{model.OriginUrl}'";
+                        _logger.LogError(message);
+                        ModelState.AddModelError(string.Empty, message);
+                        return View(model);
+                    }
+
                     const string sqlTokenExist = "SELECT TOP 1 1 FROM Link l WHERE l.FwToken = @token";
                     do
                     {
@@ -131,16 +151,26 @@ namespace LinkForwarder.Controllers
                     await conn.ExecuteAsync(sqlInsertLk, link);
                 }
 
-                return RedirectToAction("ShowLink", routeValues: token);
+                return RedirectToAction("ShowLink", new { token });
             }
             return View(model);
         }
 
-        [Route("show-link")]
+        [Route("show-link/{token}")]
         public async Task<IActionResult> ShowLink(string token)
         {
-            // TODO: Verify link against db first.
-            return View(token);
+            using (var conn = DbConnection)
+            {
+                const string sql = @"SELECT TOP 1 1 FROM Link l
+                                            WHERE l.FwToken = @token";
+                var exist = await conn.ExecuteScalarAsync<int>(sql, new { token }) == 1;
+                if (exist)
+                {
+                    return View(new ShowLinkViewModel { Token = token });
+                }
+
+                return NotFound();
+            }
         }
     }
 }
