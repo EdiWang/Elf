@@ -91,7 +91,8 @@ namespace LinkForwarder.Controllers
                     {
                         if (string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl)) return NotFound();
 
-                        if (_appSettings.DefaultRedirectionUrl.IsValidUrl())
+                        if (_appSettings.DefaultRedirectionUrl.IsValidUrl() 
+                            && !Url.IsLocalUrl(_appSettings.DefaultRedirectionUrl))
                         {
                             return Redirect(_appSettings.DefaultRedirectionUrl);
                         }

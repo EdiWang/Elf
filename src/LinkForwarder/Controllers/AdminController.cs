@@ -99,25 +99,33 @@ namespace LinkForwarder.Controllers
             {
                 if (!model.OriginUrl.IsValidUrl())
                 {
-                    // TODO: [Security] Validate and block localhost URL
                     ModelState.AddModelError(nameof(model.OriginUrl), "Not a valid URL.");
                 }
 
-                var token = _tokenGenerator.GenerateToken();
-
-                // TODO: validate if token already exist, if so, generate new token.
-
-                var link = new Link
+                if (Url.IsLocalUrl(model.OriginUrl))
                 {
-                    FwToken = token,
-                    IsEnabled = model.IsEnabled,
-                    Note = model.Note,
-                    OriginUrl = model.OriginUrl,
-                    UpdateTimeUtc = DateTime.UtcNow
-                };
+                    ModelState.AddModelError(nameof(model.OriginUrl), "Can not use local URL.");
+                }
 
+                string token;
                 using (var conn = DbConnection)
                 {
+                    const string sqlTokenExist = "SELECT TOP 1 1 FROM Link l WHERE l.FwToken = @token";
+                    do
+                    {
+                        token = _tokenGenerator.GenerateToken();
+                    } while (await conn.ExecuteScalarAsync<int>(sqlTokenExist, new { token }) == 1);
+
+                    _logger.LogInformation($"Generated Token '{token}' for url '{model.OriginUrl}'");
+
+                    var link = new Link
+                    {
+                        FwToken = token,
+                        IsEnabled = model.IsEnabled,
+                        Note = model.Note,
+                        OriginUrl = model.OriginUrl,
+                        UpdateTimeUtc = DateTime.UtcNow
+                    };
                     const string sqlInsertLk = @"INSERT INTO Link (OriginUrl, FwToken, Note, IsEnabled, UpdateTimeUtc) 
                                                  VALUES (@OriginUrl, @FwToken, @Note, @IsEnabled, @UpdateTimeUtc)";
                     await conn.ExecuteAsync(sqlInsertLk, link);
