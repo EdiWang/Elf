@@ -105,6 +105,11 @@ namespace LinkForwarder.Controllers
                             $"OriginUrl '{link.OriginUrl}' is not a valid URL, link ID: {link.Id}.");
                     }
 
+                    if (!link.IsEnabled)
+                    {
+                        return Forbid();
+                    }
+
                     var ip = HttpContext.Connection.RemoteIpAddress.ToString();
                     var ua = Request.Headers["User-Agent"];
                     _ = Task.Run(async () =>
@@ -124,20 +129,28 @@ namespace LinkForwarder.Controllers
 
         private async Task TrackSucessRedirection(string ipAddress, string userAgent, int linkId)
         {
-            using (var conn = DbConnection)
+            try
             {
-                var lt = new LinkTracking
+                using (var conn = DbConnection)
                 {
-                    Id = Guid.NewGuid(),
-                    IpAddress = ipAddress,
-                    LinkId = linkId,
-                    RequestTimeUtc = DateTime.UtcNow,
-                    UserAgent = userAgent
-                };
+                    var lt = new LinkTracking
+                    {
+                        Id = Guid.NewGuid(),
+                        IpAddress = ipAddress,
+                        LinkId = linkId,
+                        RequestTimeUtc = DateTime.UtcNow,
+                        UserAgent = userAgent
+                    };
 
-                const string sqlInsertLt = @"INSERT INTO LinkTracking (Id, IpAddress, LinkId, RequestTimeUtc, UserAgent) 
+                    const string sqlInsertLt = @"INSERT INTO LinkTracking (Id, IpAddress, LinkId, RequestTimeUtc, UserAgent) 
                                              VALUES (@Id, @IpAddress, @LinkId, @RequestTimeUtc, @UserAgent)";
-                await conn.ExecuteAsync(sqlInsertLt, lt);
+                    await conn.ExecuteAsync(sqlInsertLt, lt);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
             }
         }
     }
