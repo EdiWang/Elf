@@ -48,6 +48,32 @@ namespace LinkForwarder.Controllers
             }
         }
 
+        // TODO: Cache
+        [Route("fw/{token}")]
+        public async Task<IActionResult> Forward(string token)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    return BadRequest();
+                }
+
+                using (_dbConnection)
+                {
+                    // TODO:
+                    throw new NotImplementedException();
+
+                    // TODO: Forward unknown link to configured default redirection url
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
