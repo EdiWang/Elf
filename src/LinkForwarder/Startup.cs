@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using LinkForwarder.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -34,6 +35,7 @@ namespace LinkForwarder
         {
             var conn = Configuration.GetConnectionString("LinkForwarderDatabase");
             services.AddTransient<IDbConnection>(c => new SqlConnection(conn));
+            services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

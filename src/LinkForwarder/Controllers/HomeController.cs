@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using LinkForwarder.Models;
+using LinkForwarder.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -18,10 +19,16 @@ namespace LinkForwarder.Controllers
 
         private readonly IDbConnection _dbConnection;
 
-        public HomeController(IDbConnection dbConnection, ILogger<HomeController> logger)
+        private ITokenGenerator _tokenGenerator;
+
+        public HomeController(
+            IDbConnection dbConnection, 
+            ILogger<HomeController> logger, 
+            ITokenGenerator tokenGenerator)
         {
             _dbConnection = dbConnection;
             _logger = logger;
+            _tokenGenerator = tokenGenerator;
         }
 
         public async Task<IActionResult> Index()
@@ -59,20 +66,24 @@ namespace LinkForwarder.Controllers
                     return BadRequest();
                 }
 
-                // TODO: Validate token format (including length)
+                bool isValid = _tokenGenerator.TryParseToken(token, out var validatedToken);
+                if (!isValid)
+                {
+                    return BadRequest();
+                }
 
                 using (_dbConnection)
                 {
-                    var sql = @"SELECT TOP 1 
-                                l.Id,
-                                l.OriginUrl,
-                                l.FwToken,
-                                l.Note,
-                                l.IsEnabled,
-                                l.UpdateTimeUtc
-                                FROM Link l
-                                WHERE l.FwToken = @fwToken";
-                    var link = await _dbConnection.QueryFirstOrDefaultAsync<Link>(sql, new { fwToken = token });
+                    const string sql = @"SELECT TOP 1 
+                                        l.Id,
+                                        l.OriginUrl,
+                                        l.FwToken,
+                                        l.Note,
+                                        l.IsEnabled,
+                                        l.UpdateTimeUtc
+                                        FROM Link l
+                                        WHERE l.FwToken = @fwToken";
+                    var link = await _dbConnection.QueryFirstOrDefaultAsync<Link>(sql, new { fwToken = validatedToken });
                     if (null == link)
                     {
                         // TODO: Forward unknown link to configured default redirection url

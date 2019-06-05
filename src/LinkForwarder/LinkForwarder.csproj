@@ -31,7 +31,6 @@
 
 
   <ItemGroup>
-    <Folder Include="Services\" />
     <Folder Include="wwwroot\lib\" />
   </ItemGroup>
 
