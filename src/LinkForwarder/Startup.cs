@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
 using LinkForwarder.Authentication;
 using LinkForwarder.Models;
 using LinkForwarder.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,7 +45,7 @@ namespace LinkForwarder
             Configuration.Bind("AzureAd", authentication);
             services.AddLinkForwarderAuthenticaton(authentication);
 
-            var conn = Configuration.GetConnectionString("LinkForwarderDatabase");
+            var conn = Configuration.GetConnectionString(Constants.DbName);
             services.AddTransient<IDbConnection>(c => new SqlConnection(conn));
             services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
 
@@ -73,12 +69,46 @@ namespace LinkForwarder
             app.UseStaticFiles();
             app.UseAuthentication();
 
-            app.UseMvc(routes =>
+            var conn = Configuration.GetConnectionString(Constants.DbName);
+            var setupHelper = new SetupHelper(conn);
+
+            if (!setupHelper.TestDatabaseConnection(exception =>
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
+                _logger.LogCritical(exception, $"Error {nameof(SetupHelper.TestDatabaseConnection)}, connection string: {conn}");
+            }))
+            {
+                app.Run(async context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    await context.Response.WriteAsync("Database connection failed. Please see error log, fix it and RESTART this application.");
+                });
+            }
+            else
+            {
+                if (setupHelper.IsFirstRun())
+                {
+                    try
+                    {
+                        setupHelper.SetupDatabase();
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogCritical(e, e.Message);
+                        app.Run(async context =>
+                        {
+                            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                            await context.Response.WriteAsync("Error initializing first run, please check error log.");
+                        });
+                    }
+                }
+
+                app.UseMvc(routes =>
+                {
+                    routes.MapRoute(
+                        name: "default",
+                        template: "{controller=Home}/{action=Index}/{id?}");
+                });
+            }
         }
     }
 }

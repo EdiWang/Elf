@@ -21,7 +21,7 @@ namespace LinkForwarder.Controllers
         private readonly ITokenGenerator _tokenGenerator;
         private readonly AppSettings _appSettings;
 
-        private IDbConnection DbConnection => new SqlConnection(_configuration.GetConnectionString("LinkForwarderDatabase"));
+        private IDbConnection DbConnection => new SqlConnection(_configuration.GetConnectionString(Constants.DbName));
 
         public HomeController(
             IOptions<AppSettings> settings,
