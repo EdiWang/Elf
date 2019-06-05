@@ -59,12 +59,29 @@ namespace LinkForwarder.Controllers
                     return BadRequest();
                 }
 
+                // TODO: Validate token format (including length)
+
                 using (_dbConnection)
                 {
-                    // TODO:
-                    throw new NotImplementedException();
+                    var sql = @"SELECT TOP 1 
+                                l.Id,
+                                l.OriginUrl,
+                                l.FwToken,
+                                l.Note,
+                                l.IsEnabled,
+                                l.UpdateTimeUtc
+                                FROM Link l
+                                WHERE l.FwToken = @fwToken";
+                    var link = await _dbConnection.QueryFirstOrDefaultAsync<Link>(sql, new { fwToken = token });
+                    if (null == link)
+                    {
+                        // TODO: Forward unknown link to configured default redirection url
+                    }
 
-                    // TODO: Forward unknown link to configured default redirection url
+                    // TODO: record user info
+
+                    // TODO: validate OriginUrl format and secure
+                    return Redirect(link.OriginUrl);
                 }
             }
             catch (Exception e)
