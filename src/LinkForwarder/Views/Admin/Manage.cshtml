@@ -4,11 +4,20 @@
 
 <!-- TODO: Use DataTable.net server side paging -->
 
-<table class="table table-bordered">
+<style>
+    table {
+        table-layout: fixed;
+    }
+
+    .wordwrap {
+        word-wrap: break-word;
+    }
+</style>
+<table class="table table-sm table-bordered">
     <thead>
         <tr>
             <th>Token</th>
-            <th>Origin Url</th>
+            <th style="width: 50%;">Origin Url</th>
             <th>Enabled</th>
             <th>Note</th>
             <th>Update Time</th>
@@ -20,9 +29,10 @@
         {
             <tr data-row-id="@item.Id">
                 <td>
+                    <a href="@Url.Action("Forward", "Home", new { token = item.FwToken })" target="_blank"></a>
                     @item.FwToken
                 </td>
-                <td>
+                <td class="wordwrap">
                     <a href="@item.OriginUrl" target="_blank">@item.OriginUrl</a>
                 </td>
                 <td>
@@ -33,6 +43,7 @@
                 </td>
                 <td data-utc-time="@item.UpdateTimeUtc"></td>
                 <td>
+                    <a asp-action="ShowLink" asp-route-token="@item.FwToken" class="btn btn-sm btn-outline-success">Share</a>
                     <!-- todo: edit/delete-->
                 </td>
             </tr>

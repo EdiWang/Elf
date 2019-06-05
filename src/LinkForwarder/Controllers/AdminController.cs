@@ -114,6 +114,22 @@ namespace LinkForwarder.Controllers
                 string token;
                 using (var conn = DbConnection)
                 {
+                    const string sqlLinkExist = "SELECT TOP 1 FwToken FROM Link l WHERE l.OriginUrl = @originUrl";
+                    var tempToken = await conn.ExecuteScalarAsync<string>(sqlLinkExist, new { originUrl = model.OriginUrl });
+                    if (null != tempToken)
+                    {
+                        if (_tokenGenerator.TryParseToken(tempToken, out var tk))
+                        {
+                            _logger.LogInformation($"Link already exists for token '{tk}'");
+                            return RedirectToAction("ShowLink", new { token = tk });
+                        }
+
+                        string message = $"Invalid token '{tempToken}' found for existing url '{model.OriginUrl}'";
+                        _logger.LogError(message);
+                        ModelState.AddModelError(string.Empty, message);
+                        return View(model);
+                    }
+
                     const string sqlTokenExist = "SELECT TOP 1 1 FROM Link l WHERE l.FwToken = @token";
                     do
                     {
