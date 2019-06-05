@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Data;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using LinkForwarder.Models;
 using LinkForwarder.Services;
