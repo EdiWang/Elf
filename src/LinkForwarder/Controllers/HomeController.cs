@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using LinkForwarder.Models;
 using LinkForwarder.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Internal;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -18,20 +21,22 @@ namespace LinkForwarder.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        private readonly IDbConnection _dbConnection;
+        private readonly IConfiguration _configuration;
 
         private readonly ITokenGenerator _tokenGenerator;
 
-        private AppSettings _appSettings;
+        private readonly AppSettings _appSettings;
+
+        private IDbConnection DbConnection => new SqlConnection(_configuration.GetConnectionString("LinkForwarderDatabase"));
 
         public HomeController(
             IOptions<AppSettings> settings,
-            IDbConnection dbConnection, 
-            ILogger<HomeController> logger, 
+            IConfiguration configuration,
+            ILogger<HomeController> logger,
             ITokenGenerator tokenGenerator)
         {
             _appSettings = settings.Value;
-            _dbConnection = dbConnection;
+            _configuration = configuration;
             _logger = logger;
             _tokenGenerator = tokenGenerator;
         }
@@ -40,9 +45,9 @@ namespace LinkForwarder.Controllers
         {
             try
             {
-                using (_dbConnection)
+                using (var conn = DbConnection)
                 {
-                    var linkCount = await _dbConnection.ExecuteScalarAsync<int>("SELECT Count(l.Id) FROM Link l");
+                    var linkCount = await conn.ExecuteScalarAsync<int>("SELECT Count(l.Id) FROM Link l");
                     var obj = new
                     {
                         Server = Environment.MachineName,
@@ -77,7 +82,7 @@ namespace LinkForwarder.Controllers
                     return BadRequest();
                 }
 
-                using (_dbConnection)
+                using (var conn = DbConnection)
                 {
                     const string sql = @"SELECT TOP 1 
                                         l.Id,
@@ -88,17 +93,32 @@ namespace LinkForwarder.Controllers
                                         l.UpdateTimeUtc
                                         FROM Link l
                                         WHERE l.FwToken = @fwToken";
-                    var link = await _dbConnection.QueryFirstOrDefaultAsync<Link>(sql, new { fwToken = validatedToken });
+                    var link = await conn.QueryFirstOrDefaultAsync<Link>(sql, new { fwToken = validatedToken });
                     if (null == link)
                     {
-                        return !string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl) ? 
-                                VerifyAndRedirect(_appSettings.DefaultRedirectionUrl) : 
-                                NotFound();
+                        if (string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl)) return NotFound();
+
+                        if (_appSettings.DefaultRedirectionUrl.IsValidUrl())
+                        {
+                            return Redirect(_appSettings.DefaultRedirectionUrl);
+                        }
+                        throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
                     }
 
-                    // TODO: record user info
+                    if (!link.OriginUrl.IsValidUrl())
+                    {
+                        throw new UriFormatException(
+                            $"OriginUrl '{link.OriginUrl}' is not a valid URL, link ID: {link.Id}.");
+                    }
 
-                    return VerifyAndRedirect(link.OriginUrl);
+                    var ip = HttpContext.Connection.RemoteIpAddress.ToString();
+                    var ua = Request.Headers["User-Agent"];
+                    _ = Task.Run(async () =>
+                    {
+                        await TrackSucessRedirection(ip, ua, link.Id);
+                    });
+
+                    return Redirect(link.OriginUrl);
                 }
             }
             catch (Exception e)
@@ -108,10 +128,23 @@ namespace LinkForwarder.Controllers
             }
         }
 
-        private IActionResult VerifyAndRedirect(string url)
+        private async Task TrackSucessRedirection(string ipAddress, string userAgent, int linkId)
         {
-            // TODO: validate URL format and secure
-            return Redirect(url);
+            using (var conn = DbConnection)
+            {
+                var lt = new LinkTracking
+                {
+                    Id = Guid.NewGuid(),
+                    IpAddress = ipAddress,
+                    LinkId = linkId,
+                    RequestTimeUtc = DateTime.UtcNow,
+                    UserAgent = userAgent
+                };
+
+                const string sqlInsertLt = @"INSERT INTO LinkTracking (Id, IpAddress, LinkId, RequestTimeUtc, UserAgent) 
+                                         VALUES (@Id, @IpAddress, @LinkId, @RequestTimeUtc, @UserAgent)";
+                await conn.ExecuteAsync(sqlInsertLt, lt);
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
