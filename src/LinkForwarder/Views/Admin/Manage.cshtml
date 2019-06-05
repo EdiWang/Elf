@@ -1,0 +1,36 @@
+﻿@model IEnumerable<Link>
+<!-- TODO: Use DataTable.net server side paging -->
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Token</th>
+            <th>Origin Url</th>
+            <th>Enabled</th>
+            <th>Note</th>
+            <th>UpdateTimeUtc</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr data-row-id="@item.Id">
+                <td>
+                    @item.FwToken
+                </td>
+                <td>
+                    <a href="@item.OriginUrl" target="_blank">@item.OriginUrl</a>
+                </td>
+                <td>
+                    @item.IsEnabled
+                </td>
+                <td>
+                    @item.Note
+                </td>
+                <td>
+                    @item.UpdateTimeUtc
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
