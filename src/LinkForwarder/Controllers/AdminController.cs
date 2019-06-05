@@ -32,7 +32,7 @@ namespace LinkForwarder.Controllers
             IOptions<AppSettings> settings,
             ILogger<AdminController> logger,
             IConfiguration configuration,
-            ITokenGenerator tokenGenerator, 
+            ITokenGenerator tokenGenerator,
             IMemoryCache memoryCache)
         {
             _appSettings = settings.Value;
@@ -135,16 +135,26 @@ namespace LinkForwarder.Controllers
                     await conn.ExecuteAsync(sqlInsertLk, link);
                 }
 
-                return RedirectToAction("ShowLink", routeValues: token);
+                return RedirectToAction("ShowLink", new { token });
             }
             return View(model);
         }
 
-        [Route("show-link")]
+        [Route("show-link/{token}")]
         public async Task<IActionResult> ShowLink(string token)
         {
-            // TODO: Verify link against db first.
-            return View(token);
+            using (var conn = DbConnection)
+            {
+                const string sql = @"SELECT TOP 1 1 FROM Link l
+                                            WHERE l.FwToken = @token";
+                var exist = await conn.ExecuteScalarAsync<int>(sql, new { token }) == 1;
+                if (exist)
+                {
+                    return View(new ShowLinkViewModel { Token = token });
+                }
+
+                return NotFound();
+            }
         }
     }
 }
