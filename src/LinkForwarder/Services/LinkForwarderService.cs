@@ -17,6 +17,7 @@ namespace LinkForwarder.Services
     {
         Task<Response<IReadOnlyList<RecentRequest>>> GetRecentRequests(int top);
         Task<Response<IReadOnlyList<Link>>> GetPagedLinks(int pageIndex, int pageSize, int take);
+        Task<Response<bool>> IsLinkExists(string token);
     }
 
     public class LinkForwarderService : ILinkForwarderService
@@ -53,14 +54,42 @@ namespace LinkForwarder.Services
             }
         }
 
-        // TODO
+        public async Task<Response<bool>> IsLinkExists(string token)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = @"SELECT TOP 1 1 FROM Link l
+                                            WHERE l.FwToken = @token";
+                    var exist = await conn.ExecuteScalarAsync<int>(sql, new { token }) == 1;
+                    return new SuccessResponse<bool>(exist);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<bool>(e.Message);
+            }
+        }
+
+        // TODO: Paging
         public async Task<Response<IReadOnlyList<Link>>> GetPagedLinks(int pageIndex, int pageSize, int take)
         {
             try
             {
                 using (var conn = DbConnection)
                 {
-                    const string sql = @"";
+                    const string sql = @"SELECT 
+                                         l.Id,
+                                         l.OriginUrl,
+                                         l.FwToken,
+                                         l.Note,
+                                         l.IsEnabled,
+                                         l.UpdateTimeUtc
+                                         FROM Link l 
+                                         ORDER BY UpdateTimeUtc DESC";
+
                     var list = await conn.QueryAsync<Link>(sql);
                     return new SuccessResponse<IReadOnlyList<Link>>(list.ToList());
                 }

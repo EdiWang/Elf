@@ -50,17 +50,8 @@ namespace LinkForwarder.Controllers
         [Route("")]
         public IActionResult Index()
         {
-            try
-            {
-                // TODO: make dashboard
-                return View();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-                ViewBag.ErrorMessage = e.Message;
-                return View("AdminError");
-            }
+            // TODO: make dashboard
+            return View();
         }
 
         [Route("recent-requests")]
@@ -73,31 +64,14 @@ namespace LinkForwarder.Controllers
         [Route("manage")]
         public async Task<IActionResult> Manage()
         {
-            try
+            var response = await _linkForwarderService.GetPagedLinks(0, 0, 0);
+            if (response.IsSuccess)
             {
-                using (var conn = DbConnection)
-                {
-                    // TODO: Paging
-                    const string sql = @"SELECT 
-                                         l.Id,
-                                         l.OriginUrl,
-                                         l.FwToken,
-                                         l.Note,
-                                         l.IsEnabled,
-                                         l.UpdateTimeUtc
-                                         FROM Link l 
-                                         ORDER BY UpdateTimeUtc DESC";
-
-                    var links = await conn.QueryAsync<Link>(sql);
-                    return View(links);
-                }
+                return View(response.Item);
             }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-                ViewBag.ErrorMessage = e.Message;
-                return View("AdminError");
-            }
+            ViewBag.ErrorMessage = response.Message;
+            Response.StatusCode = StatusCodes.Status500InternalServerError;
+            return View("AdminError");
         }
 
         [Route("create-link")]
@@ -183,18 +157,19 @@ namespace LinkForwarder.Controllers
         [Route("show-link/{token}")]
         public async Task<IActionResult> ShowLink(string token)
         {
-            using (var conn = DbConnection)
+            var response = await _linkForwarderService.IsLinkExists(token);
+            if (response.IsSuccess)
             {
-                const string sql = @"SELECT TOP 1 1 FROM Link l
-                                            WHERE l.FwToken = @token";
-                var exist = await conn.ExecuteScalarAsync<int>(sql, new { token }) == 1;
-                if (exist)
+                if (response.Item)
                 {
                     return View(new ShowLinkViewModel { Token = token });
                 }
-
                 return NotFound();
             }
+
+            ViewBag.ErrorMessage = response.Message;
+            Response.StatusCode = StatusCodes.Status500InternalServerError;
+            return View("AdminError");
         }
     }
 }
