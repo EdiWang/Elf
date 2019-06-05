@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -30,6 +32,8 @@ namespace LinkForwarder
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var conn = Configuration.GetConnectionString("LinkForwarderDatabase");
+            services.AddTransient<IDbConnection>(c => new SqlConnection(conn));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
