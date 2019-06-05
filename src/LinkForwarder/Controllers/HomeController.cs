@@ -11,6 +11,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace LinkForwarder.Controllers
 {
@@ -111,6 +112,16 @@ namespace LinkForwarder.Controllers
                         if (!link.IsEnabled)
                         {
                             return Forbid();
+                        }
+
+                        if (Uri.TryCreate(link.OriginUrl, UriKind.Absolute, out Uri testUri))
+                        {
+                            if (string.Compare(testUri.Authority, HttpContext.Request.Host.ToString(), StringComparison.OrdinalIgnoreCase) == 0
+                                && string.Compare(testUri.Scheme, HttpContext.Request.Scheme, StringComparison.OrdinalIgnoreCase) == 0)
+                            {
+                                _logger.LogWarning($"Self reference redirection is blocked. link: {JsonConvert.SerializeObject(link)}");
+                                return Forbid();
+                            }
                         }
 
                         // cache valid link entity only.

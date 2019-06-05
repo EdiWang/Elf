@@ -13,6 +13,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace LinkForwarder.Controllers
 {
@@ -104,11 +105,23 @@ namespace LinkForwarder.Controllers
                 if (!model.OriginUrl.IsValidUrl())
                 {
                     ModelState.AddModelError(nameof(model.OriginUrl), "Not a valid URL.");
+                    return View(model);
                 }
 
                 if (Url.IsLocalUrl(model.OriginUrl))
                 {
                     ModelState.AddModelError(nameof(model.OriginUrl), "Can not use local URL.");
+                    return View(model);
+                }
+
+                if (Uri.TryCreate(model.OriginUrl, UriKind.Absolute, out Uri testUri))
+                {
+                    if (string.Compare(testUri.Authority, HttpContext.Request.Host.ToString(), StringComparison.OrdinalIgnoreCase) == 0
+                        && string.Compare(testUri.Scheme, HttpContext.Request.Scheme, StringComparison.OrdinalIgnoreCase) == 0)
+                    {
+                        ModelState.AddModelError(nameof(model.OriginUrl), "Can not use url pointing to this site.");
+                        return View(model);
+                    }
                 }
 
                 string token;
