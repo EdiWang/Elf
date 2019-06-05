@@ -9,6 +9,7 @@ using LinkForwarder.Models;
 using LinkForwarder.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,6 +24,7 @@ namespace LinkForwarder.Controllers
         private readonly IConfiguration _configuration;
         private readonly ITokenGenerator _tokenGenerator;
         private readonly AppSettings _appSettings;
+        private readonly IMemoryCache _memoryCache;
 
         private IDbConnection DbConnection => new SqlConnection(_configuration.GetConnectionString("LinkForwarderDatabase"));
 
@@ -30,12 +32,14 @@ namespace LinkForwarder.Controllers
             IOptions<AppSettings> settings,
             ILogger<AdminController> logger,
             IConfiguration configuration,
-            ITokenGenerator tokenGenerator)
+            ITokenGenerator tokenGenerator, 
+            IMemoryCache memoryCache)
         {
             _appSettings = settings.Value;
             _logger = logger;
             _configuration = configuration;
             _tokenGenerator = tokenGenerator;
+            _memoryCache = memoryCache;
         }
 
         [Route("")]
