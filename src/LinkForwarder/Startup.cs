@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using LinkForwarder.Authentication;
 using LinkForwarder.Models;
 using LinkForwarder.Services;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -66,6 +68,9 @@ namespace LinkForwarder
                 app.UseHttpsRedirection();
             }
 
+            var baseDir = env.ContentRootPath;
+            TryAddUrlRewrite(app, baseDir);
+
             app.UseStaticFiles();
             app.UseAuthentication();
 
@@ -108,6 +113,33 @@ namespace LinkForwarder
                         name: "default",
                         template: "{controller=Home}/{action=Index}/{id?}");
                 });
+            }
+        }
+
+        private void TryAddUrlRewrite(IApplicationBuilder app, string baseDir)
+        {
+            try
+            {
+                var urlRewriteConfigPath = Path.Combine(baseDir, "urlrewrite.xml");
+                if (File.Exists(urlRewriteConfigPath))
+                {
+                    using (var sr = File.OpenText(urlRewriteConfigPath))
+                    {
+                        var options = new RewriteOptions()
+                            .AddRedirect("(.*)/$", "$1")
+                            .AddIISUrlRewrite(sr);
+                        app.UseRewriter(options);
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning($"Can not find {urlRewriteConfigPath}, skip adding url rewrite.");
+                }
+            }
+            catch (Exception e)
+            {
+                // URL Rewrite is non-fatal error, continue running the application.
+                _logger.LogError(e, nameof(TryAddUrlRewrite));
             }
         }
     }

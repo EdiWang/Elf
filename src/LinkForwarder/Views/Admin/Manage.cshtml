@@ -29,8 +29,7 @@
         {
             <tr data-row-id="@item.Id">
                 <td>
-                    <a href="@Url.Action("Forward", "Home", new { token = item.FwToken })" target="_blank"></a>
-                    @item.FwToken
+                    <a href="@Url.Action("Forward", "Home", new { token = item.FwToken })" target="_blank">@item.FwToken</a>
                 </td>
                 <td class="wordwrap">
                     <a href="@item.OriginUrl" target="_blank">@item.OriginUrl</a>
