@@ -83,5 +83,48 @@ namespace LinkForwarder.Controllers
                 return View("AdminError");
             }
         }
+
+        [Route("create-link")]
+        public IActionResult CreateLink()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Route("create-link")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateLink(LinkEditModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var token = _tokenGenerator.GenerateToken();
+
+                var link = new Link
+                {
+                    FwToken = token,
+                    IsEnabled = model.IsEnabled,
+                    Note = model.Note,
+                    OriginUrl = model.OriginUrl,
+                    UpdateTimeUtc = DateTime.UtcNow
+                };
+
+                using (var conn = DbConnection)
+                {
+                    const string sqlInsertLk = @"INSERT INTO Link (OriginUrl, FwToken, Note, IsEnabled, UpdateTimeUtc) 
+                                                 VALUES (@OriginUrl, @FwToken, @Note, @IsEnabled, @UpdateTimeUtc)";
+                    await conn.ExecuteAsync(sqlInsertLk, link);
+                }
+
+                return RedirectToAction("ShowLink", routeValues: token);
+            }
+            return View(model);
+        }
+
+        [Route("show-link")]
+        public async Task<IActionResult> ShowLink(string token)
+        {
+            // TODO: Verify link against db first.
+            return View(token);
+        }
     }
 }
