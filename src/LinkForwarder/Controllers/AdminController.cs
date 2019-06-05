@@ -27,6 +27,7 @@ namespace LinkForwarder.Controllers
         private readonly ITokenGenerator _tokenGenerator;
         private readonly AppSettings _appSettings;
         private readonly IMemoryCache _memoryCache;
+        private readonly ILinkForwarderService _linkForwarderService;
 
         private IDbConnection DbConnection => new SqlConnection(_configuration.GetConnectionString(Constants.DbName));
 
@@ -35,13 +36,15 @@ namespace LinkForwarder.Controllers
             ILogger<AdminController> logger,
             IConfiguration configuration,
             ITokenGenerator tokenGenerator,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            ILinkForwarderService linkForwarderService)
         {
             _appSettings = settings.Value;
             _logger = logger;
             _configuration = configuration;
             _tokenGenerator = tokenGenerator;
             _memoryCache = memoryCache;
+            _linkForwarderService = linkForwarderService;
         }
 
         [Route("")]
@@ -63,23 +66,8 @@ namespace LinkForwarder.Controllers
         [Route("recent-requests")]
         public async Task<IActionResult> RecentRequests()
         {
-            try
-            {
-                using (var conn = DbConnection)
-                {
-                    const string sql = @"SELECT TOP 20 
-                                         l.FwToken, l.OriginUrl, lt.IpAddress, lt.UserAgent, lt.RequestTimeUtc 
-                                         FROM LinkTracking lt
-                                         INNER JOIN Link l on lt.LinkId = l.Id ORDER BY lt.RequestTimeUtc DESC";
-                    var list = await conn.QueryAsync<RecentRequest>(sql);
-                    return Json(list);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
+            var response = await _linkForwarderService.GetRecentRequests(20);
+            return Json(response);
         }
 
         [Route("manage")]

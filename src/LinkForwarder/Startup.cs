@@ -50,6 +50,7 @@ namespace LinkForwarder
             var conn = Configuration.GetConnectionString(Constants.DbName);
             services.AddTransient<IDbConnection>(c => new SqlConnection(conn));
             services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
+            services.AddTransient<ILinkForwarderService, LinkForwarderService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
