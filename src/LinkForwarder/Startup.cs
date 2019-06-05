@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using LinkForwarder.Authentication;
 using LinkForwarder.Models;
 using LinkForwarder.Services;
 using Microsoft.AspNetCore.Builder;
@@ -35,6 +36,10 @@ namespace LinkForwarder
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<AppSettings>(Configuration.GetSection(nameof(AppSettings)));
+
+            var authentication = new AzureAdOption();
+            Configuration.Bind(nameof(Authentication), authentication);
+            services.AddLinkForwarderAuthenticaton(authentication);
 
             var conn = Configuration.GetConnectionString("LinkForwarderDatabase");
             services.AddTransient<IDbConnection>(c => new SqlConnection(conn));
