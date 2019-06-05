@@ -97,7 +97,15 @@ namespace LinkForwarder.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (!model.OriginUrl.IsValidUrl())
+                {
+                    // TODO: [Security] Validate and block localhost URL
+                    ModelState.AddModelError(nameof(model.OriginUrl), "Not a valid URL.");
+                }
+
                 var token = _tokenGenerator.GenerateToken();
+
+                // TODO: validate if token already exist, if so, generate new token.
 
                 var link = new Link
                 {

@@ -1,4 +1,7 @@
 ﻿@model IEnumerable<Link>
+
+<a asp-action="CreateLink" class="btn btn-outline-success">Create Link</a>
+
 <!-- TODO: Use DataTable.net server side paging -->
 
 <table class="table table-bordered">
@@ -9,6 +12,7 @@
             <th>Enabled</th>
             <th>Note</th>
             <th>UpdateTimeUtc</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -29,6 +33,9 @@
                 </td>
                 <td data-utc-time="@item.UpdateTimeUtc">
                     
+                </td>
+                <td>
+                    <!-- todo: edit/delete-->
                 </td>
             </tr>
         }
