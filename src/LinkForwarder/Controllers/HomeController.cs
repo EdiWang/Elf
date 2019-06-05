@@ -10,6 +10,7 @@ using LinkForwarder.Models;
 using LinkForwarder.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace LinkForwarder.Controllers
 {
@@ -19,13 +20,17 @@ namespace LinkForwarder.Controllers
 
         private readonly IDbConnection _dbConnection;
 
-        private ITokenGenerator _tokenGenerator;
+        private readonly ITokenGenerator _tokenGenerator;
+
+        private AppSettings _appSettings;
 
         public HomeController(
+            IOptions<AppSettings> settings,
             IDbConnection dbConnection, 
             ILogger<HomeController> logger, 
             ITokenGenerator tokenGenerator)
         {
+            _appSettings = settings.Value;
             _dbConnection = dbConnection;
             _logger = logger;
             _tokenGenerator = tokenGenerator;
@@ -86,13 +91,14 @@ namespace LinkForwarder.Controllers
                     var link = await _dbConnection.QueryFirstOrDefaultAsync<Link>(sql, new { fwToken = validatedToken });
                     if (null == link)
                     {
-                        // TODO: Forward unknown link to configured default redirection url
+                        return !string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl) ? 
+                                VerifyAndRedirect(_appSettings.DefaultRedirectionUrl) : 
+                                NotFound();
                     }
 
                     // TODO: record user info
 
-                    // TODO: validate OriginUrl format and secure
-                    return Redirect(link.OriginUrl);
+                    return VerifyAndRedirect(link.OriginUrl);
                 }
             }
             catch (Exception e)
@@ -100,6 +106,12 @@ namespace LinkForwarder.Controllers
                 _logger.LogError(e, e.Message);
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
+        }
+
+        private IActionResult VerifyAndRedirect(string url)
+        {
+            // TODO: validate URL format and secure
+            return Redirect(url);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
