@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using LinkForwarder.Models;
 using LinkForwarder.Services;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,11 +16,8 @@ namespace LinkForwarder.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
         private readonly IConfiguration _configuration;
-
         private readonly ITokenGenerator _tokenGenerator;
-
         private readonly AppSettings _appSettings;
 
         private IDbConnection DbConnection => new SqlConnection(_configuration.GetConnectionString("LinkForwarderDatabase"));
@@ -142,15 +135,9 @@ namespace LinkForwarder.Controllers
                 };
 
                 const string sqlInsertLt = @"INSERT INTO LinkTracking (Id, IpAddress, LinkId, RequestTimeUtc, UserAgent) 
-                                         VALUES (@Id, @IpAddress, @LinkId, @RequestTimeUtc, @UserAgent)";
+                                             VALUES (@Id, @IpAddress, @LinkId, @RequestTimeUtc, @UserAgent)";
                 await conn.ExecuteAsync(sqlInsertLt, lt);
             }
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

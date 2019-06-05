@@ -47,15 +47,16 @@ namespace LinkForwarder
         {
             if (env.IsDevelopment())
             {
+                _logger.LogWarning("LinkForwarder is running in DEBUG.");
                 app.UseDeveloperExceptionPage();
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseStatusCodePages();
                 app.UseHsts();
+                app.UseHttpsRedirection();
             }
 
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseMvc(routes =>
