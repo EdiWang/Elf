@@ -35,10 +35,18 @@ namespace LinkForwarder
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDistributedMemoryCache();
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(20);
+                options.Cookie.HttpOnly = true;
+            });
+
+
             services.Configure<AppSettings>(Configuration.GetSection(nameof(AppSettings)));
 
             var authentication = new AzureAdOption();
-            Configuration.Bind(nameof(Authentication), authentication);
+            Configuration.Bind("AzureAd", authentication);
             services.AddLinkForwarderAuthenticaton(authentication);
 
             var conn = Configuration.GetConnectionString("LinkForwarderDatabase");
@@ -63,6 +71,7 @@ namespace LinkForwarder
             }
 
             app.UseStaticFiles();
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {
