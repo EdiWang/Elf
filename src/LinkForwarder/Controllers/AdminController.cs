@@ -8,6 +8,7 @@ using Dapper;
 using LinkForwarder.Models;
 using LinkForwarder.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -56,6 +57,28 @@ namespace LinkForwarder.Controllers
                 _logger.LogError(e, e.Message);
                 ViewBag.ErrorMessage = e.Message;
                 return View("AdminError");
+            }
+        }
+
+        [Route("recent-requests")]
+        public async Task<IActionResult> RecentRequests()
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = @"SELECT TOP 20 
+                                         l.FwToken, l.OriginUrl, lt.IpAddress, lt.UserAgent, lt.RequestTimeUtc 
+                                         FROM LinkTracking lt
+                                         INNER JOIN Link l on lt.LinkId = l.Id ORDER BY lt.RequestTimeUtc DESC";
+                    var list = await conn.QueryAsync<RecentRequest>(sql);
+                    return Json(list);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
 
