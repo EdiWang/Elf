@@ -191,6 +191,24 @@ namespace LinkForwarder.Services
             }
         }
 
+        public async Task<Response> DeleteLink(int linkId)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = "DELETE FROM Link WHERE Id = @linkId";
+                    await conn.ExecuteAsync(sql, new {linkId});
+                    return new SuccessResponse();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse(e.Message);
+            }
+        }
+
         public async Task<Response> TrackSucessRedirectionAsync(string ipAddress, string userAgent, int linkId)
         {
             try

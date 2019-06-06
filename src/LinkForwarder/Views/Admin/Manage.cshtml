@@ -1,8 +1,37 @@
-﻿@model IEnumerable<Link>
+@model IEnumerable<Link>
+@section scripts{
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/js/jquery-utc-time.min.js"></script>
+    <script>
+        // init jquery-utc-time
+        $(this).initUTCTime({
+            daysAgo: ' days ago',
+            hoursAgo: ' hours ago',
+            minutesAgo: ' minutes ago',
+            secondsAgo: ' seconds ago'
+        });
 
-<a asp-action="CreateLink" class="btn btn-outline-success mb-3">Create Link</a>
+        $(function () {
+            $(".table-links").DataTable({
+                "order": [[4, "desc"]],
+                "lengthMenu": [[10, 15, 20, 25, 50, -1], [10, 15, 20, 25, 50, "All"]],
+                "pageLength": 10
+            });
+        });
+    </script>
+}
+@section head{
+    <link href="~/lib/datatables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+}
 
-<!-- TODO: Use DataTable.net server side paging -->
+<a asp-action="CreateLink" class="btn btn-success">
+    Create Link
+</a>
+
+<hr />
+
+<!-- TODO: Use server side paging -->
 
 <style>
     table {
@@ -13,11 +42,11 @@
         word-wrap: break-word;
     }
 </style>
-<table class="table table-sm table-bordered">
+<table class="table table-bordered table-links">
     <thead>
         <tr>
             <th>Token</th>
-            <th style="width: 50%;">Origin Url</th>
+            <th style="width: 40%;">Origin Url</th>
             <th>Enabled</th>
             <th>Note</th>
             <th>Update Time</th>
@@ -35,30 +64,19 @@
                     <a href="@item.OriginUrl" target="_blank">@item.OriginUrl</a>
                 </td>
                 <td>
-                    @item.IsEnabled
+                    @(item.IsEnabled ? "✔" : "❌")
                 </td>
                 <td>
                     @item.Note
                 </td>
-                <td data-utc-time="@item.UpdateTimeUtc"></td>
+                <td data-utc-time="@item.UpdateTimeUtc" data-sort="@item.UpdateTimeUtc.ToString("yyyyMMddHHmmss")"></td>
                 <td>
                     <a asp-action="ShowLink" asp-route-token="@item.FwToken" class="btn btn-sm btn-outline-success">Share</a>
                     <!-- todo: edit/delete-->
+                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger">Delete</button>
                 </td>
             </tr>
         }
     </tbody>
 </table>
-
-@section scripts{
-    <script src="https://ui.cdn.aiursoft.com/node_modules/jquery-utc-time/dist/jquery-utc-time.min.js"></script>
-    <script>
-        // init jquery-utc-time
-        $(this).initUTCTime({
-            daysAgo: ' days ago',
-            hoursAgo: ' hours ago',
-            minutesAgo: ' minutes ago',
-            secondsAgo: ' seconds ago'
-        });
-    </script>
-}

@@ -14,5 +14,6 @@ namespace LinkForwarder.Services
         Task<Response<string>> CreateLinkAsync(string originUrl, string note, bool isEnabled);
         Task<Response<int>> CountLinksAsync();
         Task<Response<Link>> GetLinkAsync(string token);
+        Task<Response> DeleteLink(int linkId);
     }
 }

@@ -12,6 +12,7 @@
     <link href="~/lib/twitter-bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link href="~/css/site.min.css" rel="stylesheet" />
+    @RenderSection("head", required: false)
 </head>
 <body>
     <header>
@@ -42,11 +43,11 @@
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container-fluid">
+        <div class="small container-fluid">
             &copy; @DateTime.UtcNow.Year - <a href="https://github.com/EdiWang/LinkForwarder" target="_blank">Link Forwarder</a>
         </div>
     </footer>
 
-    @RenderSection("Scripts", required: false)
+    @RenderSection("scripts", required: false)
 </body>
 </html>

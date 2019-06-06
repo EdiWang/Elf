@@ -118,5 +118,12 @@ namespace LinkForwarder.Controllers
             Response.StatusCode = StatusCodes.Status500InternalServerError;
             return View("AdminError");
         }
+
+        [Route("delete")]
+        public async Task<IActionResult> DeleteLink(int linkId)
+        {
+            var response = await _linkForwarderService.DeleteLink(linkId);
+            return Json(response);
+        }
     }
 }
