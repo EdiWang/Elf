@@ -16,13 +16,18 @@ namespace LinkForwarder.Services
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<LinkForwarderService> _logger;
+        private readonly ITokenGenerator _tokenGenerator;
 
         private IDbConnection DbConnection => new SqlConnection(_configuration.GetConnectionString(Constants.DbName));
 
-        public LinkForwarderService(IConfiguration configuration, ILogger<LinkForwarderService> logger)
+        public LinkForwarderService(
+            IConfiguration configuration,
+            ILogger<LinkForwarderService> logger,
+            ITokenGenerator tokenGenerator)
         {
             _configuration = configuration;
             _logger = logger;
+            _tokenGenerator = tokenGenerator;
         }
 
         public async Task<Response<IReadOnlyList<RecentRequest>>> GetRecentRequestsAsync(int top)
@@ -90,6 +95,56 @@ namespace LinkForwarder.Services
             {
                 _logger.LogError(e, e.Message);
                 return new FailedResponse<IReadOnlyList<Link>>(e.Message);
+            }
+        }
+
+        public async Task<Response<string>> CreateLinkAsync(string originUrl, string note, bool isEnabled)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sqlLinkExist = "SELECT TOP 1 FwToken FROM Link l WHERE l.OriginUrl = @originUrl";
+                    var tempToken = await conn.ExecuteScalarAsync<string>(sqlLinkExist, new { originUrl });
+                    if (null != tempToken)
+                    {
+                        if (_tokenGenerator.TryParseToken(tempToken, out var tk))
+                        {
+                            _logger.LogInformation($"Link already exists for token '{tk}'");
+                            return new SuccessResponse<string>(tk);
+                        }
+
+                        string message = $"Invalid token '{tempToken}' found for existing url '{originUrl}'";
+                        _logger.LogError(message);
+                    }
+
+                    const string sqlTokenExist = "SELECT TOP 1 1 FROM Link l WHERE l.FwToken = @token";
+                    string token;
+                    do
+                    {
+                        token = _tokenGenerator.GenerateToken();
+                    } while (await conn.ExecuteScalarAsync<int>(sqlTokenExist, new { token }) == 1);
+
+                    _logger.LogInformation($"Generated Token '{token}' for url '{originUrl}'");
+
+                    var link = new Link
+                    {
+                        FwToken = token,
+                        IsEnabled = isEnabled,
+                        Note = note,
+                        OriginUrl = originUrl,
+                        UpdateTimeUtc = DateTime.UtcNow
+                    };
+                    const string sqlInsertLk = @"INSERT INTO Link (OriginUrl, FwToken, Note, IsEnabled, UpdateTimeUtc) 
+                                                 VALUES (@OriginUrl, @FwToken, @Note, @IsEnabled, @UpdateTimeUtc)";
+                    await conn.ExecuteAsync(sqlInsertLk, link);
+                    return new SuccessResponse<string>(link.FwToken);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<string>(e.Message);
             }
         }
 
