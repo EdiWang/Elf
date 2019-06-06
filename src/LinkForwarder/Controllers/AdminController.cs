@@ -72,6 +72,7 @@ namespace LinkForwarder.Controllers
         }
 
         [HttpPost("signin")]
+        [ValidateAntiForgeryToken]
         [AllowAnonymous]
         public async Task<IActionResult> SignIn(SignInViewModel model)
         {
