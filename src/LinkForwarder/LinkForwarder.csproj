@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <Authors>Edi Wang</Authors>
@@ -10,22 +9,15 @@
 
   <ItemGroup>
     <None Remove="Data\schema-mssql-140.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Data\schema-mssql-140.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <Folder Include="wwwroot\lib\" />
+    <None Include="bundleconfig.json" />
     <Content Update="nlog.config" CopyToOutputDirectory="Always" />
-    <Content Update="nlog.debug.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Update="nlog.debug.config" CopyToOutputDirectory="Always" />
     <Content Update="libman.json" CopyToPublishDirectory="Never" />
     <Content Update="bundleconfig.json" CopyToPublishDirectory="Never" />
     <Content Include="urlrewrite.xml" CopyToOutputDirectory="Always" />
   </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="2.9.406" />
@@ -39,16 +31,4 @@
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.2" />
     <PackageReference Include="NLog" Version="4.6.4" />
   </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="wwwroot\lib\" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <None Include="bundleconfig.json" />
-    <None Include="wwwroot\js\jquery-utc-time.min.js" />
-  </ItemGroup>
-
 </Project>
