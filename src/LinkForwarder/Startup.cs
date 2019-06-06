@@ -43,8 +43,8 @@ namespace LinkForwarder
 
             services.Configure<AppSettings>(Configuration.GetSection(nameof(AppSettings)));
 
-            var authentication = new AzureAdOption();
-            Configuration.Bind("AzureAd", authentication);
+            var authentication = new AuthenticationSettings();
+            Configuration.Bind(nameof(Authentication), authentication);
             services.AddLinkForwarderAuthenticaton(authentication);
 
             var conn = Configuration.GetConnectionString(Constants.DbName);

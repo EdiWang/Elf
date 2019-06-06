@@ -32,7 +32,7 @@ namespace LinkForwarder
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Error starting moonglade :(");
+                logger.Error(ex, "Error starting LinkForwarder :(");
                 throw;
             }
             finally

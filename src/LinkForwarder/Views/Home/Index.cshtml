@@ -1,0 +1,28 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Link Forwarder</title>
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/popper.js/umd/popper.min.js"></script>
+    <script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
+    <link href="~/lib/twitter-bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/site.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container-fluid">
+        <a asp-action="Index" asp-controller="Admin" class="btn btn-sm btn-outline-success">Sign In</a> to create links.
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="small container-fluid">
+            &copy; @DateTime.UtcNow.Year - <a href="https://github.com/EdiWang/LinkForwarder" target="_blank">Link Forwarder</a>
+        </div>
+    </footer>
+</body>
+</html>
