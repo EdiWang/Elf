@@ -33,21 +33,9 @@ namespace LinkForwarder.Controllers
             _linkVerifier = linkVerifier;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var countResponse = await _linkForwarderService.CountLinksAsync();
-            if (countResponse.IsSuccess)
-            {
-                var obj = new
-                {
-                    Server = Environment.MachineName,
-                    Product = $"Link Forwarder Build {Utils.AppVersion}",
-                    LinkCount = countResponse.Item
-                };
-                return Json(obj);
-            }
-
-            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            return View();
         }
 
         [Route("fw/{token}")]

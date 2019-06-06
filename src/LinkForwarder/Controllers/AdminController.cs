@@ -35,8 +35,11 @@ namespace LinkForwarder.Controllers
         }
 
         [Route("")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var countResponse = await _linkForwarderService.CountLinksAsync();
+            ViewBag.LinkCount = countResponse.Item;
+
             // TODO: make dashboard
             return View();
         }
