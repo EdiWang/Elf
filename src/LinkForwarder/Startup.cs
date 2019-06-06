@@ -51,7 +51,7 @@ namespace LinkForwarder
             services.AddTransient<IDbConnection>(c => new SqlConnection(conn));
             services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
             services.AddTransient<ILinkForwarderService, LinkForwarderService>();
-
+            services.AddTransient<ILinkVerifier, LinkVerifier>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
