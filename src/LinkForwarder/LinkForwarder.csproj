@@ -48,6 +48,7 @@
 
   <ItemGroup>
     <None Include="bundleconfig.json" />
+    <None Include="wwwroot\js\jquery-utc-time.min.js" />
   </ItemGroup>
 
 </Project>
