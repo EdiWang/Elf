@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,25 +8,46 @@ namespace LinkForwarder.Authentication
 {
     public static class AuthenticationServiceCollectionExtensions
     {
-        public static void AddLinkForwarderAuthenticaton(this IServiceCollection services, AzureAdOption aadOption)
+        public static void AddLinkForwarderAuthenticaton(this IServiceCollection services, AuthenticationSettings authenticationSettings)
         {
-            services.Configure<AzureAdOption>(option =>
-            {
-                option.CallbackPath = aadOption.CallbackPath;
-                option.ClientId = aadOption.ClientId;
-                option.Domain = aadOption.Domain;
-                option.Instance = aadOption.Instance;
-                option.TenantId = aadOption.TenantId;
-            }).AddSingleton<IConfigureOptions<OpenIdConnectOptions>, ConfigureAzureOptions>();
+            AppDomain.CurrentDomain.SetData(nameof(AuthenticationSettings), authenticationSettings);
 
-            services.AddAuthentication(sharedOptions =>
+            switch (authenticationSettings.Provider)
             {
-                sharedOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                sharedOptions.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-            }).AddOpenIdConnect().AddCookie();
+                case AuthenticationProvider.AzureAD:
+                    services.Configure<AzureAdOption>(option =>
+                    {
+                        option.CallbackPath = authenticationSettings.AzureAd.CallbackPath;
+                        option.ClientId = authenticationSettings.AzureAd.ClientId;
+                        option.Domain = authenticationSettings.AzureAd.Domain;
+                        option.Instance = authenticationSettings.AzureAd.Instance;
+                        option.TenantId = authenticationSettings.AzureAd.TenantId;
+                    }).AddSingleton<IConfigureOptions<OpenIdConnectOptions>, ConfigureAzureOptions>();
+
+                    services.AddAuthentication(sharedOptions =>
+                    {
+                        sharedOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        sharedOptions.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                    }).AddOpenIdConnect().AddCookie();
+
+                    break;
+                case AuthenticationProvider.Local:
+                    services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+                            {
+                                options.AccessDeniedPath = "/admin/accessdenied";
+                                options.LoginPath = "/admin/signin";
+                                options.LogoutPath = "/admin/signout";
+                            });
+
+                    break;
+                default:
+                    var msg = $"Provider {authenticationSettings.Provider} is not supported.";
+                    throw new NotSupportedException(msg);
+            }
         }
 
-        private class ConfigureAzureOptions : IConfigureNamedOptions<OpenIdConnectOptions>
+        private class ConfigureAzureOptions: IConfigureNamedOptions<OpenIdConnectOptions>
         {
             private readonly AzureAdOption _azureOptions;
 

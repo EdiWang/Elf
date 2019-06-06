@@ -29,7 +29,7 @@ Create an [SQL Server 2017 LocalDB](https://docs.microsoft.com/en-us/sql/databas
 
 #### 2. Set Connection String
 
-Update the connection string "**MoongladeDatabase**" in **appsettings.[env].json** according to your database configuration.
+Update the connection string "**LinkForwarderDatabase**" in **appsettings.[env].json** according to your database configuration.
 
 Example:
 ```json
