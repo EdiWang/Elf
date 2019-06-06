@@ -25,6 +25,7 @@ namespace LinkForwarder.Controllers
         private readonly AppSettings _appSettings;
         private readonly IMemoryCache _memoryCache;
         private readonly ILinkForwarderService _linkForwarderService;
+        private readonly ILinkVerifier _linkVerifier;
 
         private IDbConnection DbConnection => new SqlConnection(_configuration.GetConnectionString(Constants.DbName));
 
@@ -34,7 +35,8 @@ namespace LinkForwarder.Controllers
             IConfiguration configuration,
             ITokenGenerator tokenGenerator,
             IMemoryCache memoryCache,
-            ILinkForwarderService linkForwarderService)
+            ILinkForwarderService linkForwarderService,
+            ILinkVerifier linkVerifier)
         {
             _appSettings = settings.Value;
             _logger = logger;
@@ -42,6 +44,7 @@ namespace LinkForwarder.Controllers
             _tokenGenerator = tokenGenerator;
             _memoryCache = memoryCache;
             _linkForwarderService = linkForwarderService;
+            _linkVerifier = linkVerifier;
         }
 
         [Route("")]
@@ -84,26 +87,18 @@ namespace LinkForwarder.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (!model.OriginUrl.IsValidUrl())
+                var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request);
+                switch (verifyResult)
                 {
-                    ModelState.AddModelError(nameof(model.OriginUrl), "Not a valid URL.");
-                    return View(model);
-                }
-
-                if (Url.IsLocalUrl(model.OriginUrl))
-                {
-                    ModelState.AddModelError(nameof(model.OriginUrl), "Can not use local URL.");
-                    return View(model);
-                }
-
-                if (Uri.TryCreate(model.OriginUrl, UriKind.Absolute, out Uri testUri))
-                {
-                    if (string.Compare(testUri.Authority, HttpContext.Request.Host.ToString(), StringComparison.OrdinalIgnoreCase) == 0
-                        && string.Compare(testUri.Scheme, HttpContext.Request.Scheme, StringComparison.OrdinalIgnoreCase) == 0)
-                    {
+                    case LinkVerifyResult.InvalidFormat:
+                        ModelState.AddModelError(nameof(model.OriginUrl), "Not a valid URL.");
+                        return View(model);
+                    case LinkVerifyResult.InvalidLocal:
+                        ModelState.AddModelError(nameof(model.OriginUrl), "Can not use local URL.");
+                        return View(model);
+                    case LinkVerifyResult.InvalidSelfReference:
                         ModelState.AddModelError(nameof(model.OriginUrl), "Can not use url pointing to this site.");
                         return View(model);
-                    }
                 }
 
                 string token;
