@@ -149,10 +149,10 @@ namespace LinkForwarder.Controllers
 
         #region Management
 
-        [Route("manage")]
-        public async Task<IActionResult> Manage()
+        [Route("manage/page/{page}")]
+        public async Task<IActionResult> Manage(int page = 1)
         {
-            var response = await _linkForwarderService.GetPagedLinksAsync(0, 0, 0);
+            var response = await _linkForwarderService.GetPagedLinksAsync(page, 10);
             if (response.IsSuccess)
             {
                 return View(response.Item);

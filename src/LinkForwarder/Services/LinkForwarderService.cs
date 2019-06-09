@@ -70,9 +70,19 @@ namespace LinkForwarder.Services
             }
         }
 
-        // TODO: Paging
-        public async Task<Response<IReadOnlyList<Link>>> GetPagedLinksAsync(int pageIndex, int pageSize, int take)
+        public async Task<Response<IReadOnlyList<Link>>> GetPagedLinksAsync(int pageIndex, int pageSize)
         {
+            if (pageSize < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageSize),
+                    $"{nameof(pageSize)} can not be less than 1, current value: {pageSize}.");
+            }
+            if (pageIndex < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageIndex),
+                    $"{nameof(pageIndex)} can not be less than 1, current value: {pageIndex}.");
+            }
+
             try
             {
                 using (var conn = DbConnection)
@@ -85,9 +95,11 @@ namespace LinkForwarder.Services
                                          l.IsEnabled,
                                          l.UpdateTimeUtc
                                          FROM Link l 
-                                         ORDER BY UpdateTimeUtc DESC";
+                                         ORDER BY UpdateTimeUtc DESC 
+                                         OFFSET (@pageIndex - 1) * @pageSize ROWS 
+                                         FETCH NEXT @pageSize ROWS ONLY";
 
-                    var list = await conn.QueryAsync<Link>(sql);
+                    var list = await conn.QueryAsync<Link>(sql, new { pageIndex, pageSize });
                     return new SuccessResponse<IReadOnlyList<Link>>(list.ToList());
                 }
             }

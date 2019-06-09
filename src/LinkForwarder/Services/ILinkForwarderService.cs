@@ -8,7 +8,7 @@ namespace LinkForwarder.Services
     public interface ILinkForwarderService
     {
         Task<Response<IReadOnlyList<RecentRequest>>> GetRecentRequestsAsync(int top);
-        Task<Response<IReadOnlyList<Link>>> GetPagedLinksAsync(int pageIndex, int pageSize, int take);
+        Task<Response<IReadOnlyList<Link>>> GetPagedLinksAsync(int pageIndex, int pageSize);
         Task<Response<bool>> IsLinkExistsAsync(string token);
         Task<Response> TrackSucessRedirectionAsync(string ipAddress, string userAgent, int linkId);
         Task<Response<IReadOnlyList<LinkTracking>>> GetTrackingRecords(int linkId, int top = 100);
