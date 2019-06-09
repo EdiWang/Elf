@@ -149,17 +149,34 @@ namespace LinkForwarder.Controllers
 
         #region Management
 
-        [Route("manage/page/{page}")]
-        public async Task<IActionResult> Manage(int page = 1)
+        [HttpPost]
+        [Route("recent-requests")]
+        public async Task<IActionResult> RecentRequests()
         {
-            var response = await _linkForwarderService.GetPagedLinksAsync(page, 10);
+            var response = await _linkForwarderService.GetRecentRequestsAsync(20);
             if (response.IsSuccess)
             {
-                return View(response.Item);
+                return Json(new { data = response.Item });
             }
-            ViewBag.ErrorMessage = response.Message;
-            Response.StatusCode = StatusCodes.Status500InternalServerError;
-            return View("AdminError");
+            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        }
+
+        [Route("manage")]
+        public IActionResult Manage()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Route("list")]
+        public async Task<IActionResult> List()
+        {
+            var response = await _linkForwarderService.GetPagedLinksAsync(1, 10);
+            if (response.IsSuccess)
+            {
+                return Json(new { data = response.Item });
+            }
+            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
 
         [Route("create")]

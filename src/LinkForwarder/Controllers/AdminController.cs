@@ -146,20 +146,9 @@ namespace LinkForwarder.Controllers
         #endregion
 
         [Route("")]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var countResponse = await _linkForwarderService.CountLinksAsync();
-            ViewBag.LinkCount = countResponse.Item;
-
-            // TODO: make dashboard
-            return View();
-        }
-
-        [Route("recent-requests")]
-        public async Task<IActionResult> RecentRequests()
-        {
-            var response = await _linkForwarderService.GetRecentRequestsAsync(20);
-            return Json(response);
+            return RedirectToAction("Manage", "Link");
         }
     }
 }
