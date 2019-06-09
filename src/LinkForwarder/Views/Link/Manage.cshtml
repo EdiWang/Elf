@@ -55,17 +55,17 @@
                     "targets": 4,
                     "data": "updateTimeUtc",
                     "render": function (data, type, row, meta) {
-                        return '<span data-utc-time="' + data + '">' + data + '</span>';
+                        return '<span data-utc-time="' + data + '"></span>';
                     }
                 }]
             });
 
-            //$(this).initUTCTime({
-            //    daysAgo: ' days ago',
-            //    hoursAgo: ' hours ago',
-            //    minutesAgo: ' minutes ago',
-            //    secondsAgo: ' seconds ago'
-            //});
+            $(this).initUTCTime({
+                daysAgo: ' days ago',
+                hoursAgo: ' hours ago',
+                minutesAgo: ' minutes ago',
+                secondsAgo: ' seconds ago'
+            });
 
             $('.table-links tbody').on('click', 'button', function () {
                 var data = table.row($(this).parents('tr')).data();
