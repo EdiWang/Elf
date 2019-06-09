@@ -175,7 +175,7 @@ namespace LinkForwarder.Services
                     const string sqlUpdate = @"UPDATE Link SET 
                                                OriginUrl = @OriginUrl,
                                                Note = @Note,
-                                               IsEnabled = @IsEnabled,
+                                               IsEnabled = @IsEnabled
                                                WHERE Id = @Id";
                     await conn.ExecuteAsync(sqlUpdate, link);
                     return new SuccessResponse<string>(link.FwToken);

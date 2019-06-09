@@ -10,7 +10,7 @@ namespace LinkForwarder.Models
     public class LinkEditModel
     {
         [HiddenInput]
-        public int Id { get; }
+        public int Id { get; set; }
 
         [Required]
         [MinLength(1)]
@@ -20,7 +20,7 @@ namespace LinkForwarder.Models
         public string OriginUrl { get; set; }
 
         [Display(Name = "Forward Token")]
-        public string FwToken { get; }
+        public string FwToken { get; set; }
 
         [Display(Name = "Note")]
         public string Note { get; set; }

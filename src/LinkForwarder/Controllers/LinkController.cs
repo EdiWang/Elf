@@ -77,7 +77,7 @@ namespace LinkForwarder.Controllers
 
                         if (!link.IsEnabled)
                         {
-                            return Forbid();
+                            return BadRequest("This link is disabled.");
                         }
 
                         var verifyOriginUrl = _linkVerifier.Verify(link.OriginUrl, Url, Request);
