@@ -39,6 +39,7 @@ namespace LinkForwarder.Controllers
             _cache = cache;
         }
 
+        [AllowAnonymous]
         [Route(""), Route("/")]
         public IActionResult Index()
         {
