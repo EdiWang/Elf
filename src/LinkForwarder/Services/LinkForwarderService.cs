@@ -148,6 +148,46 @@ namespace LinkForwarder.Services
             }
         }
 
+        public async Task<Response<string>> EditLinkAsync(int linkId, string newUrl, string note, bool isEnabled)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sqlFindLink = @"SELECT TOP 1 
+                                                 l.Id,
+                                                 l.OriginUrl,
+                                                 l.FwToken,
+                                                 l.Note,
+                                                 l.IsEnabled,
+                                                 l.UpdateTimeUtc
+                                                 FROM Link l WHERE l.Id = @id";
+                    var link = await conn.QueryFirstOrDefaultAsync<Link>(sqlFindLink, new { id = linkId });
+                    if (null == link)
+                    {
+                        return new FailedResponse<string>($"Link with id '{linkId}' does not exist.");
+                    }
+
+                    link.OriginUrl = newUrl;
+                    link.Note = note;
+                    link.IsEnabled = isEnabled;
+
+                    const string sqlUpdate = @"UPDATE Link SET 
+                                               OriginUrl = @OriginUrl,
+                                               Note = @Note,
+                                               IsEnabled = @IsEnabled,
+                                               WHERE Id = @Id";
+                    await conn.ExecuteAsync(sqlUpdate, link);
+                    return new SuccessResponse<string>(link.FwToken);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<string>(e.Message);
+            }
+        }
+
         public async Task<Response<int>> CountLinksAsync()
         {
             try
@@ -162,6 +202,32 @@ namespace LinkForwarder.Services
             {
                 _logger.LogError(e, e.Message);
                 return new FailedResponse<int>(e.Message);
+            }
+        }
+
+        public async Task<Response<Link>> GetLinkAsync(int id)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = @"SELECT TOP 1 
+                                         l.Id,
+                                         l.OriginUrl,
+                                         l.FwToken,
+                                         l.Note,
+                                         l.IsEnabled,
+                                         l.UpdateTimeUtc
+                                         FROM Link l
+                                         WHERE l.Id = @id";
+                    var link = await conn.QueryFirstOrDefaultAsync<Link>(sql, new { id });
+                    return new SuccessResponse<Link>(link);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<Link>(e.Message);
             }
         }
 
@@ -198,7 +264,7 @@ namespace LinkForwarder.Services
                 using (var conn = DbConnection)
                 {
                     const string sql = "DELETE FROM Link WHERE Id = @linkId";
-                    await conn.ExecuteAsync(sql, new {linkId});
+                    await conn.ExecuteAsync(sql, new { linkId });
                     return new SuccessResponse();
                 }
             }
@@ -236,5 +302,6 @@ namespace LinkForwarder.Services
                 return new FailedResponse(e.Message);
             }
         }
+
     }
 }

@@ -25,7 +25,7 @@
     <link href="~/lib/datatables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
 }
 
-<a asp-action="CreateLink" class="btn btn-success">
+<a asp-action="Create" asp-controller="Link" class="btn btn-success">
     Create Link
 </a>
 
@@ -71,9 +71,8 @@
                 </td>
                 <td data-utc-time="@item.UpdateTimeUtc" data-sort="@item.UpdateTimeUtc.ToString("yyyyMMddHHmmss")"></td>
                 <td>
-                    <a asp-action="ShowLink" asp-route-token="@item.FwToken" class="btn btn-sm btn-outline-success">Share</a>
-                    <!-- todo: edit/delete-->
-                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                    <a asp-action="ShowLink" asp-controller="Link" asp-route-token="@item.FwToken" class="btn btn-sm btn-outline-success">Share</a>
+                    <a asp-action="Edit" asp-controller="Link" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
                     <button class="btn btn-sm btn-outline-danger">Delete</button>
                 </td>
             </tr>

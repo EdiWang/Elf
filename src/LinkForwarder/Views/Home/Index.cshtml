@@ -16,13 +16,16 @@
 </head>
 <body>
     <div class="container-fluid">
-        <a asp-action="Index" asp-controller="Admin" class="btn btn-sm btn-outline-success">Sign In</a> to create links.
+        <div class="row justify-content-md-center">
+            <div class="col-md-4">
+                <img src="~/images/segoe-mdl2-share.svg" />
+                <a asp-action="Index" asp-controller="Admin" class="btn btn-sm btn-outline-success">Sign In</a> to create links.
+            </div>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="small container-fluid">
-            &copy; @DateTime.UtcNow.Year - <a href="https://github.com/EdiWang/LinkForwarder" target="_blank">Link Forwarder</a>
-        </div>
-    </footer>
+    <div class="small">
+        &copy; @DateTime.UtcNow.Year - <a href="https://github.com/EdiWang/LinkForwarder" target="_blank">Link Forwarder</a>
+    </div>
 </body>
 </html>

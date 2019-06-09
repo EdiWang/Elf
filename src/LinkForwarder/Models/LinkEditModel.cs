@@ -10,7 +10,7 @@ namespace LinkForwarder.Models
     public class LinkEditModel
     {
         [HiddenInput]
-        public int Id { get;}
+        public int Id { get; }
 
         [Required]
         [MinLength(1)]
@@ -31,7 +31,7 @@ namespace LinkForwarder.Models
 
         public LinkEditModel()
         {
-            
+
         }
 
         public LinkEditModel(int id, string fwToken)
