@@ -23,7 +23,6 @@ namespace LinkForwarder.Controllers
         private readonly ILinkVerifier _linkVerifier;
         private readonly IMemoryCache _cache;
 
-
         public LinkController(
             IOptions<AppSettings> settings,
             ILogger<LinkController> logger,
@@ -38,6 +37,12 @@ namespace LinkForwarder.Controllers
             _linkForwarderService = linkForwarderService;
             _linkVerifier = linkVerifier;
             _cache = cache;
+        }
+
+        [Route(""), Route("/")]
+        public IActionResult Index()
+        {
+            return Content("LinkForwarder Version: " + Utils.AppVersion);
         }
 
         [AllowAnonymous]
