@@ -1,4 +1,22 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿var csrfFieldName = "CSRF-TOKEN-LFWDR-FORM";
+function makeCSRFExtendedData(data) {
+    var options = {};
+    options[csrfFieldName] = $("input[name=" + csrfFieldName + "]").val();
+    var extData = $.extend(data, options);
+    return extData;
+}
 
-// Write your JavaScript code.
+function ajaxPostWithCSRFToken(url, pData, funcSuccess) {
+    var options = {
+        type: "POST",
+        url: url,
+        headers: {},
+        data: makeCSRFExtendedData(pData),
+        success: function (data) {
+            funcSuccess(data);
+        },
+        dataType: "json"
+    };
+    options.headers[csrfFieldName] = $("input[name=" + csrfFieldName + "]").val();
+    $.ajax(options);
+}

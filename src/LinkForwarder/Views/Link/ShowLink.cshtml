@@ -1,6 +1,6 @@
 ﻿@model ShowLinkViewModel
 @{
-    var actionLink = Url.Action("Forward", "Home", new { token = Model.Token });
+    var actionLink = Url.Action("Forward", "Link", new { token = Model.Token });
     var url = $"{Context.Request.Scheme}://{Context.Request.Host}{actionLink}";
 }
 @section scripts{

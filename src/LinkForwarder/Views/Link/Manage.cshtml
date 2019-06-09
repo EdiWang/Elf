@@ -1,0 +1,101 @@
+@model IEnumerable<Link>
+@section scripts{
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/js/jquery-utc-time.min.js"></script>
+    <script>
+        // init jquery-utc-time
+        $(this).initUTCTime({
+            daysAgo: ' days ago',
+            hoursAgo: ' hours ago',
+            minutesAgo: ' minutes ago',
+            secondsAgo: ' seconds ago'
+        });
+
+        $(function () {
+            $(".table-links").DataTable({
+                "order": [[4, "desc"]],
+                "lengthMenu": [[10, 15, 20, 25, 50, -1], [10, 15, 20, 25, 50, "All"]],
+                "pageLength": 10
+            });
+        });
+
+        $(function () {
+            $(".btn-delete").click(function () {
+                var cfm = confirm("Delete Confirmation?");
+                if (cfm) {
+                    deleteLink($(this).data("linkid"));
+                }
+            });
+        });
+
+        function deleteLink(linkId) {
+            ajaxPostWithCSRFToken("delete", { linkId: linkId }, function (data) {
+                $("#link-row-" + linkId).hide();
+            });
+        }
+    </script>
+}
+@section head{
+    <link href="~/lib/datatables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+}
+
+<a asp-action="Create" asp-controller="Link" class="btn btn-success">
+    Create Link
+</a>
+
+<hr />
+
+<!-- TODO: Use server side paging -->
+
+<style>
+    table {
+        table-layout: fixed;
+    }
+
+    .wordwrap {
+        word-wrap: break-word;
+    }
+</style>
+
+@if (Model.Any())
+{
+    @Html.AntiForgeryToken()
+    <table class="table table-bordered table-links">
+        <thead>
+            <tr>
+                <th>Token</th>
+                <th style="width: 40%;">Origin Url</th>
+                <th>Enabled</th>
+                <th>Note</th>
+                <th>Update Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr id="link-row-@item.Id">
+                    <td>
+                        <a href="@Url.Action("Forward", "Link", new { token = item.FwToken })" target="_blank">@item.FwToken</a>
+                    </td>
+                    <td class="wordwrap">
+                        <a href="@item.OriginUrl" target="_blank">@item.OriginUrl</a>
+                    </td>
+                    <td>
+                        @(item.IsEnabled ? "✔" : "❌")
+                    </td>
+                    <td>
+                        @item.Note
+                    </td>
+                    <td data-utc-time="@item.UpdateTimeUtc" data-sort="@item.UpdateTimeUtc.ToString("yyyyMMddHHmmss")"></td>
+                    <td>
+                        <a asp-action="ShowLink" asp-controller="Link" asp-route-token="@item.FwToken" class="btn btn-sm btn-outline-success">Share</a>
+                        <a asp-action="Edit" asp-controller="Link" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <button class="btn btn-sm btn-outline-danger btn-delete" data-linkid="@item.Id">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

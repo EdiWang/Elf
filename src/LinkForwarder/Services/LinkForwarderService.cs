@@ -70,9 +70,19 @@ namespace LinkForwarder.Services
             }
         }
 
-        // TODO: Paging
-        public async Task<Response<IReadOnlyList<Link>>> GetPagedLinksAsync(int pageIndex, int pageSize, int take)
+        public async Task<Response<IReadOnlyList<Link>>> GetPagedLinksAsync(int pageIndex, int pageSize)
         {
+            if (pageSize < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageSize),
+                    $"{nameof(pageSize)} can not be less than 1, current value: {pageSize}.");
+            }
+            if (pageIndex < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pageIndex),
+                    $"{nameof(pageIndex)} can not be less than 1, current value: {pageIndex}.");
+            }
+
             try
             {
                 using (var conn = DbConnection)
@@ -85,9 +95,11 @@ namespace LinkForwarder.Services
                                          l.IsEnabled,
                                          l.UpdateTimeUtc
                                          FROM Link l 
-                                         ORDER BY UpdateTimeUtc DESC";
+                                         ORDER BY UpdateTimeUtc DESC 
+                                         OFFSET (@pageIndex - 1) * @pageSize ROWS 
+                                         FETCH NEXT @pageSize ROWS ONLY";
 
-                    var list = await conn.QueryAsync<Link>(sql);
+                    var list = await conn.QueryAsync<Link>(sql, new { pageIndex, pageSize });
                     return new SuccessResponse<IReadOnlyList<Link>>(list.ToList());
                 }
             }
@@ -148,6 +160,46 @@ namespace LinkForwarder.Services
             }
         }
 
+        public async Task<Response<string>> EditLinkAsync(int linkId, string newUrl, string note, bool isEnabled)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sqlFindLink = @"SELECT TOP 1 
+                                                 l.Id,
+                                                 l.OriginUrl,
+                                                 l.FwToken,
+                                                 l.Note,
+                                                 l.IsEnabled,
+                                                 l.UpdateTimeUtc
+                                                 FROM Link l WHERE l.Id = @id";
+                    var link = await conn.QueryFirstOrDefaultAsync<Link>(sqlFindLink, new { id = linkId });
+                    if (null == link)
+                    {
+                        return new FailedResponse<string>($"Link with id '{linkId}' does not exist.");
+                    }
+
+                    link.OriginUrl = newUrl;
+                    link.Note = note;
+                    link.IsEnabled = isEnabled;
+
+                    const string sqlUpdate = @"UPDATE Link SET 
+                                               OriginUrl = @OriginUrl,
+                                               Note = @Note,
+                                               IsEnabled = @IsEnabled
+                                               WHERE Id = @Id";
+                    await conn.ExecuteAsync(sqlUpdate, link);
+                    return new SuccessResponse<string>(link.FwToken);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<string>(e.Message);
+            }
+        }
+
         public async Task<Response<int>> CountLinksAsync()
         {
             try
@@ -162,6 +214,32 @@ namespace LinkForwarder.Services
             {
                 _logger.LogError(e, e.Message);
                 return new FailedResponse<int>(e.Message);
+            }
+        }
+
+        public async Task<Response<Link>> GetLinkAsync(int id)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = @"SELECT TOP 1 
+                                         l.Id,
+                                         l.OriginUrl,
+                                         l.FwToken,
+                                         l.Note,
+                                         l.IsEnabled,
+                                         l.UpdateTimeUtc
+                                         FROM Link l
+                                         WHERE l.Id = @id";
+                    var link = await conn.QueryFirstOrDefaultAsync<Link>(sql, new { id });
+                    return new SuccessResponse<Link>(link);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<Link>(e.Message);
             }
         }
 
@@ -198,7 +276,7 @@ namespace LinkForwarder.Services
                 using (var conn = DbConnection)
                 {
                     const string sql = "DELETE FROM Link WHERE Id = @linkId";
-                    await conn.ExecuteAsync(sql, new {linkId});
+                    await conn.ExecuteAsync(sql, new { linkId });
                     return new SuccessResponse();
                 }
             }
@@ -234,6 +312,45 @@ namespace LinkForwarder.Services
             {
                 _logger.LogError(e, e.Message);
                 return new FailedResponse(e.Message);
+            }
+        }
+
+        public async Task<Response<IReadOnlyList<LinkTracking>>> GetTrackingRecords(int linkId, int top = 100)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = @"SELECT TOP (@top)
+                                         lt.Id, lt.LinkId, lt.UserAgent, lt.IpAddress, lt.RequestTimeUtc 
+                                         FROM LinkTracking lt WHERE lt.linkId = @linkId
+                                         ORDER BY lt.RequestTimeUtc DESC";
+                    var list = await conn.QueryAsync<LinkTracking>(sql, new { top, linkId });
+                    return new SuccessResponse<IReadOnlyList<LinkTracking>>(list.ToList());
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<IReadOnlyList<LinkTracking>>(e.Message);
+            }
+        }
+
+        public async Task<Response<int>> GetClickCount(int linkId)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = "SELECT COUNT(lt.Id) FROM LinkTracking lt WHERE lt.LinkId = @linkId";
+                    var count = await conn.ExecuteScalarAsync<int>(sql, new { linkId });
+                    return new SuccessResponse<int>(count);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<int>(e.Message);
             }
         }
     }
