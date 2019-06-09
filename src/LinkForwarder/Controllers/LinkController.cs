@@ -134,25 +134,6 @@ namespace LinkForwarder.Controllers
             }
         }
 
-        [AllowAnonymous]
-        [Route("show-link/{token}")]
-        public async Task<IActionResult> ShowLink(string token)
-        {
-            var response = await _linkForwarderService.IsLinkExistsAsync(token);
-            if (response.IsSuccess)
-            {
-                if (response.Item)
-                {
-                    return View(new ShowLinkViewModel { Token = token });
-                }
-                return NotFound();
-            }
-
-            ViewBag.ErrorMessage = response.Message;
-            Response.StatusCode = StatusCodes.Status500InternalServerError;
-            return View("AdminError");
-        }
-
         #region Management
 
         [HttpPost]
@@ -185,16 +166,6 @@ namespace LinkForwarder.Controllers
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
 
-        [Route("create")]
-        public IActionResult Create()
-        {
-            var model = new LinkEditModel
-            {
-                IsEnabled = true
-            };
-            return View(model);
-        }
-
         [HttpPost]
         [Route("create")]
         [ValidateAntiForgeryToken]
@@ -206,27 +177,17 @@ namespace LinkForwarder.Controllers
                 switch (verifyResult)
                 {
                     case LinkVerifyResult.InvalidFormat:
-                        ModelState.AddModelError(nameof(model.OriginUrl), "Not a valid URL.");
-                        return View(model);
+                        return BadRequest("Not a valid URL.");
                     case LinkVerifyResult.InvalidLocal:
-                        ModelState.AddModelError(nameof(model.OriginUrl), "Can not use local URL.");
-                        return View(model);
+                        return BadRequest("Can not use local URL.");
                     case LinkVerifyResult.InvalidSelfReference:
-                        ModelState.AddModelError(nameof(model.OriginUrl), "Can not use url pointing to this site.");
-                        return View(model);
+                        return BadRequest("Can not use url pointing to this site.");
                 }
 
                 var response = await _linkForwarderService.CreateLinkAsync(model.OriginUrl, model.Note, model.IsEnabled);
-                if (response.IsSuccess)
-                {
-                    return RedirectToAction("ShowLink", new { token = response.Item });
-                }
-
-                ViewBag.ErrorMessage = response.Message;
-                Response.StatusCode = StatusCodes.Status500InternalServerError;
-                return View("AdminError");
+                return Json(response);
             }
-            return View(model);
+            return BadRequest("Invalid ModelState");
         }
 
         [Route("edit")]
@@ -278,7 +239,7 @@ namespace LinkForwarder.Controllers
                 if (response.IsSuccess)
                 {
                     _cache.Remove(response.Item);
-                    return RedirectToAction("ShowLink", new { token = response.Item });
+                    return RedirectToAction("Manage", "Link");
                 }
 
                 ViewBag.ErrorMessage = response.Message;
