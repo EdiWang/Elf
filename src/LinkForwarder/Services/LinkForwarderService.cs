@@ -303,5 +303,43 @@ namespace LinkForwarder.Services
             }
         }
 
+        public async Task<Response<IReadOnlyList<LinkTracking>>> GetTrackingRecords(int linkId, int top = 100)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = @"SELECT TOP (@top)
+                                         lt.Id, lt.LinkId, lt.UserAgent, lt.IpAddress, lt.RequestTimeUtc 
+                                         FROM LinkTracking lt WHERE lt.linkId = @linkId
+                                         ORDER BY lt.RequestTimeUtc DESC";
+                    var list = await conn.QueryAsync<LinkTracking>(sql, new { top, linkId });
+                    return new SuccessResponse<IReadOnlyList<LinkTracking>>(list.ToList());
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<IReadOnlyList<LinkTracking>>(e.Message);
+            }
+        }
+
+        public async Task<Response<int>> GetClickCount(int linkId)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = "SELECT COUNT(lt.Id) FROM LinkTracking lt WHERE lt.LinkId = @linkId";
+                    var count = await conn.ExecuteScalarAsync<int>(sql, new { linkId });
+                    return new SuccessResponse<int>(count);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<int>(e.Message);
+            }
+        }
     }
 }
