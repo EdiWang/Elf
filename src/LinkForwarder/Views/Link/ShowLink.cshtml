@@ -4,25 +4,41 @@
     var url = $"{Context.Request.Scheme}://{Context.Request.Host}{actionLink}";
 }
 @section scripts{
-<script src="~/lib/jquery-qrcode/jquery.qrcode.min.js"></script>
-<script>
+    <script src="~/lib/jquery-qrcode/jquery.qrcode.min.js"></script>
+    <script>
     $(function () {
         $(".qrcode").qrcode('@url');
+
+        $(".btn-copy").click(function() {
+            const el = document.createElement('textarea');
+            el.value = '@url';
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+        });
     });
-</script>
+    </script>
 }
-<h3>Share Your Link</h3>
-<hr />
 
-<div class="alert alert-success">
-    Your link has been generated succesfully. Please find the information below:
-</div>
+<div class="row justify-content-center mt-5">
+    <div class="col-lg-4 col-md-6 col-sm-8 col-12">
+        <div class="card">
+            <h6 class="card-header">
+                Share Your Link
+            </h6>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="col-md-10 col-12">
+                        <input id="input-link-url" type="text" value="@url" readonly="readonly" class="form-control" />
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-block btn-outline-success btn-copy">Copy</button>
+                    </div>
+                </div>
 
-<section class="linkcopy">
-    <div class="form-group">
-        <input id="input-link-url" type="text" value="@url" readonly="readonly" class="form-control" />
+                <section class="qrcode mt-3 text-center align-content-center"></section>
+            </div>
+        </div>
     </div>
-    <button class="btn btn-outline-success btn-copy">Copy</button>
-</section>
-
-<section class="qrcode mt-3"></section>
+</div>

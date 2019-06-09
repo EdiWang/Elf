@@ -23,7 +23,6 @@ namespace LinkForwarder.Controllers
         private readonly ILinkVerifier _linkVerifier;
         private readonly IMemoryCache _cache;
 
-
         public LinkController(
             IOptions<AppSettings> settings,
             ILogger<LinkController> logger,
@@ -38,6 +37,13 @@ namespace LinkForwarder.Controllers
             _linkForwarderService = linkForwarderService;
             _linkVerifier = linkVerifier;
             _cache = cache;
+        }
+
+        [AllowAnonymous]
+        [Route(""), Route("/")]
+        public IActionResult Index()
+        {
+            return Content("LinkForwarder Version: " + Utils.AppVersion);
         }
 
         [AllowAnonymous]
@@ -149,17 +155,34 @@ namespace LinkForwarder.Controllers
 
         #region Management
 
-        [Route("manage/page/{page}")]
-        public async Task<IActionResult> Manage(int page = 1)
+        [HttpPost]
+        [Route("recent-requests")]
+        public async Task<IActionResult> RecentRequests()
         {
-            var response = await _linkForwarderService.GetPagedLinksAsync(page, 10);
+            var response = await _linkForwarderService.GetRecentRequestsAsync(20);
             if (response.IsSuccess)
             {
-                return View(response.Item);
+                return Json(new { data = response.Item });
             }
-            ViewBag.ErrorMessage = response.Message;
-            Response.StatusCode = StatusCodes.Status500InternalServerError;
-            return View("AdminError");
+            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        }
+
+        [Route("manage")]
+        public IActionResult Manage()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Route("list")]
+        public async Task<IActionResult> List()
+        {
+            var response = await _linkForwarderService.GetPagedLinksAsync(1, 10);
+            if (response.IsSuccess)
+            {
+                return Json(new { data = response.Item });
+            }
+            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
 
         [Route("create")]
