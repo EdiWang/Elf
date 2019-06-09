@@ -40,12 +40,18 @@ namespace LinkForwarder
                 options.Cookie.HttpOnly = true;
             });
 
-
             services.Configure<AppSettings>(Configuration.GetSection(nameof(AppSettings)));
 
             var authentication = new AuthenticationSettings();
             Configuration.Bind(nameof(Authentication), authentication);
             services.AddLinkForwarderAuthenticaton(authentication);
+
+            services.AddAntiforgery(options =>
+            {
+                const string cookieBaseName = "CSRF-TOKEN-LFWDR";
+                options.Cookie.Name = $"X-{cookieBaseName}";
+                options.FormFieldName = $"{cookieBaseName}-FORM";
+            });
 
             var conn = Configuration.GetConnectionString(Constants.DbName);
             services.AddTransient<IDbConnection>(c => new SqlConnection(conn));

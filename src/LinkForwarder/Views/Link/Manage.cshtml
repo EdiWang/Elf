@@ -19,6 +19,21 @@
                 "pageLength": 10
             });
         });
+
+        $(function () {
+            $(".btn-delete").click(function () {
+                var cfm = confirm("Delete Confirmation?");
+                if (cfm) {
+                    deleteLink($(this).data("linkid"));
+                }
+            });
+        });
+
+        function deleteLink(linkId) {
+            ajaxPostWithCSRFToken("delete", { linkId: linkId }, function (data) {
+                $("#link-row-" + linkId).hide();
+            });
+        }
     </script>
 }
 @section head{
@@ -42,40 +57,45 @@
         word-wrap: break-word;
     }
 </style>
-<table class="table table-bordered table-links">
-    <thead>
-        <tr>
-            <th>Token</th>
-            <th style="width: 40%;">Origin Url</th>
-            <th>Enabled</th>
-            <th>Note</th>
-            <th>Update Time</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr data-row-id="@item.Id">
-                <td>
-                    <a href="@Url.Action("Forward", "Link", new { token = item.FwToken })" target="_blank">@item.FwToken</a>
-                </td>
-                <td class="wordwrap">
-                    <a href="@item.OriginUrl" target="_blank">@item.OriginUrl</a>
-                </td>
-                <td>
-                    @(item.IsEnabled ? "✔" : "❌")
-                </td>
-                <td>
-                    @item.Note
-                </td>
-                <td data-utc-time="@item.UpdateTimeUtc" data-sort="@item.UpdateTimeUtc.ToString("yyyyMMddHHmmss")"></td>
-                <td>
-                    <a asp-action="ShowLink" asp-controller="Link" asp-route-token="@item.FwToken" class="btn btn-sm btn-outline-success">Share</a>
-                    <a asp-action="Edit" asp-controller="Link" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
-                    <button class="btn btn-sm btn-outline-danger">Delete</button>
-                </td>
+
+@if (Model.Any())
+{
+    @Html.AntiForgeryToken()
+    <table class="table table-bordered table-links">
+        <thead>
+            <tr>
+                <th>Token</th>
+                <th style="width: 40%;">Origin Url</th>
+                <th>Enabled</th>
+                <th>Note</th>
+                <th>Update Time</th>
+                <th>Action</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr id="link-row-@item.Id">
+                    <td>
+                        <a href="@Url.Action("Forward", "Link", new { token = item.FwToken })" target="_blank">@item.FwToken</a>
+                    </td>
+                    <td class="wordwrap">
+                        <a href="@item.OriginUrl" target="_blank">@item.OriginUrl</a>
+                    </td>
+                    <td>
+                        @(item.IsEnabled ? "✔" : "❌")
+                    </td>
+                    <td>
+                        @item.Note
+                    </td>
+                    <td data-utc-time="@item.UpdateTimeUtc" data-sort="@item.UpdateTimeUtc.ToString("yyyyMMddHHmmss")"></td>
+                    <td>
+                        <a asp-action="ShowLink" asp-controller="Link" asp-route-token="@item.FwToken" class="btn btn-sm btn-outline-success">Share</a>
+                        <a asp-action="Edit" asp-controller="Link" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <button class="btn btn-sm btn-outline-danger btn-delete" data-linkid="@item.Id">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

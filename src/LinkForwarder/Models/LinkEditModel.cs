@@ -19,25 +19,11 @@ namespace LinkForwarder.Models
         [Display(Name = "Origin Url")]
         public string OriginUrl { get; set; }
 
-        [Display(Name = "Forward Token")]
-        public string FwToken { get; set; }
-
         [Display(Name = "Note")]
         public string Note { get; set; }
 
         [Required]
         [Display(Name = "Enable")]
         public bool IsEnabled { get; set; }
-
-        public LinkEditModel()
-        {
-
-        }
-
-        public LinkEditModel(int id, string fwToken)
-        {
-            Id = id;
-            FwToken = fwToken;
-        }
     }
 }

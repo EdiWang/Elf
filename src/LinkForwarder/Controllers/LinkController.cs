@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 namespace LinkForwarder.Controllers
 {
     [Authorize]
+    [Route("link")]
     public class LinkController : Controller
     {
         private readonly ILogger<LinkController> _logger;
@@ -40,7 +41,7 @@ namespace LinkForwarder.Controllers
         }
 
         [AllowAnonymous]
-        [Route("fw/{token}")]
+        [Route("/fw/{token}")]
         public async Task<IActionResult> Forward(string token)
         {
             try
@@ -164,7 +165,11 @@ namespace LinkForwarder.Controllers
         [Route("create")]
         public IActionResult Create()
         {
-            return View();
+            var model = new LinkEditModel
+            {
+                IsEnabled = true
+            };
+            return View(model);
         }
 
         [HttpPost]
@@ -215,8 +220,9 @@ namespace LinkForwarder.Controllers
                 return NotFound();
             }
 
-            var model = new LinkEditModel(linkResponse.Item.Id, linkResponse.Item.FwToken)
+            var model = new LinkEditModel
             {
+                Id = linkResponse.Item.Id,
                 Note = linkResponse.Item.Note,
                 OriginUrl = linkResponse.Item.OriginUrl,
                 IsEnabled = linkResponse.Item.IsEnabled
@@ -279,7 +285,7 @@ namespace LinkForwarder.Controllers
             if (response.IsSuccess)
             {
                 _cache.Remove(linkResponse.Item);
-                return Ok();
+                return Content(linkId.ToString());
             }
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
