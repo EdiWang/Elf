@@ -190,8 +190,8 @@ namespace LinkForwarder.Controllers
             return BadRequest("Invalid ModelState");
         }
 
-        [Route("edit")]
-        public async Task<IActionResult> Edit(int id)
+        [Route("get-edit-model/{id}")]
+        public async Task<IActionResult> GetEditModel(int id)
         {
             var linkResponse = await _linkForwarderService.GetLinkAsync(id);
             if (!linkResponse.IsSuccess)
@@ -212,7 +212,7 @@ namespace LinkForwarder.Controllers
                 IsEnabled = linkResponse.Item.IsEnabled
             };
 
-            return View(model);
+            return Json(model);
         }
 
         [HttpPost("edit")]
@@ -225,28 +225,21 @@ namespace LinkForwarder.Controllers
                 switch (verifyResult)
                 {
                     case LinkVerifyResult.InvalidFormat:
-                        ModelState.AddModelError(nameof(model.OriginUrl), "Not a valid URL.");
-                        return View(model);
+                        return BadRequest("Not a valid URL.");
                     case LinkVerifyResult.InvalidLocal:
-                        ModelState.AddModelError(nameof(model.OriginUrl), "Can not use local URL.");
-                        return View(model);
+                        return BadRequest("Can not use local URL.");
                     case LinkVerifyResult.InvalidSelfReference:
-                        ModelState.AddModelError(nameof(model.OriginUrl), "Can not use url pointing to this site.");
-                        return View(model);
+                        return BadRequest("Can not use url pointing to this site.");
                 }
 
                 var response = await _linkForwarderService.EditLinkAsync(model.Id, model.OriginUrl, model.Note, model.IsEnabled);
                 if (response.IsSuccess)
                 {
                     _cache.Remove(response.Item);
-                    return RedirectToAction("Manage", "Link");
                 }
-
-                ViewBag.ErrorMessage = response.Message;
-                Response.StatusCode = StatusCodes.Status500InternalServerError;
-                return View("AdminError");
+                return Json(response);
             }
-            return View(model);
+            return BadRequest("Invalid ModelState");
         }
 
         [Route("delete")]
