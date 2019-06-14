@@ -29,7 +29,7 @@
                 "columnDefs": [{
                     "targets": -1,
                     "render": function (data, type, row, meta) {
-                        return '<a href="javascript:;" onclick="showLink(\'' + data.fwToken + '\')" class="btn btn-sm btn-outline-success">Share</a> <a href="/link/edit?id=' + data.id + '"class="btn btn-sm btn-outline-primary">Edit</a> <button class="btn btn-sm btn-outline-danger btn-delete">Delete</button>';
+                        return '<a href="javascript:;" onclick="showLink(\'' + data.fwToken + '\')" class="btn btn-sm btn-outline-success">Share</a> <a href="javascript:;" onclick="editLink(\'' + data.id + '\')" class="btn btn-sm btn-outline-primary">Edit</a> <button class="btn btn-sm btn-outline-danger btn-delete">Delete</button>';
                     }
                 }, {
                     "targets": 0,
@@ -86,6 +86,16 @@
             $('#showlinkModal').modal();
         }
 
+        function editLink(linkId) {
+            $.get('/link/get-edit-model/' + linkId, function(data) {
+                $("#input-id").val(data.id);
+                $("#input-origin-url").val(data.originUrl);
+                $("#input-note").val(data.note);
+                $("#check-is-enabled").attr('checked', data.isEnabled);
+                $("#editLinkModal").modal();
+            });
+        }
+
         $(".btn-copy").click(function () {
             copyToClipboard(document.getElementById("input-link-url"));
         });
@@ -96,7 +106,16 @@
 
         $(".btn-submit").click(function() {
             if ($("#edit-form").valid()) {
-                ajaxPostWithCSRFToken('/link/create',
+                var action = '';                
+                var linkId = $("#input-id").val();
+                if (linkId == 0) {
+                    action = "create"
+                }
+                else {
+                    action = "edit"
+                }
+
+                ajaxPostWithCSRFToken('/link/' + action,
                     {
                         "Id": $("#input-id").val(),
                         "OriginUrl": $("#input-origin-url").val(),
