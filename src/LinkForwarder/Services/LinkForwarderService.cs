@@ -30,27 +30,6 @@ namespace LinkForwarder.Services
             _tokenGenerator = tokenGenerator;
         }
 
-        public async Task<Response<IReadOnlyList<RecentRequest>>> GetRecentRequestsAsync(int top)
-        {
-            try
-            {
-                using (var conn = DbConnection)
-                {
-                    const string sql = @"SELECT TOP (@top)
-                                         l.FwToken, l.OriginUrl, lt.IpAddress, lt.UserAgent, lt.RequestTimeUtc 
-                                         FROM LinkTracking lt
-                                         INNER JOIN Link l on lt.LinkId = l.Id ORDER BY lt.RequestTimeUtc DESC";
-                    var list = await conn.QueryAsync<RecentRequest>(sql, new { top });
-                    return new SuccessResponse<IReadOnlyList<RecentRequest>>(list.ToList());
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-                return new FailedResponse<IReadOnlyList<RecentRequest>>(e.Message);
-            }
-        }
-
         public async Task<Response<bool>> IsLinkExistsAsync(string token)
         {
             try
@@ -293,6 +272,31 @@ namespace LinkForwarder.Services
             {
                 _logger.LogError(e, e.Message);
                 return new FailedResponse(e.Message);
+            }
+        }
+
+        public async Task<Response<IReadOnlyList<LinkTrackingDateCount>>> GetLinkTrackingDateCount(int daysFromNow)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = @"SELECT 
+                                         COUNT(lt.Id) AS RequestCount, 
+                                         CAST(lt.RequestTimeUtc AS DATE) TrackingDateUtc
+                                         FROM LinkTracking lt
+                                         WHERE lt.RequestTimeUtc < GETDATE() 
+                                         AND lt.RequestTimeUtc > DATEADD(DAY, -@daysFromNow, CAST(GETDATE() AS DATE))
+                                         GROUP BY CAST(lt.RequestTimeUtc AS DATE)";
+
+                    var list = await conn.QueryAsync<LinkTrackingDateCount>(sql, new { daysFromNow });
+                    return new SuccessResponse<IReadOnlyList<LinkTrackingDateCount>>(list.ToList());
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<IReadOnlyList<LinkTrackingDateCount>>(e.Message);
             }
         }
 

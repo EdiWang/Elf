@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LinkForwarder.Models
 {
-    public class RecentRequest
+    public class RequestTrack
     {
         public string FwToken { get; set; }
 

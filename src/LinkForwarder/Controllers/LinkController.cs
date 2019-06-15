@@ -137,22 +137,22 @@ namespace LinkForwarder.Controllers
 
         #region Management
 
-        [HttpPost]
-        [Route("recent-requests")]
-        public async Task<IActionResult> RecentRequests()
-        {
-            var response = await _linkForwarderService.GetRecentRequestsAsync(20);
-            if (response.IsSuccess)
-            {
-                return Json(new { data = response.Item });
-            }
-            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        }
-
         [Route("manage")]
         public IActionResult Manage()
         {
             return View();
+        }
+
+        [Route("tracking-count-past-week")]
+        public async Task<IActionResult> TrackingCountPastWeek()
+        {
+            var response = await _linkForwarderService.GetLinkTrackingDateCount(7);
+            if (!response.IsSuccess)
+            {
+                Response.StatusCode = StatusCodes.Status500InternalServerError;
+            }
+
+            return Json(response);
         }
 
         [HttpPost]
