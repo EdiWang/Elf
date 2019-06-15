@@ -48,6 +48,7 @@ namespace LinkForwarder.Controllers
 
         [AllowAnonymous]
         [Route("/fw/{token}")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Forward(string token)
         {
             try
