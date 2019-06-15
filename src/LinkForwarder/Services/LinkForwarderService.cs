@@ -70,43 +70,52 @@ namespace LinkForwarder.Services
             }
         }
 
-        public async Task<Response<IReadOnlyList<Link>>> GetPagedLinksAsync(int pageIndex, int pageSize)
+        public async Task<Response<(IReadOnlyList<Link> Links, int TotalRows)>> GetPagedLinksAsync(
+            int offset, int pageSize, string noteKeyword = null)
         {
             if (pageSize < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(pageSize),
                     $"{nameof(pageSize)} can not be less than 1, current value: {pageSize}.");
             }
-            if (pageIndex < 1)
+            if (offset < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(pageIndex),
-                    $"{nameof(pageIndex)} can not be less than 1, current value: {pageIndex}.");
+                throw new ArgumentOutOfRangeException(nameof(offset),
+                    $"{nameof(offset)} can not be less than 0, current value: {offset}.");
             }
 
             try
             {
                 using (var conn = DbConnection)
                 {
-                    const string sql = @"SELECT 
-                                         l.Id,
-                                         l.OriginUrl,
-                                         l.FwToken,
-                                         l.Note,
-                                         l.IsEnabled,
-                                         l.UpdateTimeUtc
-                                         FROM Link l 
+                    const string sql = @"SELECT
+                                             l.Id,
+                                             l.OriginUrl,
+                                             l.FwToken,
+                                             l.Note,
+                                             l.IsEnabled,
+                                             l.UpdateTimeUtc
+                                         FROM Link l
+                                         WHERE @noteKeyword IS NULL OR l.Note LIKE '%' + @noteKeyword + '%'
                                          ORDER BY UpdateTimeUtc DESC 
-                                         OFFSET (@pageIndex - 1) * @pageSize ROWS 
+                                         OFFSET @offset ROWS 
                                          FETCH NEXT @pageSize ROWS ONLY";
 
-                    var list = await conn.QueryAsync<Link>(sql, new { pageIndex, pageSize });
-                    return new SuccessResponse<IReadOnlyList<Link>>(list.ToList());
+                    var links = await conn.QueryAsync<Link>(sql, new { offset, pageSize, noteKeyword });
+
+                    const string sqlTotalRows = @"SELECT COUNT(l.Id)
+                                                  FROM Link l
+                                                  WHERE @noteKeyword IS NULL OR l.Note LIKE '%' + @noteKeyword + '%'";
+
+                    var totalRows = await conn.ExecuteScalarAsync<int>(sqlTotalRows, new { noteKeyword });
+
+                    return new SuccessResponse<(IReadOnlyList<Link> Links, int TotalRows)>((links.ToList(), totalRows));
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new FailedResponse<IReadOnlyList<Link>>(e.Message);
+                return new FailedResponse<(IReadOnlyList<Link> Links, int TotalRows)>(e.Message);
             }
         }
 

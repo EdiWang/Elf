@@ -157,12 +157,23 @@ namespace LinkForwarder.Controllers
 
         [HttpPost]
         [Route("list")]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List(DataTableRequest model)
         {
-            var response = await _linkForwarderService.GetPagedLinksAsync(1, 10);
+            var searchBy = model.Search?.Value;
+            var take = model.Length;
+            var offset = model.Start;
+
+            var response = await _linkForwarderService.GetPagedLinksAsync(offset, take, searchBy);
             if (response.IsSuccess)
             {
-                return Json(new { data = response.Item });
+                var jqdtResponse = new JqDataTableResponse<Link>
+                {
+                    Draw = model.Draw,
+                    RecordsFiltered = response.Item.TotalRows,
+                    RecordsTotal = response.Item.TotalRows,
+                    Data = response.Item.Links
+                };
+                return Json(jqdtResponse);
             }
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
