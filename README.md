@@ -1,4 +1,4 @@
-# Link Forwarder
+# Link Forwarder (Preview)
 
 [![Build status](https://dev.azure.com/ediwang/EdiWang-GitHub-Builds/_apis/build/status/LinkForwarder-CI)](https://dev.azure.com/ediwang/EdiWang-GitHub-Builds/_build/latest?definitionId=57)
 
