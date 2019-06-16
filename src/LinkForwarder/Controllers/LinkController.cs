@@ -146,6 +146,12 @@ namespace LinkForwarder.Controllers
             return View();
         }
 
+        [Route("report")]
+        public IActionResult Report()
+        {
+            return View();
+        }
+
         [Route("tracking-count-past-week")]
         public async Task<IActionResult> TrackingCountPastWeek()
         {
