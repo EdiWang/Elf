@@ -53,6 +53,8 @@ namespace LinkForwarder.Controllers
         {
             try
             {
+                Response.Headers.Add("X-LinkForwarder", $"{Utils.AppVersion}");
+
                 if (string.IsNullOrWhiteSpace(token))
                 {
                     return BadRequest();
