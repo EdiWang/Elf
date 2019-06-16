@@ -31,8 +31,8 @@
                 "columns": [
                     { "data": "fwToken" },
                     { "data": "originUrl" },
-                    { "data": "isEnabled" },
                     { "data": "note" },
+                    { "data": "isEnabled" },
                     { "data": "updateTimeUtc" },
                     { "data": null }
                 ],
@@ -55,7 +55,7 @@
                     }
                 },
                 {
-                    "targets": 2,
+                    "targets": 3,
                     "data": "isEnabled",
                     "render": function (data, type, row, meta) {
                         return data ? '✔' : '❌';
@@ -165,12 +165,12 @@
 <table class="table table-bordered table-sm table-links">
     <thead>
         <tr>
-            <th>Token</th>
-            <th style="width: 40%;">Origin Url</th>
-            <th>Enabled</th>
+            <th style="width: 80px;">Token</th>
+            <th>Origin Url</th>
             <th>Note</th>
-            <th>Update Time</th>
-            <th>Action</th>
+            <th style="width: 80px;">Enabled</th>
+            <th style="width: 100px;">Update Time</th>
+            <th style="width: 180px;">Action</th>
         </tr>
     </thead>
 </table>

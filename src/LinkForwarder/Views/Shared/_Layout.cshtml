@@ -18,25 +18,23 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Link" asp-action="Index">Link Forwarder</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Link" asp-action="Manage">Manage Links</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="float-right">
-                    <span class="text-light mr-2">@User.Identity.Name</span>
-                    <a asp-controller="Admin" asp-action="SignOut" class="btn btn-sm btn-danger">
-                        Sign Out
-                    </a>
-                </div>
+            <a class="navbar-brand" asp-controller="Link" asp-action="Index">Link Forwarder</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Link" asp-action="Manage">Manage Links</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="float-right">
+                <span class="text-light mr-2">@User.Identity.Name</span>
+                <a asp-controller="Admin" asp-action="SignOut" class="btn btn-sm btn-danger">
+                    Sign Out
+                </a>
             </div>
         </nav>
     </header>
@@ -48,7 +46,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="small container-fluid">
-            &copy; @DateTime.UtcNow.Year - <a href="https://github.com/EdiWang/LinkForwarder" target="_blank">Link Forwarder</a>
+            &copy; @DateTime.UtcNow.Year - <a href="https://github.com/EdiWang/LinkForwarder" target="_blank">Link Forwarder</a> Version @Utils.AppVersion
         </div>
     </footer>
 
