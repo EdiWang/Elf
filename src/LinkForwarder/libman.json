@@ -63,6 +63,21 @@
         "toastr.min.js",
         "toastr.min.css"
       ]
+    },
+    {
+      "library": "Chart.js@2.8.0",
+      "destination": "wwwroot/lib/Chart.js/",
+      "files": [
+        "Chart.min.js",
+        "Chart.min.css"
+      ]
+    },
+    {
+      "library": "jquery-dateFormat@1.0",
+      "destination": "wwwroot/lib/jquery-dateFormat/",
+      "files": [
+        "jquery.dateFormat.min.js"
+      ]
     }
   ]
 }
