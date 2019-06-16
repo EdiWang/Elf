@@ -75,7 +75,9 @@ namespace LinkForwarder.Services
                                              l.IsEnabled,
                                              l.UpdateTimeUtc
                                          FROM Link l
-                                         WHERE @noteKeyword IS NULL OR l.Note LIKE '%' + @noteKeyword + '%'
+                                         WHERE @noteKeyword IS NULL 
+                                         OR l.Note LIKE '%' + @noteKeyword + '%' 
+                                         OR l.FwToken LIKE '%' + @noteKeyword + '%'
                                          ORDER BY UpdateTimeUtc DESC 
                                          OFFSET @offset ROWS 
                                          FETCH NEXT @pageSize ROWS ONLY";
