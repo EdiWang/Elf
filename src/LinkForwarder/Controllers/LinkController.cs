@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
+using LinkForwarder.Filters;
 
 namespace LinkForwarder.Controllers
 {
@@ -40,6 +41,7 @@ namespace LinkForwarder.Controllers
         }
 
         [AllowAnonymous]
+        [AddForwarderHeader]
         [Route(""), Route("/")]
         public IActionResult Index()
         {
@@ -47,14 +49,13 @@ namespace LinkForwarder.Controllers
         }
 
         [AllowAnonymous]
+        [AddForwarderHeader]
         [Route("/fw/{token}")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Forward(string token)
         {
             try
             {
-                Response.Headers.Add("X-LinkForwarder", $"{Utils.AppVersion}");
-
                 if (string.IsNullOrWhiteSpace(token))
                 {
                     return BadRequest();
