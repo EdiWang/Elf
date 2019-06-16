@@ -13,10 +13,20 @@
                 "order": [[4, "desc"]],
                 "processing": true,
                 "serverSide": true,
+                "ordering": false,
                 "ajax":
                 {
                     url: "/link/list",
                     type: "POST"
+                },
+                "initComplete": function(settings, json) {
+                    $('.dataTables_filter input').unbind();
+                    $('.dataTables_filter input').bind('keyup blur', function (e) {
+                        console.info(e);
+                        if(e.keyCode == 13 || e.type == 'blur') {
+                            table.search( this.value ).draw();
+                        }
+                    }); 
                 },
                 "columns": [
                     { "data": "fwToken" },
@@ -35,7 +45,7 @@
                     "targets": 0,
                     "data": "fwToken",
                     "render": function (data, type, row, meta) {
-                        return '<a href="/fw/' + data + '">' + data + '</a>';
+                        return '<a href="/fw/' + data + '" target="_blank">' + data + '</a>';
                     }
                 }, {
                     "targets": 1,
@@ -106,13 +116,13 @@
 
         $(".btn-submit").click(function() {
             if ($("#edit-form").valid()) {
-                var action = '';                
+                var action = '';
                 var linkId = $("#input-id").val();
                 if (linkId == 0) {
-                    action = "create"
+                    action = "create";
                 }
                 else {
-                    action = "edit"
+                    action = "edit";
                 }
 
                 ajaxPostWithCSRFToken('/link/' + action,
@@ -152,7 +162,7 @@
 </style>
 
 @Html.AntiForgeryToken()
-<table class="table table-bordered table-links">
+<table class="table table-bordered table-sm table-links">
     <thead>
         <tr>
             <th>Token</th>
