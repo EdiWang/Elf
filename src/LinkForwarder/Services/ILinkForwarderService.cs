@@ -19,5 +19,6 @@ namespace LinkForwarder.Services
         Task<Response<int>> GetClickCount(int linkId);
         Task<Response> DeleteLink(int linkId);
         Task<Response<IReadOnlyList<LinkTrackingDateCount>>> GetLinkTrackingDateCount(int daysFromNow);
+        Task<Response<IReadOnlyList<ClientTypeCount>>> GetClientTypeCounts(int daysFromNow);
     }
 }

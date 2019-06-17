@@ -9,6 +9,7 @@ using Edi.Practice.RequestResponseModel;
 using LinkForwarder.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using UAParser;
 
 namespace LinkForwarder.Services
 {
@@ -287,8 +288,8 @@ namespace LinkForwarder.Services
                                          COUNT(lt.Id) AS RequestCount, 
                                          CAST(lt.RequestTimeUtc AS DATE) TrackingDateUtc
                                          FROM LinkTracking lt
-                                         WHERE lt.RequestTimeUtc < GETDATE() 
-                                         AND lt.RequestTimeUtc > DATEADD(DAY, -@daysFromNow, CAST(GETDATE() AS DATE))
+                                         WHERE lt.RequestTimeUtc < GETUTCDATE() 
+                                         AND lt.RequestTimeUtc > DATEADD(DAY, -@daysFromNow, CAST(GETUTCDATE() AS DATE))
                                          GROUP BY CAST(lt.RequestTimeUtc AS DATE)";
 
                     var list = await conn.QueryAsync<LinkTrackingDateCount>(sql, new { daysFromNow });
@@ -299,6 +300,50 @@ namespace LinkForwarder.Services
             {
                 _logger.LogError(e, e.Message);
                 return new FailedResponse<IReadOnlyList<LinkTrackingDateCount>>(e.Message);
+            }
+        }
+
+        public async Task<Response<IReadOnlyList<ClientTypeCount>>> GetClientTypeCounts(int daysFromNow)
+        {
+            try
+            {
+                var uaParser = Parser.GetDefault();
+
+                string GetClientTypeName(string userAgent)
+                {
+                    ClientInfo c = uaParser.Parse(userAgent);
+                    return $"{c.OS.Family}-{c.UA.Family}";
+                }
+
+                using (var conn = DbConnection)
+                {
+                    const string sql = @"SELECT lt.UserAgent, COUNT(lt.Id) AS RequestCount
+                                         FROM LinkTracking lt
+                                         WHERE lt.RequestTimeUtc < GETUTCDATE() 
+                                         AND lt.RequestTimeUtc > DATEADD(DAY, -@daysFromNow, CAST(GETUTCDATE() AS DATE))
+                                         GROUP BY lt.UserAgent";
+
+                    var rawData = await conn.QueryAsync<UserAgentCount>(sql, new { daysFromNow });
+                    if (rawData.Any())
+                    {
+                        var q = from d in rawData
+                                group d by GetClientTypeName(d.UserAgent)
+                                into g
+                                select new ClientTypeCount
+                                {
+                                    ClientTypeName = g.Key,
+                                    Count = g.Sum(gp => gp.RequestCount)
+                                };
+
+                        return new SuccessResponse<IReadOnlyList<ClientTypeCount>>(q.ToList());
+                    }
+                    return new SuccessResponse<IReadOnlyList<ClientTypeCount>>(new List<ClientTypeCount>());
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<IReadOnlyList<ClientTypeCount>>(e.Message);
             }
         }
 

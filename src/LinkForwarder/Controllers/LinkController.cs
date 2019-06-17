@@ -164,6 +164,18 @@ namespace LinkForwarder.Controllers
             return Json(response);
         }
 
+        [Route("client-type-past-month")]
+        public async Task<IActionResult> ClientTypePastMonth()
+        {
+            var response = await _linkForwarderService.GetClientTypeCounts(30);
+            if (!response.IsSuccess)
+            {
+                Response.StatusCode = StatusCodes.Status500InternalServerError;
+            }
+
+            return Json(response);
+        }
+
         [HttpPost]
         [Route("list")]
         public async Task<IActionResult> List(DataTableRequest model)
