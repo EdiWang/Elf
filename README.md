@@ -4,6 +4,8 @@
 
 The link forward service used by https://go.edi.wang. 
 
+![image](https://raw.githubusercontent.com/EdiWang/LinkForwarder/master/docs/images/LinkForwarder-FW.png)
+
 ## Build and Run
 
 > The following tools are required for development.
