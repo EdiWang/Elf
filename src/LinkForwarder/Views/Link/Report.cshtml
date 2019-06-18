@@ -8,6 +8,7 @@
         $(function () {
             renderReqPastWeekLineChart();
             renderClientTypeChart();
+            renderMostRequestedLinksChart();
         });
 
         function renderReqPastWeekLineChart() {
@@ -101,6 +102,55 @@
                 }
             });
         }
+
+        function renderMostRequestedLinksChart() {
+            $.ajax({
+                type: "POST",
+                url: "/link/most-requested-links-past-month",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    const mrData = data.item;
+
+                    const notes = [];
+                    const requestCounts = [];
+                    for (let idx in mrData) {
+                        if (mrData.hasOwnProperty(idx)) {
+                            notes.push(mrData[idx].note);
+                            requestCounts.push(parseInt(mrData[idx].requestCount));
+                        }
+                    }
+
+                    var chartData = {
+                        labels: notes,
+                        datasets: [
+                            {
+                                data: requestCounts,
+                                backgroundColor: [
+                                    'rgba(135, 99, 132, 1)',
+                                    'rgba(154, 162, 235, 1)',
+                                    'rgba(215, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ]
+                            }]
+                    };
+
+                    var mrCtx = document.getElementById('mostreqlinks-canvas');
+                    var mrChart = new Chart(mrCtx, {
+                        type: 'pie',
+                        data: chartData,
+                        options: {
+                            legend: {
+                                display: true,
+                                position: 'right'
+                            }
+                        }
+                    });
+                }
+            });
+        }
     </script>
 }
 
@@ -125,5 +175,24 @@
             </div>
         </div>
     </div>
+    <div class="col-xl-4 col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h6>Most Requested Links / Last month</h6>
+                <div class="mostreqlinks-section">
+                    <canvas id="mostreqlinks-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<div class="card mt-4">
+    <div class="card-body">
+        <h6>Recent Requests</h6>
+
+        <table class="table table-bordered">
+            <thead></thead>
+        </table>
+    </div>
+</div>
