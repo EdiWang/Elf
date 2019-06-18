@@ -1,7 +1,11 @@
 ﻿@section head{
+<link href="~/lib/datatables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
 <link href="~/lib/Chart.js/Chart.min.css" rel="stylesheet" />
 <script src="~/lib/Chart.js/Chart.min.js"></script>
 <script src="~/lib/jquery-dateFormat/jquery.dateFormat.min.js"></script>
+<script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+<script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/js/jquery-utc-time.min.js"></script>
 }
 @section scripts{
 <script>
@@ -9,6 +13,7 @@
         renderReqPastWeekLineChart();
         renderClientTypeChart();
         renderMostRequestedLinksChart();
+        getRecentRequests();
     });
 
     function renderReqPastWeekLineChart() {
@@ -151,6 +156,39 @@
             }
         });
     }
+
+    function getRecentRequests() {
+        var table = $(".recent-requests-table").DataTable({
+            "processing": true,
+            "ordering": false,
+            "ajax":
+            {
+                url: "/link/recent-requests",
+                type: "POST"
+            },
+            "columns": [
+                { "data": "requestTimeUtc" },
+                { "data": "fwToken" },
+                { "data": "userAgent" },
+                { "data": "ipAddress" },
+            ],
+            "columnDefs": [
+                {
+                    "targets": 0,
+                    "data": "requestTimeUtc",
+                    "render": function (data, type, row, meta) {
+                        return '<span data-utc-time="' + data + '"></span>';
+                    }
+                }]
+        });
+
+        $(this).initUTCTime({
+            daysAgo: ' days ago',
+            hoursAgo: ' hours ago',
+            minutesAgo: ' minutes ago',
+            secondsAgo: ' seconds ago'
+        });
+    }
 </script>
 }
 
@@ -196,14 +234,15 @@
             <small>Top 32 Records</small>
         </h6>
 
+        <div class="clearfix mt-4"></div>
 
-        <table class="table table-bordered table-sm mt-3">
+        <table class="recent-requests-table table table-bordered table-sm">
             <thead>
                 <tr>
-                    <th>Request Time</th>
-                    <th>Token</th>
+                    <th style="width: 120px;">Request Time</th>
+                    <th style="width: 80px;">Token</th>
                     <th>User Agent</th>
-                    <th>IP Address</th>
+                    <th style="width: 100px;">IP Address</th>
                 </tr>
             </thead>
         </table>
