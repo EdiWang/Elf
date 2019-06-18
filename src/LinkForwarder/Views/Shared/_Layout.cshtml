@@ -1,9 +1,30 @@
-﻿<!DOCTYPE html>
+﻿@{
+    string currentAction = ViewContext.RouteData?.Values["action"]?.ToString();
+}
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Link Forwarder</title>
+    <link rel="apple-touch-icon" sizes="57x57" href="~/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="~/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="~/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="~/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="~/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="~/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="~/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="~/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="~/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="~/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="~/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/favicon-16x16.png">
+    <link rel="manifest" href="~/manifest.json">
+    <meta name="msapplication-TileColor" content="#2a579a">
+    <meta name="msapplication-TileImage" content="~/ms-icon-144x144.png">
+    <meta name="theme-color" content="#2a579a">
     <script src="~/lib/jquery/jquery.min.js"></script>
     <script src="~/lib/jquery-validate/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
@@ -17,24 +38,27 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
-            <a class="navbar-brand" asp-controller="Link" asp-action="Index">Link Forwarder</a>
+        <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-moonglade-blue">
+            <span class="navbar-brand">
+                <img src="~/images/logo.svg" height="24" width="24" />
+                Link Forwarder
+            </span>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
+            <div class="navbar-collapse collapse">
+                <ul class="navbar-nav">
+                    <li class="nav-item @(string.Compare("Manage", currentAction, StringComparison.OrdinalIgnoreCase) == 0 ? "active" : null)">
                         <a class="nav-link" asp-controller="Link" asp-action="Manage">Manage Links</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item @(string.Compare("Report", currentAction, StringComparison.OrdinalIgnoreCase) == 0 ? "active" : null)">
                         <a class="nav-link" asp-controller="Link" asp-action="Report">Reports</a>
                     </li>
                 </ul>
             </div>
             <div class="float-right">
-                <span class="text-light mr-2">@User.Identity.Name</span>
+                <span class="small text-light mr-2">@User.Identity.Name</span>
                 <a asp-controller="Admin" asp-action="SignOut" class="btn btn-sm btn-danger">
                     Sign Out
                 </a>
@@ -42,9 +66,7 @@
         </nav>
     </header>
     <div class="container-fluid">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+        @RenderBody()
     </div>
 
     <footer class="border-top footer text-muted">
