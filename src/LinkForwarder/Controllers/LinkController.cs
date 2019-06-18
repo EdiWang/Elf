@@ -176,6 +176,18 @@ namespace LinkForwarder.Controllers
             return Json(response);
         }
 
+        [Route("most-requested-links-past-month")]
+        public async Task<IActionResult> MostRequestedLinksPastMonth()
+        {
+            var response = await _linkForwarderService.GetMostRequestedLinkCount(30);
+            if (!response.IsSuccess)
+            {
+                Response.StatusCode = StatusCodes.Status500InternalServerError;
+            }
+
+            return Json(response);
+        }
+
         [HttpPost]
         [Route("list")]
         public async Task<IActionResult> List(DataTableRequest model)

@@ -347,6 +347,29 @@ namespace LinkForwarder.Services
             }
         }
 
+        public async Task<Response<IReadOnlyList<MostRequestedLinkCount>>> GetMostRequestedLinkCount(int daysFromNow)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = @"SELECT l.FwToken, l.Note, COUNT(lt.Id) AS RequestCount
+                                         FROM Link l INNER JOIN LinkTracking lt ON l.Id = lt.LinkId
+                                         WHERE lt.RequestTimeUtc < GETUTCDATE() 
+                                         AND lt.RequestTimeUtc > DATEADD(DAY, -@daysFromNow, CAST(GETUTCDATE() AS DATE))
+                                         GROUP BY l.FwToken, l.Note";
+
+                    var list = await conn.QueryAsync<MostRequestedLinkCount>(sql, new { daysFromNow });
+                    return new SuccessResponse<IReadOnlyList<MostRequestedLinkCount>>(list.ToList());
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<IReadOnlyList<MostRequestedLinkCount>>(e.Message);
+            }
+        }
+
         public async Task<Response> TrackSucessRedirectionAsync(string ipAddress, string userAgent, int linkId)
         {
             try
