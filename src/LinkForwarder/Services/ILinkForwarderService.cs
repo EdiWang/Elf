@@ -21,5 +21,6 @@ namespace LinkForwarder.Services
         Task<Response<IReadOnlyList<LinkTrackingDateCount>>> GetLinkTrackingDateCount(int daysFromNow);
         Task<Response<IReadOnlyList<ClientTypeCount>>> GetClientTypeCounts(int daysFromNow);
         Task<Response<IReadOnlyList<MostRequestedLinkCount>>> GetMostRequestedLinkCount(int daysFromNow);
+        Task<Response<IReadOnlyList<RequestTrack>>> GetRecentRequests(int top);
     }
 }

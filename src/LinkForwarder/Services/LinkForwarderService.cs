@@ -436,5 +436,27 @@ namespace LinkForwarder.Services
                 return new FailedResponse<int>(e.Message);
             }
         }
+
+        public async Task<Response<IReadOnlyList<RequestTrack>>> GetRecentRequests(int top)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = @"SELECT TOP (@top)
+                                         l.FwToken, l.Note, lt.RequestTimeUtc, lt.IpAddress, lt.UserAgent
+                                         FROM LinkTracking lt INNER JOIN Link l ON lt.LinkId = l.Id
+                                         ORDER BY lt.RequestTimeUtc DESC";
+
+                    var list = await conn.QueryAsync<RequestTrack>(sql, new { top });
+                    return new SuccessResponse<IReadOnlyList<RequestTrack>>(list.ToList());
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<IReadOnlyList<RequestTrack>>(e.Message);
+            }
+        }
     }
 }

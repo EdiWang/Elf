@@ -188,6 +188,18 @@ namespace LinkForwarder.Controllers
             return Json(response);
         }
 
+        [Route("recent-requests")]
+        public async Task<IActionResult> RecentRequests()
+        {
+            var response = await _linkForwarderService.GetRecentRequests(32);
+            if (!response.IsSuccess)
+            {
+                Response.StatusCode = StatusCodes.Status500InternalServerError;
+            }
+
+            return Json(new { Data = response.Item });
+        }
+
         [HttpPost]
         [Route("list")]
         public async Task<IActionResult> List(DataTableRequest model)

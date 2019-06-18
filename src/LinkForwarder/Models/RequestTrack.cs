@@ -9,7 +9,7 @@ namespace LinkForwarder.Models
     {
         public string FwToken { get; set; }
 
-        public string OriginUrl { get; set; }
+        public string Note { get; set; }
 
         public string UserAgent { get; set; }
 
