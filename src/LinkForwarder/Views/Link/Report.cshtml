@@ -179,6 +179,13 @@
                     "render": function (data, type, row, meta) {
                         return '<span data-utc-time="' + data + '"></span>';
                     }
+                },
+                {
+                    "targets": 1,
+                    "data": "fwToken",
+                    "render": function (data, type, row, meta) {
+                        return '<a href="/fw/' + data + '" target="_blank">' + data + '</a>';
+                    }
                 }]
         });
 
