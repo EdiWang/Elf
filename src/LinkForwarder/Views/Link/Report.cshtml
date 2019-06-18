@@ -1,157 +1,157 @@
 ﻿@section head{
-    <link href="~/lib/Chart.js/Chart.min.css" rel="stylesheet" />
-    <script src="~/lib/Chart.js/Chart.min.js"></script>
-    <script src="~/lib/jquery-dateFormat/jquery.dateFormat.min.js"></script>
+<link href="~/lib/Chart.js/Chart.min.css" rel="stylesheet" />
+<script src="~/lib/Chart.js/Chart.min.js"></script>
+<script src="~/lib/jquery-dateFormat/jquery.dateFormat.min.js"></script>
 }
 @section scripts{
-    <script>
-        $(function () {
-            renderReqPastWeekLineChart();
-            renderClientTypeChart();
-            renderMostRequestedLinksChart();
+<script>
+    $(function () {
+        renderReqPastWeekLineChart();
+        renderClientTypeChart();
+        renderMostRequestedLinksChart();
+    });
+
+    function renderReqPastWeekLineChart() {
+        $.ajax({
+            type: "POST",
+            url: "/link/tracking-count-past-week",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                const chData = data.item;
+
+                const trackingDates = [];
+                const requestCounts = [];
+                for (let idx in chData) {
+                    if (chData.hasOwnProperty(idx)) {
+                        trackingDates.push($.format.date(new Date(chData[idx].trackingDateUtc), "MM/dd/yyyy"));
+                        requestCounts.push(parseInt(chData[idx].requestCount));
+                    }
+                }
+
+                var chartData = {
+                    labels: trackingDates,
+                    datasets: [
+                        {
+                            label: '# Requests',
+                            data: requestCounts,
+                            borderColor: '#0072BC',
+                            lineTension: 0
+                        }]
+                };
+
+                var pastWeekCounterCtx = document.getElementById('pastweek-counter-canvas');
+                var pastWeekCounterChart = new Chart(pastWeekCounterCtx, {
+                    type: 'line',
+                    data: chartData,
+                    options: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                });
+            }
         });
+    }
 
-        function renderReqPastWeekLineChart() {
-            $.ajax({
-                type: "POST",
-                url: "/link/tracking-count-past-week",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data) {
-                    const chData = data.item;
+    function renderClientTypeChart() {
+        $.ajax({
+            type: "POST",
+            url: "/link/client-type-past-month",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                const ctData = data.item;
 
-                    const trackingDates = [];
-                    const requestCounts = [];
-                    for (let idx in chData) {
-                        if (chData.hasOwnProperty(idx)) {
-                            trackingDates.push($.format.date(new Date(chData[idx].trackingDateUtc), "MM/dd/yyyy"));
-                            requestCounts.push(parseInt(chData[idx].requestCount));
+                const clientTypes = [];
+                const clientCounts = [];
+                for (let idx in ctData) {
+                    if (ctData.hasOwnProperty(idx)) {
+                        clientTypes.push(ctData[idx].clientTypeName);
+                        clientCounts.push(parseInt(ctData[idx].count));
+                    }
+                }
+
+                var chartData = {
+                    labels: clientTypes,
+                    datasets: [
+                        {
+                            data: clientCounts,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ]
+                        }]
+                };
+
+                var ctCtx = document.getElementById('clienttype-canvas');
+                var ctChart = new Chart(ctCtx, {
+                    type: 'doughnut',
+                    data: chartData,
+                    options: {
+                        legend: {
+                            display: true,
+                            position: 'right'
                         }
                     }
+                });
+            }
+        });
+    }
 
-                    var chartData = {
-                        labels: trackingDates,
-                        datasets: [
-                            {
-                                label: '# Requests',
-                                data: requestCounts,
-                                borderColor: '#0072BC',
-                                lineTension: 0
-                            }]
-                    };
+    function renderMostRequestedLinksChart() {
+        $.ajax({
+            type: "POST",
+            url: "/link/most-requested-links-past-month",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                const mrData = data.item;
 
-                    var pastWeekCounterCtx = document.getElementById('pastweek-counter-canvas');
-                    var pastWeekCounterChart = new Chart(pastWeekCounterCtx, {
-                        type: 'line',
-                        data: chartData,
-                        options: {
-                            legend: {
-                                display: false
-                            }
-                        }
-                    });
+                const notes = [];
+                const requestCounts = [];
+                for (let idx in mrData) {
+                    if (mrData.hasOwnProperty(idx)) {
+                        notes.push(mrData[idx].note);
+                        requestCounts.push(parseInt(mrData[idx].requestCount));
+                    }
                 }
-            });
-        }
 
-        function renderClientTypeChart() {
-            $.ajax({
-                type: "POST",
-                url: "/link/client-type-past-month",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data) {
-                    const ctData = data.item;
+                var chartData = {
+                    labels: notes,
+                    datasets: [
+                        {
+                            data: requestCounts,
+                            backgroundColor: [
+                                'rgba(135, 99, 132, 1)',
+                                'rgba(154, 162, 235, 1)',
+                                'rgba(215, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ]
+                        }]
+                };
 
-                    const clientTypes = [];
-                    const clientCounts = [];
-                    for (let idx in ctData) {
-                        if (ctData.hasOwnProperty(idx)) {
-                            clientTypes.push(ctData[idx].clientTypeName);
-                            clientCounts.push(parseInt(ctData[idx].count));
+                var mrCtx = document.getElementById('mostreqlinks-canvas');
+                var mrChart = new Chart(mrCtx, {
+                    type: 'pie',
+                    data: chartData,
+                    options: {
+                        legend: {
+                            display: true,
+                            position: 'right'
                         }
                     }
-
-                    var chartData = {
-                        labels: clientTypes,
-                        datasets: [
-                            {
-                                data: clientCounts,
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                    'rgba(75, 192, 192, 1)',
-                                    'rgba(153, 102, 255, 1)',
-                                    'rgba(255, 159, 64, 1)'
-                                ]
-                            }]
-                    };
-
-                    var ctCtx = document.getElementById('clienttype-canvas');
-                    var ctChart = new Chart(ctCtx, {
-                        type: 'doughnut',
-                        data: chartData,
-                        options: {
-                            legend: {
-                                display: true,
-                                position: 'right'
-                            }
-                        }
-                    });
-                }
-            });
-        }
-
-        function renderMostRequestedLinksChart() {
-            $.ajax({
-                type: "POST",
-                url: "/link/most-requested-links-past-month",
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data) {
-                    const mrData = data.item;
-
-                    const notes = [];
-                    const requestCounts = [];
-                    for (let idx in mrData) {
-                        if (mrData.hasOwnProperty(idx)) {
-                            notes.push(mrData[idx].note);
-                            requestCounts.push(parseInt(mrData[idx].requestCount));
-                        }
-                    }
-
-                    var chartData = {
-                        labels: notes,
-                        datasets: [
-                            {
-                                data: requestCounts,
-                                backgroundColor: [
-                                    'rgba(135, 99, 132, 1)',
-                                    'rgba(154, 162, 235, 1)',
-                                    'rgba(215, 206, 86, 1)',
-                                    'rgba(75, 192, 192, 1)',
-                                    'rgba(153, 102, 255, 1)',
-                                    'rgba(255, 159, 64, 1)'
-                                ]
-                            }]
-                    };
-
-                    var mrCtx = document.getElementById('mostreqlinks-canvas');
-                    var mrChart = new Chart(mrCtx, {
-                        type: 'pie',
-                        data: chartData,
-                        options: {
-                            legend: {
-                                display: true,
-                                position: 'right'
-                            }
-                        }
-                    });
-                }
-            });
-        }
-    </script>
+                });
+            }
+        });
+    }
+</script>
 }
 
 <div class="row">
@@ -159,7 +159,7 @@
         <div class="card">
             <div class="card-body">
                 <h6>Request / Past week</h6>
-                <div class="pastweek-counter-section">
+                <div class="pastweek-counter-section mt-3">
                     <canvas id="pastweek-counter-canvas"></canvas>
                 </div>
             </div>
@@ -169,7 +169,7 @@
         <div class="card">
             <div class="card-body">
                 <h6>Client Type / Last month</h6>
-                <div class="clienttype-section">
+                <div class="clienttype-section mt-3">
                     <canvas id="clienttype-canvas"></canvas>
                 </div>
             </div>
@@ -179,7 +179,7 @@
         <div class="card">
             <div class="card-body">
                 <h6>Most Requested Links / Last month</h6>
-                <div class="mostreqlinks-section">
+                <div class="mostreqlinks-section mt-3">
                     <canvas id="mostreqlinks-canvas"></canvas>
                 </div>
             </div>
@@ -189,10 +189,23 @@
 
 <div class="card mt-4">
     <div class="card-body">
-        <h6>Recent Requests</h6>
+        <button class="btn btn-sm btn-success float-right">Refresh</button>
 
-        <table class="table table-bordered">
-            <thead></thead>
+        <h6>
+            Recent Requests
+            <small>Top 32 Records</small>
+        </h6>
+
+
+        <table class="table table-bordered table-sm mt-3">
+            <thead>
+                <tr>
+                    <th>Request Time</th>
+                    <th>Token</th>
+                    <th>User Agent</th>
+                    <th>IP Address</th>
+                </tr>
+            </thead>
         </table>
     </div>
 </div>
