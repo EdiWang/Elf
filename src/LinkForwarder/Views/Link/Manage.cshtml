@@ -110,7 +110,8 @@
             copyToClipboard(document.getElementById("input-link-url"));
         });
 
-        $(".btn-create-link").click(function() {
+        $(".btn-create-link").click(function () {
+            $("#edit-form")[0].reset();
             $("#editLinkModal").modal();
         });
 
