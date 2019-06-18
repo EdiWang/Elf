@@ -4,6 +4,29 @@
 
 The link forward service used by https://go.edi.wang. 
 
+Generate static URLs for redirecting third party URLs. It's similar to, but NOT a URL shorter. 
+
+> E.g.: Make "https://www.somewebsite.com/a-very-long-and-complicated-link-that-can-also-change?with=parameters" into "https://yourdomain/fw/token".
+
+Main purposes:
+
+- Use a static token to adapt changes to origin url.
+- Track user click by User-Agent and IP Address.
+
+## Features
+
+Forward Link, Create/Manage/Share Link, View Report
+
+![image](https://raw.githubusercontent.com/EdiWang/LinkForwarder/master/docs/images/sc-report.png)
+
+![image](https://raw.githubusercontent.com/EdiWang/LinkForwarder/master/docs/images/sc-manage-link.png)
+
+![image](https://raw.githubusercontent.com/EdiWang/LinkForwarder/master/docs/images/sc-edit-link.png)
+
+![image](https://raw.githubusercontent.com/EdiWang/LinkForwarder/master/docs/images/sc-share-link.png)
+
+## Forward Logic
+
 ![image](https://raw.githubusercontent.com/EdiWang/LinkForwarder/master/docs/images/LinkForwarder-FW.png)
 
 ## Build and Run
