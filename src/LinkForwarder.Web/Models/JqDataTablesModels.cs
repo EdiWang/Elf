@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace LinkForwarder.Models
+namespace LinkForwarder.Web.Models
 {
     // credits: https://datatables.net/forums/discussion/40690/sample-implementation-of-serverside-processing-in-c-mvc-ef-with-paging-sorting-searching
 

@@ -1,6 +1,4 @@
-using System;
-
-namespace LinkForwarder.Models
+namespace LinkForwarder.Web.Models
 {
     public class ErrorViewModel
     {

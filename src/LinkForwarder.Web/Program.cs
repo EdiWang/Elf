@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic.CompilerServices;
 using NLog.Web;
 
-namespace LinkForwarder
+namespace LinkForwarder.Web
 {
     public class Program
     {

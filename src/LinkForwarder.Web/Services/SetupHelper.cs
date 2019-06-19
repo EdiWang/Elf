@@ -5,7 +5,7 @@ using System.Reflection;
 using Dapper;
 using Edi.Practice.RequestResponseModel;
 
-namespace LinkForwarder.Services
+namespace LinkForwarder.Web.Services
 {
     public class SetupHelper
     {

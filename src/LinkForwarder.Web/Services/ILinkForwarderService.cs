@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Edi.Practice.RequestResponseModel;
-using LinkForwarder.Models;
+using LinkForwarder.Web.Models;
 
-namespace LinkForwarder.Services
+namespace LinkForwarder.Web.Services
 {
     public interface ILinkForwarderService
     {

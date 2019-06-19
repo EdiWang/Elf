@@ -1,5 +1,8 @@
-﻿using LinkForwarder.Models;
-using LinkForwarder.Services;
+﻿using System;
+using System.Threading.Tasks;
+using LinkForwarder.Web.Filters;
+using LinkForwarder.Web.Models;
+using LinkForwarder.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,11 +10,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System;
-using System.Threading.Tasks;
-using LinkForwarder.Filters;
 
-namespace LinkForwarder.Controllers
+namespace LinkForwarder.Web.Controllers
 {
     [Authorize]
     [Route("link")]

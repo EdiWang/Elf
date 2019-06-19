@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using LinkForwarder.Authentication;
-using LinkForwarder.Models;
+using LinkForwarder.Web.Authentication;
+using LinkForwarder.Web.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace LinkForwarder.Controllers
+namespace LinkForwarder.Web.Controllers
 {
     [Authorize]
     [Route("admin")]

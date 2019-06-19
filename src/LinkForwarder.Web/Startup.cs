@@ -3,9 +3,9 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using AspNetCoreRateLimit;
-using LinkForwarder.Authentication;
-using LinkForwarder.Models;
-using LinkForwarder.Services;
+using LinkForwarder.Web.Authentication;
+using LinkForwarder.Web.Models;
+using LinkForwarder.Web.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace LinkForwarder
+namespace LinkForwarder.Web
 {
     public class Startup
     {

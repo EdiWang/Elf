@@ -1,4 +1,4 @@
-﻿namespace LinkForwarder.Authentication
+﻿namespace LinkForwarder.Web.Authentication
 {
     public class LocalAccountOption
     {

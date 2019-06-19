@@ -6,12 +6,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Edi.Practice.RequestResponseModel;
-using LinkForwarder.Models;
+using LinkForwarder.Web.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using UAParser;
 
-namespace LinkForwarder.Services
+namespace LinkForwarder.Web.Services
 {
     public class LinkForwarderService : ILinkForwarderService
     {

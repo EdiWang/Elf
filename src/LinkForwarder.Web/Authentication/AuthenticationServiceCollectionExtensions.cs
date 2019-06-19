@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace LinkForwarder.Authentication
+namespace LinkForwarder.Web.Authentication
 {
     public static class AuthenticationServiceCollectionExtensions
     {
