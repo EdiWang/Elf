@@ -35,7 +35,7 @@ namespace LinkForwarder.Web.Authentication
                     services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
                             {
-                                options.AccessDeniedPath = "/admin/accessdenied";
+                                options.AccessDeniedPath = "/accessdenied";
                                 options.LoginPath = "/admin/signin";
                                 options.LogoutPath = "/admin/signout";
                             });

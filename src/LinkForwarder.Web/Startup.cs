@@ -149,6 +149,15 @@ namespace LinkForwarder.Web
                     });
                 });
 
+                app.Map("/accessdenied", builder =>
+                {
+                    builder.Run(async context =>
+                    {
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        await context.Response.WriteAsync("Access Denied");
+                    });
+                });
+
                 app.UseMvc();
             }
         }

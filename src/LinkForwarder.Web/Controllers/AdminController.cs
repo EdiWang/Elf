@@ -116,14 +116,14 @@ namespace LinkForwarder.Web.Controllers
                     break;
             }
 
-            return RedirectToAction("Index", "Link");
+            return Redirect("/");
         }
 
         [HttpGet("signedout")]
         [AllowAnonymous]
         public IActionResult SignedOut()
         {
-            return RedirectToAction("Index", "Link");
+            return Redirect("/");
         }
 
         [AllowAnonymous]
