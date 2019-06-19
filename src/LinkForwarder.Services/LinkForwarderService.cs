@@ -6,12 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Edi.Practice.RequestResponseModel;
-using LinkForwarder.Web.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using UAParser;
 
-namespace LinkForwarder.Web.Services
+namespace LinkForwarder.Services
 {
     public class LinkForwarderService : ILinkForwarderService
     {
@@ -324,9 +323,10 @@ namespace LinkForwarder.Web.Services
                                          GROUP BY lt.UserAgent";
 
                     var rawData = await conn.QueryAsync<UserAgentCount>(sql, new { daysFromNow });
-                    if (rawData.Any())
+                    var userAgentCounts = rawData as UserAgentCount[] ?? rawData.ToArray();
+                    if (userAgentCounts.Any())
                     {
-                        var q = from d in rawData
+                        var q = from d in userAgentCounts
                                 group d by GetClientTypeName(d.UserAgent)
                                 into g
                                 select new ClientTypeCount

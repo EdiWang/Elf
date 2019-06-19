@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LinkForwarder.Web.Services
+namespace LinkForwarder.Services
 {
     public interface ITokenGenerator
     {

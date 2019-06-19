@@ -1,4 +1,4 @@
-﻿namespace LinkForwarder.Web.Models
+﻿namespace LinkForwarder.Services
 {
     public static class Constants
     {

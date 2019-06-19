@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LinkForwarder.Web.Models
+namespace LinkForwarder.Services
 {
     public class Link
     {
