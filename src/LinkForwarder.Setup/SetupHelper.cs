@@ -5,7 +5,7 @@ using System.Reflection;
 using Dapper;
 using Edi.Practice.RequestResponseModel;
 
-namespace LinkForwarder.Web.Services
+namespace LinkForwarder.Setup
 {
     public class SetupHelper
     {
@@ -73,7 +73,7 @@ namespace LinkForwarder.Web.Services
         private static string GetEmbeddedSqlScript(string scriptName)
         {
             var assembly = typeof(SetupHelper).GetTypeInfo().Assembly;
-            using (var stream = assembly.GetManifestResourceStream($"LinkForwarder.Data.{scriptName}.sql"))
+            using (var stream = assembly.GetManifestResourceStream($"LinkForwarder.Setup.Data.{scriptName}.sql"))
             {
                 if (stream == null) return null;
                 using (var reader = new StreamReader(stream))

@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.IO;
 using AspNetCoreRateLimit;
 using LinkForwarder.Services;
+using LinkForwarder.Setup;
 using LinkForwarder.Web.Authentication;
 using LinkForwarder.Web.Models;
 using LinkForwarder.Web.Services;
