@@ -42,14 +42,6 @@ namespace LinkForwarder.Web.Controllers
 
         [AllowAnonymous]
         [AddForwarderHeader]
-        [Route(""), Route("/")]
-        public IActionResult Index()
-        {
-            return Content("LinkForwarder Version: " + Utils.AppVersion);
-        }
-
-        [AllowAnonymous]
-        [AddForwarderHeader]
         [Route("/fw/{token}")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Forward(string token)

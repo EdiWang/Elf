@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using System.Text;
 using AspNetCoreRateLimit;
 using LinkForwarder.Services;
 using LinkForwarder.Setup;
@@ -139,12 +140,16 @@ namespace LinkForwarder.Web
                 }
 
                 app.UseIpRateLimiting();
-                app.UseMvc(routes =>
+
+                app.MapWhen(context => context.Request.Path == "/", builder =>
                 {
-                    routes.MapRoute(
-                        name: "default",
-                        template: "{controller=Link}/{action=Index}/{id?}");
+                    builder.Run(async context =>
+                    {
+                        await context.Response.WriteAsync("LinkForwarder Version: " + Utils.AppVersion, Encoding.UTF8);
+                    });
                 });
+
+                app.UseMvc();
             }
         }
 
