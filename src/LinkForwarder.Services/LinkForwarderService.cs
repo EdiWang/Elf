@@ -310,6 +310,8 @@ namespace LinkForwarder.Services
 
                 string GetClientTypeName(string userAgent)
                 {
+                    if (string.IsNullOrWhiteSpace(userAgent)) return "N/A";
+
                     ClientInfo c = uaParser.Parse(userAgent);
                     return $"{c.OS.Family}-{c.UA.Family}";
                 }
