@@ -53,9 +53,18 @@ namespace LinkForwarder.Web.Controllers
                     return BadRequest();
                 }
 
+                var ip = HttpContext.Connection.RemoteIpAddress.ToString();
+                var ua = Request.Headers["User-Agent"];
+                if (string.IsNullOrWhiteSpace(ua))
+                {
+                    _logger.LogWarning($"'{ip}' requested token '{token}' without User Agent. Request is blocked." );
+                    return BadRequest();
+                }
+
                 bool isValid = _tokenGenerator.TryParseToken(token, out var validatedToken);
                 if (!isValid)
                 {
+                    _logger.LogWarning($"'{ip}' requested invalid token '{token}'. Request is blocked.");
                     return BadRequest();
                 }
 
@@ -114,8 +123,6 @@ namespace LinkForwarder.Web.Controllers
                     linkEntry = _cache.Get<Link>(token);
                 }
 
-                var ip = HttpContext.Connection.RemoteIpAddress.ToString();
-                var ua = Request.Headers["User-Agent"];
                 _ = Task.Run(async () =>
                 {
                     await _linkForwarderService.TrackSucessRedirectionAsync(ip, ua, linkEntry.Id);
