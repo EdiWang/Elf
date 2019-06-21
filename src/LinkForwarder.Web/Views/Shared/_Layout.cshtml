@@ -1,4 +1,5 @@
-﻿@using LinkForwarder.Web
+﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+@using LinkForwarder.Web
 @{
     string currentAction = ViewContext.RouteData?.Values["action"]?.ToString();
 }
@@ -36,6 +37,9 @@
     <link href="~/lib/toastr.js/toastr.min.css" rel="stylesheet" />
     <link href="~/css/site.min.css" rel="stylesheet" />
     @RenderSection("head", required: false)
+    <environment exclude="Development">
+        @Html.Raw(JavaScriptSnippet.FullScript)
+    </environment>
 </head>
 <body>
     <header>

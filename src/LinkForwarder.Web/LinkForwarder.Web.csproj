@@ -5,6 +5,8 @@
     <Company>edi.wang</Company>
     <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <ApplicationInsightsResourceId>/subscriptions/15bf06cf-caa3-4224-b7fb-cad42590472f/resourcegroups/moonglade-rsg/providers/microsoft.insights/components/go.edi.wang-appinsight</ApplicationInsightsResourceId>
+    <ApplicationInsightsAnnotationResourceId>/subscriptions/15bf06cf-caa3-4224-b7fb-cad42590472f/resourcegroups/moonglade-rsg/providers/microsoft.insights/components/go.edi.wang-appinsight</ApplicationInsightsAnnotationResourceId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +24,7 @@
     <PackageReference Include="BuildBundlerMinifier" Version="2.9.406" />
     <PackageReference Include="Dapper" Version="1.60.6" />
     <PackageReference Include="Edi.Practice.RequestResponseModel" Version="1.2.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
@@ -34,5 +37,9 @@
   <ItemGroup>
     <ProjectReference Include="..\LinkForwarder.Services\LinkForwarder.Services.csproj" />
     <ProjectReference Include="..\LinkForwarder.Setup\LinkForwarder.Setup.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 </Project>

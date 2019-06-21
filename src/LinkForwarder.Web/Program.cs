@@ -43,6 +43,7 @@ namespace LinkForwarder.Web
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseApplicationInsights()
                 .CaptureStartupErrors(true)
                 .ConfigureKestrel(c => c.AddServerHeader = false)
                 .UseIISIntegration()
