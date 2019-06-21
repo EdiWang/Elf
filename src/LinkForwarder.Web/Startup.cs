@@ -8,6 +8,8 @@ using LinkForwarder.Services;
 using LinkForwarder.Setup;
 using LinkForwarder.Web.Authentication;
 using LinkForwarder.Web.Models;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -90,6 +92,11 @@ namespace LinkForwarder.Web
         {
             if (env.IsDevelopment())
             {
+                _logger.LogWarning("Application is running under DEBUG mode. Application Insights disabled.");
+
+                TelemetryConfiguration.Active.DisableTelemetry = true;
+                TelemetryDebugWriter.IsTracingDisabled = true;
+
                 _logger.LogWarning("LinkForwarder is running in DEBUG.");
                 app.UseDeveloperExceptionPage();
             }
