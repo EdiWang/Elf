@@ -201,6 +201,11 @@
             minutesAgo: ' minutes ago',
             secondsAgo: ' seconds ago'
         });
+
+        $(".btn-refresh").click(function () {
+            table.ajax.reload();
+            toastr.success("Data Refreshed");
+        });
     }
 </script>
 }
@@ -240,7 +245,7 @@
 
 <div class="card mt-4">
     <div class="card-body">
-        <button class="btn btn-sm btn-success float-right">Refresh</button>
+        <button class="btn btn-sm btn-success btn-refresh float-right">Refresh</button>
 
         <h6>
             Recent Requests
