@@ -50,7 +50,7 @@ namespace LinkForwarder.Web.Controllers
         {
             bool ValidateAkaName(string name)
             {
-                return !string.IsNullOrWhiteSpace(name) && Regex.IsMatch(name, "(?!-)([a-z0-9-]+)");
+                return !string.IsNullOrWhiteSpace(name) && Regex.IsMatch(name, @"^(?!-)([a-z0-9-]+)$");
             }
 
             try
