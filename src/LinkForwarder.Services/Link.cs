@@ -12,6 +12,8 @@ namespace LinkForwarder.Services
 
         public string Note { get; set; }
 
+        public string AkaName { get; set; }
+
         public bool IsEnabled { get; set; }
 
         public DateTime UpdateTimeUtc { get; set; }

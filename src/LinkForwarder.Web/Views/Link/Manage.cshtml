@@ -32,6 +32,7 @@
                     { "data": "fwToken" },
                     { "data": "originUrl" },
                     { "data": "note" },
+                    { "data": "akaName" },
                     { "data": "isEnabled" },
                     { "data": "updateTimeUtc" },
                     { "data": null }
@@ -55,14 +56,14 @@
                     }
                 },
                 {
-                    "targets": 3,
+                    "targets": 4,
                     "data": "isEnabled",
                     "render": function (data, type, row, meta) {
                         return data ? '✔' : '❌';
                     }
                 },
                 {
-                    "targets": 4,
+                    "targets": 5,
                     "data": "updateTimeUtc",
                     "render": function (data, type, row, meta) {
                         return '<span data-utc-time="' + data + '"></span>';
@@ -101,6 +102,7 @@
                 $("#input-id").val(data.id);
                 $("#input-origin-url").val(data.originUrl);
                 $("#input-note").val(data.note);
+                $("#input-akaName").val(data.akaName);
                 $("#check-is-enabled").attr('checked', data.isEnabled);
                 $("#editLinkModal").modal();
             });
@@ -131,6 +133,7 @@
                         "Id": $("#input-id").val(),
                         "OriginUrl": $("#input-origin-url").val(),
                         "Note": $("#input-note").val(),
+                        "AkaName": $("#input-akaName").val(),
                         "IsEnabled": $("#check-is-enabled").is(":checked")
                     },
                     function (data) {
@@ -170,6 +173,7 @@
             <th style="width: 80px;">Token</th>
             <th>Origin Url</th>
             <th>Note</th>
+            <th>Aka</th>
             <th style="width: 80px;">Enabled</th>
             <th style="width: 100px;">Update Time</th>
             <th style="width: 180px;">Action</th>
@@ -208,6 +212,14 @@
                     <div class="form-group">
                         <label class="control-label" for="input-note">Note</label>
                         <input class="form-control" type="text" id="input-note" name="input-note" value="">
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="input-akaName">Aka</label>
+                        <input class="form-control" type="text" id="input-akaName" name="input-akaName" value=""
+                               data-val="true" 
+                               data-val-regex="Aka can only accept lower case English letters (a-z) and numbers (0-9) with/out hyphen (-) in middle." data-val-regex-pattern="(?!-)([a-z0-9-]+)"
+                               data-val-maxlength-max="32">
+                        <span class="text-danger field-validation-valid" data-valmsg-for="input-akaName" data-valmsg-replace="true"></span>
                     </div>
 
                     <div class="form-check">

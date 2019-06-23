@@ -72,6 +72,7 @@ namespace LinkForwarder.Services
                                              l.OriginUrl,
                                              l.FwToken,
                                              l.Note,
+                                             l.AkaName,
                                              l.IsEnabled,
                                              l.UpdateTimeUtc
                                          FROM Link l
@@ -100,7 +101,7 @@ namespace LinkForwarder.Services
             }
         }
 
-        public async Task<Response<string>> CreateLinkAsync(string originUrl, string note, bool isEnabled)
+        public async Task<Response<string>> CreateLinkAsync(string originUrl, string note, string akaName, bool isEnabled)
         {
             try
             {
@@ -134,11 +135,12 @@ namespace LinkForwarder.Services
                         FwToken = token,
                         IsEnabled = isEnabled,
                         Note = note,
+                        AkaName = akaName,
                         OriginUrl = originUrl,
                         UpdateTimeUtc = DateTime.UtcNow
                     };
-                    const string sqlInsertLk = @"INSERT INTO Link (OriginUrl, FwToken, Note, IsEnabled, UpdateTimeUtc) 
-                                                 VALUES (@OriginUrl, @FwToken, @Note, @IsEnabled, @UpdateTimeUtc)";
+                    const string sqlInsertLk = @"INSERT INTO Link (OriginUrl, FwToken, Note, AkaName, IsEnabled, UpdateTimeUtc) 
+                                                 VALUES (@OriginUrl, @FwToken, @Note, @AkaName, @IsEnabled, @UpdateTimeUtc)";
                     await conn.ExecuteAsync(sqlInsertLk, link);
                     return new SuccessResponse<string>(link.FwToken);
                 }
@@ -150,7 +152,7 @@ namespace LinkForwarder.Services
             }
         }
 
-        public async Task<Response<string>> EditLinkAsync(int linkId, string newUrl, string note, bool isEnabled)
+        public async Task<Response<string>> EditLinkAsync(int linkId, string newUrl, string note, string akaName, bool isEnabled)
         {
             try
             {
@@ -161,6 +163,7 @@ namespace LinkForwarder.Services
                                                  l.OriginUrl,
                                                  l.FwToken,
                                                  l.Note,
+                                                 l.AkaName,
                                                  l.IsEnabled,
                                                  l.UpdateTimeUtc
                                                  FROM Link l WHERE l.Id = @id";
@@ -172,11 +175,13 @@ namespace LinkForwarder.Services
 
                     link.OriginUrl = newUrl;
                     link.Note = note;
+                    link.AkaName = akaName;
                     link.IsEnabled = isEnabled;
 
                     const string sqlUpdate = @"UPDATE Link SET 
                                                OriginUrl = @OriginUrl,
                                                Note = @Note,
+                                               AkaName = @AkaName,
                                                IsEnabled = @IsEnabled
                                                WHERE Id = @Id";
                     await conn.ExecuteAsync(sqlUpdate, link);
@@ -218,6 +223,7 @@ namespace LinkForwarder.Services
                                          l.OriginUrl,
                                          l.FwToken,
                                          l.Note,
+                                         l.AkaName,
                                          l.IsEnabled,
                                          l.UpdateTimeUtc
                                          FROM Link l
@@ -243,7 +249,8 @@ namespace LinkForwarder.Services
                                          l.Id,
                                          l.OriginUrl,
                                          l.FwToken,
-                                         l.Note,
+                                         l.Note, 
+                                         l.AkaName,
                                          l.IsEnabled,
                                          l.UpdateTimeUtc
                                          FROM Link l
@@ -256,6 +263,27 @@ namespace LinkForwarder.Services
             {
                 _logger.LogError(e, e.Message);
                 return new FailedResponse<Link>(e.Message);
+            }
+        }
+
+        public async Task<Response<string>> GetTokenByAkaNameAsync(string akaName)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = @"SELECT TOP 1 
+                                         l.FwToken
+                                         FROM Link l
+                                         WHERE l.AkaName = @akaName";
+                    var link = await conn.ExecuteScalarAsync<string>(sql, new { akaName });
+                    return new SuccessResponse<string>(link);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<string>(e.Message);
             }
         }
 
