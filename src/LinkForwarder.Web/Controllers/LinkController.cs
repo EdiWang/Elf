@@ -57,7 +57,7 @@ namespace LinkForwarder.Web.Controllers
                 var ua = Request.Headers["User-Agent"];
                 if (string.IsNullOrWhiteSpace(ua))
                 {
-                    _logger.LogWarning($"'{ip}' requested token '{token}' without User Agent. Request is blocked." );
+                    _logger.LogWarning($"'{ip}' requested token '{token}' without User Agent. Request is blocked.");
                     return BadRequest();
                 }
 
@@ -240,7 +240,8 @@ namespace LinkForwarder.Web.Controllers
                         return BadRequest("Can not use url pointing to this site.");
                 }
 
-                var response = await _linkForwarderService.CreateLinkAsync(model.OriginUrl, model.Note, model.IsEnabled);
+                var response = await _linkForwarderService.CreateLinkAsync(
+                    model.OriginUrl, model.Note, model.AkaName, model.IsEnabled);
                 return Json(response);
             }
             return BadRequest("Invalid ModelState");
@@ -288,7 +289,8 @@ namespace LinkForwarder.Web.Controllers
                         return BadRequest("Can not use url pointing to this site.");
                 }
 
-                var response = await _linkForwarderService.EditLinkAsync(model.Id, model.OriginUrl, model.Note, model.IsEnabled);
+                var response = await _linkForwarderService.EditLinkAsync(
+                    model.Id, model.OriginUrl, model.Note, model.AkaName, model.IsEnabled);
                 if (response.IsSuccess)
                 {
                     _cache.Remove(response.Item);

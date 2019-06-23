@@ -18,6 +18,9 @@ namespace LinkForwarder.Web.Models
         [Display(Name = "Note")]
         public string Note { get; set; }
 
+        [Display(Name = "Aka")]
+        public string AkaName { get; set; }
+
         [Required]
         [Display(Name = "Enable")]
         public bool IsEnabled { get; set; }

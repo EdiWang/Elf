@@ -10,8 +10,8 @@ namespace LinkForwarder.Services
         Task<Response<bool>> IsLinkExistsAsync(string token);
         Task<Response> TrackSucessRedirectionAsync(string ipAddress, string userAgent, int linkId);
         Task<Response<IReadOnlyList<LinkTracking>>> GetTrackingRecords(int linkId, int top = 100);
-        Task<Response<string>> CreateLinkAsync(string originUrl, string note, bool isEnabled);
-        Task<Response<string>> EditLinkAsync(int linkId, string newUrl, string note, bool isEnabled);
+        Task<Response<string>> CreateLinkAsync(string originUrl, string note, string akaName, bool isEnabled);
+        Task<Response<string>> EditLinkAsync(int linkId, string newUrl, string note, string akaName, bool isEnabled);
         Task<Response<int>> CountLinksAsync();
         Task<Response<Link>> GetLinkAsync(int id);
         Task<Response<Link>> GetLinkAsync(string token);

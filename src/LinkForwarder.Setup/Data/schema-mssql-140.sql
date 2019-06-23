@@ -4,6 +4,7 @@ CREATE TABLE [Link](
 [OriginUrl] [nvarchar](256) NULL,
 [FwToken] [varchar](32) NULL,
 [Note] [nvarchar](max) NULL,
+[AkaName] [varchar](32) NULL,
 [IsEnabled] [bit] NOT NULL,
 [UpdateTimeUtc] [datetime] NOT NULL)
 
