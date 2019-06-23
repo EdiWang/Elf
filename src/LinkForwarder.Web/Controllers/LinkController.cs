@@ -42,6 +42,15 @@ namespace LinkForwarder.Web.Controllers
 
         [AllowAnonymous]
         [AddForwarderHeader]
+        [Route("/aka/{akaName}")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Aka(string akaName)
+        {
+            throw new NotImplementedException();
+        }
+
+        [AllowAnonymous]
+        [AddForwarderHeader]
         [Route("/fw/{token}")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Forward(string token)
