@@ -265,6 +265,7 @@ namespace LinkForwarder.Web.Controllers
             {
                 Id = linkResponse.Item.Id,
                 Note = linkResponse.Item.Note,
+                AkaName = linkResponse.Item.AkaName,
                 OriginUrl = linkResponse.Item.OriginUrl,
                 IsEnabled = linkResponse.Item.IsEnabled
             };

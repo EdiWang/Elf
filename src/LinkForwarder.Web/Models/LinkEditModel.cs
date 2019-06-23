@@ -19,6 +19,8 @@ namespace LinkForwarder.Web.Models
         public string Note { get; set; }
 
         [Display(Name = "Aka")]
+        [MaxLength(32)]
+        [RegularExpression("(?!-)([a-z0-9-]+)")]
         public string AkaName { get; set; }
 
         [Required]
