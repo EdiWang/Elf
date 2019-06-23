@@ -266,6 +266,27 @@ namespace LinkForwarder.Services
             }
         }
 
+        public async Task<Response<string>> GetTokenByAkaNameAsync(string akaName)
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sql = @"SELECT TOP 1 
+                                         l.FwToken
+                                         FROM Link l
+                                         WHERE l.AkaName = @akaName";
+                    var link = await conn.ExecuteScalarAsync<string>(sql, new { akaName });
+                    return new SuccessResponse<string>(link);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<string>(e.Message);
+            }
+        }
+
         public async Task<Response> DeleteLink(int linkId)
         {
             try

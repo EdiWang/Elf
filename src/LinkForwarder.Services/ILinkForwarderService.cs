@@ -15,6 +15,7 @@ namespace LinkForwarder.Services
         Task<Response<int>> CountLinksAsync();
         Task<Response<Link>> GetLinkAsync(int id);
         Task<Response<Link>> GetLinkAsync(string token);
+        Task<Response<string>> GetTokenByAkaNameAsync(string akaName);
         Task<Response<int>> GetClickCount(int linkId);
         Task<Response> DeleteLink(int linkId);
         Task<Response<IReadOnlyList<LinkTrackingDateCount>>> GetLinkTrackingDateCount(int daysFromNow);
