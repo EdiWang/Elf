@@ -91,7 +91,7 @@ namespace LinkForwarder.Services
 
                     var totalRows = await conn.ExecuteScalarAsync<int>(sqlTotalRows, new { noteKeyword });
 
-                    return new SuccessResponse<(IReadOnlyList<Link> Links, int TotalRows)>((links.ToList(), totalRows));
+                    return new SuccessResponse<(IReadOnlyList<Link> Links, int TotalRows)>((links.AsList(), totalRows));
                 }
             }
             catch (Exception e)
@@ -101,14 +101,14 @@ namespace LinkForwarder.Services
             }
         }
 
-        public async Task<Response<string>> CreateLinkAsync(string originUrl, string note, string akaName, bool isEnabled)
+        public async Task<Response<string>> CreateLinkAsync(CreateLinkRequest createLinkRequest)
         {
             try
             {
                 using (var conn = DbConnection)
                 {
                     const string sqlLinkExist = "SELECT TOP 1 FwToken FROM Link l WHERE l.OriginUrl = @originUrl";
-                    var tempToken = await conn.ExecuteScalarAsync<string>(sqlLinkExist, new { originUrl });
+                    var tempToken = await conn.ExecuteScalarAsync<string>(sqlLinkExist, new { createLinkRequest.OriginUrl });
                     if (null != tempToken)
                     {
                         if (_tokenGenerator.TryParseToken(tempToken, out var tk))
@@ -117,7 +117,7 @@ namespace LinkForwarder.Services
                             return new SuccessResponse<string>(tk);
                         }
 
-                        string message = $"Invalid token '{tempToken}' found for existing url '{originUrl}'";
+                        string message = $"Invalid token '{tempToken}' found for existing url '{createLinkRequest.OriginUrl}'";
                         _logger.LogError(message);
                     }
 
@@ -128,15 +128,15 @@ namespace LinkForwarder.Services
                         token = _tokenGenerator.GenerateToken();
                     } while (await conn.ExecuteScalarAsync<int>(sqlTokenExist, new { token }) == 1);
 
-                    _logger.LogInformation($"Generated Token '{token}' for url '{originUrl}'");
+                    _logger.LogInformation($"Generated Token '{token}' for url '{createLinkRequest.OriginUrl}'");
 
                     var link = new Link
                     {
                         FwToken = token,
-                        IsEnabled = isEnabled,
-                        Note = note,
-                        AkaName = akaName,
-                        OriginUrl = originUrl,
+                        IsEnabled = createLinkRequest.IsEnabled,
+                        Note = createLinkRequest.Note,
+                        AkaName = createLinkRequest.AkaName,
+                        OriginUrl = createLinkRequest.OriginUrl,
                         UpdateTimeUtc = DateTime.UtcNow
                     };
                     const string sqlInsertLk = @"INSERT INTO Link (OriginUrl, FwToken, Note, AkaName, IsEnabled, UpdateTimeUtc) 
@@ -152,7 +152,7 @@ namespace LinkForwarder.Services
             }
         }
 
-        public async Task<Response<string>> EditLinkAsync(int linkId, string newUrl, string note, string akaName, bool isEnabled)
+        public async Task<Response<string>> EditLinkAsync(EditLinkRequest editLinkRequest)
         {
             try
             {
@@ -167,16 +167,16 @@ namespace LinkForwarder.Services
                                                  l.IsEnabled,
                                                  l.UpdateTimeUtc
                                                  FROM Link l WHERE l.Id = @id";
-                    var link = await conn.QueryFirstOrDefaultAsync<Link>(sqlFindLink, new { id = linkId });
+                    var link = await conn.QueryFirstOrDefaultAsync<Link>(sqlFindLink, new { id = editLinkRequest.Id });
                     if (null == link)
                     {
-                        return new FailedResponse<string>($"Link with id '{linkId}' does not exist.");
+                        return new FailedResponse<string>($"Link with id '{editLinkRequest.Id}' does not exist.");
                     }
 
-                    link.OriginUrl = newUrl;
-                    link.Note = note;
-                    link.AkaName = akaName;
-                    link.IsEnabled = isEnabled;
+                    link.OriginUrl = editLinkRequest.NewUrl;
+                    link.Note = editLinkRequest.Note;
+                    link.AkaName = editLinkRequest.AkaName;
+                    link.IsEnabled = editLinkRequest.IsEnabled;
 
                     const string sqlUpdate = @"UPDATE Link SET 
                                                OriginUrl = @OriginUrl,
@@ -320,7 +320,7 @@ namespace LinkForwarder.Services
                                          GROUP BY CAST(lt.RequestTimeUtc AS DATE)";
 
                     var list = await conn.QueryAsync<LinkTrackingDateCount>(sql, new { daysFromNow });
-                    return new SuccessResponse<IReadOnlyList<LinkTrackingDateCount>>(list.ToList());
+                    return new SuccessResponse<IReadOnlyList<LinkTrackingDateCount>>(list.AsList());
                 }
             }
             catch (Exception e)
@@ -365,7 +365,7 @@ namespace LinkForwarder.Services
                                     Count = g.Sum(gp => gp.RequestCount)
                                 };
 
-                        return new SuccessResponse<IReadOnlyList<ClientTypeCount>>(q.ToList());
+                        return new SuccessResponse<IReadOnlyList<ClientTypeCount>>(q.AsList());
                     }
                     return new SuccessResponse<IReadOnlyList<ClientTypeCount>>(new List<ClientTypeCount>());
                 }
@@ -390,7 +390,7 @@ namespace LinkForwarder.Services
                                          GROUP BY l.FwToken, l.Note";
 
                     var list = await conn.QueryAsync<MostRequestedLinkCount>(sql, new { daysFromNow });
-                    return new SuccessResponse<IReadOnlyList<MostRequestedLinkCount>>(list.ToList());
+                    return new SuccessResponse<IReadOnlyList<MostRequestedLinkCount>>(list.AsList());
                 }
             }
             catch (Exception e)
@@ -400,7 +400,7 @@ namespace LinkForwarder.Services
             }
         }
 
-        public async Task<Response> TrackSucessRedirectionAsync(string ipAddress, string userAgent, int linkId)
+        public async Task<Response> TrackSucessRedirectionAsync(LinkTrackingRequest request)
         {
             try
             {
@@ -409,10 +409,10 @@ namespace LinkForwarder.Services
                     var lt = new LinkTracking
                     {
                         Id = Guid.NewGuid(),
-                        IpAddress = ipAddress,
-                        LinkId = linkId,
+                        IpAddress = request.IpAddress,
+                        LinkId = request.LinkId,
                         RequestTimeUtc = DateTime.UtcNow,
-                        UserAgent = userAgent
+                        UserAgent = request.UserAgent
                     };
 
                     const string sqlInsertLt = @"INSERT INTO LinkTracking (Id, IpAddress, LinkId, RequestTimeUtc, UserAgent) 
@@ -439,7 +439,7 @@ namespace LinkForwarder.Services
                                          FROM LinkTracking lt WHERE lt.linkId = @linkId
                                          ORDER BY lt.RequestTimeUtc DESC";
                     var list = await conn.QueryAsync<LinkTracking>(sql, new { top, linkId });
-                    return new SuccessResponse<IReadOnlyList<LinkTracking>>(list.ToList());
+                    return new SuccessResponse<IReadOnlyList<LinkTracking>>(list.AsList());
                 }
             }
             catch (Exception e)
@@ -479,7 +479,7 @@ namespace LinkForwarder.Services
                                          ORDER BY lt.RequestTimeUtc DESC";
 
                     var list = await conn.QueryAsync<RequestTrack>(sql, new { top });
-                    return new SuccessResponse<IReadOnlyList<RequestTrack>>(list.ToList());
+                    return new SuccessResponse<IReadOnlyList<RequestTrack>>(list.AsList());
                 }
             }
             catch (Exception e)

@@ -185,7 +185,11 @@ namespace LinkForwarder.Web.Controllers
                 linkEntry = _cache.Get<Link>(token);
             }
 
-            _ = Task.Run(async () => { await _linkForwarderService.TrackSucessRedirectionAsync(ip, ua, linkEntry.Id); });
+            _ = Task.Run(async () =>
+            {
+                await _linkForwarderService.TrackSucessRedirectionAsync(
+                    new LinkTrackingRequest(ip, ua, linkEntry.Id));
+            });
 
             return Redirect(linkEntry.OriginUrl);
         }
@@ -243,7 +247,7 @@ namespace LinkForwarder.Web.Controllers
         [Route("recent-requests")]
         public async Task<IActionResult> RecentRequests()
         {
-            var response = await _linkForwarderService.GetRecentRequests(32);
+            var response = await _linkForwarderService.GetRecentRequests(64);
             if (!response.IsSuccess)
             {
                 Response.StatusCode = StatusCodes.Status500InternalServerError;
@@ -293,8 +297,15 @@ namespace LinkForwarder.Web.Controllers
                         return BadRequest("Can not use url pointing to this site.");
                 }
 
-                var response = await _linkForwarderService.CreateLinkAsync(
-                    model.OriginUrl, model.Note, model.AkaName, model.IsEnabled);
+                var createLinkRequest = new CreateLinkRequest
+                {
+                    OriginUrl = model.OriginUrl,
+                    Note = model.Note,
+                    AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
+                    IsEnabled = model.IsEnabled
+                };
+
+                var response = await _linkForwarderService.CreateLinkAsync(createLinkRequest);
                 return Json(response);
             }
             return BadRequest("Invalid ModelState");
@@ -343,8 +354,15 @@ namespace LinkForwarder.Web.Controllers
                         return BadRequest("Can not use url pointing to this site.");
                 }
 
-                var response = await _linkForwarderService.EditLinkAsync(
-                    model.Id, model.OriginUrl, model.Note, model.AkaName, model.IsEnabled);
+                var editRequest = new EditLinkRequest(model.Id)
+                {
+                    NewUrl = model.OriginUrl,
+                    Note = model.Note,
+                    AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
+                    IsEnabled = model.IsEnabled
+                };
+
+                var response = await _linkForwarderService.EditLinkAsync(editRequest);
                 if (response.IsSuccess)
                 {
                     _cache.Remove(response.Item);
