@@ -428,6 +428,24 @@ namespace LinkForwarder.Services
             }
         }
 
+        public async Task<Response<int>> ClearTrackingDataAsync()
+        {
+            try
+            {
+                using (var conn = DbConnection)
+                {
+                    const string sqlClearTracking = "DELETE FROM LinkTracking";
+                    var rows = await conn.ExecuteAsync(sqlClearTracking);
+                    return new SuccessResponse<int>(rows);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new FailedResponse<int>(e.Message);
+            }
+        }
+
         public async Task<Response<IReadOnlyList<LinkTracking>>> GetTrackingRecords(int linkId, int top = 100)
         {
             try
