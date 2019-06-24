@@ -78,6 +78,11 @@
                 secondsAgo: ' seconds ago'
             });
 
+            $(".btn-refresh").click(function () {
+                table.ajax.reload();
+                toastr.success("Data Refreshed");
+            });
+
             $('.table-links tbody').on('click', 'button', function () {
                 var data = table.row($(this).parents('tr')).data();
                 console.info(data);
@@ -167,6 +172,9 @@
 </style>
 
 @Html.AntiForgeryToken()
+
+<button class="btn btn-sm btn-success btn-refresh float-right">Refresh</button>
+
 <table class="table table-bordered table-sm table-links">
     <thead>
         <tr>
