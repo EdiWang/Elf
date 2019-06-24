@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LinkForwarder.Services
+namespace LinkForwarder.Services.Entities
 {
     public class LinkTracking
     {

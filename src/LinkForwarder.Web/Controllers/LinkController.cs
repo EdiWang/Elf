@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using LinkForwarder.Services;
+using LinkForwarder.Services.Entities;
 using LinkForwarder.Services.Models;
 using LinkForwarder.Web.Models;
 using Microsoft.AspNetCore.Authorization;

@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using LinkForwarder.Services;
+using LinkForwarder.Services.Entities;
 using LinkForwarder.Services.Models;
 using LinkForwarder.Services.TokenGenerator;
 using LinkForwarder.Web.Filters;
