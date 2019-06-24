@@ -399,7 +399,7 @@ namespace LinkForwarder.Web.Controllers
 
         [Route("clear-tracking-data")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ClearTrackingData()
+        public async Task<IActionResult> ClearTrackingData(int nonce)
         {
             var response = await _linkForwarderService.ClearTrackingDataAsync();
             if (!response.IsSuccess)

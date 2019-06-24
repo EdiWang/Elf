@@ -20,7 +20,21 @@
         renderClientTypeChart();
         renderMostRequestedLinksChart();
         getRecentRequests();
+
+        $(".btn-clear-data").click(function () {
+            tryClearTrackingData();
+        });
     });
+
+    function tryClearTrackingData() {
+        var nonce = Math.floor((Math.random() * 128) + 1);
+        ajaxPostWithCSRFToken("/link/clear-tracking-data", { nonce }, function() {
+            location.href = "/link/report";
+        });
+        $(".btn-clear-data").text("Wait...");
+        $(".btn-clear-data").addClass("disabled");
+        $(".btn-clear-data").attr("disabled", "disabled");
+    }
 
     function renderReqPastWeekLineChart() {
         $.ajax({
@@ -209,6 +223,8 @@
     }
 </script>
 }
+
+@Html.AntiForgeryToken()
 
 <button class="btn btn-danger" data-toggle="modal" data-target="#cleardataModal">Clear Tracking Data</button>
 
