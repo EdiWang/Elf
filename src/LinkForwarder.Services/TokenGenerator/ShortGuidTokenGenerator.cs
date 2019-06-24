@@ -1,14 +1,7 @@
 ﻿using System;
 
-namespace LinkForwarder.Services
+namespace LinkForwarder.Services.TokenGenerator
 {
-    public interface ITokenGenerator
-    {
-        string GenerateToken();
-
-        bool TryParseToken(string input, out string token);
-    }
-
     public class ShortGuidTokenGenerator : ITokenGenerator
     {
         private const int Length = 8;
