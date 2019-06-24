@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LinkForwarder.Services
+﻿namespace LinkForwarder.Services.Models
 {
     public class LinkTrackingRequest
     {
