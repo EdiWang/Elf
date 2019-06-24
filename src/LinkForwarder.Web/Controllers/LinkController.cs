@@ -397,6 +397,18 @@ namespace LinkForwarder.Web.Controllers
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
 
+        [Route("clear-tracking-data")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ClearTrackingData(int nonce)
+        {
+            var response = await _linkForwarderService.ClearTrackingDataAsync();
+            if (!response.IsSuccess)
+            {
+                Response.StatusCode = StatusCodes.Status500InternalServerError;
+            }
+            return Json(response);
+        }
+
         #endregion
     }
 }

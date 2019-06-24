@@ -9,6 +9,7 @@ namespace LinkForwarder.Services
         Task<Response<(IReadOnlyList<Link> Links, int TotalRows)>> GetPagedLinksAsync(int offset, int pageSize, string noteKeyword = null);
         Task<Response<bool>> IsLinkExistsAsync(string token);
         Task<Response> TrackSucessRedirectionAsync(LinkTrackingRequest request);
+        Task<Response<int>> ClearTrackingDataAsync();
         Task<Response<IReadOnlyList<LinkTracking>>> GetTrackingRecords(int linkId, int top = 100);
         Task<Response<string>> CreateLinkAsync(CreateLinkRequest createLinkRequest);
         Task<Response<string>> EditLinkAsync(EditLinkRequest editLinkRequest);
