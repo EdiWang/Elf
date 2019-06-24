@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using AspNetCoreRateLimit;
 using LinkForwarder.Services;
+using LinkForwarder.Services.TokenGenerator;
 using LinkForwarder.Setup;
 using LinkForwarder.Web.Authentication;
 using LinkForwarder.Web.Models;

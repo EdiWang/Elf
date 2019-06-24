@@ -1,4 +1,4 @@
-﻿namespace LinkForwarder.Services
+﻿namespace LinkForwarder.Services.Models
 {
     internal class UserAgentCount
     {

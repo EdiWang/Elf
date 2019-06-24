@@ -1,5 +1,4 @@
 ﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
-@using LinkForwarder.Web
 @{
     string currentAction = ViewContext.RouteData?.Values["action"]?.ToString();
 }
@@ -33,8 +32,12 @@
     <script src="~/lib/popper.js/umd/popper.min.js"></script>
     <script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
     <script src="~/lib/toastr.js/toastr.min.js"></script>
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/js/jquery-utc-time.min.js"></script>
     <link href="~/lib/twitter-bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/lib/toastr.js/toastr.min.css" rel="stylesheet" />
+    <link href="~/lib/datatables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <link href="~/css/site.min.css" rel="stylesheet" />
     @RenderSection("head", required: false)
     <environment exclude="Development">

@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace LinkForwarder.Services
+namespace LinkForwarder.Services.Entities
 {
-    public class RequestTrack
+    public class LinkTracking
     {
-        public string FwToken { get; set; }
+        public Guid Id { get; set; }
 
-        public string Note { get; set; }
+        public int LinkId { get; set; }
 
         public string UserAgent { get; set; }
 
