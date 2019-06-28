@@ -12,8 +12,6 @@
   <ItemGroup>
     <Folder Include="wwwroot\lib\" />
     <None Include="bundleconfig.json" />
-    <Content Update="nlog.config" CopyToOutputDirectory="Always" />
-    <Content Update="nlog.debug.config" CopyToOutputDirectory="Always" />
     <Content Update="libman.json" CopyToPublishDirectory="Never" />
     <Content Update="bundleconfig.json" CopyToPublishDirectory="Never" />
     <Content Include="urlrewrite.xml" CopyToOutputDirectory="Always" />
@@ -24,14 +22,13 @@
     <PackageReference Include="BuildBundlerMinifier" Version="2.9.406" />
     <PackageReference Include="Dapper" Version="1.60.6" />
     <PackageReference Include="Edi.Practice.RequestResponseModel" Version="1.2.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="2.2.5" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.0.48" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.3" />
-    <PackageReference Include="NLog" Version="4.6.5" />
   </ItemGroup>
 
   <ItemGroup>

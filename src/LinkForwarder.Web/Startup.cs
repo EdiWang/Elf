@@ -33,6 +33,14 @@ namespace LinkForwarder.Web
             Configuration = configuration;
             Environment = env;
             _logger = logger;
+
+            _logger.LogInformation($"LinkForwarder Version {Utils.AppVersion}\n" +
+                   "--------------------------------------------------------\n" +
+                   $" Directory: {System.Environment.CurrentDirectory} \n" +
+                   $" x64Process: {System.Environment.Is64BitProcess} \n" +
+                   $" OSVersion: {System.Runtime.InteropServices.RuntimeInformation.OSDescription} \n" +
+                   $" UserName: {System.Environment.UserName} \n" +
+                   "--------------------------------------------------------");
         }
 
         public IConfiguration Configuration { get; }
