@@ -116,8 +116,7 @@ namespace LinkForwarder.Web
                 app.UseHttpsRedirection();
             }
 
-            var baseDir = env.ContentRootPath;
-            TryAddUrlRewrite(app, baseDir);
+            TryAddUrlRewrite(app);
 
             app.UseStaticFiles();
             app.UseAuthentication();
@@ -178,25 +177,14 @@ namespace LinkForwarder.Web
             }
         }
 
-        private void TryAddUrlRewrite(IApplicationBuilder app, string baseDir)
+        private void TryAddUrlRewrite(IApplicationBuilder app)
         {
             try
             {
-                var urlRewriteConfigPath = Path.Combine(baseDir, "urlrewrite.xml");
-                if (File.Exists(urlRewriteConfigPath))
-                {
-                    using (var sr = File.OpenText(urlRewriteConfigPath))
-                    {
-                        var options = new RewriteOptions()
-                            .AddRedirect("(.*)/$", "$1")
-                            .AddIISUrlRewrite(sr);
-                        app.UseRewriter(options);
-                    }
-                }
-                else
-                {
-                    _logger.LogWarning($"Can not find {urlRewriteConfigPath}, skip adding url rewrite.");
-                }
+                var options = new RewriteOptions()
+                    .AddRedirect("(.*)/$", "$1")
+                    .AddRedirect("(index|default).(aspx?|htm|s?html|php|pl|jsp|cfm)", "/");
+                app.UseRewriter(options);
             }
             catch (Exception e)
             {

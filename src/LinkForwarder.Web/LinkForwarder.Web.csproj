@@ -14,7 +14,6 @@
     <None Include="bundleconfig.json" />
     <Content Update="libman.json" CopyToPublishDirectory="Never" />
     <Content Update="bundleconfig.json" CopyToPublishDirectory="Never" />
-    <Content Include="urlrewrite.xml" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <ItemGroup>
