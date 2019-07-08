@@ -13,7 +13,7 @@
                 "ordering": false,
                 "ajax":
                 {
-                    url: "/link/list",
+                    url: "/admin/list",
                     type: "POST"
                 },
                 "initComplete": function(settings, json) {
@@ -100,7 +100,7 @@
         }
 
         function editLink(linkId) {
-            $.get('/link/get-edit-model/' + linkId, function(data) {
+            $.get('/admin/get-edit-model/' + linkId, function(data) {
                 $("#input-id").val(data.id);
                 $("#input-origin-url").val(data.originUrl);
                 $("#input-note").val(data.note);
@@ -130,7 +130,7 @@
                     action = "edit";
                 }
 
-                ajaxPostWithCSRFToken('/link/' + action,
+                ajaxPostWithCSRFToken('/admin/' + action,
                     {
                         "Id": $("#input-id").val(),
                         "OriginUrl": $("#input-origin-url").val(),

@@ -24,8 +24,8 @@
 
     function tryClearTrackingData() {
         var nonce = Math.floor((Math.random() * 128) + 1);
-        ajaxPostWithCSRFToken("/link/clear-tracking-data", { nonce }, function() {
-            location.href = "/link/report";
+        ajaxPostWithCSRFToken("/admin/clear-tracking-data", { nonce }, function() {
+            location.href = "/admin/report";
         });
         $(".btn-clear-data").text("Wait...");
         $(".btn-clear-data").addClass("disabled");
@@ -35,7 +35,7 @@
     function renderReqPastWeekLineChart() {
         $.ajax({
             type: "POST",
-            url: "/link/tracking-count-past-week",
+            url: "/admin/tracking-count-past-week",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
@@ -78,7 +78,7 @@
     function renderClientTypeChart() {
         $.ajax({
             type: "POST",
-            url: "/link/client-type-past-month",
+            url: "/admin/client-type-past-month",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
@@ -127,7 +127,7 @@
     function renderMostRequestedLinksChart() {
         $.ajax({
             type: "POST",
-            url: "/link/most-requested-links-past-month",
+            url: "/admin/most-requested-links-past-month",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
@@ -179,7 +179,7 @@
             "ordering": false,
             "ajax":
             {
-                url: "/link/recent-requests",
+                url: "/admin/recent-requests",
                 type: "POST"
             },
             "columns": [
