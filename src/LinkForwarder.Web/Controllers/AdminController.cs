@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace LinkForwarder.Web.Controllers
 {
@@ -22,6 +23,7 @@ namespace LinkForwarder.Web.Controllers
     [Route("admin")]
     public class AdminController : Controller
     {
+        private readonly AppSettings _appSettings;
         private readonly AuthenticationSettings _authenticationSettings;
         private readonly ILogger<AdminController> _logger;
         private readonly ILinkForwarderService _linkForwarderService;
@@ -29,11 +31,13 @@ namespace LinkForwarder.Web.Controllers
         private readonly IMemoryCache _cache;
 
         public AdminController(
+            IOptions<AppSettings> settings,
             ILogger<AdminController> logger,
             ILinkForwarderService linkForwarderService,
             ILinkVerifier linkVerifier,
             IMemoryCache cache)
         {
+            _appSettings = settings.Value;
             _logger = logger;
             _linkForwarderService = linkForwarderService;
             _linkVerifier = linkVerifier;
@@ -175,7 +179,7 @@ namespace LinkForwarder.Web.Controllers
         [Route("client-type-past-month")]
         public async Task<IActionResult> ClientTypePastMonth()
         {
-            var response = await _linkForwarderService.GetClientTypeCounts(30);
+            var response = await _linkForwarderService.GetClientTypeCounts(30, _appSettings.TopClientTypes);
             if (!response.IsSuccess)
             {
                 Response.StatusCode = StatusCodes.Status500InternalServerError;

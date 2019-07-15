@@ -333,7 +333,7 @@ namespace LinkForwarder.Services
             }
         }
 
-        public async Task<Response<IReadOnlyList<ClientTypeCount>>> GetClientTypeCounts(int daysFromNow)
+        public async Task<Response<IReadOnlyList<ClientTypeCount>>> GetClientTypeCounts(int daysFromNow, int topTypes)
         {
             try
             {
@@ -367,6 +367,11 @@ namespace LinkForwarder.Services
                                     ClientTypeName = g.Key,
                                     Count = g.Sum(gp => gp.RequestCount)
                                 };
+
+                        if (topTypes > 0)
+                        {
+                            q = q.OrderByDescending(p => p.Count).Take(topTypes);
+                        }
 
                         return new SuccessResponse<IReadOnlyList<ClientTypeCount>>(q.AsList());
                     }
