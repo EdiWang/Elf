@@ -1,4 +1,4 @@
-# Link Forwarder (Preview)
+# Link Forwarder
 
 [![Build status](https://dev.azure.com/ediwang/EdiWang-GitHub-Builds/_apis/build/status/LinkForwarder-CI)](https://dev.azure.com/ediwang/EdiWang-GitHub-Builds/_build/latest?definitionId=57)
 
@@ -17,17 +17,17 @@ Main purposes:
 
 Forward Link, Create/Manage/Share Link, View Report
 
-![image](https://raw.githubusercontent.com/EdiWang/LinkForwarder/master/docs/images/sc-report.png)
+![image](https://cdn-blob.edi.wang/web-assets/lf/sc-report.png)
 
-![image](https://raw.githubusercontent.com/EdiWang/LinkForwarder/master/docs/images/sc-manage-link.png)
+![image](https://cdn-blob.edi.wang/web-assets/lf/sc-manage-link.png)
 
-![image](https://raw.githubusercontent.com/EdiWang/LinkForwarder/master/docs/images/sc-edit-link.png)
+![image](https://cdn-blob.edi.wang/web-assets/lf/sc-edit-link.png)
 
-![image](https://raw.githubusercontent.com/EdiWang/LinkForwarder/master/docs/images/sc-share-link.png)
+![image](https://cdn-blob.edi.wang/web-assets/lf/sc-share-link.png)
 
 ## Forward Logic
 
-![image](https://raw.githubusercontent.com/EdiWang/LinkForwarder/master/docs/images/LinkForwarder-FW.png)
+![image](https://cdn-blob.edi.wang/web-assets/lf/LinkForwarder-FW.png)
 
 ## Build and Run
 
