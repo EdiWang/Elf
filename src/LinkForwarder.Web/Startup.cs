@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.IO;
 using System.Text;
 using AspNetCoreRateLimit;
 using LinkForwarder.Services;
@@ -14,7 +13,6 @@ using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +23,7 @@ namespace LinkForwarder.Web
 {
     public class Startup
     {
-        //private readonly ILogger<Startup> _logger;
+        private ILogger<Startup> _logger;
 
         public IWebHostEnvironment Environment { get; }
 
@@ -33,15 +31,6 @@ namespace LinkForwarder.Web
         {
             Configuration = configuration;
             Environment = env;
-            //_logger = logger;
-
-            //_logger.LogInformation($"LinkForwarder Version {Utils.AppVersion}\n" +
-            //       "--------------------------------------------------------\n" +
-            //       $" Directory: {System.Environment.CurrentDirectory} \n" +
-            //       $" x64Process: {System.Environment.Is64BitProcess} \n" +
-            //       $" OSVersion: {System.Runtime.InteropServices.RuntimeInformation.OSDescription} \n" +
-            //       $" UserName: {System.Environment.UserName} \n" +
-            //       "--------------------------------------------------------");
         }
 
         public IConfiguration Configuration { get; }
@@ -100,16 +89,25 @@ namespace LinkForwarder.Web
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+            _logger = logger;
+            _logger.LogInformation($"LinkForwarder Version {Utils.AppVersion}\n" +
+                   "--------------------------------------------------------\n" +
+                   $" Directory: {System.Environment.CurrentDirectory} \n" +
+                   $" x64Process: {System.Environment.Is64BitProcess} \n" +
+                   $" OSVersion: {System.Runtime.InteropServices.RuntimeInformation.OSDescription} \n" +
+                   $" UserName: {System.Environment.UserName} \n" +
+                   "--------------------------------------------------------");
+
             if (env.IsDevelopment())
             {
-                //_logger.LogWarning("Application is running under DEBUG mode. Application Insights disabled.");
+                _logger.LogWarning("Application is running under DEBUG mode. Application Insights disabled.");
 
                 TelemetryConfiguration.CreateDefault().DisableTelemetry = true;
                 TelemetryDebugWriter.IsTracingDisabled = true;
 
-                //_logger.LogWarning("LinkForwarder is running in DEBUG.");
+                _logger.LogWarning("LinkForwarder is running in DEBUG.");
                 app.UseDeveloperExceptionPage();
             }
             else
@@ -130,7 +128,7 @@ namespace LinkForwarder.Web
 
             if (!setupHelper.TestDatabaseConnection(exception =>
             {
-                //_logger.LogCritical(exception, $"Error {nameof(SetupHelper.TestDatabaseConnection)}, connection string: {conn}");
+                _logger.LogCritical(exception, $"Error {nameof(SetupHelper.TestDatabaseConnection)}, connection string: {conn}");
             }))
             {
                 app.Run(async context =>
@@ -149,7 +147,7 @@ namespace LinkForwarder.Web
                     }
                     catch (Exception e)
                     {
-                        //_logger.LogCritical(e, e.Message);
+                        _logger.LogCritical(e, e.Message);
                         app.Run(async context =>
                         {
                             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
@@ -185,8 +183,6 @@ namespace LinkForwarder.Web
                         pattern: "{controller=Home}/{action=Index}/{id?}");
                     endpoints.MapRazorPages();
                 });
-
-                //app.UseMvc();
             }
         }
 
@@ -202,7 +198,7 @@ namespace LinkForwarder.Web
             catch (Exception e)
             {
                 // URL Rewrite is non-fatal error, continue running the application.
-                //_logger.LogError(e, nameof(TryAddUrlRewrite));
+                _logger.LogError(e, nameof(TryAddUrlRewrite));
             }
         }
     }
