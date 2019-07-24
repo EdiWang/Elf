@@ -25,23 +25,23 @@ namespace LinkForwarder.Web
 {
     public class Startup
     {
-        private readonly ILogger<Startup> _logger;
+        //private readonly ILogger<Startup> _logger;
 
         public IWebHostEnvironment Environment { get; }
 
-        public Startup(IConfiguration configuration, ILogger<Startup> logger, IWebHostEnvironment env)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
             Environment = env;
-            _logger = logger;
+            //_logger = logger;
 
-            _logger.LogInformation($"LinkForwarder Version {Utils.AppVersion}\n" +
-                   "--------------------------------------------------------\n" +
-                   $" Directory: {System.Environment.CurrentDirectory} \n" +
-                   $" x64Process: {System.Environment.Is64BitProcess} \n" +
-                   $" OSVersion: {System.Runtime.InteropServices.RuntimeInformation.OSDescription} \n" +
-                   $" UserName: {System.Environment.UserName} \n" +
-                   "--------------------------------------------------------");
+            //_logger.LogInformation($"LinkForwarder Version {Utils.AppVersion}\n" +
+            //       "--------------------------------------------------------\n" +
+            //       $" Directory: {System.Environment.CurrentDirectory} \n" +
+            //       $" x64Process: {System.Environment.Is64BitProcess} \n" +
+            //       $" OSVersion: {System.Runtime.InteropServices.RuntimeInformation.OSDescription} \n" +
+            //       $" UserName: {System.Environment.UserName} \n" +
+            //       "--------------------------------------------------------");
         }
 
         public IConfiguration Configuration { get; }
@@ -104,12 +104,12 @@ namespace LinkForwarder.Web
         {
             if (env.IsDevelopment())
             {
-                _logger.LogWarning("Application is running under DEBUG mode. Application Insights disabled.");
+                //_logger.LogWarning("Application is running under DEBUG mode. Application Insights disabled.");
 
-                TelemetryConfiguration.Active.DisableTelemetry = true;
+                TelemetryConfiguration.CreateDefault().DisableTelemetry = true;
                 TelemetryDebugWriter.IsTracingDisabled = true;
 
-                _logger.LogWarning("LinkForwarder is running in DEBUG.");
+                //_logger.LogWarning("LinkForwarder is running in DEBUG.");
                 app.UseDeveloperExceptionPage();
             }
             else
@@ -123,13 +123,14 @@ namespace LinkForwarder.Web
 
             app.UseStaticFiles();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             var conn = Configuration.GetConnectionString(Constants.DbName);
             var setupHelper = new SetupHelper(conn);
 
             if (!setupHelper.TestDatabaseConnection(exception =>
             {
-                _logger.LogCritical(exception, $"Error {nameof(SetupHelper.TestDatabaseConnection)}, connection string: {conn}");
+                //_logger.LogCritical(exception, $"Error {nameof(SetupHelper.TestDatabaseConnection)}, connection string: {conn}");
             }))
             {
                 app.Run(async context =>
@@ -148,7 +149,7 @@ namespace LinkForwarder.Web
                     }
                     catch (Exception e)
                     {
-                        _logger.LogCritical(e, e.Message);
+                        //_logger.LogCritical(e, e.Message);
                         app.Run(async context =>
                         {
                             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
@@ -201,7 +202,7 @@ namespace LinkForwarder.Web
             catch (Exception e)
             {
                 // URL Rewrite is non-fatal error, continue running the application.
-                _logger.LogError(e, nameof(TryAddUrlRewrite));
+                //_logger.LogError(e, nameof(TryAddUrlRewrite));
             }
         }
     }
