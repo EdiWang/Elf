@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace LinkForwarder.Web
@@ -14,19 +15,22 @@ namespace LinkForwarder.Web
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseApplicationInsights()
-                .CaptureStartupErrors(true)
-                .ConfigureKestrel(c => c.AddServerHeader = false)
-                .UseIISIntegration()
-                .UseStartup<Startup>()
-                .ConfigureLogging(logging =>
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    logging.AddAzureWebAppDiagnostics();
+                    webBuilder.UseApplicationInsights()
+                              .CaptureStartupErrors(true)
+                              .ConfigureKestrel(c => c.AddServerHeader = false)
+                              .UseIISIntegration()
+                              .UseStartup<Startup>()
+                              .ConfigureLogging(logging =>
+                              {
+                                  logging.AddAzureWebAppDiagnostics();
+                              });
                 });
     }
 }

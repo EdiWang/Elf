@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace LinkForwarder.Web
@@ -26,9 +27,9 @@ namespace LinkForwarder.Web
     {
         private readonly ILogger<Startup> _logger;
 
-        public IHostingEnvironment Environment { get; }
+        public IWebHostEnvironment Environment { get; }
 
-        public Startup(IConfiguration configuration, ILogger<Startup> logger, IHostingEnvironment env)
+        public Startup(IConfiguration configuration, ILogger<Startup> logger, IWebHostEnvironment env)
         {
             Configuration = configuration;
             Environment = env;
@@ -86,7 +87,9 @@ namespace LinkForwarder.Web
             services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
             services.AddTransient<ILinkForwarderService, LinkForwarderService>();
             services.AddTransient<ILinkVerifier, LinkVerifier>();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddControllersWithViews().AddNewtonsoftJson();
+            services.AddRazorPages();
 
             // https://github.com/aspnet/Hosting/issues/793
             // the IHttpContextAccessor service is not registered by default.
@@ -97,7 +100,7 @@ namespace LinkForwarder.Web
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -173,7 +176,16 @@ namespace LinkForwarder.Web
                     });
                 });
 
-                app.UseMvc();
+                app.UseRouting();
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "{controller=Home}/{action=Index}/{id?}");
+                    endpoints.MapRazorPages();
+                });
+
+                //app.UseMvc();
             }
         }
 
