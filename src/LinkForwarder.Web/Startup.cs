@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.IO;
 using System.Text;
 using AspNetCoreRateLimit;
 using LinkForwarder.Services;
@@ -14,33 +13,24 @@ using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace LinkForwarder.Web
 {
     public class Startup
     {
-        private readonly ILogger<Startup> _logger;
+        private ILogger<Startup> _logger;
 
-        public IHostingEnvironment Environment { get; }
+        public IWebHostEnvironment Environment { get; }
 
-        public Startup(IConfiguration configuration, ILogger<Startup> logger, IHostingEnvironment env)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
             Environment = env;
-            _logger = logger;
-
-            _logger.LogInformation($"LinkForwarder Version {Utils.AppVersion}\n" +
-                   "--------------------------------------------------------\n" +
-                   $" Directory: {System.Environment.CurrentDirectory} \n" +
-                   $" x64Process: {System.Environment.Is64BitProcess} \n" +
-                   $" OSVersion: {System.Runtime.InteropServices.RuntimeInformation.OSDescription} \n" +
-                   $" UserName: {System.Environment.UserName} \n" +
-                   "--------------------------------------------------------");
         }
 
         public IConfiguration Configuration { get; }
@@ -86,7 +76,9 @@ namespace LinkForwarder.Web
             services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
             services.AddTransient<ILinkForwarderService, LinkForwarderService>();
             services.AddTransient<ILinkVerifier, LinkVerifier>();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddControllersWithViews().AddNewtonsoftJson();
+            services.AddRazorPages();
 
             // https://github.com/aspnet/Hosting/issues/793
             // the IHttpContextAccessor service is not registered by default.
@@ -97,13 +89,22 @@ namespace LinkForwarder.Web
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+            _logger = logger;
+            _logger.LogInformation($"LinkForwarder Version {Utils.AppVersion}\n" +
+                   "--------------------------------------------------------\n" +
+                   $" Directory: {System.Environment.CurrentDirectory} \n" +
+                   $" x64Process: {System.Environment.Is64BitProcess} \n" +
+                   $" OSVersion: {System.Runtime.InteropServices.RuntimeInformation.OSDescription} \n" +
+                   $" UserName: {System.Environment.UserName} \n" +
+                   "--------------------------------------------------------");
+
             if (env.IsDevelopment())
             {
                 _logger.LogWarning("Application is running under DEBUG mode. Application Insights disabled.");
 
-                TelemetryConfiguration.Active.DisableTelemetry = true;
+                TelemetryConfiguration.CreateDefault().DisableTelemetry = true;
                 TelemetryDebugWriter.IsTracingDisabled = true;
 
                 _logger.LogWarning("LinkForwarder is running in DEBUG.");
@@ -120,6 +121,7 @@ namespace LinkForwarder.Web
 
             app.UseStaticFiles();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             var conn = Configuration.GetConnectionString(Constants.DbName);
             var setupHelper = new SetupHelper(conn);
@@ -173,7 +175,14 @@ namespace LinkForwarder.Web
                     });
                 });
 
-                app.UseMvc();
+                app.UseRouting();
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "{controller=Home}/{action=Index}/{id?}");
+                    endpoints.MapRazorPages();
+                });
             }
         }
 
