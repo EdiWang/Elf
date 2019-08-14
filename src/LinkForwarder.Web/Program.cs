@@ -22,7 +22,7 @@ namespace LinkForwarder.Web
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseApplicationInsights()
+                    webBuilder//.UseApplicationInsights()
                               .CaptureStartupErrors(true)
                               .ConfigureKestrel(c => c.AddServerHeader = false)
                               .UseIISIntegration()
