@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using LinkForwarder.Services;
@@ -13,7 +14,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace LinkForwarder.Web.Controllers
 {
@@ -162,11 +162,11 @@ namespace LinkForwarder.Web.Controllers
                             throw new UriFormatException(
                                 $"OriginUrl '{link.OriginUrl}' is not a valid URL, link ID: {link.Id}.");
                         case LinkVerifyResult.InvalidLocal:
-                            _logger.LogWarning($"Local redirection is blocked. link: {JsonConvert.SerializeObject(link)}");
+                            _logger.LogWarning($"Local redirection is blocked. link: {JsonSerializer.Serialize(link)}");
                             return BadRequest("Local redirection is blocked");
                         case LinkVerifyResult.InvalidSelfReference:
                             _logger.LogWarning(
-                                $"Self reference redirection is blocked. link: {JsonConvert.SerializeObject(link)}");
+                                $"Self reference redirection is blocked. link: {JsonSerializer.Serialize(link)}");
                             return BadRequest("Self reference redirection is blocked");
                         default:
                             throw new ArgumentOutOfRangeException();

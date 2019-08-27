@@ -77,7 +77,7 @@ namespace LinkForwarder.Web
             services.AddTransient<ILinkForwarderService, LinkForwarderService>();
             services.AddTransient<ILinkVerifier, LinkVerifier>();
 
-            services.AddControllersWithViews().AddNewtonsoftJson();
+            services.AddControllersWithViews();
             services.AddRazorPages();
 
             // https://github.com/aspnet/Hosting/issues/793
