@@ -9,7 +9,7 @@
     <PackageReference Include="Edi.Practice.RequestResponseModel" Version="1.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.0.0-preview8.19405.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.0-preview8.19405.4" />
-    <PackageReference Include="UAParser" Version="3.1.40" />
+    <PackageReference Include="UAParser" Version="3.1.41" />
   </ItemGroup>
 
 </Project>
