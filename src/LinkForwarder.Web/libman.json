@@ -22,7 +22,7 @@
       "destination": "wwwroot/lib/jquery-qrcode"
     },
     {
-      "library": "jquery-validate@1.19.0",
+      "library": "jquery-validate@1.19.1",
       "destination": "wwwroot/lib/jquery-validate/",
       "files": [
         "jquery.validate.min.js"
