@@ -8,8 +8,8 @@ using LinkForwarder.Services.TokenGenerator;
 using LinkForwarder.Setup;
 using LinkForwarder.Web.Authentication;
 using LinkForwarder.Web.Models;
-//using Microsoft.ApplicationInsights.Extensibility;
-//using Microsoft.ApplicationInsights.Extensibility.Implementation;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -87,6 +87,8 @@ namespace LinkForwarder.Web
 
             // configuration (resolvers, counter key builders)
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+            services.AddApplicationInsightsTelemetry();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
@@ -104,8 +106,8 @@ namespace LinkForwarder.Web
             {
                 _logger.LogWarning("Application is running under DEBUG mode. Application Insights disabled.");
 
-                //TelemetryConfiguration.CreateDefault().DisableTelemetry = true;
-                //TelemetryDebugWriter.IsTracingDisabled = true;
+                TelemetryConfiguration.CreateDefault().DisableTelemetry = true;
+                TelemetryDebugWriter.IsTracingDisabled = true;
 
                 _logger.LogWarning("LinkForwarder is running in DEBUG.");
                 app.UseDeveloperExceptionPage();
