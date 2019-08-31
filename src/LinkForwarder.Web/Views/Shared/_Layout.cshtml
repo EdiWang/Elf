@@ -1,4 +1,4 @@
-﻿@*@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet*@
+﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
 @{
     string currentAction = ViewContext.RouteData?.Values["action"]?.ToString();
 }
@@ -40,9 +40,9 @@
     <link href="~/lib/datatables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <link href="~/css/site.min.css" rel="stylesheet" />
     @RenderSection("head", required: false)
-    @*<environment exclude="Development">
+    <environment exclude="Development">
         @Html.Raw(JavaScriptSnippet.FullScript)
-    </environment>*@
+    </environment>
 </head>
 <body>
     <header>
