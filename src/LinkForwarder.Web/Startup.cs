@@ -77,6 +77,12 @@ namespace LinkForwarder.Web
             services.AddTransient<ILinkForwarderService, LinkForwarderService>();
             services.AddTransient<ILinkVerifier, LinkVerifier>();
 
+            // This check will break DI on _Layout.cshtml
+            //if (Environment.IsProduction())
+            //{
+                services.AddApplicationInsightsTelemetry();
+            //}
+
             services.AddControllersWithViews();
             services.AddRazorPages();
 
@@ -87,8 +93,6 @@ namespace LinkForwarder.Web
 
             // configuration (resolvers, counter key builders)
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
-
-            services.AddApplicationInsightsTelemetry();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
@@ -102,13 +106,16 @@ namespace LinkForwarder.Web
                    $" UserName: {System.Environment.UserName} \n" +
                    "--------------------------------------------------------");
 
-            if (env.IsDevelopment())
+            if (!env.IsProduction())
             {
                 _logger.LogWarning("Application is running under DEBUG mode. Application Insights disabled.");
 
                 TelemetryConfiguration.CreateDefault().DisableTelemetry = true;
                 TelemetryDebugWriter.IsTracingDisabled = true;
+            }
 
+            if (env.IsDevelopment())
+            {
                 _logger.LogWarning("LinkForwarder is running in DEBUG.");
                 app.UseDeveloperExceptionPage();
             }

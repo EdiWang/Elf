@@ -5,11 +5,10 @@
     <Company>edi.wang</Company>
     <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
-    <ApplicationInsightsResourceId>/subscriptions/15bf06cf-caa3-4224-b7fb-cad42590472f/resourcegroups/moonglade-rsg/providers/microsoft.insights/components/go.edi.wang-appinsight</ApplicationInsightsResourceId>
-    <ApplicationInsightsAnnotationResourceId>/subscriptions/15bf06cf-caa3-4224-b7fb-cad42590472f/resourcegroups/moonglade-rsg/providers/microsoft.insights/components/go.edi.wang-appinsight</ApplicationInsightsAnnotationResourceId>
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Connected Services\" />
     <Folder Include="wwwroot\lib\" />
     <None Include="bundleconfig.json" />
     <Content Update="libman.json" CopyToPublishDirectory="Never" />

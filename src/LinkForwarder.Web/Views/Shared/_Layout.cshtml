@@ -40,7 +40,7 @@
     <link href="~/lib/datatables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <link href="~/css/site.min.css" rel="stylesheet" />
     @RenderSection("head", required: false)
-    <environment exclude="Development">
+    <environment include="Production">
         @Html.Raw(JavaScriptSnippet.FullScript)
     </environment>
 </head>
