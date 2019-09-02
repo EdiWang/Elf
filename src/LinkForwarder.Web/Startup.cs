@@ -95,7 +95,7 @@ namespace LinkForwarder.Web
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger, TelemetryConfiguration configuration)
         {
             _logger = logger;
             _logger.LogInformation($"LinkForwarder Version {Utils.AppVersion}\n" +
@@ -110,7 +110,7 @@ namespace LinkForwarder.Web
             {
                 _logger.LogWarning("Application is running under DEBUG mode. Application Insights disabled.");
 
-                TelemetryConfiguration.CreateDefault().DisableTelemetry = true;
+                configuration.DisableTelemetry = true;
                 TelemetryDebugWriter.IsTracingDisabled = true;
             }
 
