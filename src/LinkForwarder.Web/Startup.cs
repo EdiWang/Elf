@@ -129,8 +129,6 @@ namespace LinkForwarder.Web
             TryAddUrlRewrite(app);
 
             app.UseStaticFiles();
-            app.UseAuthentication();
-            app.UseAuthorization();
 
             var conn = Configuration.GetConnectionString(Constants.DbName);
             var setupHelper = new SetupHelper(conn);
@@ -185,6 +183,10 @@ namespace LinkForwarder.Web
                 });
 
                 app.UseRouting();
+
+                app.UseAuthentication();
+                app.UseAuthorization();
+
                 app.UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllerRoute(
