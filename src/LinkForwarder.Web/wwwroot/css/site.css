@@ -1,5 +1,6 @@
 ﻿body {
     padding-top: 75px;
+    margin-bottom: 44px;
 }
 
 a {
@@ -31,8 +32,8 @@ html {
     min-height: 100%;
 }
 
-body {
-    margin-bottom: 44px;
+.table-links {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Microsoft YaHei";
 }
 
 .footer {
