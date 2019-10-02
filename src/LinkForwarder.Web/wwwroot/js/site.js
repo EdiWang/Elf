@@ -22,7 +22,7 @@ function ajaxPostWithCSRFToken(url, pData, funcSuccess) {
 }
 
 function deleteLink(linkId) {
-    ajaxPostWithCSRFToken('/link/delete', { linkId: linkId }, function (data) {
+    ajaxPostWithCSRFToken('/admin/delete', { linkId: linkId }, function (data) {
         toastr.success("Link deleted.");
     });
 }
