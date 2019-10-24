@@ -7,6 +7,7 @@ using LinkForwarder.Services;
 using LinkForwarder.Services.TokenGenerator;
 using LinkForwarder.Setup;
 using LinkForwarder.Web.Authentication;
+using LinkForwarder.Web.Extensions;
 using LinkForwarder.Web.Models;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -37,20 +38,7 @@ namespace LinkForwarder.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddOptions();
-
-            services.AddMemoryCache();
-
-            // Setup document: https://github.com/stefanprodan/AspNetCoreRateLimit/wiki/IpRateLimitMiddleware#setup
-            //load general configuration from appsettings.json
-            services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
-
-            //load ip rules from appsettings.json
-            // services.Configure<IpRateLimitPolicies>(Configuration.GetSection("IpRateLimitPolicies"));
-
-            // inject counter and rules stores
-            services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
-            services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+            services.AddRateLimit(Configuration.GetSection("IpRateLimiting"));
 
             services.AddSession(options =>
             {
@@ -77,22 +65,10 @@ namespace LinkForwarder.Web
             services.AddTransient<ILinkForwarderService, LinkForwarderService>();
             services.AddTransient<ILinkVerifier, LinkVerifier>();
 
-            // This check will break DI on _Layout.cshtml
-            //if (Environment.IsProduction())
-            //{
-                services.AddApplicationInsightsTelemetry();
-            //}
+            services.AddApplicationInsightsTelemetry();
 
             services.AddControllersWithViews();
             services.AddRazorPages();
-
-            // https://github.com/aspnet/Hosting/issues/793
-            // the IHttpContextAccessor service is not registered by default.
-            // the clientId/clientIp resolvers use it.
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-            // configuration (resolvers, counter key builders)
-            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger, TelemetryConfiguration configuration)
