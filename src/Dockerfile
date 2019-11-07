@@ -5,9 +5,9 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.0-buster AS build
 WORKDIR /src
-#COPY ["LinkForwarder.Web/LinkForwarder.Web.csproj", "LinkForwarder.Web/"]
-#COPY ["LinkForwarder.Services/LinkForwarder.Services.csproj", "LinkForwarder.Services/"]
-#COPY ["LinkForwarder.Setup/LinkForwarder.Setup.csproj", "LinkForwarder.Setup/"]
+COPY ["LinkForwarder.Web/LinkForwarder.Web.csproj", "LinkForwarder.Web/"]
+COPY ["LinkForwarder.Services/LinkForwarder.Services.csproj", "LinkForwarder.Services/"]
+COPY ["LinkForwarder.Setup/LinkForwarder.Setup.csproj", "LinkForwarder.Setup/"]
 RUN dotnet restore "LinkForwarder.Web/LinkForwarder.Web.csproj"
 COPY . .
 WORKDIR "/src/LinkForwarder.Web"
