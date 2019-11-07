@@ -29,6 +29,12 @@ Forward Link, Create/Manage/Share Link, View Report
 
 ![image](https://cdn-blob.edi.wang/web-assets/lf/LinkForwarder-FW.png)
 
+## Docker Deployment
+
+See https://hub.docker.com/r/ediwang/linkforwarder
+
+If you don't like docker, you can follow the next section to build and run the project yourself.
+
 ## Build and Run
 
 > The following tools are required for development.
