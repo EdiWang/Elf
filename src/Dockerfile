@@ -1,5 +1,3 @@
-ARG DllVersion=1.0.1000
-
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.0-buster-slim AS base
 WORKDIR /app
 EXPOSE 80
@@ -13,10 +11,10 @@ COPY ["LinkForwarder.Setup/LinkForwarder.Setup.csproj", "LinkForwarder.Setup/"]
 RUN dotnet restore "LinkForwarder.Web/LinkForwarder.Web.csproj"
 COPY . .
 WORKDIR "/src/LinkForwarder.Web"
-RUN dotnet build "LinkForwarder.Web.csproj" -c Release -o /app/build -p:Version=$DllVersion
+RUN dotnet build "LinkForwarder.Web.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "LinkForwarder.Web.csproj" -c Release -o /app/publish -p:Version=$DllVersion
+RUN dotnet publish "LinkForwarder.Web.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
