@@ -11,10 +11,10 @@ COPY ["LinkForwarder.Setup/LinkForwarder.Setup.csproj", "LinkForwarder.Setup/"]
 RUN dotnet restore "LinkForwarder.Web/LinkForwarder.Web.csproj"
 COPY . .
 WORKDIR "/src/LinkForwarder.Web"
-RUN dotnet build "LinkForwarder.Web.csproj" -c Release -o /app/build
+RUN dotnet build "LinkForwarder.Web.csproj" -c Release -o /app/build -p:Version=$(buildNumber).$(Build.BuildId) 
 
 FROM build AS publish
-RUN dotnet publish "LinkForwarder.Web.csproj" -c Release -o /app/publish
+RUN dotnet publish "LinkForwarder.Web.csproj" -c Release -o /app/publish -p:Version=$(buildNumber).$(Build.BuildId) 
 
 FROM base AS final
 WORKDIR /app
