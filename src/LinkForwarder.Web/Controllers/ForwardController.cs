@@ -183,17 +183,20 @@ namespace LinkForwarder.Web.Controllers
                 linkEntry = _cache.Get<Link>(token);
             }
 
-            // Check if browser sends "Do Not Track"
-            var dntFlag = Request.Headers["DNT"];
-            bool dnt = !string.IsNullOrWhiteSpace(dntFlag) && dntFlag == 1.ToString();
-
-            if (!dnt)
+            if (_appSettings.HonorDNT)
             {
-                _ = Task.Run(async () =>
+                // Check if browser sends "Do Not Track"
+                var dntFlag = Request.Headers["DNT"];
+                bool dnt = !string.IsNullOrWhiteSpace(dntFlag) && dntFlag == 1.ToString();
+
+                if (!dnt)
                 {
-                    await _linkForwarderService.TrackSucessRedirectionAsync(
-                        new LinkTrackingRequest(ip, ua, linkEntry.Id));
-                });
+                    _ = Task.Run(async () =>
+                    {
+                        await _linkForwarderService.TrackSucessRedirectionAsync(
+                            new LinkTrackingRequest(ip, ua, linkEntry.Id));
+                    });
+                }
             }
 
             return Redirect(linkEntry.OriginUrl);
