@@ -17,17 +17,17 @@ Main purposes:
 
 Forward Link, Create/Manage/Share Link, View Report
 
-![image](https://cdn-blob.edi.wang/web-assets/lf/sc-report.png)
+![image](https://blog.ediwangcdn.com/web-assets/lf/sc-report.png)
 
-![image](https://cdn-blob.edi.wang/web-assets/lf/sc-manage-link.png)
+![image](https://blog.ediwangcdn.com/web-assets/lf/sc-manage-link.png)
 
-![image](https://cdn-blob.edi.wang/web-assets/lf/sc-edit-link.png)
+![image](https://blog.ediwangcdn.com/web-assets/lf/sc-edit-link.png)
 
-![image](https://cdn-blob.edi.wang/web-assets/lf/sc-share-link.png)
+![image](https://blog.ediwangcdn.com/web-assets/lf/sc-share-link.png)
 
 ## Forward Logic
 
-![image](https://cdn-blob.edi.wang/web-assets/lf/LinkForwarder-FW.png)
+![image](https://blog.ediwangcdn.com/web-assets/lf/LinkForwarder-FW.png)
 
 ## Docker Deployment
 
