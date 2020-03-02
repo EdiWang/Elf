@@ -65,7 +65,7 @@
       ]
     },
     {
-      "library": "Chart.js@2.8.0",
+      "library": "Chart.js@2.9.3",
       "destination": "wwwroot/lib/Chart.js/",
       "files": [
         "Chart.min.js",
