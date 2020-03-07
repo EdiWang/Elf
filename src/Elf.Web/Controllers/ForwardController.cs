@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Elf.Services;
 using Elf.Services.Entities;
@@ -43,13 +42,13 @@ namespace Elf.Web.Controllers
         }
 
         [AddForwarderHeader]
-        [Route("/aka/{akaName}")]
+        [Route("/aka/{akaName:regex(^(?!-)([[a-zA-Z0-9-]]+)$)}")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Aka(string akaName)
         {
             bool ValidateAkaName(string name)
             {
-                return !string.IsNullOrWhiteSpace(name) && Regex.IsMatch(name, @"^(?!-)([a-z0-9-]+)$");
+                return !string.IsNullOrWhiteSpace(name);
             }
 
             try
