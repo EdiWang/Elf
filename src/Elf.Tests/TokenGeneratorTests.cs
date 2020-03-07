@@ -2,7 +2,7 @@ using System.Linq;
 using Elf.Services.TokenGenerator;
 using NUnit.Framework;
 
-namespace LinkForwarder.Tests
+namespace Elf.Tests
 {
     public class TokenGeneratorTests
     {
