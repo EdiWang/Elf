@@ -1,29 +1,30 @@
-# Elf (Link Forwarder)
+# Elf
 
 [![Build status](https://dev.azure.com/ediwang/EdiWang-GitHub-Builds/_apis/build/status/LinkForwarder-CI)](https://dev.azure.com/ediwang/EdiWang-GitHub-Builds/_build/latest?definitionId=57)
 
-The link forward service used by https://go.edi.wang. 
-
-Generate static URLs for redirecting third party URLs. It's similar to, but NOT a URL shorter. 
-
-> E.g.: Make "https://www.somewebsite.com/a-very-long-and-complicated-link-that-can-also-change?with=parameters" into "https://yourdomain/fw/token".
-
-Main purposes:
+The link forward service used by https://go.edi.wang. It generates static URLs for redirecting third party URLs. It's similar to, but **NOT a URL shorter**. 
 
 - Use a static token to adapt changes to origin url.
-- Track user click by User-Agent and IP Address.
+- Track user click to generate report. (Only if DNT isn't enabled)
+
+e.g.:
+
+Raw URL:
+```
+https://www.somewebsite.com/a-very-long-and-complicated-link-that-can-also-change?with=parameters
+```
+
+will translate to
+
+```
+https://yourdomain/fw/token
+```
 
 ## Features
 
 Forward Link, Create/Manage/Share Link, View Report
 
 ![image](https://blog.ediwangcdn.com/web-assets/lf/sc-report.png)
-
-![image](https://blog.ediwangcdn.com/web-assets/lf/sc-manage-link.png)
-
-![image](https://blog.ediwangcdn.com/web-assets/lf/sc-edit-link.png)
-
-![image](https://blog.ediwangcdn.com/web-assets/lf/sc-share-link.png)
 
 ## Forward Logic
 
