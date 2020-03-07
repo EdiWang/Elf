@@ -145,7 +145,7 @@ namespace Elf.Web
                 {
                     builder.Run(async context =>
                     {
-                        await context.Response.WriteAsync($"Elf Version: {Utils.AppVersion}, .NET Core {System.Environment.Version}", Encoding.UTF8);
+                        await context.Response.WriteAsync($"Elf Version: {Utils.AppVersion} | {Environment.EnvironmentName}, .NET Core {System.Environment.Version}", Encoding.UTF8);
                     });
                 });
 
