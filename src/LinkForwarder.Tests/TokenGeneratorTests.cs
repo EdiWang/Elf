@@ -1,8 +1,8 @@
-using LinkForwarder.Services.TokenGenerator;
-using NUnit.Framework;
 using System.Linq;
+using Elf.Services.TokenGenerator;
+using NUnit.Framework;
 
-namespace Tests
+namespace LinkForwarder.Tests
 {
     public class TokenGeneratorTests
     {

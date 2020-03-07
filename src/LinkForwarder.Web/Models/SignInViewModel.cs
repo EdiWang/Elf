@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LinkForwarder.Web.Models
+namespace Elf.Web.Models
 {
     public class SignInViewModel
     {

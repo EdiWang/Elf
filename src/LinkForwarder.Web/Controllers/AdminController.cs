@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using LinkForwarder.Services;
-using LinkForwarder.Services.Entities;
-using LinkForwarder.Services.Models;
-using LinkForwarder.Web.Authentication;
-using LinkForwarder.Web.Models;
+using Elf.Services;
+using Elf.Services.Entities;
+using Elf.Services.Models;
+using Elf.Web.Authentication;
+using Elf.Web.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -17,7 +17,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace LinkForwarder.Web.Controllers
+namespace Elf.Web.Controllers
 {
     [Authorize]
     [Route("admin")]

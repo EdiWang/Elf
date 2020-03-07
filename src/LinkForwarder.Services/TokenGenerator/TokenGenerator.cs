@@ -1,4 +1,4 @@
-﻿namespace LinkForwarder.Services.TokenGenerator
+﻿namespace Elf.Services.TokenGenerator
 {
     public interface ITokenGenerator
     {

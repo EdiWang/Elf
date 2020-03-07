@@ -1,4 +1,4 @@
-# Link Forwarder
+# Elf (Link Forwarder)
 
 [![Build status](https://dev.azure.com/ediwang/EdiWang-GitHub-Builds/_apis/build/status/LinkForwarder-CI)](https://dev.azure.com/ediwang/EdiWang-GitHub-Builds/_build/latest?definitionId=57)
 
@@ -65,7 +65,7 @@ Update the connection string "**LinkForwarderDatabase**" in **appsettings.[env].
 Example:
 ```json
 "ConnectionStrings": {
-  "LinkForwarderDatabase": "Server=(localdb)\\MSSQLLocalDB;Database=linkforwarder-dev;Trusted_Connection=True;"
+  "ElfDatabase": "Server=(localdb)\\MSSQLLocalDB;Database=linkforwarder-dev;Trusted_Connection=True;"
 }
 ```
 

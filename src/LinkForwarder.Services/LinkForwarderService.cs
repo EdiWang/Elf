@@ -5,15 +5,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Edi.Practice.RequestResponseModel;
-using LinkForwarder.Services.Entities;
-using LinkForwarder.Services.Models;
-using LinkForwarder.Services.TokenGenerator;
+using Elf.Services.Entities;
+using Elf.Services.Models;
+using Elf.Services.TokenGenerator;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using UAParser;
 
-namespace LinkForwarder.Services
+namespace Elf.Services
 {
     public class LinkForwarderService : ILinkForwarderService
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace LinkForwarder.Web
+namespace Elf.Web
 {
     public static class Utils
     {

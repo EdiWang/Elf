@@ -1,4 +1,4 @@
-﻿namespace LinkForwarder.Web.Models
+﻿namespace Elf.Web.Models
 {
     public class AppSettings
     {

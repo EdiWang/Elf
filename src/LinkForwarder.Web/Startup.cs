@@ -3,12 +3,12 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 using AspNetCoreRateLimit;
-using LinkForwarder.Services;
-using LinkForwarder.Services.TokenGenerator;
-using LinkForwarder.Setup;
-using LinkForwarder.Web.Authentication;
-using LinkForwarder.Web.Extensions;
-using LinkForwarder.Web.Models;
+using Elf.Services;
+using Elf.Services.TokenGenerator;
+using Elf.Setup;
+using Elf.Web.Authentication;
+using Elf.Web.Extensions;
+using Elf.Web.Models;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Builder;
@@ -20,7 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace LinkForwarder.Web
+namespace Elf.Web
 {
     public class Startup
     {
@@ -50,7 +50,7 @@ namespace LinkForwarder.Web
 
             var authentication = new AuthenticationSettings();
             Configuration.Bind(nameof(Authentication), authentication);
-            services.AddLinkForwarderAuthenticaton(authentication);
+            services.AddElfAuthenticaton(authentication);
 
             services.AddAntiforgery(options =>
             {
@@ -74,7 +74,7 @@ namespace LinkForwarder.Web
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger, TelemetryConfiguration configuration)
         {
             _logger = logger;
-            _logger.LogInformation($"LinkForwarder Version {Utils.AppVersion}\n" +
+            _logger.LogInformation($"Elf Version {Utils.AppVersion}\n" +
                    "--------------------------------------------------------\n" +
                    $" Directory: {System.Environment.CurrentDirectory} \n" +
                    $" x64Process: {System.Environment.Is64BitProcess} \n" +
@@ -145,7 +145,7 @@ namespace LinkForwarder.Web
                 {
                     builder.Run(async context =>
                     {
-                        await context.Response.WriteAsync($"LinkForwarder Version: {Utils.AppVersion}, .NET Core {System.Environment.Version}", Encoding.UTF8);
+                        await context.Response.WriteAsync($"Elf Version: {Utils.AppVersion}, .NET Core {System.Environment.Version}", Encoding.UTF8);
                     });
                 });
 

@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace LinkForwarder.Web.Authentication
+namespace Elf.Web.Authentication
 {
     public static class AuthenticationServiceCollectionExtensions
     {
-        public static void AddLinkForwarderAuthenticaton(this IServiceCollection services, AuthenticationSettings authenticationSettings)
+        public static void AddElfAuthenticaton(this IServiceCollection services, AuthenticationSettings authenticationSettings)
         {
             AppDomain.CurrentDomain.SetData(nameof(AuthenticationSettings), authenticationSettings);
 

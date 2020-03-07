@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LinkForwarder.Web
+namespace Elf.Web
 {
     public enum LinkVerifyResult
     {

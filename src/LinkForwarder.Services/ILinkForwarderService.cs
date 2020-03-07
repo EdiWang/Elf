@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Edi.Practice.RequestResponseModel;
-using LinkForwarder.Services.Entities;
-using LinkForwarder.Services.Models;
+using Elf.Services.Entities;
+using Elf.Services.Models;
 
-namespace LinkForwarder.Services
+namespace Elf.Services
 {
     public interface ILinkForwarderService
     {

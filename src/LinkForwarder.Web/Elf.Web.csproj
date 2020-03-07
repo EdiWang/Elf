@@ -31,8 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LinkForwarder.Services\LinkForwarder.Services.csproj" />
-    <ProjectReference Include="..\LinkForwarder.Setup\LinkForwarder.Setup.csproj" />
+    <ProjectReference Include="..\LinkForwarder.Services\Elf.Services.csproj" />
+    <ProjectReference Include="..\LinkForwarder.Setup\Elf.Setup.csproj" />
   </ItemGroup>
 
   <ItemGroup>

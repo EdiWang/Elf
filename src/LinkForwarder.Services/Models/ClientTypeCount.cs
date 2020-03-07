@@ -1,4 +1,4 @@
-﻿namespace LinkForwarder.Services.Models
+﻿namespace Elf.Services.Models
 {
     public class ClientTypeCount
     {

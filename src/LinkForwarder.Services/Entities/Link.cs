@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LinkForwarder.Services.Entities
+namespace Elf.Services.Entities
 {
     public class Link
     {

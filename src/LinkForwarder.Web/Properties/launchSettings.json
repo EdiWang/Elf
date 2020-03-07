@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "LinkForwarder": {
+    "Elf": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

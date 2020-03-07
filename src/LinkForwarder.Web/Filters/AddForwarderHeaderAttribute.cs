@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace LinkForwarder.Web.Filters
+namespace Elf.Web.Filters
 {
     public class AddForwarderHeaderAttribute : ResultFilterAttribute
     {

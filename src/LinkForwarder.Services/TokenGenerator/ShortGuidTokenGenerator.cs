@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LinkForwarder.Services.TokenGenerator
+namespace Elf.Services.TokenGenerator
 {
     public class ShortGuidTokenGenerator : ITokenGenerator
     {

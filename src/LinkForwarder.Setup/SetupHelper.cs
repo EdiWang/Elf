@@ -5,7 +5,7 @@ using Dapper;
 using Edi.Practice.RequestResponseModel;
 using Microsoft.Data.SqlClient;
 
-namespace LinkForwarder.Setup
+namespace Elf.Setup
 {
     public class SetupHelper
     {

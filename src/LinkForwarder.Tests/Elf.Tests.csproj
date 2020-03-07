@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LinkForwarder.Services\LinkForwarder.Services.csproj" />
+    <ProjectReference Include="..\LinkForwarder.Services\Elf.Services.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LinkForwarder.Web.Models
+namespace Elf.Web.Models
 {
     public class LinkEditModel
     {
