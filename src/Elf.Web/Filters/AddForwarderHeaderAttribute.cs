@@ -6,7 +6,7 @@ namespace Elf.Web.Filters
     {
         public override void OnResultExecuting(ResultExecutingContext context)
         {
-            context.HttpContext.Response.Headers.Add("X-LinkForwarder",
+            context.HttpContext.Response.Headers.Add("X-Elf-Version",
                 new[]
                 {
                     Utils.AppVersion
