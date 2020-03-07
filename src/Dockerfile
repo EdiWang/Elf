@@ -5,18 +5,18 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["LinkForwarder.Web/LinkForwarder.Web.csproj", "LinkForwarder.Web/"]
-COPY ["LinkForwarder.Services/LinkForwarder.Services.csproj", "LinkForwarder.Services/"]
-COPY ["LinkForwarder.Setup/LinkForwarder.Setup.csproj", "LinkForwarder.Setup/"]
-RUN dotnet restore "LinkForwarder.Web/LinkForwarder.Web.csproj"
+COPY ["Elf.Web/Elf.Web.csproj", "Elf.Web/"]
+COPY ["Elf.Services/Elf.Services.csproj", "Elf.Services/"]
+COPY ["Elf.Setup/Elf.Setup.csproj", "Elf.Setup/"]
+RUN dotnet restore "Elf.Web/Elf.Web.csproj"
 COPY . .
-WORKDIR "/src/LinkForwarder.Web"
-RUN dotnet build "LinkForwarder.Web.csproj" -c Release -o /app/build
+WORKDIR "/src/Elf.Web"
+RUN dotnet build "Elf.Web.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "LinkForwarder.Web.csproj" -c Release -o /app/publish
+RUN dotnet publish "Elf.Web.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "LinkForwarder.Web.dll"]
+ENTRYPOINT ["dotnet", "Elf.Web.dll"]
