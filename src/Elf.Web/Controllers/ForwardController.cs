@@ -155,7 +155,10 @@ namespace Elf.Web.Controllers
                     {
                         case LinkVerifyResult.Valid:
                             // cache valid link entity only.
-                            _cache.Set(token, link, TimeSpan.FromHours(1));
+                            if (null != link.TTL)
+                            {
+                                _cache.Set(token, link, TimeSpan.FromSeconds(link.TTL.GetValueOrDefault()));
+                            }
                             break;
                         case LinkVerifyResult.InvalidFormat:
                             throw new UriFormatException(
