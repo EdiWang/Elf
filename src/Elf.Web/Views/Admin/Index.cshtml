@@ -40,19 +40,21 @@
                 "columnDefs": [{
                     "targets": -1,
                     "render": function (data, type, row, meta) {
-                        return '<a href="javascript:;" onclick="showLink(\'' + data.fwToken + '\')" class="btn btn-sm btn-outline-success">Share</a> <a href="javascript:;" onclick="editLink(\'' + data.id + '\')" class="btn btn-sm btn-outline-primary">Edit</a> <button class="btn btn-sm btn-outline-danger btn-delete">Delete</button>';
+                        return `<a href="javascript:;" onclick="showLink('${data.fwToken
+                            }')" class="btn btn-sm btn-outline-success">Share</a> <a href="javascript:;" onclick="editLink('${data.id
+                            }')" class="btn btn-sm btn-outline-primary">Edit</a> <button class="btn btn-sm btn-outline-danger btn-delete">Delete</button>`;
                     }
                 }, {
                     "targets": 0,
                     "data": "fwToken",
                     "render": function (data, type, row, meta) {
-                        return '<a href="/fw/' + data + '" target="_blank">' + data + '</a>';
+                        return `<a href="/fw/${data}" target="_blank">${data}</a>`;
                     }
                 }, {
                     "targets": 1,
                     "data": "originUrl",
                     "render": function (data, type, row, meta) {
-                        return '<span class="wordwrap"><a href="' + data + '" target="_blank">' + data + '</a></span>';
+                        return `<span class="wordwrap"><a href="${data}" target="_blank">${data}</a></span>`;
                     }
                 },
                 {
@@ -66,7 +68,7 @@
                     "targets": 6,
                     "data": "updateTimeUtc",
                     "render": function (data, type, row, meta) {
-                        return '<span data-utc-time="' + data + '"></span>';
+                        return `<span data-utc-time="${data}"></span>`;
                     }
                 }]
             });
@@ -95,7 +97,7 @@
         });
 
         function showLink(token) {
-            var url = '@showLinkUrlPrefix' + token;
+            var url = `@showLinkUrlPrefix${token}`;
             $(".qrcode").empty();
             $(".qrcode").qrcode(url);
             $("#input-link-url").val(url);
@@ -103,11 +105,11 @@
         }
 
         function editLink(linkId) {
-            $.get('/admin/get-edit-model/' + linkId, function(data) {
+            $.get(`/admin/get-edit-model/${linkId}`, function(data) {
                 $("#input-id").val(data.id);
-                $("#input-origin-url").val(data.originUrl);
-                $("#input-note").val(data.note);
-                $("#input-akaName").val(data.akaName);
+                $("#OriginUrl").val(data.originUrl);
+                $("#Note").val(data.note);
+                $("#AkaName").val(data.akaName);
                 $("#TTL").val(data.ttl);
                 $("#check-is-enabled").attr('checked', data.isEnabled);
                 $("#editLinkModal").modal();
@@ -135,19 +137,19 @@
                     action = "edit";
                 }
 
-                ajaxPostWithCSRFToken('/admin/' + action,
+                ajaxPostWithCSRFToken(`/admin/${action}`,
                     {
                         "Id": $("#input-id").val(),
-                        "OriginUrl": $("#input-origin-url").val(),
-                        "Note": $("#input-note").val(),
-                        "AkaName": $("#input-akaName").val(),
+                        "OriginUrl": $("#OriginUrl").val(),
+                        "Note": $("#Note").val(),
+                        "AkaName": $("#AkaName").val(),
                         "TTL": $("#TTL").val(),
                         "IsEnabled": $("#check-is-enabled").is(":checked")
                     },
                     function (data) {
                         $("#edit-form")[0].reset();
                         $("#editLinkModal").modal('hide');
-                        toastr.success("Operation succeed, link token: " + data.item);
+                        toastr.success(`Operation succeed, link token: ${data.item}`);
                         showLink(data.item);
                     });
             }
@@ -203,40 +205,24 @@
                 <div class="modal-body">
                     <input type="hidden" id="input-id" name="input-id" value="0">
                     <div class="form-group">
-                        <label class="control-label" for="input-origin-url">Origin Url</label>
-                        <input class="form-control"
-                               type="url"
-                               data-val="true"
-                               data-val-maxlength="The field Origin Url must be a string or array type with a maximum length of '256'."
-                               data-val-maxlength-max="256"
-                               data-val-minlength="The field Origin Url must be a string or array type with a minimum length of '1'."
-                               data-val-minlength-min="1"
-                               data-val-required="The Origin Url field is required."
-                               id="input-origin-url"
-                               maxlength="256"
-                               name="input-origin-url"
-                               value="" />
-                        <span class="text-danger field-validation-valid" data-valmsg-for="input-origin-url" data-valmsg-replace="true"></span>
+                        <label asp-for="OriginUrl"></label>
+                        <input asp-for="OriginUrl" class="form-control" />
+                        <span asp-validation-for="OriginUrl" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label class="control-label" for="input-note">Note</label>
-                        <input class="form-control" type="text" id="input-note" name="input-note" value="" />
+                        <label asp-for="Note"></label>
+                        <input asp-for="Note" class="form-control" />
+                        <span asp-validation-for="Note" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label class="control-label" for="input-akaName">Aka</label>
-                        <input class="form-control" type="text" id="input-akaName" name="input-akaName" value=""
-                               data-val="true"
-                               data-val-regex="Aka can only accept lower case English letters (a-z) and numbers (0-9) with/out hyphen (-) in middle." data-val-regex-pattern="(?!-)([a-z0-9-]+)"
-                               data-val-maxlength-max="32" />
-                        <span class="text-danger field-validation-valid" data-valmsg-for="input-akaName" data-valmsg-replace="true"></span>
+                        <label asp-for="AkaName"></label>
+                        <input asp-for="AkaName" class="form-control" />
+                        <span asp-validation-for="AkaName" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="TTL" class="control-label"></label>
+                        <label asp-for="TTL"></label>
                         <input asp-for="TTL" class="form-control" />
                         <span asp-validation-for="TTL" class="text-danger"></span>
-                        @*<label class="control-label" for="input-ttl">TTL</label>
-                        <input class="form-control" type="number" id="input-ttl" name="input-ttl" value="0" />
-                        <span class="text-danger field-validation-valid" data-valmsg-for="input-ttl" data-valmsg-replace="true"></span>*@
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" checked="checked" id="check-is-enabled" name="check-is-enabled" value="true" />
