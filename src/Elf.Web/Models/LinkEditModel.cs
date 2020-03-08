@@ -20,7 +20,7 @@ namespace Elf.Web.Models
 
         [Display(Name = "Aka")]
         [MaxLength(32)]
-        [RegularExpression("(?!-)([a-z0-9-]+)", 
+        [RegularExpression("(?!-)([a-z0-9-]+)",
             ErrorMessage = "Aka can only accept lower case English letters (a-z) and numbers (0-9) with/out hyphen (-) in middle.")]
         public string AkaName { get; set; }
 
@@ -31,5 +31,10 @@ namespace Elf.Web.Models
         [Display(Name = "TTL (seconds)")]
         [Range(0, 24 * 60 * 60)]
         public int TTL { get; set; }
+
+        public LinkEditModel()
+        {
+            TTL = 3600;
+        }
     }
 }
