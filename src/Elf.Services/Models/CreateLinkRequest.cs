@@ -9,5 +9,7 @@
         public string AkaName { get; set; }
 
         public bool IsEnabled { get; set; }
+
+        public int TTL { get; set; }
     }
 }

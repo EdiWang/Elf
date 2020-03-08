@@ -1,3 +1,5 @@
+@model Elf.Web.Models.LinkEditModel
+
 @{
     var showLinkUrlPrefix = $"{Context.Request.Scheme}://{Context.Request.Host}/fw/";
 }
@@ -31,6 +33,7 @@
                     { "data": "note" },
                     { "data": "akaName" },
                     { "data": "isEnabled" },
+                    { "data": "ttl" },
                     { "data": "updateTimeUtc" },
                     { "data": null }
                 ],
@@ -60,7 +63,7 @@
                     }
                 },
                 {
-                    "targets": 5,
+                    "targets": 6,
                     "data": "updateTimeUtc",
                     "render": function (data, type, row, meta) {
                         return '<span data-utc-time="' + data + '"></span>';
@@ -105,6 +108,7 @@
                 $("#input-origin-url").val(data.originUrl);
                 $("#input-note").val(data.note);
                 $("#input-akaName").val(data.akaName);
+                $("#TTL").val(data.ttl);
                 $("#check-is-enabled").attr('checked', data.isEnabled);
                 $("#editLinkModal").modal();
             });
@@ -116,6 +120,7 @@
 
         $(".btn-create-link").click(function () {
             $("#edit-form")[0].reset();
+            $("#input-id").val(0);
             $("#editLinkModal").modal();
         });
 
@@ -136,6 +141,7 @@
                         "OriginUrl": $("#input-origin-url").val(),
                         "Note": $("#input-note").val(),
                         "AkaName": $("#input-akaName").val(),
+                        "TTL": $("#TTL").val(),
                         "IsEnabled": $("#check-is-enabled").is(":checked")
                     },
                     function (data) {
@@ -177,6 +183,7 @@
             <th>Note</th>
             <th style="width: 80px;">Aka</th>
             <th style="width: 80px;">Enabled</th>
+            <th style="width: 80px;">TTL</th>
             <th style="width: 100px;">Update Time</th>
             <th style="width: 180px;">Action</th>
         </tr>
@@ -208,24 +215,31 @@
                                id="input-origin-url"
                                maxlength="256"
                                name="input-origin-url"
-                               value="">
+                               value="" />
                         <span class="text-danger field-validation-valid" data-valmsg-for="input-origin-url" data-valmsg-replace="true"></span>
                     </div>
                     <div class="form-group">
                         <label class="control-label" for="input-note">Note</label>
-                        <input class="form-control" type="text" id="input-note" name="input-note" value="">
+                        <input class="form-control" type="text" id="input-note" name="input-note" value="" />
                     </div>
                     <div class="form-group">
                         <label class="control-label" for="input-akaName">Aka</label>
                         <input class="form-control" type="text" id="input-akaName" name="input-akaName" value=""
-                               data-val="true" 
+                               data-val="true"
                                data-val-regex="Aka can only accept lower case English letters (a-z) and numbers (0-9) with/out hyphen (-) in middle." data-val-regex-pattern="(?!-)([a-z0-9-]+)"
-                               data-val-maxlength-max="32">
+                               data-val-maxlength-max="32" />
                         <span class="text-danger field-validation-valid" data-valmsg-for="input-akaName" data-valmsg-replace="true"></span>
                     </div>
-
+                    <div class="form-group">
+                        <label asp-for="TTL" class="control-label"></label>
+                        <input asp-for="TTL" class="form-control" />
+                        <span asp-validation-for="TTL" class="text-danger"></span>
+                        @*<label class="control-label" for="input-ttl">TTL</label>
+                        <input class="form-control" type="number" id="input-ttl" name="input-ttl" value="0" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="input-ttl" data-valmsg-replace="true"></span>*@
+                    </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" checked="checked" id="check-is-enabled" name="check-is-enabled" value="true">
+                        <input class="form-check-input" type="checkbox" checked="checked" id="check-is-enabled" name="check-is-enabled" value="true" />
                         <label class="form-check-label" for="check-is-enabled">Enable</label>
                     </div>
                 </div>

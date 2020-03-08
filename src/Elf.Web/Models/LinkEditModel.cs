@@ -26,5 +26,9 @@ namespace Elf.Web.Models
         [Required]
         [Display(Name = "Enable")]
         public bool IsEnabled { get; set; }
+
+        [Display(Name = "TTL (seconds)")]
+        [Range(0, 24 * 60 * 60)]
+        public int TTL { get; set; }
     }
 }

@@ -74,7 +74,8 @@ namespace Elf.Services
                                              l.Note,
                                              l.AkaName,
                                              l.IsEnabled,
-                                             l.UpdateTimeUtc
+                                             l.UpdateTimeUtc,
+                                             l.TTL
                                          FROM Link l
                                          WHERE @noteKeyword IS NULL 
                                          OR l.Note LIKE '%' + @noteKeyword + '%' 
@@ -135,10 +136,11 @@ namespace Elf.Services
                     Note = createLinkRequest.Note,
                     AkaName = createLinkRequest.AkaName,
                     OriginUrl = createLinkRequest.OriginUrl,
-                    UpdateTimeUtc = DateTime.UtcNow
+                    UpdateTimeUtc = DateTime.UtcNow,
+                    TTL = createLinkRequest.TTL
                 };
-                const string sqlInsertLk = @"INSERT INTO Link (OriginUrl, FwToken, Note, AkaName, IsEnabled, UpdateTimeUtc) 
-                                                 VALUES (@OriginUrl, @FwToken, @Note, @AkaName, @IsEnabled, @UpdateTimeUtc)";
+                const string sqlInsertLk = @"INSERT INTO Link (OriginUrl, FwToken, Note, AkaName, IsEnabled, UpdateTimeUtc, TTL) 
+                                                 VALUES (@OriginUrl, @FwToken, @Note, @AkaName, @IsEnabled, @UpdateTimeUtc, @TTL)";
                 await conn.ExecuteAsync(sqlInsertLk, link);
                 return new SuccessResponse<string>(link.FwToken);
             }
@@ -161,7 +163,8 @@ namespace Elf.Services
                                                  l.Note,
                                                  l.AkaName,
                                                  l.IsEnabled,
-                                                 l.UpdateTimeUtc
+                                                 l.UpdateTimeUtc,
+                                                 l.TTL
                                                  FROM Link l WHERE l.Id = @id";
                 var link = await conn.QueryFirstOrDefaultAsync<Link>(sqlFindLink, new { id = editLinkRequest.Id });
                 if (null == link)
@@ -173,12 +176,14 @@ namespace Elf.Services
                 link.Note = editLinkRequest.Note;
                 link.AkaName = editLinkRequest.AkaName;
                 link.IsEnabled = editLinkRequest.IsEnabled;
+                link.TTL = editLinkRequest.TTL;
 
                 const string sqlUpdate = @"UPDATE Link SET 
                                                OriginUrl = @OriginUrl,
                                                Note = @Note,
                                                AkaName = @AkaName,
-                                               IsEnabled = @IsEnabled
+                                               IsEnabled = @IsEnabled,
+                                               TTL = @TTL
                                                WHERE Id = @Id";
                 await conn.ExecuteAsync(sqlUpdate, link);
                 return new SuccessResponse<string>(link.FwToken);
@@ -217,7 +222,8 @@ namespace Elf.Services
                                          l.Note,
                                          l.AkaName,
                                          l.IsEnabled,
-                                         l.UpdateTimeUtc
+                                         l.UpdateTimeUtc,
+                                         l.TTL
                                          FROM Link l
                                          WHERE l.Id = @id";
                 var link = await conn.QueryFirstOrDefaultAsync<Link>(sql, new { id });
@@ -242,7 +248,8 @@ namespace Elf.Services
                                          l.Note, 
                                          l.AkaName,
                                          l.IsEnabled,
-                                         l.UpdateTimeUtc
+                                         l.UpdateTimeUtc, 
+                                         l.TTL
                                          FROM Link l
                                          WHERE l.FwToken = @fwToken";
                 var link = await conn.QueryFirstOrDefaultAsync<Link>(sql, new { fwToken = token });
