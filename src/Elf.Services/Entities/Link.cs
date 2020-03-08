@@ -17,5 +17,7 @@ namespace Elf.Services.Entities
         public bool IsEnabled { get; set; }
 
         public DateTime UpdateTimeUtc { get; set; }
+
+        public int? TTL { get; set; }
     }
 }
