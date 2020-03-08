@@ -6,7 +6,8 @@ CREATE TABLE [Link](
 [Note] [nvarchar](max) NULL,
 [AkaName] [varchar](32) NULL,
 [IsEnabled] [bit] NOT NULL,
-[UpdateTimeUtc] [datetime] NOT NULL)
+[UpdateTimeUtc] [datetime] NOT NULL,
+[TTL] [int])
 
 IF NOT EXISTS(SELECT TOP 1 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'LinkTracking')
 CREATE TABLE [LinkTracking](

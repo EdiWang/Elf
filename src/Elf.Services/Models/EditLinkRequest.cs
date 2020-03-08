@@ -12,6 +12,8 @@
 
         public bool IsEnabled { get; set; }
 
+        public int TTL { get; set; }
+
         public EditLinkRequest(int id)
         {
             Id = id;

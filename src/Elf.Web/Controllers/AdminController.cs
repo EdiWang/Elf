@@ -258,7 +258,8 @@ namespace Elf.Web.Controllers
                     OriginUrl = model.OriginUrl,
                     Note = model.Note,
                     AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
-                    IsEnabled = model.IsEnabled
+                    IsEnabled = model.IsEnabled,
+                    TTL = model.TTL
                 };
 
                 var response = await _linkForwarderService.CreateLinkAsync(createLinkRequest);
@@ -287,7 +288,8 @@ namespace Elf.Web.Controllers
                 Note = linkResponse.Item.Note,
                 AkaName = linkResponse.Item.AkaName,
                 OriginUrl = linkResponse.Item.OriginUrl,
-                IsEnabled = linkResponse.Item.IsEnabled
+                IsEnabled = linkResponse.Item.IsEnabled,
+                TTL = linkResponse.Item.TTL ?? 0
             };
 
             return Json(model);
@@ -315,7 +317,8 @@ namespace Elf.Web.Controllers
                     NewUrl = model.OriginUrl,
                     Note = model.Note,
                     AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
-                    IsEnabled = model.IsEnabled
+                    IsEnabled = model.IsEnabled,
+                    TTL = model.TTL
                 };
 
                 var response = await _linkForwarderService.EditLinkAsync(editRequest);
