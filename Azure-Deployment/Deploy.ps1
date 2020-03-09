@@ -18,6 +18,8 @@ $sqlServerName = "elftestsqlsvr"
 $sqlServerUsername = "elf"
 $sqlServerPassword = "DotNet3lf"
 $sqlDatabaseName = "elf-test-db"
+$elfAdminUsername = "admin"
+$elfAdminPassword = "admin123"
 
 # Confirmation
 Write-Host "Your Elf will be deployed to [$rsgName] in [$regionName] under Azure subscription [$subscriptionName]. Please confirm before continue."
@@ -42,7 +44,7 @@ $planCheck = az appservice plan list --query "[?name=='$aspName']" | ConvertFrom
 $planExists = $planCheck.Length -gt 0
 if (!$planExists) {
     Write-Host "Creating App Service Plan"
-    az appservice plan create -n $aspName -g $rsgName --sku S1 --location $regionName
+    az appservice plan create -n $aspName -g $rsgName --is-linux --sku S1 --location $regionName
 }
 
 # Web App
@@ -52,7 +54,7 @@ $appCheck = az webapp list --query "[?name=='$webAppName']" | ConvertFrom-Json
 $appExists = $appCheck.Length -gt 0
 if (!$appExists) {
     Write-Host "Creating Web App"
-    az webapp create -g $rsgName -p $aspName -n $webAppName
+    az webapp create -g $rsgName -p $aspName -n $webAppName --deployment-container-image-name ediwang/elf
     az webapp config set -g $rsgName -n $webAppName --always-on true --use-32bit-worker-process false --http20-enabled true
 }
 
@@ -64,6 +66,10 @@ $sqlServerExists = $sqlServerCheck.Length -gt 0
 if (!$sqlServerExists) {
     Write-Host "Creating SQL Server"
     az sql server create --name $sqlServerName --resource-group $rsgName --location $regionName --admin-user $sqlServerUsername --admin-password $sqlServerPassword
+
+    Write-Host "Setting Firewall to Allow Azure Connection"
+    # When both starting IP and end IP are set to 0.0.0.0, the firewall is only opened for other Azure resources.
+    az sql server firewall-rule create --resource-group $rsgName --server $sqlServerName --name AllowAllIps --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
 }
 
 $sqlDbCheck = az sql db list --resource-group $rsgName --server $sqlServerName --query "[?name=='$sqlDatabaseName']" | ConvertFrom-Json
@@ -82,4 +88,9 @@ $sqlConnStrTemplate = az sql db show-connection-string -s $sqlServerName -n $sql
 $sqlConnStr = $sqlConnStrTemplate.Replace("<username>", $sqlServerUsername).Replace("<password>", $sqlServerPassword)
 az webapp config connection-string set -g $rsgName -n $webAppName -t SQLAzure --settings ElfDatabase=$sqlConnStr
 
-Read-Host -Prompt "Setup is done, you can now deploy the blog code, press [ENTER] to exit."
+Write-Host "Setting Admin Account"
+az webapp config appsettings set -g $rsgName -n $webAppName --settings Authentication__Provider="Local"
+az webapp config appsettings set -g $rsgName -n $webAppName --settings Authentication__Local__Username=$elfAdminUsername
+az webapp config appsettings set -g $rsgName -n $webAppName --settings Authentication__Local__Password=$elfAdminPassword
+
+Read-Host -Prompt "Setup is done, you can now deploy the code, press [ENTER] to exit."
