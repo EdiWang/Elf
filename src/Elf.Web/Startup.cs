@@ -92,7 +92,7 @@ namespace Elf.Web
 
             if (env.IsDevelopment())
             {
-                _logger.LogWarning("LinkForwarder is running in DEBUG.");
+                _logger.LogWarning("Elf is running in DEBUG.");
                 app.UseDeveloperExceptionPage();
             }
             else

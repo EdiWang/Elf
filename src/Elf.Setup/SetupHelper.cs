@@ -67,7 +67,7 @@ namespace Elf.Setup
         private static string GetEmbeddedSqlScript(string scriptName)
         {
             var assembly = typeof(SetupHelper).GetTypeInfo().Assembly;
-            using var stream = assembly.GetManifestResourceStream($"LinkForwarder.Setup.Data.{scriptName}.sql");
+            using var stream = assembly.GetManifestResourceStream($"Elf.Setup.Data.{scriptName}.sql");
             if (stream == null) return null;
             using var reader = new StreamReader(stream);
             var sql = reader.ReadToEnd();
