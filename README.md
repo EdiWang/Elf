@@ -38,14 +38,13 @@ If you don't like docker, you can follow the next section to build and run the p
 
 ## Build and Run
 
-> The following tools are required for development.
-
 Tools | Alternative
 --- | ---
 [.NET Core 3.1 SDK](http://dot.net) | N/A
 [Visual Studio 2019](https://visualstudio.microsoft.com/) | [Visual Studio Code](https://code.visualstudio.com/)
 [Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/) | [SQL Server 2019](https://www.microsoft.com/en-us/sql-server/sql-server-2019) / LocalDB (Dev Only)
 
+For a quick Azure deployment, you can use the automation script ```Azure-Deployment\Deploy.ps1``` to setup a ready-to-run Elf in a couple of minutes. (Azure CLI is required to run the script)
 
 ### Setup Database
 
