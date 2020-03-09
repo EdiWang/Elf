@@ -1,11 +1,8 @@
 # ---------------------------------------------------------------------------------------------------------
 # Quick Start deployment script for running Elf on Microsoft Azure
-# ---------------------------------------------------------------------------------------------------------
 # Author: Edi Wang
 # ---------------------------------------------------------------------------------------------------------
-# You need to install Azure CLI and login to Azure before running this script.
-# To install Azure CLI, please run:
-# Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'
+# You need to install Azure CLI and login to Azure (run 'az login') before running this script.
 # Reference: https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest
 
 # Replace with your own values
@@ -20,6 +17,19 @@ $sqlServerPassword = "DotNet3lf"
 $sqlDatabaseName = "elf-test-db"
 $elfAdminUsername = "admin"
 $elfAdminPassword = "admin123"
+
+function Check-Command($cmdname) {
+    return [bool](Get-Command -Name $cmdname -ErrorAction SilentlyContinue)
+}
+
+if(Check-Command -cmdname 'az') {
+    Write-Host "Azure CLI is found on your machine. If something blow up, please check update for Azure CLI." -ForegroundColor Yellow
+    az --version
+}
+else {
+    Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'
+    az login
+}
 
 # Confirmation
 Write-Host "Your Elf will be deployed to [$rsgName] in [$regionName] under Azure subscription [$subscriptionName]. Please confirm before continue."
