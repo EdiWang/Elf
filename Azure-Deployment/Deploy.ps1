@@ -17,12 +17,13 @@ $sqlServerPassword = "DotNet3lf"
 $sqlDatabaseName = "elf-test-db"
 $elfAdminUsername = "admin"
 $elfAdminPassword = "admin123"
+[bool] $useLinuxPlanWithDocker = 1
 
 function Check-Command($cmdname) {
     return [bool](Get-Command -Name $cmdname -ErrorAction SilentlyContinue)
 }
 
-if(Check-Command -cmdname 'az') {
+if (Check-Command -cmdname 'az') {
     Write-Host "Azure CLI is found on your machine. If something blow up, please check update for Azure CLI." -ForegroundColor Yellow
     az --version
 }
@@ -64,8 +65,22 @@ $appCheck = az webapp list --query "[?name=='$webAppName']" | ConvertFrom-Json
 $appExists = $appCheck.Length -gt 0
 if (!$appExists) {
     Write-Host "Creating Web App"
-    az webapp create -g $rsgName -p $aspName -n $webAppName --deployment-container-image-name ediwang/elf
+    if ($useLinuxPlanWithDocker) {
+        Write-Host "Using Linux Plan with Docker image from 'ediwang/elf', this deployment will be ready to run."
+        az webapp create -g $rsgName -p $aspName -n $webAppName --deployment-container-image-name ediwang/elf
+    }
+    else {
+        Write-Host "Using Windows Plan with deployment method as not set, you need to build and deploy the code yourself."
+        az webapp create -g $rsgName -p $aspName -n $webAppName
+    }
     az webapp config set -g $rsgName -n $webAppName --always-on true --use-32bit-worker-process false --http20-enabled true
+}
+
+$createdApp = az webapp list --query "[?name=='$webAppName']" | ConvertFrom-Json
+$createdExists = $createdApp.Length -gt 0
+if ($createdExists) {
+    $webAppUrl = "https://" + $createdApp.defaultHostName
+    Write-Host "Web App URL: $webAppUrl"
 }
 
 # Azure SQL
@@ -103,4 +118,9 @@ az webapp config appsettings set -g $rsgName -n $webAppName --settings Authentic
 az webapp config appsettings set -g $rsgName -n $webAppName --settings Authentication__Local__Username=$elfAdminUsername
 az webapp config appsettings set -g $rsgName -n $webAppName --settings Authentication__Local__Password=$elfAdminPassword
 
-Read-Host -Prompt "Setup is done, you can now deploy the code, press [ENTER] to exit."
+if ($useLinuxPlanWithDocker) {
+    Read-Host -Prompt "Setup is done, you should be able to run Elf on '$webAppUrl' now, press [ENTER] to exit."
+}
+else {
+    Read-Host -Prompt "Setup is done, you can now deploy the code to '$webAppUrl', press [ENTER] to exit."
+}
