@@ -55,7 +55,12 @@ $planCheck = az appservice plan list --query "[?name=='$aspName']" | ConvertFrom
 $planExists = $planCheck.Length -gt 0
 if (!$planExists) {
     Write-Host "Creating App Service Plan"
-    az appservice plan create -n $aspName -g $rsgName --is-linux --sku S1 --location $regionName
+    if ($useLinuxPlanWithDocker){
+        az appservice plan create -n $aspName -g $rsgName --is-linux --sku S1 --location $regionName
+    }
+    else {
+        az appservice plan create -n $aspName -g $rsgName --sku S1 --location $regionName
+    }
 }
 
 # Web App
