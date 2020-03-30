@@ -331,6 +331,48 @@ namespace Elf.Tests
             Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
         }
 
+
+        [Test]
+        public async Task TestFirstTimeRequestNoDntNoTTL()
+        {
+            string inputToken = "996";
+            string t;
+            _tokenGeneratorMock
+                .Setup(p => p.TryParseToken(inputToken, out t))
+                .Returns(true);
+
+            var link = new Link { IsEnabled = true, OriginUrl = "https://edi.wang" };
+            var memoryCache = MockMemoryCacheService.GetMemoryCache(link, false);
+
+            _linkForwarderServiceMock
+                .Setup(p => p.GetLinkAsync(null))
+                .ReturnsAsync(new SuccessResponse<Link>(link));
+
+            _linkVerifierMock
+                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>()))
+                .Returns(LinkVerifyResult.Valid);
+
+            _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
+            {
+                HonorDNT = false
+            });
+
+            var ctl = new ForwardController(
+                _appSettingsMock.Object,
+                _loggerMock.Object,
+                _linkForwarderServiceMock.Object,
+                _tokenGeneratorMock.Object,
+                memoryCache,
+                _linkVerifierMock.Object)
+            {
+                ControllerContext = GetHappyPathHttpContext()
+            };
+
+            var result = await ctl.Forward(inputToken);
+            Assert.IsInstanceOf(typeof(RedirectResult), result);
+        }
+
+
         private ControllerContext GetHappyPathHttpContext()
         {
             var ctx = new ControllerContext
