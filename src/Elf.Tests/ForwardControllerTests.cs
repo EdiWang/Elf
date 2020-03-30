@@ -251,7 +251,6 @@ namespace Elf.Tests
             Assert.IsInstanceOf(typeof(RedirectResult), result);
         }
 
-
         [TestCase(LinkVerifyResult.InvalidFormat)]
         [TestCase(LinkVerifyResult.InvalidLocal)]
         [TestCase(LinkVerifyResult.InvalidSelfReference)]
@@ -295,6 +294,41 @@ namespace Elf.Tests
 
             var statusCode = ((StatusCodeResult)result).StatusCode;
             Assert.IsTrue(statusCode == 500);
+        }
+
+        [Test]
+        public async Task TestFirstTimeRequestLinkNotEnabled()
+        {
+            string inputToken = "996";
+            string t;
+            _tokenGeneratorMock
+                .Setup(p => p.TryParseToken(inputToken, out t))
+                .Returns(true);
+
+            var link = new Link { IsEnabled = false };
+            var memoryCache = MockMemoryCacheService.GetMemoryCache(link, false);
+
+            _linkForwarderServiceMock
+                .Setup(p => p.GetLinkAsync(null))
+                .ReturnsAsync(new SuccessResponse<Link>(link));
+
+            _linkVerifierMock
+                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>()))
+                .Returns(LinkVerifyResult.Valid);
+
+            var ctl = new ForwardController(
+                _appSettingsMock.Object,
+                _loggerMock.Object,
+                _linkForwarderServiceMock.Object,
+                _tokenGeneratorMock.Object,
+                memoryCache,
+                _linkVerifierMock.Object)
+            {
+                ControllerContext = GetHappyPathHttpContext()
+            };
+
+            var result = await ctl.Forward(inputToken);
+            Assert.IsInstanceOf(typeof(BadRequestObjectResult), result);
         }
 
         private ControllerContext GetHappyPathHttpContext()
