@@ -36,6 +36,7 @@ namespace Elf.Tests
 
         [TestCase("")]
         [TestCase(" ")]
+        [TestCase(null)]
         public async Task TestForwardEmptyToken(string token)
         {
             _tokenGeneratorMock = new Mock<ITokenGenerator>();
@@ -55,8 +56,10 @@ namespace Elf.Tests
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
         }
 
-        [Test]
-        public async Task TestForwardEmptyUA()
+        [TestCase("")]
+        [TestCase(" ")]
+        [TestCase(null)]
+        public async Task TestForwardEmptyUA(string ua)
         {
             _tokenGeneratorMock = new Mock<ITokenGenerator>();
             _linkVerifierMock = new Mock<ILinkVerifier>();
@@ -77,9 +80,42 @@ namespace Elf.Tests
                 }
             };
 
-            ctl.ControllerContext.HttpContext.Request.Headers["User-Agent"] = string.Empty;
+            ctl.ControllerContext.HttpContext.Request.Headers["User-Agent"] = ua;
 
             var result = await ctl.Forward("996");
+            Assert.IsInstanceOf(typeof(BadRequestResult), result);
+        }
+
+        [Test]
+        public async Task TestForwardInvalidToken()
+        {
+            string inputToken = "996";
+            string t;
+            _tokenGeneratorMock = new Mock<ITokenGenerator>();
+            _tokenGeneratorMock.Setup(tg => tg.TryParseToken(inputToken, out t))
+                               .Returns(false);
+
+            _linkVerifierMock = new Mock<ILinkVerifier>();
+            _linkForwarderServiceMock = new Mock<ILinkForwarderService>();
+            _memoryCacheMock = new Mock<IMemoryCache>();
+
+            var ctl = new ForwardController(
+                _appSettingsMock.Object,
+                _loggerMock.Object,
+                _linkForwarderServiceMock.Object,
+                _tokenGeneratorMock.Object,
+                _memoryCacheMock.Object,
+                _linkVerifierMock.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext()
+                }
+            };
+
+            ctl.ControllerContext.HttpContext.Request.Headers["User-Agent"] = "Unit Test";
+
+            var result = await ctl.Forward(inputToken);
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
         }
     }
