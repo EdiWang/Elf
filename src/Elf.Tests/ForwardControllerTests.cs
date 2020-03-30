@@ -98,13 +98,8 @@ namespace Elf.Tests
                 _memoryCacheMock.Object,
                 _linkVerifierMock.Object)
             {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = new DefaultHttpContext()
-                }
+                ControllerContext = GetHappyPathHttpContext()
             };
-
-            ctl.ControllerContext.HttpContext.Request.Headers["User-Agent"] = "Unit Test";
 
             var result = await ctl.Forward(inputToken);
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
@@ -139,13 +134,8 @@ namespace Elf.Tests
                 memoryCache,
                 _linkVerifierMock.Object)
             {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = new DefaultHttpContext()
-                }
+                ControllerContext = GetHappyPathHttpContext()
             };
-
-            ctl.ControllerContext.HttpContext.Request.Headers["User-Agent"] = "Unit Test";
 
             var result = await ctl.Forward(inputToken);
             Assert.IsInstanceOf(typeof(RedirectResult), result);
@@ -175,13 +165,8 @@ namespace Elf.Tests
                 memoryCache,
                 _linkVerifierMock.Object)
             {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = new DefaultHttpContext()
-                }
+                ControllerContext = GetHappyPathHttpContext()
             };
-
-            ctl.ControllerContext.HttpContext.Request.Headers["User-Agent"] = "Unit Test";
 
             var result = await ctl.Forward(inputToken);
             Assert.IsInstanceOf(typeof(StatusCodeResult), result);
@@ -219,16 +204,22 @@ namespace Elf.Tests
                 memoryCache,
                 _linkVerifierMock.Object)
             {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = new DefaultHttpContext()
-                }
+                ControllerContext = GetHappyPathHttpContext()
             };
-
-            ctl.ControllerContext.HttpContext.Request.Headers["User-Agent"] = "Unit Test";
 
             var result = await ctl.Forward(inputToken);
             Assert.IsInstanceOf(typeof(NotFoundResult), result);
+        }
+
+        private ControllerContext GetHappyPathHttpContext()
+        {
+            var ctx = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            ctx.HttpContext.Request.Headers["User-Agent"] = "Unit Test";
+            return ctx;
         }
     }
 }
