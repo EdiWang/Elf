@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Elf.Services;
+using Elf.Services.Entities;
 using Elf.Services.TokenGenerator;
 using Elf.Web;
 using Elf.Web.Controllers;
@@ -117,6 +118,52 @@ namespace Elf.Tests
 
             var result = await ctl.Forward(inputToken);
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
+        }
+
+        [Test]
+        public async Task TestCacheFound()
+        {
+            string inputToken = "996";
+            string t;
+            _tokenGeneratorMock = new Mock<ITokenGenerator>();
+            _tokenGeneratorMock.Setup(tg => tg.TryParseToken(inputToken, out t))
+                .Returns(true);
+
+            _linkVerifierMock = new Mock<ILinkVerifier>();
+            _linkForwarderServiceMock = new Mock<ILinkForwarderService>();
+            _memoryCacheMock = new Mock<IMemoryCache>();
+
+            var link = new Link()
+            {
+                OriginUrl = "https://996.icu"
+            };
+
+            var memoryCache = MockMemoryCacheService.GetMemoryCache(link);
+            var cachedResponse = memoryCache.Get<Link>(inputToken);
+
+            _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings()
+            {
+                HonorDNT = false
+            });
+
+            var ctl = new ForwardController(
+                _appSettingsMock.Object,
+                _loggerMock.Object,
+                _linkForwarderServiceMock.Object,
+                _tokenGeneratorMock.Object,
+                memoryCache,
+                _linkVerifierMock.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext()
+                }
+            };
+
+            ctl.ControllerContext.HttpContext.Request.Headers["User-Agent"] = "Unit Test";
+
+            var result = await ctl.Forward(inputToken);
+            Assert.IsInstanceOf(typeof(RedirectResult), result);
         }
     }
 }

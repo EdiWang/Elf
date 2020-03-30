@@ -29,7 +29,7 @@ jobs:
     inputs:
       command: test
       projects: '**/*Tests/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
+      arguments: '--configuration Release'
 
   - task: DotNetCoreCLI@2
     inputs:
