@@ -31,8 +31,4 @@
     <ProjectReference Include="..\Elf.Services\Elf.Services.csproj" />
     <ProjectReference Include="..\Elf.Setup\Elf.Setup.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <WCFMetadata Include="Connected Services" />
-  </ItemGroup>
 </Project>

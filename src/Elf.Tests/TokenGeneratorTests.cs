@@ -4,6 +4,7 @@ using NUnit.Framework;
 
 namespace Elf.Tests
 {
+    [TestFixture]
     public class TokenGeneratorTests
     {
         public ITokenGenerator TGen { get; set; }
