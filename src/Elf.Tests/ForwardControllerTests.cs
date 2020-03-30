@@ -251,6 +251,52 @@ namespace Elf.Tests
             Assert.IsInstanceOf(typeof(RedirectResult), result);
         }
 
+
+        [TestCase(LinkVerifyResult.InvalidFormat)]
+        [TestCase(LinkVerifyResult.InvalidLocal)]
+        [TestCase(LinkVerifyResult.InvalidSelfReference)]
+        public async Task TestFirstTimeRequestLinkNotExistsWithInvalidDefRedir(LinkVerifyResult linkVerifyResult)
+        {
+            string inputToken = "996";
+            string t;
+            _tokenGeneratorMock
+                .Setup(p => p.TryParseToken(inputToken, out t))
+                .Returns(true);
+
+            var link = new Link();
+            var memoryCache = MockMemoryCacheService.GetMemoryCache(link, false);
+
+            _linkForwarderServiceMock
+                .Setup(p => p.GetLinkAsync(null))
+                .ReturnsAsync(new SuccessResponse<Link>(null));
+
+            _linkVerifierMock
+                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>()))
+                .Returns(linkVerifyResult);
+
+            _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
+            {
+                DefaultRedirectionUrl = "INVALID_VALUE"
+            });
+
+            var ctl = new ForwardController(
+                _appSettingsMock.Object,
+                _loggerMock.Object,
+                _linkForwarderServiceMock.Object,
+                _tokenGeneratorMock.Object,
+                memoryCache,
+                _linkVerifierMock.Object)
+            {
+                ControllerContext = GetHappyPathHttpContext()
+            };
+
+            var result = await ctl.Forward(inputToken);
+            Assert.IsInstanceOf(typeof(StatusCodeResult), result);
+
+            var statusCode = ((StatusCodeResult)result).StatusCode;
+            Assert.IsTrue(statusCode == 500);
+        }
+
         private ControllerContext GetHappyPathHttpContext()
         {
             var ctx = new ControllerContext

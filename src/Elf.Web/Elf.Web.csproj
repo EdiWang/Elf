@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Connected Services\" />
     <Folder Include="wwwroot\lib\" />
     <None Include="bundleconfig.json" />
     <Content Update="libman.json" CopyToPublishDirectory="Never" />
