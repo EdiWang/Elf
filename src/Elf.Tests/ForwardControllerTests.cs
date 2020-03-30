@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Edi.Practice.RequestResponseModel;
 using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Services.TokenGenerator;
@@ -148,6 +149,45 @@ namespace Elf.Tests
 
             var result = await ctl.Forward(inputToken);
             Assert.IsInstanceOf(typeof(RedirectResult), result);
+        }
+
+        [Test]
+        public async Task TestFirstTimeRequestServerError()
+        {
+            string inputToken = "996";
+            string t;
+            _tokenGeneratorMock
+                .Setup(p => p.TryParseToken(inputToken, out t))
+                .Returns(true);
+
+            var link = new Link { OriginUrl = "https://996.icu" };
+            var memoryCache = MockMemoryCacheService.GetMemoryCache(link, false);
+
+            _linkForwarderServiceMock
+                .Setup(p => p.GetLinkAsync(null))
+                .ReturnsAsync(new FailedResponse<Link>(0));
+
+            var ctl = new ForwardController(
+                _appSettingsMock.Object,
+                _loggerMock.Object,
+                _linkForwarderServiceMock.Object,
+                _tokenGeneratorMock.Object,
+                memoryCache,
+                _linkVerifierMock.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext()
+                }
+            };
+
+            ctl.ControllerContext.HttpContext.Request.Headers["User-Agent"] = "Unit Test";
+
+            var result = await ctl.Forward(inputToken);
+            Assert.IsInstanceOf(typeof(StatusCodeResult), result);
+
+            var statusCode = ((StatusCodeResult)result).StatusCode;
+            Assert.IsTrue(statusCode == 500);
         }
     }
 }
