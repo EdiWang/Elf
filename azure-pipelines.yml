@@ -23,6 +23,14 @@ jobs:
       projects: '**/*.sln'
       arguments: '--configuration Release -p:Version=2.0.$(Build.BuildId)'
 
+      # do this after other tasks such as building
+  - task: DotNetCoreCLI@2
+    displayName: Test
+    inputs:
+      command: test
+      projects: '**/*Tests/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+
   - task: DotNetCoreCLI@2
     inputs:
       command: publish
