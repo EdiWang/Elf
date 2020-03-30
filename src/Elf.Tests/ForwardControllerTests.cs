@@ -189,5 +189,46 @@ namespace Elf.Tests
             var statusCode = ((StatusCodeResult)result).StatusCode;
             Assert.IsTrue(statusCode == 500);
         }
+
+        [Test]
+        public async Task TestFirstTimeRequestLinkNotExistsNoDefRedir()
+        {
+            string inputToken = "996";
+            string t;
+            _tokenGeneratorMock
+                .Setup(p => p.TryParseToken(inputToken, out t))
+                .Returns(true);
+
+            var link = new Link { OriginUrl = "https://996.icu" };
+            var memoryCache = MockMemoryCacheService.GetMemoryCache(link, false);
+
+            _linkForwarderServiceMock
+                .Setup(p => p.GetLinkAsync(null))
+                .ReturnsAsync(new SuccessResponse<Link>(null));
+
+            _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
+            {
+                DefaultRedirectionUrl = string.Empty
+            });
+
+            var ctl = new ForwardController(
+                _appSettingsMock.Object,
+                _loggerMock.Object,
+                _linkForwarderServiceMock.Object,
+                _tokenGeneratorMock.Object,
+                memoryCache,
+                _linkVerifierMock.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext()
+                }
+            };
+
+            ctl.ControllerContext.HttpContext.Request.Headers["User-Agent"] = "Unit Test";
+
+            var result = await ctl.Forward(inputToken);
+            Assert.IsInstanceOf(typeof(NotFoundResult), result);
+        }
     }
 }
