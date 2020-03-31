@@ -372,6 +372,44 @@ namespace Elf.Tests
             Assert.IsInstanceOf(typeof(RedirectResult), result);
         }
 
+        [Test]
+        public async Task TestFirstTimeRequestInvalidOriginUrl()
+        {
+            string inputToken = "996";
+            string t;
+            _tokenGeneratorMock
+                .Setup(p => p.TryParseToken(inputToken, out t))
+                .Returns(true);
+
+            var link = new Link { IsEnabled = true, OriginUrl = "INVALID_VALUE" };
+            var memoryCache = MockMemoryCacheService.GetMemoryCache(link, false);
+
+            _linkForwarderServiceMock
+                .Setup(p => p.GetLinkAsync(null))
+                .ReturnsAsync(new SuccessResponse<Link>(link));
+
+            _linkVerifierMock
+                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>()))
+                .Returns(LinkVerifyResult.InvalidFormat);
+
+            var ctl = new ForwardController(
+                _appSettingsMock.Object,
+                _loggerMock.Object,
+                _linkForwarderServiceMock.Object,
+                _tokenGeneratorMock.Object,
+                memoryCache,
+                _linkVerifierMock.Object)
+            {
+                ControllerContext = GetHappyPathHttpContext()
+            };
+
+            var result = await ctl.Forward(inputToken);
+            Assert.IsInstanceOf(typeof(StatusCodeResult), result);
+
+            var statusCode = ((StatusCodeResult)result).StatusCode;
+            Assert.IsTrue(statusCode == 500);
+        }
+
 
         private ControllerContext GetHappyPathHttpContext()
         {
