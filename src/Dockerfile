@@ -5,16 +5,18 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["Elf.Web/Elf.Web.csproj", "Elf.Web/"]
-COPY ["Elf.Services/Elf.Services.csproj", "Elf.Services/"]
-COPY ["Elf.Setup/Elf.Setup.csproj", "Elf.Setup/"]
+
+# Auto copy to prevent 996
+COPY ./**/*.csproj ./
+RUN for file in $(ls *.csproj); do mkdir -p ./${file%.*}/ && mv $file ./${file%.*}/; done
+
 RUN dotnet restore "Elf.Web/Elf.Web.csproj"
 COPY . .
 WORKDIR "/src/Elf.Web"
-RUN dotnet build "Elf.Web.csproj" -c Release -o /app/build
+RUN dotnet build "Elf.Web.csproj" -p:Version=2.0.0-docker -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Elf.Web.csproj" -c Release -o /app/publish
+RUN dotnet publish "Elf.Web.csproj" -p:Version=2.0.0-docker -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
