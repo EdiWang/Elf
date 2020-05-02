@@ -7,6 +7,7 @@ using Elf.Services.TokenGenerator;
 using Elf.Setup;
 using Elf.Web.Authentication;
 using Elf.Web.Extensions;
+using Elf.Web.Middleware;
 using Elf.Web.Models;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
@@ -97,6 +98,7 @@ namespace Elf.Web
 
             TryAddUrlRewrite(app);
 
+            app.UseMiddleware<PoweredByMiddleware>();
             app.UseStaticFiles();
 
             var conn = Configuration.GetConnectionString(Constants.DbName);
