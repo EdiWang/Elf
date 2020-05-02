@@ -149,15 +149,6 @@ namespace Elf.Web
                     });
                 });
 
-                app.Map("/accessdenied", builder =>
-                {
-                    builder.Run(async context =>
-                    {
-                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        await context.Response.WriteAsync("Access Denied");
-                    });
-                });
-
                 app.UseRouting();
 
                 app.UseAuthentication();
@@ -165,6 +156,12 @@ namespace Elf.Web
 
                 app.UseEndpoints(endpoints =>
                 {
+                    endpoints.MapGet("/accessdenied", async context =>
+                    {
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        await context.Response.WriteAsync("Access Denied");
+                    });
+
                     endpoints.MapControllerRoute(
                         name: "default",
                         pattern: "{controller=Home}/{action=Index}/{id?}");
