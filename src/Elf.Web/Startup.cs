@@ -74,13 +74,6 @@ namespace Elf.Web
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger, TelemetryConfiguration configuration)
         {
             _logger = logger;
-            _logger.LogInformation($"Elf Version {Utils.AppVersion}\n" +
-                   "--------------------------------------------------------\n" +
-                   $" Directory: {System.Environment.CurrentDirectory} \n" +
-                   $" x64Process: {System.Environment.Is64BitProcess} \n" +
-                   $" OSVersion: {System.Runtime.InteropServices.RuntimeInformation.OSDescription} \n" +
-                   $" UserName: {System.Environment.UserName} \n" +
-                   "--------------------------------------------------------");
 
             if (!env.IsProduction())
             {
