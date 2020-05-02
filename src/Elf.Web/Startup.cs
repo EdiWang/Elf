@@ -54,7 +54,7 @@ namespace Elf.Web
 
             services.AddAntiforgery(options =>
             {
-                const string cookieBaseName = "CSRF-TOKEN-LFWDR";
+                const string cookieBaseName = "CSRF-TOKEN-ELF";
                 options.Cookie.Name = $"X-{cookieBaseName}";
                 options.FormFieldName = $"{cookieBaseName}-FORM";
             });

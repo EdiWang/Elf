@@ -1,4 +1,4 @@
-﻿var csrfFieldName = 'CSRF-TOKEN-LFWDR-FORM';
+﻿var csrfFieldName = 'CSRF-TOKEN-ELF-FORM';
 function makeCSRFExtendedData(data) {
     var options = {};
     options[csrfFieldName] = $("input[name=" + csrfFieldName + "]").val();
