@@ -4,6 +4,8 @@
     {
         public string DefaultRedirectionUrl { get; set; }
 
+        public bool AllowSelfRedirection { get; set; }
+
         public bool HonorDNT { get; set; }
 
         public int TopClientTypes { get; set; }
