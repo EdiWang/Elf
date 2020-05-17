@@ -14,12 +14,12 @@ namespace Elf.Web
 
     public interface ILinkVerifier
     {
-        LinkVerifyResult Verify(string url, IUrlHelper urlHelper, HttpRequest currentRequest);
+        LinkVerifyResult Verify(string url, IUrlHelper urlHelper, HttpRequest currentRequest, bool allowSelfRedirection = false);
     }
 
     public class LinkVerifier : ILinkVerifier
     {
-        public LinkVerifyResult Verify(string url, IUrlHelper urlHelper, HttpRequest currentRequest)
+        public LinkVerifyResult Verify(string url, IUrlHelper urlHelper, HttpRequest currentRequest, bool allowSelfRedirection = false)
         {
             if (!url.IsValidUrl())
             {
@@ -31,7 +31,7 @@ namespace Elf.Web
                 return LinkVerifyResult.InvalidLocal;
             }
 
-            if (Uri.TryCreate(url, UriKind.Absolute, out var testUri))
+            if (!allowSelfRedirection && Uri.TryCreate(url, UriKind.Absolute, out var testUri))
             {
                 if (string.Compare(testUri.Authority, currentRequest.Host.ToString(), StringComparison.OrdinalIgnoreCase) == 0
                     && string.Compare(testUri.Scheme, currentRequest.Scheme, StringComparison.OrdinalIgnoreCase) == 0

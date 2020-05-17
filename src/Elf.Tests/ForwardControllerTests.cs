@@ -228,7 +228,7 @@ namespace Elf.Tests
                 .ReturnsAsync(new SuccessResponse<Link>(null));
 
             _linkVerifierMock
-                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>()))
+                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
                 .Returns(LinkVerifyResult.Valid);
 
             _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
@@ -270,7 +270,7 @@ namespace Elf.Tests
                 .ReturnsAsync(new SuccessResponse<Link>(null));
 
             _linkVerifierMock
-                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>()))
+                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
                 .Returns(linkVerifyResult);
 
             _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
@@ -313,7 +313,7 @@ namespace Elf.Tests
                 .ReturnsAsync(new SuccessResponse<Link>(link));
 
             _linkVerifierMock
-                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>()))
+                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
                 .Returns(LinkVerifyResult.Valid);
 
             var ctl = new ForwardController(
@@ -349,7 +349,7 @@ namespace Elf.Tests
                 .ReturnsAsync(new SuccessResponse<Link>(link));
 
             _linkVerifierMock
-                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>()))
+                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
                 .Returns(LinkVerifyResult.Valid);
 
             _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
@@ -389,7 +389,7 @@ namespace Elf.Tests
                 .ReturnsAsync(new SuccessResponse<Link>(link));
 
             _linkVerifierMock
-                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>()))
+                .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
                 .Returns(LinkVerifyResult.InvalidFormat);
 
             var ctl = new ForwardController(

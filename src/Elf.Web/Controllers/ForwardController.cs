@@ -136,7 +136,7 @@ namespace Elf.Web.Controllers
                         if (string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl)) return NotFound();
 
                         var verifyDefaultRedirectionUrl =
-                            _linkVerifier.Verify(_appSettings.DefaultRedirectionUrl, Url, Request);
+                            _linkVerifier.Verify(_appSettings.DefaultRedirectionUrl, Url, Request, _appSettings.AllowSelfRedirection);
                         if (verifyDefaultRedirectionUrl == LinkVerifyResult.Valid)
                         {
                             return Redirect(_appSettings.DefaultRedirectionUrl);
@@ -150,7 +150,7 @@ namespace Elf.Web.Controllers
                         return BadRequest("This link is disabled.");
                     }
 
-                    var verifyOriginUrl = _linkVerifier.Verify(link.OriginUrl, Url, Request);
+                    var verifyOriginUrl = _linkVerifier.Verify(link.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
                     switch (verifyOriginUrl)
                     {
                         case LinkVerifyResult.Valid:

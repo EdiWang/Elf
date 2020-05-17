@@ -242,7 +242,7 @@ namespace Elf.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request);
+                var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
                 switch (verifyResult)
                 {
                     case LinkVerifyResult.InvalidFormat:
@@ -301,7 +301,7 @@ namespace Elf.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request);
+                var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
                 switch (verifyResult)
                 {
                     case LinkVerifyResult.InvalidFormat:
