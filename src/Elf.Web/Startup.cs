@@ -4,7 +4,6 @@ using System.Text;
 using AspNetCoreRateLimit;
 using Elf.Services;
 using Elf.Services.TokenGenerator;
-using Elf.Setup;
 using Elf.Web.Authentication;
 using Elf.Web.Extensions;
 using Elf.Web.Middleware;
@@ -98,68 +97,36 @@ namespace Elf.Web
             app.UseMiddleware<PoweredByMiddleware>();
             app.UseStaticFiles();
 
-            var conn = Configuration.GetConnectionString(Constants.DbName);
-            var setupHelper = new SetupHelper(conn);
+            app.UseMiddleware<FirstRunMiddleware>();
 
-            if (!setupHelper.TestDatabaseConnection(exception =>
+            app.UseIpRateLimiting();
+
+            app.MapWhen(context => context.Request.Path == "/", builder =>
             {
-                _logger.LogCritical(exception, $"Error {nameof(SetupHelper.TestDatabaseConnection)}, connection string: {conn}");
-            }))
-            {
-                app.Run(async context =>
+                builder.Run(async context =>
                 {
-                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                    await context.Response.WriteAsync("Database connection failed. Please see error log, fix it and RESTART this application.");
+                    await context.Response.WriteAsync($"Elf Version: {Utils.AppVersion} | {Environment.EnvironmentName}, .NET Core {System.Environment.Version}", Encoding.UTF8);
                 });
-            }
-            else
+            });
+
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
             {
-                if (setupHelper.IsFirstRun())
+                endpoints.MapGet("/accessdenied", async context =>
                 {
-                    try
-                    {
-                        setupHelper.SetupDatabase();
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogCritical(e, e.Message);
-                        app.Run(async context =>
-                        {
-                            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                            await context.Response.WriteAsync("Error initializing first run, please check error log.");
-                        });
-                    }
-                }
-
-                app.UseIpRateLimiting();
-
-                app.MapWhen(context => context.Request.Path == "/", builder =>
-                {
-                    builder.Run(async context =>
-                    {
-                        await context.Response.WriteAsync($"Elf Version: {Utils.AppVersion} | {Environment.EnvironmentName}, .NET Core {System.Environment.Version}", Encoding.UTF8);
-                    });
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await context.Response.WriteAsync("Access Denied");
                 });
 
-                app.UseRouting();
-
-                app.UseAuthentication();
-                app.UseAuthorization();
-
-                app.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapGet("/accessdenied", async context =>
-                    {
-                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        await context.Response.WriteAsync("Access Denied");
-                    });
-
-                    endpoints.MapControllerRoute(
-                        name: "default",
-                        pattern: "{controller=Home}/{action=Index}/{id?}");
-                    endpoints.MapRazorPages();
-                });
-            }
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
+            });
         }
     }
 }
