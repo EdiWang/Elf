@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Elf.Services;
 using Elf.Setup;
@@ -60,7 +58,7 @@ namespace Elf.Web.Middleware
                     }
                 }
 
-                AppDomain.CurrentDomain.SetData("FIRSTRUN_INIT_SUCCESS", true);
+                AppDomain.CurrentDomain.SetData(Token, true);
                 await _next(httpContext);
             }
         }
