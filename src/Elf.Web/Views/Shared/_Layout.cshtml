@@ -23,7 +23,7 @@
     <link href="~/lib/toastr.js/toastr.min.css" rel="stylesheet" />
     <link href="~/lib/datatables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <link href="~/css/site.min.css" rel="stylesheet" />
-    @RenderSection("head", required: false)
+    @await RenderSectionAsync("head", required: false)
     <environment include="Production">
         @Html.Raw(JavaScriptSnippet.FullScript)
     </environment>
@@ -68,6 +68,6 @@
     </footer>
 
     <script src="~/js/site.min.js"></script>
-    @RenderSection("scripts", required: false)
+    @await RenderSectionAsync("scripts", required: false)
 </body>
 </html>

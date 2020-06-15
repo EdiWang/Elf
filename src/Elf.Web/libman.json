@@ -43,7 +43,7 @@
       ]
     },
     {
-      "library": "datatables@1.10.19",
+      "library": "datatables@1.10.20",
       "destination": "wwwroot/lib/datatables/",
       "files": [
         "js/jquery.dataTables.min.js",
