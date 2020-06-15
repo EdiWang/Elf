@@ -14,7 +14,6 @@ using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -96,8 +95,6 @@ namespace Elf.Web
                 app.UseHttpsRedirection();
             }
 
-            TryAddUrlRewrite(app);
-
             app.UseMiddleware<PoweredByMiddleware>();
             app.UseStaticFiles();
 
@@ -162,22 +159,6 @@ namespace Elf.Web
                         pattern: "{controller=Home}/{action=Index}/{id?}");
                     endpoints.MapRazorPages();
                 });
-            }
-        }
-
-        private void TryAddUrlRewrite(IApplicationBuilder app)
-        {
-            try
-            {
-                var options = new RewriteOptions()
-                    .AddRedirect("(.*)/$", "$1")
-                    .AddRedirect("(index|default).(aspx?|htm|s?html|php|pl|jsp|cfm)", "/");
-                app.UseRewriter(options);
-            }
-            catch (Exception e)
-            {
-                // URL Rewrite is non-fatal error, continue running the application.
-                _logger.LogError(e, nameof(TryAddUrlRewrite));
             }
         }
     }
