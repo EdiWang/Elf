@@ -8,8 +8,6 @@ using Edi.Practice.RequestResponseModel;
 using Elf.Services.Entities;
 using Elf.Services.Models;
 using Elf.Services.TokenGenerator;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using UAParser;
 
@@ -17,30 +15,27 @@ namespace Elf.Services
 {
     public class LinkForwarderService : ILinkForwarderService
     {
-        private readonly IConfiguration _configuration;
         private readonly ILogger<LinkForwarderService> _logger;
         private readonly ITokenGenerator _tokenGenerator;
-
-        private IDbConnection DbConnection => new SqlConnection(_configuration.GetConnectionString(Constants.DbName));
+        private readonly IDbConnection _conn;
 
         public LinkForwarderService(
-            IConfiguration configuration,
             ILogger<LinkForwarderService> logger,
-            ITokenGenerator tokenGenerator)
+            ITokenGenerator tokenGenerator,
+            IDbConnection conn)
         {
-            _configuration = configuration;
             _logger = logger;
             _tokenGenerator = tokenGenerator;
+            _conn = conn;
         }
 
         public async Task<Response<bool>> IsLinkExistsAsync(string token)
         {
             try
             {
-                using var conn = DbConnection;
                 const string sql = @"SELECT TOP 1 1 FROM Link l
                                             WHERE l.FwToken = @token";
-                var exist = await conn.ExecuteScalarAsync<int>(sql, new { token }) == 1;
+                var exist = await _conn.ExecuteScalarAsync<int>(sql, new { token }) == 1;
                 return new SuccessResponse<bool>(exist);
             }
             catch (Exception e)
@@ -66,7 +61,6 @@ namespace Elf.Services
 
             try
             {
-                using var conn = DbConnection;
                 const string sql = @"SELECT
                                              l.Id,
                                              l.OriginUrl,
@@ -84,13 +78,13 @@ namespace Elf.Services
                                          OFFSET @offset ROWS 
                                          FETCH NEXT @pageSize ROWS ONLY";
 
-                var links = await conn.QueryAsync<Link>(sql, new { offset, pageSize, noteKeyword });
+                var links = await _conn.QueryAsync<Link>(sql, new { offset, pageSize, noteKeyword });
 
                 const string sqlTotalRows = @"SELECT COUNT(l.Id)
                                                   FROM Link l
                                                   WHERE @noteKeyword IS NULL OR l.Note LIKE '%' + @noteKeyword + '%'";
 
-                var totalRows = await conn.ExecuteScalarAsync<int>(sqlTotalRows, new { noteKeyword });
+                var totalRows = await _conn.ExecuteScalarAsync<int>(sqlTotalRows, new { noteKeyword });
 
                 return new SuccessResponse<(IReadOnlyList<Link> Links, int TotalRows)>((links.AsList(), totalRows));
             }
@@ -105,9 +99,8 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 const string sqlLinkExist = "SELECT TOP 1 FwToken FROM Link l WHERE l.OriginUrl = @originUrl";
-                var tempToken = await conn.ExecuteScalarAsync<string>(sqlLinkExist, new { createLinkRequest.OriginUrl });
+                var tempToken = await _conn.ExecuteScalarAsync<string>(sqlLinkExist, new { createLinkRequest.OriginUrl });
                 if (null != tempToken)
                 {
                     if (_tokenGenerator.TryParseToken(tempToken, out var tk))
@@ -125,7 +118,7 @@ namespace Elf.Services
                 do
                 {
                     token = _tokenGenerator.GenerateToken();
-                } while (await conn.ExecuteScalarAsync<int>(sqlTokenExist, new { token }) == 1);
+                } while (await _conn.ExecuteScalarAsync<int>(sqlTokenExist, new { token }) == 1);
 
                 _logger.LogInformation($"Generated Token '{token}' for url '{createLinkRequest.OriginUrl}'");
 
@@ -141,7 +134,7 @@ namespace Elf.Services
                 };
                 const string sqlInsertLk = @"INSERT INTO Link (OriginUrl, FwToken, Note, AkaName, IsEnabled, UpdateTimeUtc, TTL) 
                                                  VALUES (@OriginUrl, @FwToken, @Note, @AkaName, @IsEnabled, @UpdateTimeUtc, @TTL)";
-                await conn.ExecuteAsync(sqlInsertLk, link);
+                await _conn.ExecuteAsync(sqlInsertLk, link);
                 return new SuccessResponse<string>(link.FwToken);
             }
             catch (Exception e)
@@ -155,7 +148,6 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 const string sqlFindLink = @"SELECT TOP 1 
                                                  l.Id,
                                                  l.OriginUrl,
@@ -166,7 +158,7 @@ namespace Elf.Services
                                                  l.UpdateTimeUtc,
                                                  l.TTL
                                                  FROM Link l WHERE l.Id = @id";
-                var link = await conn.QueryFirstOrDefaultAsync<Link>(sqlFindLink, new { id = editLinkRequest.Id });
+                var link = await _conn.QueryFirstOrDefaultAsync<Link>(sqlFindLink, new { id = editLinkRequest.Id });
                 if (null == link)
                 {
                     return new FailedResponse<string>($"Link with id '{editLinkRequest.Id}' does not exist.");
@@ -185,7 +177,7 @@ namespace Elf.Services
                                                IsEnabled = @IsEnabled,
                                                TTL = @TTL
                                                WHERE Id = @Id";
-                await conn.ExecuteAsync(sqlUpdate, link);
+                await _conn.ExecuteAsync(sqlUpdate, link);
                 return new SuccessResponse<string>(link.FwToken);
             }
             catch (Exception e)
@@ -199,8 +191,7 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
-                var linkCount = await conn.ExecuteScalarAsync<int>("SELECT Count(l.Id) FROM Link l");
+                var linkCount = await _conn.ExecuteScalarAsync<int>("SELECT Count(l.Id) FROM Link l");
                 return new SuccessResponse<int>(linkCount);
             }
             catch (Exception e)
@@ -214,7 +205,6 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 const string sql = @"SELECT TOP 1 
                                          l.Id,
                                          l.OriginUrl,
@@ -226,7 +216,7 @@ namespace Elf.Services
                                          l.TTL
                                          FROM Link l
                                          WHERE l.Id = @id";
-                var link = await conn.QueryFirstOrDefaultAsync<Link>(sql, new { id });
+                var link = await _conn.QueryFirstOrDefaultAsync<Link>(sql, new { id });
                 return new SuccessResponse<Link>(link);
             }
             catch (Exception e)
@@ -240,7 +230,6 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 const string sql = @"SELECT TOP 1 
                                          l.Id,
                                          l.OriginUrl,
@@ -252,7 +241,7 @@ namespace Elf.Services
                                          l.TTL
                                          FROM Link l
                                          WHERE l.FwToken = @fwToken";
-                var link = await conn.QueryFirstOrDefaultAsync<Link>(sql, new { fwToken = token });
+                var link = await _conn.QueryFirstOrDefaultAsync<Link>(sql, new { fwToken = token });
                 return new SuccessResponse<Link>(link);
             }
             catch (Exception e)
@@ -266,12 +255,11 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 const string sql = @"SELECT TOP 1 
                                          l.FwToken
                                          FROM Link l
                                          WHERE l.AkaName = @akaName";
-                var link = await conn.ExecuteScalarAsync<string>(sql, new { akaName });
+                var link = await _conn.ExecuteScalarAsync<string>(sql, new { akaName });
                 return new SuccessResponse<string>(link);
             }
             catch (Exception e)
@@ -285,9 +273,8 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 const string sql = "DELETE FROM Link WHERE Id = @linkId";
-                await conn.ExecuteAsync(sql, new { linkId });
+                await _conn.ExecuteAsync(sql, new { linkId });
                 return new SuccessResponse();
             }
             catch (Exception e)
@@ -301,7 +288,6 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 const string sql = @"SELECT 
                                          COUNT(lt.Id) AS RequestCount, 
                                          CAST(lt.RequestTimeUtc AS DATE) TrackingDateUtc
@@ -310,7 +296,7 @@ namespace Elf.Services
                                          AND lt.RequestTimeUtc > DATEADD(DAY, -@daysFromNow, CAST(GETUTCDATE() AS DATE))
                                          GROUP BY CAST(lt.RequestTimeUtc AS DATE)";
 
-                var list = await conn.QueryAsync<LinkTrackingDateCount>(sql, new { daysFromNow });
+                var list = await _conn.QueryAsync<LinkTrackingDateCount>(sql, new { daysFromNow });
                 return new SuccessResponse<IReadOnlyList<LinkTrackingDateCount>>(list.AsList());
             }
             catch (Exception e)
@@ -334,25 +320,24 @@ namespace Elf.Services
                     return $"{c.OS.Family}-{c.UA.Family}";
                 }
 
-                using var conn = DbConnection;
                 const string sql = @"SELECT lt.UserAgent, COUNT(lt.Id) AS RequestCount
                                          FROM LinkTracking lt
                                          WHERE lt.RequestTimeUtc < GETUTCDATE() 
                                          AND lt.RequestTimeUtc > DATEADD(DAY, -@daysFromNow, CAST(GETUTCDATE() AS DATE))
                                          GROUP BY lt.UserAgent";
 
-                var rawData = await conn.QueryAsync<UserAgentCount>(sql, new { daysFromNow });
+                var rawData = await _conn.QueryAsync<UserAgentCount>(sql, new { daysFromNow });
                 var userAgentCounts = rawData as UserAgentCount[] ?? rawData.ToArray();
                 if (userAgentCounts.Any())
                 {
                     var q = from d in userAgentCounts
-                        group d by GetClientTypeName(d.UserAgent)
+                            group d by GetClientTypeName(d.UserAgent)
                         into g
-                        select new ClientTypeCount
-                        {
-                            ClientTypeName = g.Key,
-                            Count = g.Sum(gp => gp.RequestCount)
-                        };
+                            select new ClientTypeCount
+                            {
+                                ClientTypeName = g.Key,
+                                Count = g.Sum(gp => gp.RequestCount)
+                            };
 
                     if (topTypes > 0)
                     {
@@ -374,14 +359,13 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 const string sql = @"SELECT l.FwToken, l.Note, COUNT(lt.Id) AS RequestCount
                                          FROM Link l INNER JOIN LinkTracking lt ON l.Id = lt.LinkId
                                          WHERE lt.RequestTimeUtc < GETUTCDATE() 
                                          AND lt.RequestTimeUtc > DATEADD(DAY, -@daysFromNow, CAST(GETUTCDATE() AS DATE))
                                          GROUP BY l.FwToken, l.Note";
 
-                var list = await conn.QueryAsync<MostRequestedLinkCount>(sql, new { daysFromNow });
+                var list = await _conn.QueryAsync<MostRequestedLinkCount>(sql, new { daysFromNow });
                 return new SuccessResponse<IReadOnlyList<MostRequestedLinkCount>>(list.AsList());
             }
             catch (Exception e)
@@ -395,7 +379,6 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 var lt = new LinkTracking
                 {
                     Id = Guid.NewGuid(),
@@ -407,7 +390,7 @@ namespace Elf.Services
 
                 const string sqlInsertLt = @"INSERT INTO LinkTracking (Id, IpAddress, LinkId, RequestTimeUtc, UserAgent) 
                                                  VALUES (@Id, @IpAddress, @LinkId, @RequestTimeUtc, @UserAgent)";
-                await conn.ExecuteAsync(sqlInsertLt, lt);
+                await _conn.ExecuteAsync(sqlInsertLt, lt);
                 return new SuccessResponse();
             }
             catch (Exception e)
@@ -421,9 +404,8 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 const string sqlClearTracking = "DELETE FROM LinkTracking";
-                var rows = await conn.ExecuteAsync(sqlClearTracking);
+                var rows = await _conn.ExecuteAsync(sqlClearTracking);
                 return new SuccessResponse<int>(rows);
             }
             catch (Exception e)
@@ -437,12 +419,11 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 const string sql = @"SELECT TOP (@top)
                                          lt.Id, lt.LinkId, lt.UserAgent, lt.IpAddress, lt.RequestTimeUtc 
                                          FROM LinkTracking lt WHERE lt.linkId = @linkId
                                          ORDER BY lt.RequestTimeUtc DESC";
-                var list = await conn.QueryAsync<LinkTracking>(sql, new { top, linkId });
+                var list = await _conn.QueryAsync<LinkTracking>(sql, new { top, linkId });
                 return new SuccessResponse<IReadOnlyList<LinkTracking>>(list.AsList());
             }
             catch (Exception e)
@@ -456,9 +437,8 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 const string sql = "SELECT COUNT(lt.Id) FROM LinkTracking lt WHERE lt.LinkId = @linkId";
-                var count = await conn.ExecuteScalarAsync<int>(sql, new { linkId });
+                var count = await _conn.ExecuteScalarAsync<int>(sql, new { linkId });
                 return new SuccessResponse<int>(count);
             }
             catch (Exception e)
@@ -472,13 +452,12 @@ namespace Elf.Services
         {
             try
             {
-                using var conn = DbConnection;
                 const string sql = @"SELECT TOP (@top)
                                          l.FwToken, l.Note, lt.RequestTimeUtc, lt.IpAddress, lt.UserAgent
                                          FROM LinkTracking lt INNER JOIN Link l ON lt.LinkId = l.Id
                                          ORDER BY lt.RequestTimeUtc DESC";
 
-                var list = await conn.QueryAsync<RequestTrack>(sql, new { top });
+                var list = await _conn.QueryAsync<RequestTrack>(sql, new { top });
                 return new SuccessResponse<IReadOnlyList<RequestTrack>>(list.AsList());
             }
             catch (Exception e)

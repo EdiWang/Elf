@@ -58,8 +58,8 @@ namespace Elf.Web
                 options.FormFieldName = $"{cookieBaseName}-FORM";
             });
 
-            var conn = Configuration.GetConnectionString(Constants.DbName);
-            services.AddTransient<IDbConnection>(c => new SqlConnection(conn));
+            services.AddTransient<IDbConnection>(c =>
+                new SqlConnection(Configuration.GetConnectionString(Constants.DbName)));
             services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
             services.AddTransient<ILinkForwarderService, LinkForwarderService>();
             services.AddTransient<ILinkVerifier, LinkVerifier>();
