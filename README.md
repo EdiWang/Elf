@@ -1,6 +1,6 @@
 # Elf
 
-[![Build Status](https://dev.azure.com/ediwang/Edi-GitHub/_apis/build/status/EdiWang.Elf?branchName=master)](https://dev.azure.com/ediwang/Edi-GitHub/_build/latest?definitionId=67&branchName=master)
+[![Build Status](https://dev.azure.com/ediwang/Edi-GitHub/_apis/build/status/EdiWang.Elf?branchName=master)](https://dev.azure.com/ediwang/Edi-GitHub/_build/latest?definitionId=67&branchName=master) ![Docker Build and Push](https://github.com/EdiWang/Elf/workflows/Docker%20Build%20and%20Push/badge.svg)
 
 The link forward service used by https://go.edi.wang. It generates static URLs for redirecting third party URLs. It's similar to, but **NOT a URL shorter**. 
 
