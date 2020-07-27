@@ -32,7 +32,7 @@ Forward Link, Create/Manage/Share Link, View Report
 
 ## Docker Deployment
 
-https://hub.docker.com/r/ediwang/linkforwarder
+https://hub.docker.com/r/ediwang/elf
 
 You can also follow the next section to build and run the project yourself.
 
