@@ -32,7 +32,7 @@ Forward Link, Create/Manage/Share Link, View Report
 
 ## Docker Deployment
 
-https://hub.docker.com/r/ediwang/linkforwarder
+https://hub.docker.com/r/ediwang/elf
 
 You can also follow the next section to build and run the project yourself.
 
@@ -52,28 +52,28 @@ For a quick Azure deployment, you can use the automation script ```Azure-Deploym
 
 ##### For Development (Light Weight, Recommended for Windows)
 
-Create an [SQL Server 2019 LocalDB](https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb) database. e.g. linkforwarder-dev
+Create an [SQL Server 2019 LocalDB](https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb) database. e.g. elf
 
 ##### For Production
 
-[Create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started) or a SQL Server 2019+ database. e.g. linkforwarder-dev
+[Create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started) or a SQL Server 2019+ database. e.g. elf
 
 #### 2. Set Connection String
 
-Update the connection string "**LinkForwarderDatabase**" in **appsettings.[env].json** according to your database configuration.
+Update the connection string "**ElfDatabase**" in **appsettings.[env].json** according to your database configuration.
 
 Example:
 ```json
 "ConnectionStrings": {
-  "ElfDatabase": "Server=(localdb)\\MSSQLLocalDB;Database=linkforwarder-dev;Trusted_Connection=True;"
+  "ElfDatabase": "Server=(localdb)\\MSSQLLocalDB;Database=elf;Trusted_Connection=True;"
 }
 ```
 
 ### Build Source
 
-1. Create an "**appsettings.Development.json**" under "**src\\LinkForwarder**", this file defines development time settings like db connections. It is by default ignored by git, so you will need to manange it on your own.
+1. Create an "**appsettings.Development.json**" under "**src\\Elf.Web**", this file defines development time settings like db connections. It is by default ignored by git, so you will need to manange it on your own.
 
-2. Build and run **LinkForwarder.sln**
+2. Build and run **Elf.sln**
 
 ## Configuration
 
