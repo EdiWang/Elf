@@ -6,9 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\lib\" />
     <None Include="bundleconfig.json" />
-    <Content Update="libman.json" CopyToPublishDirectory="Never" />
     <Content Update="bundleconfig.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
@@ -21,7 +19,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.6" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="3.1.6" />
-    <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.76" />
   </ItemGroup>
 
   <ItemGroup>
