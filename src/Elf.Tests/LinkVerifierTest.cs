@@ -66,5 +66,19 @@ namespace Elf.Tests
             var result = _linkVerifier.Verify("https://edi.wang/1055", urlHelperMock.Object, reqMock.Object);
             Assert.AreEqual(LinkVerifyResult.Valid, result);
         }
+
+        [Test]
+        public void TestSelfReferenceForwardEndpoint()
+        {
+            var urlHelperMock = new Mock<IUrlHelper>();
+            urlHelperMock.Setup(p => p.IsLocalUrl(It.IsAny<string>())).Returns(false);
+
+            var reqMock = new Mock<HttpRequest>();
+            reqMock.SetupGet(r => r.Host).Returns(new HostString("go.edi.wang"));
+            reqMock.SetupGet(r => r.Scheme).Returns("https");
+
+            var result = _linkVerifier.Verify("https://go.edi.wang/fw/1055", urlHelperMock.Object, reqMock.Object);
+            Assert.AreEqual(LinkVerifyResult.InvalidSelfReference, result);
+        }
     }
 }
