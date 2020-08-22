@@ -52,11 +52,11 @@ For a quick Azure deployment, you can use the automation script ```Azure-Deploym
 
 ##### For Development (Light Weight, Recommended for Windows)
 
-Create an [SQL Server 2019 LocalDB](https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb) database. e.g. elf
+Create an [SQL Server 2019 LocalDB](https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb?WT.mc_id=AZ-MVP-5002809) database. e.g. elf
 
 ##### For Production
 
-[Create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started) or a SQL Server 2019+ database. e.g. elf
+[Create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started?WT.mc_id=AZ-MVP-5002809) or a SQL Server 2019+ database. e.g. elf
 
 #### 2. Set Connection String
 
