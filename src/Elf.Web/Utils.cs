@@ -35,6 +35,8 @@ namespace Elf.Web
                 case UrlScheme.Http:
                     isValidUrl &= uriResult.Scheme == Uri.UriSchemeHttp;
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(urlScheme), urlScheme, null);
             }
 
             return isValidUrl;
