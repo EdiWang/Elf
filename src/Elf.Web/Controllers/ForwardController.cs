@@ -58,7 +58,7 @@ namespace Elf.Web.Controllers
                     return BadRequest();
                 }
 
-                var ip = HttpContext.Connection.RemoteIpAddress.ToString();
+                var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "N/A";
                 var ua = Request.Headers["User-Agent"];
                 if (string.IsNullOrWhiteSpace(ua))
                 {

@@ -410,6 +410,47 @@ namespace Elf.Tests
             Assert.IsTrue(statusCode == 500);
         }
 
+        [TestCase("")]
+        [TestCase(" ")]
+        [TestCase(null)]
+        public async Task TestAkaEmptyName(string akaName)
+        {
+            var ctl = new ForwardController(
+                _appSettingsMock.Object,
+                _loggerMock.Object,
+                _linkForwarderServiceMock.Object,
+                _tokenGeneratorMock.Object,
+                _memoryCacheMock.Object,
+                _linkVerifierMock.Object);
+
+            var result = await ctl.Aka(akaName);
+            Assert.IsInstanceOf(typeof(BadRequestResult), result);
+        }
+
+        [TestCase("")]
+        [TestCase(" ")]
+        [TestCase(null)]
+        public async Task TestAkaEmptyUA(string ua)
+        {
+            var ctl = new ForwardController(
+                _appSettingsMock.Object,
+                _loggerMock.Object,
+                _linkForwarderServiceMock.Object,
+                _tokenGeneratorMock.Object,
+                _memoryCacheMock.Object,
+                _linkVerifierMock.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext()
+                }
+            };
+
+            ctl.ControllerContext.HttpContext.Request.Headers["User-Agent"] = ua;
+
+            var result = await ctl.Aka("996");
+            Assert.IsInstanceOf(typeof(BadRequestResult), result);
+        }
 
         private ControllerContext GetHappyPathHttpContext()
         {
