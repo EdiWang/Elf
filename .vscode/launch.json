@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/LinkForwarder/bin/Debug/netcoreapp2.2/LinkForwarder.dll",
+            "program": "${workspaceFolder}/src/LinkForwarder/bin/Debug/netcoreapp3.1/LinkForwarder.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/LinkForwarder",
             "stopAtEntry": false,
