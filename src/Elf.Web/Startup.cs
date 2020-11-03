@@ -56,6 +56,7 @@ namespace Elf.Web
                 const string cookieBaseName = "CSRF-TOKEN-ELF";
                 options.Cookie.Name = $"X-{cookieBaseName}";
                 options.FormFieldName = $"{cookieBaseName}-FORM";
+                options.HeaderName = "XSRF-TOKEN";
             });
 
             services.AddTransient<IDbConnection>(c =>
