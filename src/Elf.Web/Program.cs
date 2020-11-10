@@ -17,7 +17,6 @@ namespace Elf.Web
                 {
                     webBuilder.CaptureStartupErrors(true)
                               .ConfigureKestrel(c => c.AddServerHeader = false)
-                              .UseIISIntegration()
                               .UseStartup<Startup>()
                               .ConfigureLogging(logging =>
                               {
