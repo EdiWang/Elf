@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
+FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0-buster AS build
 WORKDIR /src
 
 # Auto copy to prevent 996
@@ -13,10 +13,10 @@ RUN for file in $(ls *.csproj); do mkdir -p ./${file%.*}/ && mv $file ./${file%.
 RUN dotnet restore "Elf.Web/Elf.Web.csproj"
 COPY ./src .
 WORKDIR "/src/Elf.Web"
-RUN dotnet build "Elf.Web.csproj" -p:Version=2.3.1-docker -c Release -o /app/build
+RUN dotnet build "Elf.Web.csproj" -p:Version=3.0.0-docker -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Elf.Web.csproj" -p:Version=2.3.1-docker -c Release -o /app/publish
+RUN dotnet publish "Elf.Web.csproj" -p:Version=3.0.0-docker -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
