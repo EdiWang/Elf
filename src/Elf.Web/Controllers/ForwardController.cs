@@ -193,11 +193,8 @@ namespace Elf.Web.Controllers
 
                 if (!dnt)
                 {
-                    _ = Task.Run(async () =>
-                    {
-                        await _linkForwarderService.TrackSucessRedirectionAsync(
-                            new LinkTrackingRequest(ip, ua, linkEntry.Id));
-                    });
+                    await _linkForwarderService.TrackSucessRedirectionAsync(
+                        new LinkTrackingRequest(ip, ua, linkEntry.Id));
                 }
             }
 
