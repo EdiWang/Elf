@@ -106,7 +106,16 @@ namespace Elf.Web
             {
                 builder.Run(async context =>
                 {
-                    await context.Response.WriteAsync($"Elf Version: {Utils.AppVersion} | {Environment.EnvironmentName}, .NET {System.Environment.Version}", Encoding.UTF8);
+                    context.Response.Headers.Add("X-Elf-Version", Utils.AppVersion);
+                    var obj = new
+                    {
+                        ElfVersion = Utils.AppVersion,
+                        DotNetVersion = System.Environment.Version.ToString(),
+                        EnvironmentTags = Utils.GetEnvironmentTags()
+                    };
+
+                    var json = System.Text.Json.JsonSerializer.Serialize(obj);
+                    await context.Response.WriteAsync(json, Encoding.UTF8);
                 });
             });
 
