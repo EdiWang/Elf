@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -8,6 +10,14 @@ namespace Elf.Web
     {
         public static void Main(string[] args)
         {
+            var info = $"Elf Version {Utils.AppVersion}\n" +
+                       $"Directory: {Environment.CurrentDirectory} \n" +
+                       $"OS: {Environment.OSVersion.VersionString} \n" +
+                       $"Machine Name: {Environment.MachineName} \n" +
+                       $"User Name: {Environment.UserName}";
+            Trace.WriteLine(info);
+            Console.WriteLine(info);
+
             CreateHostBuilder(args).Build().Run();
         }
 
