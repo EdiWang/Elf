@@ -115,7 +115,7 @@ namespace Elf.Web.Controllers
         }
 
         [HttpGet("signout")]
-        public async Task<IActionResult> SignOut()
+        public async Task<IActionResult> SignOut(int nounce = 1055)
         {
             switch (_authenticationSettings.Provider)
             {
@@ -130,6 +130,8 @@ namespace Elf.Web.Controllers
                 case AuthenticationProvider.Local:
                     await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             return Redirect("/");
