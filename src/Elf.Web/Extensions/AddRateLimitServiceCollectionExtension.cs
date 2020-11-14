@@ -27,7 +27,7 @@ namespace Elf.Web.Extensions
             {
                 services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             }
-            
+
             services.Configure<IpRateLimitOptions>(rateLimitSection);
             services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
             services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();

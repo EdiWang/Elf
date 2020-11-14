@@ -48,11 +48,11 @@ namespace Elf.Web
         // Check only for Forward endpoints (fw, aka) as suggested in #10
         public bool IsForwardEndpoint(Uri uri)
         {
-            var endpoints = new [] {"fw", "fw/", "aka", "aka/" };
+            var endpoints = new[] { "fw", "fw/", "aka", "aka/" };
 
             if (uri.AbsolutePath != "/" && uri.Segments.Length > 1)
             {
-                
+
                 for (var i = 1; i < uri.Segments.Length; i++)
                 {
                     if (uri.Segments[i] == "/") continue;

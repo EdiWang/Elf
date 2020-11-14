@@ -1,5 +1,4 @@
-﻿using System;
-using Elf.Web;
+﻿using Elf.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

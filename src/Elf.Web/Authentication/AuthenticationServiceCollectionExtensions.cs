@@ -47,7 +47,7 @@ namespace Elf.Web.Authentication
             }
         }
 
-        private class ConfigureAzureOptions: IConfigureNamedOptions<OpenIdConnectOptions>
+        private class ConfigureAzureOptions : IConfigureNamedOptions<OpenIdConnectOptions>
         {
             private readonly AzureAdOption _azureOptions;
 
