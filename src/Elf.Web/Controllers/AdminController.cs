@@ -279,10 +279,7 @@ namespace Elf.Web.Controllers
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
 
-            if (null == linkResponse.Item)
-            {
-                return NotFound();
-            }
+            if (linkResponse.Item is null) return NotFound();
 
             var model = new LinkEditModel
             {

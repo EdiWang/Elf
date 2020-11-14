@@ -101,7 +101,7 @@ namespace Elf.Services
             {
                 const string sqlLinkExist = "SELECT TOP 1 FwToken FROM Link l WHERE l.OriginUrl = @originUrl";
                 var tempToken = await _conn.ExecuteScalarAsync<string>(sqlLinkExist, new { createLinkRequest.OriginUrl });
-                if (null != tempToken)
+                if (tempToken is not null)
                 {
                     if (_tokenGenerator.TryParseToken(tempToken, out var tk))
                     {
@@ -159,10 +159,7 @@ namespace Elf.Services
                                                  l.TTL
                                                  FROM Link l WHERE l.Id = @id";
                 var link = await _conn.QueryFirstOrDefaultAsync<Link>(sqlFindLink, new { id = editLinkRequest.Id });
-                if (null == link)
-                {
-                    return new FailedResponse<string>($"Link with id '{editLinkRequest.Id}' does not exist.");
-                }
+                if (link is null) return new FailedResponse<string>($"Link with id '{editLinkRequest.Id}' does not exist.");
 
                 link.OriginUrl = editLinkRequest.NewUrl;
                 link.Note = editLinkRequest.Note;

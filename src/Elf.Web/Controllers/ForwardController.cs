@@ -180,10 +180,7 @@ namespace Elf.Web.Controllers
                 }
             }
 
-            if (null == linkEntry)
-            {
-                linkEntry = _cache.Get<Link>(token);
-            }
+            linkEntry ??= _cache.Get<Link>(token);
 
             if (_appSettings.HonorDNT)
             {
