@@ -155,7 +155,7 @@ namespace Elf.Tests
 
             _linkForwarderServiceMock
                 .Setup(p => p.GetLinkAsync(null))
-                .ReturnsAsync(new FailedResponse<Link>(0));
+                .ReturnsAsync(new Link { IsEnabled = true });
 
             var ctl = new ForwardController(
                 _appSettingsMock.Object,
@@ -189,7 +189,7 @@ namespace Elf.Tests
 
             _linkForwarderServiceMock
                 .Setup(p => p.GetLinkAsync(null))
-                .ReturnsAsync(new SuccessResponse<Link>(null));
+                .ReturnsAsync(() => null);
 
             _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
             {
@@ -225,7 +225,7 @@ namespace Elf.Tests
 
             _linkForwarderServiceMock
                 .Setup(p => p.GetLinkAsync(null))
-                .ReturnsAsync(new SuccessResponse<Link>(null));
+                .ReturnsAsync(() => null);
 
             _linkVerifierMock
                 .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
@@ -267,7 +267,7 @@ namespace Elf.Tests
 
             _linkForwarderServiceMock
                 .Setup(p => p.GetLinkAsync(null))
-                .ReturnsAsync(new SuccessResponse<Link>(null));
+                .ReturnsAsync(() => null);
 
             _linkVerifierMock
                 .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
@@ -310,7 +310,7 @@ namespace Elf.Tests
 
             _linkForwarderServiceMock
                 .Setup(p => p.GetLinkAsync(null))
-                .ReturnsAsync(new SuccessResponse<Link>(link));
+                .ReturnsAsync(new Link());
 
             _linkVerifierMock
                 .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
@@ -346,7 +346,7 @@ namespace Elf.Tests
 
             _linkForwarderServiceMock
                 .Setup(p => p.GetLinkAsync(null))
-                .ReturnsAsync(new SuccessResponse<Link>(link));
+                .ReturnsAsync(new Link { IsEnabled = true });
 
             _linkVerifierMock
                 .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
@@ -386,7 +386,7 @@ namespace Elf.Tests
 
             _linkForwarderServiceMock
                 .Setup(p => p.GetLinkAsync(null))
-                .ReturnsAsync(new SuccessResponse<Link>(link));
+                .ReturnsAsync(new Link { IsEnabled = true });
 
             _linkVerifierMock
                 .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))

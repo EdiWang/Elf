@@ -150,8 +150,8 @@
                     function (data) {
                         $("#edit-form")[0].reset();
                         $("#editLinkModal").modal('hide');
-                        toastr.success(`Operation succeed, link token: ${data.item}`);
-                        showLink(data.item);
+                        toastr.success(`Operation succeed, link token: ${data}`);
+                        showLink(data);
                     });
             }
         });

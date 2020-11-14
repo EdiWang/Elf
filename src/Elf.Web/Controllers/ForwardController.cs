@@ -66,19 +66,13 @@ namespace Elf.Web.Controllers
                     return BadRequest();
                 }
 
-                var tokenResponse = await _linkForwarderService.GetTokenByAkaNameAsync(akaName);
-                if (tokenResponse.IsSuccess)
-                {
-                    if (tokenResponse.Item == null)
-                    {
-                        // can not redirect to default url because it will confuse user that the aka points to that default url.
-                        return NotFound();
-                    }
+                var token = await _linkForwarderService.GetTokenByAkaNameAsync(akaName);
 
-                    // Do not use RedirectToAction() because another 302 will happen.
-                    return await PerformTokenRedirection(tokenResponse.Item, ip, ua);
-                }
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                // can not redirect to default url because it will confuse user that the aka points to that default url.
+                if (token is null) return NotFound();
+
+                // Do not use RedirectToAction() because another 302 will happen.
+                return await PerformTokenRedirection(token, ip, ua);
             }
             catch (Exception e)
             {
@@ -127,56 +121,48 @@ namespace Elf.Web.Controllers
 
             if (!_cache.TryGetValue(token, out Link linkEntry))
             {
-                var response = await _linkForwarderService.GetLinkAsync(validatedToken);
-                if (response.IsSuccess)
+                var link = await _linkForwarderService.GetLinkAsync(validatedToken);
+                if (null == link)
                 {
-                    var link = response.Item;
-                    if (null == link)
+                    if (string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl)) return NotFound();
+
+                    var verifyDefaultRedirectionUrl =
+                        _linkVerifier.Verify(_appSettings.DefaultRedirectionUrl, Url, Request, _appSettings.AllowSelfRedirection);
+                    if (verifyDefaultRedirectionUrl == LinkVerifyResult.Valid)
                     {
-                        if (string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl)) return NotFound();
-
-                        var verifyDefaultRedirectionUrl =
-                            _linkVerifier.Verify(_appSettings.DefaultRedirectionUrl, Url, Request, _appSettings.AllowSelfRedirection);
-                        if (verifyDefaultRedirectionUrl == LinkVerifyResult.Valid)
-                        {
-                            return Redirect(_appSettings.DefaultRedirectionUrl);
-                        }
-
-                        throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
+                        return Redirect(_appSettings.DefaultRedirectionUrl);
                     }
 
-                    if (!link.IsEnabled)
-                    {
-                        return BadRequest("This link is disabled.");
-                    }
-
-                    var verifyOriginUrl = _linkVerifier.Verify(link.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
-                    switch (verifyOriginUrl)
-                    {
-                        case LinkVerifyResult.Valid:
-                            // cache valid link entity only.
-                            if (null != link.TTL)
-                            {
-                                _cache.Set(token, link, TimeSpan.FromSeconds(link.TTL.GetValueOrDefault()));
-                            }
-                            break;
-                        case LinkVerifyResult.InvalidFormat:
-                            throw new UriFormatException(
-                                $"OriginUrl '{link.OriginUrl}' is not a valid URL, link ID: {link.Id}.");
-                        case LinkVerifyResult.InvalidLocal:
-                            _logger.LogWarning($"Local redirection is blocked. link: {JsonSerializer.Serialize(link)}");
-                            return BadRequest("Local redirection is blocked");
-                        case LinkVerifyResult.InvalidSelfReference:
-                            _logger.LogWarning(
-                                $"Self reference redirection is blocked. link: {JsonSerializer.Serialize(link)}");
-                            return BadRequest("Self reference redirection is blocked");
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
+                    throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
                 }
-                else
+
+                if (!link.IsEnabled)
                 {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    return BadRequest("This link is disabled.");
+                }
+
+                var verifyOriginUrl = _linkVerifier.Verify(link.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
+                switch (verifyOriginUrl)
+                {
+                    case LinkVerifyResult.Valid:
+                        // cache valid link entity only.
+                        if (null != link.TTL)
+                        {
+                            _cache.Set(token, link, TimeSpan.FromSeconds(link.TTL.GetValueOrDefault()));
+                        }
+                        break;
+                    case LinkVerifyResult.InvalidFormat:
+                        throw new UriFormatException(
+                            $"OriginUrl '{link.OriginUrl}' is not a valid URL, link ID: {link.Id}.");
+                    case LinkVerifyResult.InvalidLocal:
+                        _logger.LogWarning($"Local redirection is blocked. link: {JsonSerializer.Serialize(link)}");
+                        return BadRequest("Local redirection is blocked");
+                    case LinkVerifyResult.InvalidSelfReference:
+                        _logger.LogWarning(
+                            $"Self reference redirection is blocked. link: {JsonSerializer.Serialize(link)}");
+                        return BadRequest("Self reference redirection is blocked");
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
 

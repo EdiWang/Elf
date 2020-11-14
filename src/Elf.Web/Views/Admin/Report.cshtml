@@ -39,14 +39,12 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                const chData = data.item;
-
                 const trackingDates = [];
                 const requestCounts = [];
-                for (let idx in chData) {
-                    if (chData.hasOwnProperty(idx)) {
-                        trackingDates.push($.format.date(new Date(chData[idx].trackingDateUtc), "MM/dd/yyyy"));
-                        requestCounts.push(parseInt(chData[idx].requestCount));
+                for (let idx in data) {
+                    if (data.hasOwnProperty(idx)) {
+                        trackingDates.push($.format.date(new Date(data[idx].trackingDateUtc), "MM/dd/yyyy"));
+                        requestCounts.push(parseInt(data[idx].requestCount));
                     }
                 }
 
@@ -82,14 +80,12 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                const ctData = data.item;
-
                 const clientTypes = [];
                 const clientCounts = [];
-                for (let idx in ctData) {
-                    if (ctData.hasOwnProperty(idx)) {
-                        clientTypes.push(ctData[idx].clientTypeName);
-                        clientCounts.push(parseInt(ctData[idx].count));
+                for (let idx in data) {
+                    if (data.hasOwnProperty(idx)) {
+                        clientTypes.push(data[idx].clientTypeName);
+                        clientCounts.push(parseInt(data[idx].count));
                     }
                 }
 
@@ -131,14 +127,12 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                const mrData = data.item;
-
                 const notes = [];
                 const requestCounts = [];
-                for (let idx in mrData) {
-                    if (mrData.hasOwnProperty(idx)) {
-                        notes.push(mrData[idx].note);
-                        requestCounts.push(parseInt(mrData[idx].requestCount));
+                for (let idx in data) {
+                    if (data.hasOwnProperty(idx)) {
+                        notes.push(data[idx].note);
+                        requestCounts.push(parseInt(data[idx].requestCount));
                     }
                 }
 

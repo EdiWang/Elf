@@ -169,49 +169,29 @@ namespace Elf.Web.Controllers
         [Route("tracking-count-past-week")]
         public async Task<IActionResult> TrackingCountPastWeek()
         {
-            var response = await _linkForwarderService.GetLinkTrackingDateCount(7);
-            if (!response.IsSuccess)
-            {
-                Response.StatusCode = StatusCodes.Status500InternalServerError;
-            }
-
-            return Json(response);
+            var dateCounts = await _linkForwarderService.GetLinkTrackingDateCount(7);
+            return Json(dateCounts);
         }
 
         [Route("client-type-past-month")]
         public async Task<IActionResult> ClientTypePastMonth()
         {
-            var response = await _linkForwarderService.GetClientTypeCounts(30, _appSettings.TopClientTypes);
-            if (!response.IsSuccess)
-            {
-                Response.StatusCode = StatusCodes.Status500InternalServerError;
-            }
-
-            return Json(response);
+            var types = await _linkForwarderService.GetClientTypeCounts(30, _appSettings.TopClientTypes);
+            return Json(types);
         }
 
         [Route("most-requested-links-past-month")]
         public async Task<IActionResult> MostRequestedLinksPastMonth()
         {
-            var response = await _linkForwarderService.GetMostRequestedLinkCount(30);
-            if (!response.IsSuccess)
-            {
-                Response.StatusCode = StatusCodes.Status500InternalServerError;
-            }
-
-            return Json(response);
+            var linkCounts = await _linkForwarderService.GetMostRequestedLinkCount(30);
+            return Json(linkCounts);
         }
 
         [Route("recent-requests")]
         public async Task<IActionResult> RecentRequests()
         {
-            var response = await _linkForwarderService.GetRecentRequests(64);
-            if (!response.IsSuccess)
-            {
-                Response.StatusCode = StatusCodes.Status500InternalServerError;
-            }
-
-            return Json(new { Data = response.Item });
+            var requests = await _linkForwarderService.GetRecentRequests(64);
+            return Json(new { Data = requests });
         }
 
         [HttpPost]
@@ -222,19 +202,15 @@ namespace Elf.Web.Controllers
             var take = model.Length;
             var offset = model.Start;
 
-            var response = await _linkForwarderService.GetPagedLinksAsync(offset, take, searchBy);
-            if (response.IsSuccess)
+            var links = await _linkForwarderService.GetPagedLinksAsync(offset, take, searchBy);
+            var jqdtResponse = new JqDataTableResponse<Link>
             {
-                var jqdtResponse = new JqDataTableResponse<Link>
-                {
-                    Draw = model.Draw,
-                    RecordsFiltered = response.Item.TotalRows,
-                    RecordsTotal = response.Item.TotalRows,
-                    Data = response.Item.Links
-                };
-                return Json(jqdtResponse);
-            }
-            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                Draw = model.Draw,
+                RecordsFiltered = links.TotalRows,
+                RecordsTotal = links.TotalRows,
+                Data = links.Links
+            };
+            return Json(jqdtResponse);
         }
 
         [HttpPost]
@@ -273,22 +249,17 @@ namespace Elf.Web.Controllers
         [Route("get-edit-model/{id}")]
         public async Task<IActionResult> GetEditModel(int id)
         {
-            var linkResponse = await _linkForwarderService.GetLinkAsync(id);
-            if (!linkResponse.IsSuccess)
-            {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
-
-            if (linkResponse.Item is null) return NotFound();
+            var link = await _linkForwarderService.GetLinkAsync(id);
+            if (link is null) return NotFound();
 
             var model = new LinkEditModel
             {
-                Id = linkResponse.Item.Id,
-                Note = linkResponse.Item.Note,
-                AkaName = linkResponse.Item.AkaName,
-                OriginUrl = linkResponse.Item.OriginUrl,
-                IsEnabled = linkResponse.Item.IsEnabled,
-                TTL = linkResponse.Item.TTL ?? 0
+                Id = link.Id,
+                Note = link.Note,
+                AkaName = link.AkaName,
+                OriginUrl = link.OriginUrl,
+                IsEnabled = link.IsEnabled,
+                TTL = link.TTL ?? 0
             };
 
             return Json(model);
@@ -320,12 +291,9 @@ namespace Elf.Web.Controllers
                     TTL = model.TTL
                 };
 
-                var response = await _linkForwarderService.EditLinkAsync(editRequest);
-                if (response.IsSuccess)
-                {
-                    _cache.Remove(response.Item);
-                }
-                return Json(response);
+                var token = await _linkForwarderService.EditLinkAsync(editRequest);
+                if (token is not null) _cache.Remove(token);
+                return Json(token);
             }
             return BadRequest("Invalid ModelState");
         }
@@ -334,37 +302,21 @@ namespace Elf.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteLink(int linkId)
         {
-            var linkResponse = await _linkForwarderService.GetLinkAsync(linkId);
-            if (!linkResponse.IsSuccess)
-            {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
+            var link = await _linkForwarderService.GetLinkAsync(linkId);
+            if (null == link) return BadRequest();
 
-            if (null == linkResponse.Item)
-            {
-                return BadRequest();
-            }
+            await _linkForwarderService.DeleteLink(linkId);
 
-            var response = await _linkForwarderService.DeleteLink(linkId);
-
-            if (response.IsSuccess)
-            {
-                _cache.Remove(linkResponse.Item);
-                return Content(linkId.ToString());
-            }
-            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            _cache.Remove(link);
+            return Content(linkId.ToString());
         }
 
         [Route("clear-tracking-data")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ClearTrackingData(int nonce)
         {
-            var response = await _linkForwarderService.ClearTrackingDataAsync();
-            if (!response.IsSuccess)
-            {
-                Response.StatusCode = StatusCodes.Status500InternalServerError;
-            }
-            return Json(response);
+            await _linkForwarderService.ClearTrackingDataAsync();
+            return Json(nonce);
         }
     }
 }
