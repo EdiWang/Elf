@@ -15,7 +15,8 @@ using Microsoft.Extensions.Primitives;
 
 namespace Elf.Web.Controllers
 {
-    public class ForwardController : Controller
+    [ApiController]
+    public class ForwardController : ControllerBase
     {
         private readonly AppSettings _appSettings;
         private readonly ILogger<ForwardController> _logger;
