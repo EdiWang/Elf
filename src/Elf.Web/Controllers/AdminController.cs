@@ -218,32 +218,30 @@ namespace Elf.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(LinkEditModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
+            switch (verifyResult)
             {
-                var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
-                switch (verifyResult)
-                {
-                    case LinkVerifyResult.InvalidFormat:
-                        return BadRequest("Not a valid URL.");
-                    case LinkVerifyResult.InvalidLocal:
-                        return BadRequest("Can not use local URL.");
-                    case LinkVerifyResult.InvalidSelfReference:
-                        return BadRequest("Can not use url pointing to this site.");
-                }
-
-                var createLinkRequest = new CreateLinkRequest
-                {
-                    OriginUrl = model.OriginUrl,
-                    Note = model.Note,
-                    AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
-                    IsEnabled = model.IsEnabled,
-                    TTL = model.TTL
-                };
-
-                var response = await _linkForwarderService.CreateLinkAsync(createLinkRequest);
-                return Json(response);
+                case LinkVerifyResult.InvalidFormat:
+                    return BadRequest("Not a valid URL.");
+                case LinkVerifyResult.InvalidLocal:
+                    return BadRequest("Can not use local URL.");
+                case LinkVerifyResult.InvalidSelfReference:
+                    return BadRequest("Can not use url pointing to this site.");
             }
-            return BadRequest("Invalid ModelState");
+
+            var createLinkRequest = new CreateLinkRequest
+            {
+                OriginUrl = model.OriginUrl,
+                Note = model.Note,
+                AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
+                IsEnabled = model.IsEnabled,
+                TTL = model.TTL
+            };
+
+            var response = await _linkForwarderService.CreateLinkAsync(createLinkRequest);
+            return Json(response);
         }
 
         [Route("get-edit-model/{id}")]
@@ -269,33 +267,31 @@ namespace Elf.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(LinkEditModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
+            switch (verifyResult)
             {
-                var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
-                switch (verifyResult)
-                {
-                    case LinkVerifyResult.InvalidFormat:
-                        return BadRequest("Not a valid URL.");
-                    case LinkVerifyResult.InvalidLocal:
-                        return BadRequest("Can not use local URL.");
-                    case LinkVerifyResult.InvalidSelfReference:
-                        return BadRequest("Can not use url pointing to this site.");
-                }
-
-                var editRequest = new EditLinkRequest(model.Id)
-                {
-                    NewUrl = model.OriginUrl,
-                    Note = model.Note,
-                    AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
-                    IsEnabled = model.IsEnabled,
-                    TTL = model.TTL
-                };
-
-                var token = await _linkForwarderService.EditLinkAsync(editRequest);
-                if (token is not null) _cache.Remove(token);
-                return Json(token);
+                case LinkVerifyResult.InvalidFormat:
+                    return BadRequest("Not a valid URL.");
+                case LinkVerifyResult.InvalidLocal:
+                    return BadRequest("Can not use local URL.");
+                case LinkVerifyResult.InvalidSelfReference:
+                    return BadRequest("Can not use url pointing to this site.");
             }
-            return BadRequest("Invalid ModelState");
+
+            var editRequest = new EditLinkRequest(model.Id)
+            {
+                NewUrl = model.OriginUrl,
+                Note = model.Note,
+                AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
+                IsEnabled = model.IsEnabled,
+                TTL = model.TTL
+            };
+
+            var token = await _linkForwarderService.EditLinkAsync(editRequest);
+            if (token is not null) _cache.Remove(token);
+            return Json(token);
         }
 
         [Route("delete")]
@@ -303,7 +299,7 @@ namespace Elf.Web.Controllers
         public async Task<IActionResult> DeleteLink(int linkId)
         {
             var link = await _linkForwarderService.GetLinkAsync(linkId);
-            if (null == link) return BadRequest();
+            if (link is null) return BadRequest();
 
             await _linkForwarderService.DeleteLink(linkId);
 

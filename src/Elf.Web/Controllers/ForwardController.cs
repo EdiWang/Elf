@@ -7,7 +7,6 @@ using Elf.Services.Models;
 using Elf.Services.TokenGenerator;
 using Elf.Web.Filters;
 using Elf.Web.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -24,6 +23,8 @@ namespace Elf.Web.Controllers
         private readonly ILinkVerifier _linkVerifier;
         private readonly ILinkForwarderService _linkForwarderService;
         private readonly IMemoryCache _cache;
+
+        private StringValues UserAgent => Request.Headers["User-Agent"];
 
         public ForwardController(
             IOptions<AppSettings> settings,
@@ -46,39 +47,18 @@ namespace Elf.Web.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Aka(string akaName)
         {
-            bool ValidateAkaName(string name)
-            {
-                return !string.IsNullOrWhiteSpace(name);
-            }
+            if (string.IsNullOrWhiteSpace(akaName)) return BadRequest();
 
-            try
-            {
-                if (!ValidateAkaName(akaName))
-                {
-                    return BadRequest();
-                }
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "N/A";
+            if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
 
-                var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "N/A";
-                var ua = Request.Headers["User-Agent"];
-                if (string.IsNullOrWhiteSpace(ua))
-                {
-                    _logger.LogWarning($"'{ip}' requested akaName '{akaName}' without User Agent. Request is blocked.");
-                    return BadRequest();
-                }
+            var token = await _linkForwarderService.GetTokenByAkaNameAsync(akaName);
 
-                var token = await _linkForwarderService.GetTokenByAkaNameAsync(akaName);
+            // can not redirect to default url because it will confuse user that the aka points to that default url.
+            if (token is null) return NotFound();
 
-                // can not redirect to default url because it will confuse user that the aka points to that default url.
-                if (token is null) return NotFound();
-
-                // Do not use RedirectToAction() because another 302 will happen.
-                return await PerformTokenRedirection(token, ip, ua);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
+            // Do not use RedirectToAction() because another 302 will happen.
+            return await PerformTokenRedirection(token, ip);
         }
 
         [AddForwarderHeader]
@@ -86,38 +66,18 @@ namespace Elf.Web.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Forward(string token)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(token))
-                {
-                    return BadRequest();
-                }
+            if (string.IsNullOrWhiteSpace(token)) return BadRequest();
 
-                var ip = HttpContext.Connection?.RemoteIpAddress?.ToString() ?? "N/A";
-                var ua = Request.Headers["User-Agent"];
-                if (string.IsNullOrWhiteSpace(ua))
-                {
-                    _logger.LogWarning($"'{ip}' requested token '{token}' without User Agent. Request is blocked.");
-                    return BadRequest();
-                }
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "N/A";
+            if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
 
-                return await PerformTokenRedirection(token, ip, ua);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
+            return await PerformTokenRedirection(token, ip);
         }
 
-        private async Task<IActionResult> PerformTokenRedirection(string token, string ip, StringValues ua)
+        private async Task<IActionResult> PerformTokenRedirection(string token, string ip)
         {
             bool isValid = _tokenGenerator.TryParseToken(token, out var validatedToken);
-            if (!isValid)
-            {
-                _logger.LogWarning($"'{ip}' requested invalid token '{token}'. Request is blocked.");
-                return BadRequest();
-            }
+            if (!isValid) return BadRequest();
 
             if (!_cache.TryGetValue(token, out Link linkEntry))
             {
@@ -126,20 +86,13 @@ namespace Elf.Web.Controllers
                 {
                     if (string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl)) return NotFound();
 
-                    var verifyDefaultRedirectionUrl =
-                        _linkVerifier.Verify(_appSettings.DefaultRedirectionUrl, Url, Request, _appSettings.AllowSelfRedirection);
-                    if (verifyDefaultRedirectionUrl == LinkVerifyResult.Valid)
-                    {
-                        return Redirect(_appSettings.DefaultRedirectionUrl);
-                    }
+                    var result = _linkVerifier.Verify(_appSettings.DefaultRedirectionUrl, Url, Request, _appSettings.AllowSelfRedirection);
+                    if (result == LinkVerifyResult.Valid) return Redirect(_appSettings.DefaultRedirectionUrl);
 
                     throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
                 }
 
-                if (!link.IsEnabled)
-                {
-                    return BadRequest("This link is disabled.");
-                }
+                if (!link.IsEnabled) return BadRequest("This link is disabled.");
 
                 var verifyOriginUrl = _linkVerifier.Verify(link.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
                 switch (verifyOriginUrl)
@@ -168,18 +121,15 @@ namespace Elf.Web.Controllers
 
             linkEntry ??= _cache.Get<Link>(token);
 
-            if (_appSettings.HonorDNT)
-            {
-                // Check if browser sends "Do Not Track"
-                var dntFlag = Request.Headers["DNT"];
-                bool dnt = !string.IsNullOrWhiteSpace(dntFlag) && dntFlag == 1.ToString();
+            if (!_appSettings.HonorDNT) return Redirect(linkEntry.OriginUrl);
 
-                if (!dnt)
-                {
-                    await _linkForwarderService.TrackSucessRedirectionAsync(
-                        new LinkTrackingRequest(ip, ua, linkEntry.Id));
-                }
-            }
+            // Check if browser sends "Do Not Track"
+            var dntFlag = Request.Headers["DNT"];
+            bool dnt = !string.IsNullOrWhiteSpace(dntFlag) && dntFlag == 1.ToString();
+            if (dnt) return Redirect(linkEntry.OriginUrl);
+
+            var req = new LinkTrackingRequest(ip, UserAgent, linkEntry.Id);
+            await _linkForwarderService.TrackSucessRedirectionAsync(req);
 
             return Redirect(linkEntry.OriginUrl);
         }

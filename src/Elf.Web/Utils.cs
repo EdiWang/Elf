@@ -20,27 +20,16 @@ namespace Elf.Web
 
         public static bool IsValidUrl(this string url, UrlScheme urlScheme = UrlScheme.All)
         {
-            bool isValidUrl = Uri.TryCreate(url, UriKind.Absolute, out var uriResult);
-            if (!isValidUrl)
-            {
-                return false;
-            }
+            var isValidUrl = Uri.TryCreate(url, UriKind.Absolute, out var uriResult);
+            if (!isValidUrl) return false;
 
-            switch (urlScheme)
+            isValidUrl &= urlScheme switch
             {
-                case UrlScheme.All:
-                    isValidUrl &= uriResult.Scheme == Uri.UriSchemeHttps || uriResult.Scheme == Uri.UriSchemeHttp;
-                    break;
-                case UrlScheme.Https:
-                    isValidUrl &= uriResult.Scheme == Uri.UriSchemeHttps;
-                    break;
-                case UrlScheme.Http:
-                    isValidUrl &= uriResult.Scheme == Uri.UriSchemeHttp;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(urlScheme), urlScheme, null);
-            }
-
+                UrlScheme.All => uriResult.Scheme == Uri.UriSchemeHttps || uriResult.Scheme == Uri.UriSchemeHttp,
+                UrlScheme.Https => uriResult.Scheme == Uri.UriSchemeHttps,
+                UrlScheme.Http => uriResult.Scheme == Uri.UriSchemeHttp,
+                _ => throw new ArgumentOutOfRangeException(nameof(urlScheme), urlScheme, null),
+            };
             return isValidUrl;
         }
 

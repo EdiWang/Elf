@@ -14,10 +14,7 @@ namespace Elf.Services.TokenGenerator
         public bool TryParseToken(string input, out string token)
         {
             token = null;
-            if (input.Length != Length)
-            {
-                return false;
-            }
+            if (input.Length != Length) return false;
 
             token = input;
             return true;

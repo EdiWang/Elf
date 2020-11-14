@@ -142,40 +142,6 @@ namespace Elf.Tests
         }
 
         [Test]
-        public async Task TestFirstTimeRequestServerError()
-        {
-            string inputToken = "996";
-            string t;
-            _tokenGeneratorMock
-                .Setup(p => p.TryParseToken(inputToken, out t))
-                .Returns(true);
-
-            var link = new Link { OriginUrl = "https://996.icu" };
-            var memoryCache = MockMemoryCacheService.GetMemoryCache(link, false);
-
-            _linkForwarderServiceMock
-                .Setup(p => p.GetLinkAsync(null))
-                .ReturnsAsync(new Link { IsEnabled = true });
-
-            var ctl = new ForwardController(
-                _appSettingsMock.Object,
-                _loggerMock.Object,
-                _linkForwarderServiceMock.Object,
-                _tokenGeneratorMock.Object,
-                memoryCache,
-                _linkVerifierMock.Object)
-            {
-                ControllerContext = GetHappyPathHttpContext()
-            };
-
-            var result = await ctl.Forward(inputToken);
-            Assert.IsInstanceOf(typeof(StatusCodeResult), result);
-
-            var statusCode = ((StatusCodeResult)result).StatusCode;
-            Assert.IsTrue(statusCode == 500);
-        }
-
-        [Test]
         public async Task TestFirstTimeRequestLinkNotExistsNoDefRedir()
         {
             string inputToken = "996";
@@ -254,7 +220,7 @@ namespace Elf.Tests
         [TestCase(LinkVerifyResult.InvalidFormat)]
         [TestCase(LinkVerifyResult.InvalidLocal)]
         [TestCase(LinkVerifyResult.InvalidSelfReference)]
-        public async Task TestFirstTimeRequestLinkNotExistsWithInvalidDefRedir(LinkVerifyResult linkVerifyResult)
+        public void TestFirstTimeRequestLinkNotExistsWithInvalidDefRedir(LinkVerifyResult linkVerifyResult)
         {
             string inputToken = "996";
             string t;
@@ -289,11 +255,10 @@ namespace Elf.Tests
                 ControllerContext = GetHappyPathHttpContext()
             };
 
-            var result = await ctl.Forward(inputToken);
-            Assert.IsInstanceOf(typeof(StatusCodeResult), result);
-
-            var statusCode = ((StatusCodeResult)result).StatusCode;
-            Assert.IsTrue(statusCode == 500);
+            Assert.ThrowsAsync(typeof(UriFormatException), async () =>
+            {
+                await ctl.Forward(inputToken);
+            });
         }
 
         [Test]
@@ -310,7 +275,7 @@ namespace Elf.Tests
 
             _linkForwarderServiceMock
                 .Setup(p => p.GetLinkAsync(null))
-                .ReturnsAsync(new Link());
+                .ReturnsAsync(link);
 
             _linkVerifierMock
                 .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
@@ -346,7 +311,7 @@ namespace Elf.Tests
 
             _linkForwarderServiceMock
                 .Setup(p => p.GetLinkAsync(null))
-                .ReturnsAsync(new Link { IsEnabled = true });
+                .ReturnsAsync(link);
 
             _linkVerifierMock
                 .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
@@ -373,7 +338,7 @@ namespace Elf.Tests
         }
 
         [Test]
-        public async Task TestFirstTimeRequestInvalidOriginUrl()
+        public void TestFirstTimeRequestInvalidOriginUrl()
         {
             string inputToken = "996";
             string t;
@@ -386,11 +351,16 @@ namespace Elf.Tests
 
             _linkForwarderServiceMock
                 .Setup(p => p.GetLinkAsync(null))
-                .ReturnsAsync(new Link { IsEnabled = true });
+                .ReturnsAsync(link);
 
             _linkVerifierMock
                 .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
                 .Returns(LinkVerifyResult.InvalidFormat);
+
+            _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
+            {
+                DefaultRedirectionUrl = "https://edi.wang"
+            });
 
             var ctl = new ForwardController(
                 _appSettingsMock.Object,
@@ -403,11 +373,10 @@ namespace Elf.Tests
                 ControllerContext = GetHappyPathHttpContext()
             };
 
-            var result = await ctl.Forward(inputToken);
-            Assert.IsInstanceOf(typeof(StatusCodeResult), result);
-
-            var statusCode = ((StatusCodeResult)result).StatusCode;
-            Assert.IsTrue(statusCode == 500);
+            Assert.ThrowsAsync(typeof(UriFormatException), async () =>
+            {
+                await ctl.Forward(inputToken);
+            });
         }
 
         [TestCase("")]

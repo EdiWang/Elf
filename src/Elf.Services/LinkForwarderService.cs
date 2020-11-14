@@ -251,11 +251,7 @@ namespace Elf.Services
                         Count = g.Sum(gp => gp.RequestCount)
                     };
 
-                if (topTypes > 0)
-                {
-                    q = q.OrderByDescending(p => p.Count).Take(topTypes);
-                }
-
+                if (topTypes > 0) q = q.OrderByDescending(p => p.Count).Take(topTypes);
                 return q.AsList();
             }
             return new List<ClientTypeCount>();
