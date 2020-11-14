@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using Edi.Practice.RequestResponseModel;
 using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Services.TokenGenerator;
@@ -32,12 +29,12 @@ namespace Elf.Tests
         [SetUp]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger<ForwardController>>();
-            _appSettingsMock = new Mock<IOptions<AppSettings>>();
-            _tokenGeneratorMock = new Mock<ITokenGenerator>();
-            _linkVerifierMock = new Mock<ILinkVerifier>();
-            _linkForwarderServiceMock = new Mock<ILinkForwarderService>();
-            _memoryCacheMock = new Mock<IMemoryCache>();
+            _loggerMock = new();
+            _appSettingsMock = new();
+            _tokenGeneratorMock = new();
+            _linkVerifierMock = new();
+            _linkForwarderServiceMock = new();
+            _memoryCacheMock = new();
         }
 
         [TestCase("")]
@@ -60,7 +57,7 @@ namespace Elf.Tests
         [TestCase("")]
         [TestCase(" ")]
         [TestCase(null)]
-        public async Task TestForwardEmptyUA(string ua)
+        public async Task TestForwardEmptyUserAgent(string ua)
         {
             var ctl = new ForwardController(
                 _appSettingsMock.Object,
@@ -70,7 +67,7 @@ namespace Elf.Tests
                 _memoryCacheMock.Object,
                 _linkVerifierMock.Object)
             {
-                ControllerContext = new ControllerContext
+                ControllerContext = new()
                 {
                     HttpContext = new DefaultHttpContext()
                 }
@@ -85,7 +82,7 @@ namespace Elf.Tests
         [Test]
         public async Task TestForwardInvalidToken()
         {
-            string inputToken = "996";
+            const string inputToken = "996";
             string t;
             _tokenGeneratorMock.Setup(p => p.TryParseToken(inputToken, out t))
                                .Returns(false);
@@ -108,7 +105,7 @@ namespace Elf.Tests
         [Test]
         public async Task TestCacheFound()
         {
-            string inputToken = "996";
+            const string inputToken = "996";
             string t;
             _tokenGeneratorMock.Setup(p => p.TryParseToken(inputToken, out t))
                                .Returns(true);
@@ -144,7 +141,7 @@ namespace Elf.Tests
         [Test]
         public async Task TestFirstTimeRequestLinkNotExistsNoDefRedir()
         {
-            string inputToken = "996";
+            const string inputToken = "996";
             string t;
             _tokenGeneratorMock
                 .Setup(p => p.TryParseToken(inputToken, out t))
@@ -399,7 +396,7 @@ namespace Elf.Tests
         [TestCase("")]
         [TestCase(" ")]
         [TestCase(null)]
-        public async Task TestAkaEmptyUA(string ua)
+        public async Task TestAkaEmptyUserAgent(string ua)
         {
             var ctl = new ForwardController(
                 _appSettingsMock.Object,
@@ -409,7 +406,7 @@ namespace Elf.Tests
                 _memoryCacheMock.Object,
                 _linkVerifierMock.Object)
             {
-                ControllerContext = new ControllerContext
+                ControllerContext = new()
                 {
                     HttpContext = new DefaultHttpContext()
                 }
@@ -421,7 +418,7 @@ namespace Elf.Tests
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
         }
 
-        private ControllerContext GetHappyPathHttpContext()
+        private static ControllerContext GetHappyPathHttpContext()
         {
             var ctx = new ControllerContext
             {

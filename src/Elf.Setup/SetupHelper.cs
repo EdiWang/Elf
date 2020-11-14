@@ -2,7 +2,6 @@
 using System.IO;
 using System.Reflection;
 using Dapper;
-using Edi.Practice.RequestResponseModel;
 using Microsoft.Data.SqlClient;
 
 namespace Elf.Setup
@@ -45,22 +44,13 @@ namespace Elf.Setup
             }
         }
 
-        public Response SetupDatabase()
+        public void SetupDatabase()
         {
-            try
+            using var conn = new SqlConnection(DatabaseConnectionString);
+            var sql = GetEmbeddedSqlScript("schema-mssql-140");
+            if (!string.IsNullOrWhiteSpace(sql))
             {
-                using var conn = new SqlConnection(DatabaseConnectionString);
-                var sql = GetEmbeddedSqlScript("schema-mssql-140");
-                if (!string.IsNullOrWhiteSpace(sql))
-                {
-                    conn.Execute(sql);
-                    return new SuccessResponse();
-                }
-                return new FailedResponse("Database Schema Script is empty.");
-            }
-            catch (Exception e)
-            {
-                return new FailedResponse(e.Message);
+                conn.Execute(sql);
             }
         }
 

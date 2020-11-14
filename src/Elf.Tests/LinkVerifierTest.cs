@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Elf.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +10,7 @@ namespace Elf.Tests
     [TestFixture]
     public class LinkVerifierTest
     {
-        private readonly LinkVerifier _linkVerifier = new LinkVerifier();
+        private readonly LinkVerifier _linkVerifier = new();
 
         [TestCase("https://go.edi.wang", ExpectedResult = false)]
         [TestCase("https://go.edi.wang/", ExpectedResult = false)]
@@ -32,7 +30,7 @@ namespace Elf.Tests
         [TestCase("https://go.edi.wang/aka", ExpectedResult = true)]
         public bool TestIsForwardEndpoint(string url)
         {
-            return _linkVerifier.IsForwardEndpoint(new Uri(url));
+            return _linkVerifier.IsForwardEndpoint(new(url));
         }
 
         [Test]

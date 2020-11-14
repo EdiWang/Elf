@@ -85,8 +85,8 @@ namespace Elf.Web.Controllers
                     {
                         var claims = new List<Claim>
                         {
-                            new Claim(ClaimTypes.Name, model.Username),
-                            new Claim(ClaimTypes.Role, "Administrator")
+                            new(ClaimTypes.Name, model.Username),
+                            new(ClaimTypes.Role, "Administrator")
                         };
                         var ci = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                         var p = new ClaimsPrincipal(ci);
