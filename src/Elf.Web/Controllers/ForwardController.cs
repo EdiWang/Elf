@@ -83,7 +83,7 @@ namespace Elf.Web.Controllers
             if (!_cache.TryGetValue(token, out Link linkEntry))
             {
                 var link = await _linkForwarderService.GetLinkAsync(validatedToken);
-                if (null == link)
+                if (link is null)
                 {
                     if (string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl)) return NotFound();
 
@@ -100,7 +100,7 @@ namespace Elf.Web.Controllers
                 {
                     case LinkVerifyResult.Valid:
                         // cache valid link entity only.
-                        if (null != link.TTL)
+                        if (link.TTL is not null)
                         {
                             _cache.Set(token, link, TimeSpan.FromSeconds(link.TTL.GetValueOrDefault()));
                         }

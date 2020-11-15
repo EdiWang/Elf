@@ -58,7 +58,7 @@ namespace Elf.Setup
         {
             var assembly = typeof(SetupHelper).GetTypeInfo().Assembly;
             using var stream = assembly.GetManifestResourceStream($"Elf.Setup.Data.{scriptName}.sql");
-            if (stream == null) return null;
+            if (stream is null) return null;
             using var reader = new StreamReader(stream);
             var sql = reader.ReadToEnd();
             return sql;

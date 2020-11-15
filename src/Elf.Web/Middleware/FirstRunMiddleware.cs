@@ -22,7 +22,7 @@ namespace Elf.Web.Middleware
         public async Task Invoke(HttpContext httpContext, IConfiguration configuration, ILogger<FirstRunMiddleware> logger)
         {
             var initFlag = AppDomain.CurrentDomain.GetData(Token);
-            if (null != initFlag)
+            if (initFlag is not null)
             {
                 if ((bool)initFlag)
                 {
