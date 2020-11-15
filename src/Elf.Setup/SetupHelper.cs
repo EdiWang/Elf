@@ -1,28 +1,22 @@
 ﻿using System;
+using System.Data;
 using System.IO;
 using System.Reflection;
 using Dapper;
-using Microsoft.Data.SqlClient;
 
 namespace Elf.Setup
 {
     public class SetupHelper
     {
-        public string DatabaseConnectionString { get; set; }
+        private readonly IDbConnection conn;
 
-        public SetupHelper(string databaseConnectionString)
+        public SetupHelper(IDbConnection dbConnection)
         {
-            if (string.IsNullOrWhiteSpace(databaseConnectionString))
-            {
-                throw new ArgumentNullException(nameof(databaseConnectionString));
-            }
-
-            DatabaseConnectionString = databaseConnectionString;
+            conn = dbConnection;
         }
 
         public bool IsFirstRun()
         {
-            using var conn = new SqlConnection(DatabaseConnectionString);
             var tableExists = conn.ExecuteScalar<int>("SELECT TOP 1 1 " +
                                 "FROM INFORMATION_SCHEMA.TABLES " +
                                 "WHERE TABLE_NAME = N'Link'") == 1;
@@ -33,7 +27,6 @@ namespace Elf.Setup
         {
             try
             {
-                using var conn = new SqlConnection(DatabaseConnectionString);
                 int result = conn.ExecuteScalar<int>("SELECT 1");
                 return result == 1;
             }
@@ -46,7 +39,6 @@ namespace Elf.Setup
 
         public void SetupDatabase()
         {
-            using var conn = new SqlConnection(DatabaseConnectionString);
             var sql = GetEmbeddedSqlScript("schema-mssql-140");
             if (!string.IsNullOrWhiteSpace(sql))
             {

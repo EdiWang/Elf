@@ -59,8 +59,7 @@ namespace Elf.Web
                 options.HeaderName = "XSRF-TOKEN";
             });
 
-            services.AddScoped<IDbConnection>(c =>
-                new SqlConnection(Configuration.GetConnectionString(Constants.DbName)));
+            services.AddScoped<IDbConnection>(c => new SqlConnection(Configuration.GetConnectionString(Constants.DbName)));
             services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
             services.AddScoped<ILinkForwarderService, LinkForwarderService>();
             services.AddScoped<ILinkVerifier, LinkVerifier>();

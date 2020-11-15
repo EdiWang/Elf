@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Data;
 using System.Threading.Tasks;
-using Elf.Services;
 using Elf.Setup;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Elf.Web.Middleware
@@ -19,7 +18,7 @@ namespace Elf.Web.Middleware
             _next = next;
         }
 
-        public async Task Invoke(HttpContext httpContext, IConfiguration configuration, ILogger<FirstRunMiddleware> logger)
+        public async Task Invoke(HttpContext httpContext, IDbConnection dbConnection, ILogger<FirstRunMiddleware> logger)
         {
             var initFlag = AppDomain.CurrentDomain.GetData(Token);
             if (initFlag is not null)
@@ -31,12 +30,11 @@ namespace Elf.Web.Middleware
                 }
             }
 
-            var conn = configuration.GetConnectionString(Constants.DbName);
-            var setupHelper = new SetupHelper(conn);
+            var setupHelper = new SetupHelper(dbConnection);
 
             if (!setupHelper.TestDatabaseConnection(exception =>
             {
-                logger.LogCritical(exception, $"Error {nameof(SetupHelper.TestDatabaseConnection)}, connection string: {conn}");
+                logger.LogCritical(exception, $"Error {nameof(SetupHelper.TestDatabaseConnection)}, connection string: {dbConnection.ConnectionString}");
             }))
             {
                 httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
