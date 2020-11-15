@@ -1,4 +1,5 @@
-﻿using Elf.Web;
+﻿using System.Diagnostics.CodeAnalysis;
+using Elf.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -7,6 +8,7 @@ using NUnit.Framework;
 namespace Elf.Tests
 {
     [TestFixture]
+    [ExcludeFromCodeCoverage]
     public class LinkVerifierTest
     {
         private readonly LinkVerifier _linkVerifier = new();

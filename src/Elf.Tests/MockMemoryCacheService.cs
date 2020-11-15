@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 
 namespace Elf.Tests
 {
+    [ExcludeFromCodeCoverage]
     public static class MockMemoryCacheService
     {
         public static IMemoryCache GetMemoryCache(object expectedValue, bool found = true)

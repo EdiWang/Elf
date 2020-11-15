@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Elf.Web.Middleware;
 using Microsoft.AspNetCore.Http;
@@ -7,6 +8,7 @@ using NUnit.Framework;
 namespace Elf.Tests
 {
     [TestFixture]
+    [ExcludeFromCodeCoverage]
     public class FirstRunMiddlewareTests
     {
         [Test]

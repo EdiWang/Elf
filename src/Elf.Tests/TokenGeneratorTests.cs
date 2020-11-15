@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Elf.Services.TokenGenerator;
 using NUnit.Framework;
@@ -5,6 +6,7 @@ using NUnit.Framework;
 namespace Elf.Tests
 {
     [TestFixture]
+    [ExcludeFromCodeCoverage]
     public class TokenGeneratorTests
     {
         public ITokenGenerator TGen { get; set; }

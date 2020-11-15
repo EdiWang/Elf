@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Elf.Services;
 using Elf.Services.Entities;
@@ -17,6 +18,7 @@ using NUnit.Framework;
 namespace Elf.Tests
 {
     [TestFixture]
+    [ExcludeFromCodeCoverage]
     public class ForwardControllerTests
     {
         private Mock<ILogger<ForwardController>> _loggerMock;

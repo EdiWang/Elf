@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Elf.Web;
 using NUnit.Framework;
 
 namespace Elf.Tests
 {
     [TestFixture]
+    [ExcludeFromCodeCoverage]
     public class UtilsTests
     {
         [Test]
