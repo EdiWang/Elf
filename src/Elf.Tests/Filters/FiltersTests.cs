@@ -17,7 +17,7 @@ namespace Elf.Tests.Filters
     public class FiltersTests
     {
         [Test]
-        public void TestAddForwarderHeaderAttribute()
+        public void AddForwarderHeaderAttribute_OK()
         {
             var ctx = CreateResultExecutingContext(null);
 
@@ -33,23 +33,6 @@ namespace Elf.Tests.Filters
 
         // https://github.com/dotnet/aspnetcore/blob/master/src/Mvc/shared/Mvc.Core.TestCommon/CommonFilterTest.cs
 
-        private static ActionExecutingContext CreateActionExecutingContext(IFilterMetadata filter)
-        {
-            return new ActionExecutingContext(
-                CreateActionContext(),
-                new IFilterMetadata[] { filter, },
-                new Dictionary<string, object>(),
-                controller: new object());
-        }
-
-        private static ActionExecutedContext CreateActionExecutedContext(ActionExecutingContext context)
-        {
-            return new ActionExecutedContext(context, context.Filters, context.Controller)
-            {
-                Result = context.Result,
-            };
-        }
-
         private static ResultExecutingContext CreateResultExecutingContext(IFilterMetadata filter)
         {
             return new ResultExecutingContext(
@@ -58,12 +41,6 @@ namespace Elf.Tests.Filters
                 new NoOpResult(),
                 controller: new object());
         }
-
-        private static ResultExecutedContext CreateResultExecutedContext(ResultExecutingContext context)
-        {
-            return new ResultExecutedContext(context, context.Filters, context.Result, context.Controller);
-        }
-
         private static ActionContext CreateActionContext()
         {
             return new ActionContext(new DefaultHttpContext(), new RouteData(), new ActionDescriptor());

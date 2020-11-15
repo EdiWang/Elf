@@ -42,7 +42,7 @@ namespace Elf.Tests.Controllers
         [TestCase("")]
         [TestCase(" ")]
         [TestCase(null)]
-        public async Task TestForwardEmptyToken(string token)
+        public async Task Forward_EmptyToken(string token)
         {
             var ctl = new ForwardController(
                 _appSettingsMock.Object,
@@ -59,7 +59,7 @@ namespace Elf.Tests.Controllers
         [TestCase("")]
         [TestCase(" ")]
         [TestCase(null)]
-        public async Task TestForwardEmptyUserAgent(string ua)
+        public async Task Forward_EmptyUserAgent(string ua)
         {
             var ctl = new ForwardController(
                 _appSettingsMock.Object,
@@ -82,7 +82,7 @@ namespace Elf.Tests.Controllers
         }
 
         [Test]
-        public async Task TestForwardInvalidToken()
+        public async Task Forward_InvalidToken()
         {
             const string inputToken = "996";
             string t;
@@ -105,7 +105,7 @@ namespace Elf.Tests.Controllers
         }
 
         [Test]
-        public async Task TestCacheFound()
+        public async Task CacheFound()
         {
             const string inputToken = "996";
             string t;
@@ -141,7 +141,7 @@ namespace Elf.Tests.Controllers
         }
 
         [Test]
-        public async Task TestFirstTimeRequestLinkNotExistsNoDefRedir()
+        public async Task FirstTimeRequest_LinkNotExists_NoDefRedir()
         {
             const string inputToken = "996";
             string t;
@@ -177,7 +177,7 @@ namespace Elf.Tests.Controllers
         }
 
         [Test]
-        public async Task TestFirstTimeRequestLinkNotExistsWithValidDefRedir()
+        public async Task FirstTimeRequest_LinkNotExists_ValidDefRedir()
         {
             string inputToken = "996";
             string t;
@@ -219,7 +219,7 @@ namespace Elf.Tests.Controllers
         [TestCase(LinkVerifyResult.InvalidFormat)]
         [TestCase(LinkVerifyResult.InvalidLocal)]
         [TestCase(LinkVerifyResult.InvalidSelfReference)]
-        public void TestFirstTimeRequestLinkNotExistsWithInvalidDefRedir(LinkVerifyResult linkVerifyResult)
+        public void FirstTimeRequest_LinkNotExists_InvalidDefRedir(LinkVerifyResult linkVerifyResult)
         {
             string inputToken = "996";
             string t;
@@ -261,7 +261,7 @@ namespace Elf.Tests.Controllers
         }
 
         [Test]
-        public async Task TestFirstTimeRequestLinkNotEnabled()
+        public async Task FirstTimeRequest_LinkNotEnabled()
         {
             string inputToken = "996";
             string t;
@@ -297,7 +297,7 @@ namespace Elf.Tests.Controllers
 
 
         [Test]
-        public async Task TestFirstTimeRequestNoDntNoTTL()
+        public async Task FirstTimeRequest_NoDnt_NoTTL()
         {
             string inputToken = "996";
             string t;
@@ -337,7 +337,7 @@ namespace Elf.Tests.Controllers
         }
 
         [Test]
-        public void TestFirstTimeRequestInvalidOriginUrl()
+        public void FirstTimeRequest_InvalidOriginUrl()
         {
             string inputToken = "996";
             string t;
@@ -381,7 +381,7 @@ namespace Elf.Tests.Controllers
         [TestCase("")]
         [TestCase(" ")]
         [TestCase(null)]
-        public async Task TestAkaEmptyName(string akaName)
+        public async Task Aka_EmptyName(string akaName)
         {
             var ctl = new ForwardController(
                 _appSettingsMock.Object,
@@ -398,7 +398,7 @@ namespace Elf.Tests.Controllers
         [TestCase("")]
         [TestCase(" ")]
         [TestCase(null)]
-        public async Task TestAkaEmptyUserAgent(string ua)
+        public async Task Aka_EmptyUserAgent(string ua)
         {
             var ctl = new ForwardController(
                 _appSettingsMock.Object,

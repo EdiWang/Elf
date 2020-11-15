@@ -18,7 +18,7 @@ namespace Elf.Tests
         }
 
         [Test]
-        public void TestTokenFormat()
+        public void TokenFormat()
         {
             string token = TGen.GenerateToken();
             var hasUpperCase = token.Any(char.IsUpper);
@@ -30,7 +30,7 @@ namespace Elf.Tests
         [TestCase("", ExpectedResult = false)]
         [TestCase("Work 996 and get into ICU", ExpectedResult = false)]
         [TestCase("love.net", ExpectedResult = true)]
-        public bool TestTokenParser(string token)
+        public bool TokenParser(string token)
         {
             var b = TGen.TryParseToken(token, out var t);
             return b;

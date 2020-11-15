@@ -29,13 +29,13 @@ namespace Elf.Tests
         [TestCase("https://go.edi.wang//fw", ExpectedResult = true)]
         [TestCase("https://go.edi.wang/fw", ExpectedResult = true)]
         [TestCase("https://go.edi.wang/aka", ExpectedResult = true)]
-        public bool TestIsForwardEndpoint(string url)
+        public bool IsForwardEndpoint(string url)
         {
             return _linkVerifier.IsForwardEndpoint(new(url));
         }
 
         [Test]
-        public void TestVerifyInvalidFormat()
+        public void Verify_InvalidFormat()
         {
             var urlHelperMock = new Mock<IUrlHelper>();
             var result = _linkVerifier.Verify("996", urlHelperMock.Object, null);
@@ -43,7 +43,7 @@ namespace Elf.Tests
         }
 
         [Test]
-        public void TestVerifyInvalidLocal()
+        public void Verify_InvalidLocal()
         {
             var urlHelperMock = new Mock<IUrlHelper>();
             urlHelperMock.Setup(p => p.IsLocalUrl(It.IsAny<string>())).Returns(true);
@@ -53,7 +53,7 @@ namespace Elf.Tests
         }
 
         [Test]
-        public void TestSelfReferenceNoForwardEndpoint()
+        public void SelfReference_NoForwardEndpoint()
         {
             var urlHelperMock = new Mock<IUrlHelper>();
             urlHelperMock.Setup(p => p.IsLocalUrl(It.IsAny<string>())).Returns(false);
@@ -67,7 +67,7 @@ namespace Elf.Tests
         }
 
         [Test]
-        public void TestSelfReferenceForwardEndpoint()
+        public void SelfReference_ForwardEndpoint()
         {
             var urlHelperMock = new Mock<IUrlHelper>();
             urlHelperMock.Setup(p => p.IsLocalUrl(It.IsAny<string>())).Returns(false);

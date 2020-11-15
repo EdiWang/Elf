@@ -10,13 +10,13 @@ namespace Elf.Tests
     public class UtilsTests
     {
         [Test]
-        public void TestAppVersion()
+        public void AppVersion()
         {
             Assert.IsNotNull(Utils.AppVersion);
         }
 
         [Test]
-        public void TestIsValidUrlUnknownSchema()
+        public void IsValidUrl_UnknownSchema()
         {
             Assert.Throws(typeof(ArgumentOutOfRangeException), () =>
             {
@@ -26,14 +26,14 @@ namespace Elf.Tests
 
         [TestCase("https://996.icu", ExpectedResult = true)]
         [TestCase("http://996.rip", ExpectedResult = false)]
-        public bool TestIsValidUrlHttps(string str)
+        public bool IsValidUrl_Https(string str)
         {
             return str.IsValidUrl(Utils.UrlScheme.Https);
         }
 
         [TestCase("https://996.icu", ExpectedResult = false)]
         [TestCase("http://996.rip", ExpectedResult = true)]
-        public bool TestIsValidUrlHttp(string str)
+        public bool IsValidUrl_Http(string str)
         {
             return str.IsValidUrl(Utils.UrlScheme.Http);
         }
