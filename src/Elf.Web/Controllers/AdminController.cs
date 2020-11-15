@@ -159,39 +159,10 @@ namespace Elf.Web.Controllers
             return View();
         }
 
-
         [Route("report")]
         public IActionResult Report()
         {
             return View();
-        }
-
-        [Route("tracking-count-past-week")]
-        public async Task<IActionResult> TrackingCountPastWeek()
-        {
-            var dateCounts = await _linkForwarderService.GetLinkTrackingDateCount(7);
-            return Json(dateCounts);
-        }
-
-        [Route("client-type-past-month")]
-        public async Task<IActionResult> ClientTypePastMonth()
-        {
-            var types = await _linkForwarderService.GetClientTypeCounts(30, _appSettings.TopClientTypes);
-            return Json(types);
-        }
-
-        [Route("most-requested-links-past-month")]
-        public async Task<IActionResult> MostRequestedLinksPastMonth()
-        {
-            var linkCounts = await _linkForwarderService.GetMostRequestedLinkCount(30);
-            return Json(linkCounts);
-        }
-
-        [Route("recent-requests")]
-        public async Task<IActionResult> RecentRequests()
-        {
-            var requests = await _linkForwarderService.GetRecentRequests(64);
-            return Json(new { Data = requests });
         }
 
         [HttpPost]
@@ -305,14 +276,6 @@ namespace Elf.Web.Controllers
 
             _cache.Remove(link);
             return Content(linkId.ToString());
-        }
-
-        [Route("clear-tracking-data")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ClearTrackingData(int nonce)
-        {
-            await _linkForwarderService.ClearTrackingDataAsync();
-            return Json(nonce);
         }
     }
 }

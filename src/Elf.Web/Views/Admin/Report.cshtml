@@ -1,217 +1,216 @@
 ﻿@section head{
-<link href="~/css/Chart.min.css" rel="stylesheet" />
-<script src="~/js/Chart.min.js"></script>
-<script src="~/js/jquery.dateFormat.min.js"></script>
-<style>
-    .recent-requests-table tbody td {
-        font-family: Consolas, 'Courier New', monospace;
-        font-size: 0.9rem;
-    }
-</style>
+    <link href="~/css/Chart.min.css" rel="stylesheet" />
+    <script src="~/js/Chart.min.js"></script>
+    <script src="~/js/jquery.dateFormat.min.js"></script>
+    <style>
+        .recent-requests-table tbody td {
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+    </style>
 }
 @section scripts{
-<script>
-    $(function () {
-        renderReqPastWeekLineChart();
-        renderClientTypeChart();
-        renderMostRequestedLinksChart();
-        getRecentRequests();
+    <script>
+        $(function () {
+            renderReqPastWeekLineChart();
+            renderClientTypeChart();
+            renderMostRequestedLinksChart();
+            getRecentRequests();
 
-        $(".btn-clear-data").click(function () {
-            tryClearTrackingData();
+            $(".btn-clear-data").click(function () {
+                tryClearTrackingData();
+            });
         });
-    });
 
-    function tryClearTrackingData() {
-        var nonce = Math.floor((Math.random() * 128) + 1);
-        ajaxPostWithCSRFToken("/admin/clear-tracking-data", { nonce }, function() {
-            location.href = "/admin/report";
-        });
-        $(".btn-clear-data").text("Wait...");
-        $(".btn-clear-data").addClass("disabled");
-        $(".btn-clear-data").attr("disabled", "disabled");
-    }
+        function tryClearTrackingData() {
+            ajaxPostWithCSRFToken("/api/report/clear-tracking-data", {}, function () {
+                location.href = "/admin/report";
+            });
+            $(".btn-clear-data").text("Wait...");
+            $(".btn-clear-data").addClass("disabled");
+            $(".btn-clear-data").attr("disabled", "disabled");
+        }
 
-    function renderReqPastWeekLineChart() {
-        $.ajax({
-            type: "POST",
-            url: "/admin/tracking-count-past-week",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                const trackingDates = [];
-                const requestCounts = [];
-                for (let idx in data) {
-                    if (data.hasOwnProperty(idx)) {
-                        trackingDates.push($.format.date(new Date(data[idx].trackingDateUtc), "MM/dd/yyyy"));
-                        requestCounts.push(parseInt(data[idx].requestCount));
-                    }
-                }
-
-                var chartData = {
-                    labels: trackingDates,
-                    datasets: [
-                        {
-                            label: '# Requests',
-                            data: requestCounts,
-                            borderColor: '#0072BC',
-                            lineTension: 0
-                        }]
-                };
-
-                var pastWeekCounterCtx = document.getElementById('pastweek-counter-canvas');
-                var pastWeekCounterChart = new Chart(pastWeekCounterCtx, {
-                    type: 'line',
-                    data: chartData,
-                    options: {
-                        legend: {
-                            display: false
+        function renderReqPastWeekLineChart() {
+            $.ajax({
+                type: "POST",
+                url: "/api/report/tracking-count-past-week",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    const trackingDates = [];
+                    const requestCounts = [];
+                    for (let idx in data) {
+                        if (data.hasOwnProperty(idx)) {
+                            trackingDates.push($.format.date(new Date(data[idx].trackingDateUtc), "MM/dd/yyyy"));
+                            requestCounts.push(parseInt(data[idx].requestCount));
                         }
                     }
-                });
-            }
-        });
-    }
 
-    function renderClientTypeChart() {
-        $.ajax({
-            type: "POST",
-            url: "/admin/client-type-past-month",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                const clientTypes = [];
-                const clientCounts = [];
-                for (let idx in data) {
-                    if (data.hasOwnProperty(idx)) {
-                        clientTypes.push(data[idx].clientTypeName);
-                        clientCounts.push(parseInt(data[idx].count));
-                    }
+                    var chartData = {
+                        labels: trackingDates,
+                        datasets: [
+                            {
+                                label: '# Requests',
+                                data: requestCounts,
+                                borderColor: '#0072BC',
+                                lineTension: 0
+                            }]
+                    };
+
+                    var pastWeekCounterCtx = document.getElementById('pastweek-counter-canvas');
+                    var pastWeekCounterChart = new Chart(pastWeekCounterCtx, {
+                        type: 'line',
+                        data: chartData,
+                        options: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    });
                 }
+            });
+        }
 
-                var chartData = {
-                    labels: clientTypes,
-                    datasets: [
-                        {
-                            data: clientCounts,
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)',
-                                'rgba(255, 159, 64, 1)'
-                            ]
-                        }]
-                };
-
-                var ctCtx = document.getElementById('clienttype-canvas');
-                var ctChart = new Chart(ctCtx, {
-                    type: 'doughnut',
-                    data: chartData,
-                    options: {
-                        legend: {
-                            display: true,
-                            position: 'right'
+        function renderClientTypeChart() {
+            $.ajax({
+                type: "POST",
+                url: "/api/report/client-type-past-month",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    const clientTypes = [];
+                    const clientCounts = [];
+                    for (let idx in data) {
+                        if (data.hasOwnProperty(idx)) {
+                            clientTypes.push(data[idx].clientTypeName);
+                            clientCounts.push(parseInt(data[idx].count));
                         }
                     }
-                });
-            }
-        });
-    }
 
-    function renderMostRequestedLinksChart() {
-        $.ajax({
-            type: "POST",
-            url: "/admin/most-requested-links-past-month",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                const notes = [];
-                const requestCounts = [];
-                for (let idx in data) {
-                    if (data.hasOwnProperty(idx)) {
-                        notes.push(data[idx].note);
-                        requestCounts.push(parseInt(data[idx].requestCount));
-                    }
+                    var chartData = {
+                        labels: clientTypes,
+                        datasets: [
+                            {
+                                data: clientCounts,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ]
+                            }]
+                    };
+
+                    var ctCtx = document.getElementById('clienttype-canvas');
+                    var ctChart = new Chart(ctCtx, {
+                        type: 'doughnut',
+                        data: chartData,
+                        options: {
+                            legend: {
+                                display: true,
+                                position: 'right'
+                            }
+                        }
+                    });
                 }
+            });
+        }
 
-                var chartData = {
-                    labels: notes,
-                    datasets: [
-                        {
-                            data: requestCounts,
-                            backgroundColor: [
-                                'rgba(135, 99, 132, 1)',
-                                'rgba(154, 162, 235, 1)',
-                                'rgba(215, 206, 86, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)',
-                                'rgba(255, 159, 64, 1)'
-                            ]
-                        }]
-                };
-
-                var mrCtx = document.getElementById('mostreqlinks-canvas');
-                var mrChart = new Chart(mrCtx, {
-                    type: 'pie',
-                    data: chartData,
-                    options: {
-                        legend: {
-                            display: true,
-                            position: 'right'
+        function renderMostRequestedLinksChart() {
+            $.ajax({
+                type: "POST",
+                url: "/api/report/most-requested-links-past-month",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    const notes = [];
+                    const requestCounts = [];
+                    for (let idx in data) {
+                        if (data.hasOwnProperty(idx)) {
+                            notes.push(data[idx].note);
+                            requestCounts.push(parseInt(data[idx].requestCount));
                         }
                     }
-                });
-            }
-        });
-    }
 
-    function getRecentRequests() {
-        var table = $(".recent-requests-table").DataTable({
-            "processing": true,
-            "ordering": false,
-            "ajax":
-            {
-                url: "/admin/recent-requests",
-                type: "POST"
-            },
-            "columns": [
-                { "data": "requestTimeUtc" },
-                { "data": "fwToken" },
-                { "data": "userAgent" },
-                { "data": "ipAddress" },
-            ],
-            "columnDefs": [
+                    var chartData = {
+                        labels: notes,
+                        datasets: [
+                            {
+                                data: requestCounts,
+                                backgroundColor: [
+                                    'rgba(135, 99, 132, 1)',
+                                    'rgba(154, 162, 235, 1)',
+                                    'rgba(215, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ]
+                            }]
+                    };
+
+                    var mrCtx = document.getElementById('mostreqlinks-canvas');
+                    var mrChart = new Chart(mrCtx, {
+                        type: 'pie',
+                        data: chartData,
+                        options: {
+                            legend: {
+                                display: true,
+                                position: 'right'
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function getRecentRequests() {
+            var table = $(".recent-requests-table").DataTable({
+                "processing": true,
+                "ordering": false,
+                "ajax":
                 {
-                    "targets": 0,
-                    "data": "requestTimeUtc",
-                    "render": function (data, type, row, meta) {
-                        return '<span data-utc-time="' + data + '"></span>';
-                    }
+                    url: "/api/report/recent-requests",
+                    type: "POST"
                 },
-                {
-                    "targets": 1,
-                    "data": "fwToken",
-                    "render": function (data, type, row, meta) {
-                        return '<a href="/fw/' + data + '" target="_blank">' + data + '</a>';
-                    }
-                }]
-        });
+                "columns": [
+                    { "data": "requestTimeUtc" },
+                    { "data": "fwToken" },
+                    { "data": "userAgent" },
+                    { "data": "ipAddress" },
+                ],
+                "columnDefs": [
+                    {
+                        "targets": 0,
+                        "data": "requestTimeUtc",
+                        "render": function (data, type, row, meta) {
+                            return '<span data-utc-time="' + data + '"></span>';
+                        }
+                    },
+                    {
+                        "targets": 1,
+                        "data": "fwToken",
+                        "render": function (data, type, row, meta) {
+                            return '<a href="/fw/' + data + '" target="_blank">' + data + '</a>';
+                        }
+                    }]
+            });
 
-        $(this).initUTCTime({
-            daysAgo: ' days ago',
-            hoursAgo: ' hours ago',
-            minutesAgo: ' minutes ago',
-            secondsAgo: ' seconds ago'
-        });
+            $(this).initUTCTime({
+                daysAgo: ' days ago',
+                hoursAgo: ' hours ago',
+                minutesAgo: ' minutes ago',
+                secondsAgo: ' seconds ago'
+            });
 
-        $(".btn-refresh").click(function () {
-            table.ajax.reload();
-            toastr.success("Data Refreshed");
-        });
-    }
-</script>
+            $(".btn-refresh").click(function () {
+                table.ajax.reload();
+                toastr.success("Data Refreshed");
+            });
+        }
+    </script>
 }
 
 @Html.AntiForgeryToken()
