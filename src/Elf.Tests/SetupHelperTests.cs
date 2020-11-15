@@ -43,5 +43,17 @@ namespace Elf.Tests
             var result = setupHelper.IsFirstRun();
             Assert.IsFalse(result);
         }
+
+        [Test]
+        public void SetupDatabase_OK()
+        {
+            mockDbConnection.SetupDapper(c => c.Execute(It.IsAny<string>(), null, null, null, null)).Returns(996);
+            var setupHelper = new SetupHelper(mockDbConnection.Object);
+
+            Assert.DoesNotThrow(() =>
+            {
+                setupHelper.SetupDatabase();
+            });
+        }
     }
 }
