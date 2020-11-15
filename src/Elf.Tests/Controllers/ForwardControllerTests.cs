@@ -15,7 +15,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
-namespace Elf.Tests
+namespace Elf.Tests.Controllers
 {
     [TestFixture]
     [ExcludeFromCodeCoverage]

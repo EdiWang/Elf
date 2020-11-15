@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using NUnit.Framework;
 
-namespace Elf.Tests
+namespace Elf.Tests.Filters
 {
     [TestFixture]
     [ExcludeFromCodeCoverage]

@@ -5,7 +5,7 @@ using Elf.Web.Middleware;
 using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 
-namespace Elf.Tests
+namespace Elf.Tests.Middleware
 {
     [TestFixture]
     [ExcludeFromCodeCoverage]

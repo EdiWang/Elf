@@ -7,7 +7,7 @@ using Microsoft.Extensions.Primitives;
 using Moq;
 using NUnit.Framework;
 
-namespace Elf.Tests
+namespace Elf.Tests.Middleware
 {
     [TestFixture]
     [ExcludeFromCodeCoverage]
