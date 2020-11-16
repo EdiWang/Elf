@@ -293,15 +293,15 @@ namespace Elf.Services
             await _conn.ExecuteAsync(sqlClearTracking);
         }
 
-        public async Task<IReadOnlyList<LinkTracking>> GetTrackingRecords(int linkId, int top = 100)
-        {
-            const string sql = @"SELECT TOP (@top)
-                                 lt.Id, lt.LinkId, lt.UserAgent, lt.IpAddress, lt.RequestTimeUtc 
-                                 FROM LinkTracking lt WHERE lt.linkId = @linkId
-                                 ORDER BY lt.RequestTimeUtc DESC";
-            var list = await _conn.QueryAsync<LinkTracking>(sql, new { top, linkId });
-            return list.AsList();
-        }
+        //public async Task<IReadOnlyList<LinkTracking>> GetTrackingRecords(int linkId, int top = 100)
+        //{
+        //    const string sql = @"SELECT TOP (@top)
+        //                         lt.Id, lt.LinkId, lt.UserAgent, lt.IpAddress, lt.RequestTimeUtc 
+        //                         FROM LinkTracking lt WHERE lt.linkId = @linkId
+        //                         ORDER BY lt.RequestTimeUtc DESC";
+        //    var list = await _conn.QueryAsync<LinkTracking>(sql, new { top, linkId });
+        //    return list.AsList();
+        //}
 
         public async Task<IReadOnlyList<RequestTrack>> GetRecentRequests(int top)
         {

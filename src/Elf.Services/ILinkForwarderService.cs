@@ -11,7 +11,7 @@ namespace Elf.Services
         Task<bool> IsLinkExistsAsync(string token);
         Task TrackSucessRedirectionAsync(LinkTrackingRequest request);
         Task ClearTrackingDataAsync();
-        Task<IReadOnlyList<LinkTracking>> GetTrackingRecords(int linkId, int top = 100);
+        //Task<IReadOnlyList<LinkTracking>> GetTrackingRecords(int linkId, int top = 100);
         Task<string> CreateLinkAsync(CreateLinkRequest createLinkRequest);
         Task<string> EditLinkAsync(EditLinkRequest editLinkRequest);
         Task<int> CountLinksAsync();
