@@ -39,6 +39,13 @@ namespace Elf.Tests
             return str.IsValidUrl(Utils.UrlScheme.Http);
         }
 
+        [TestCase("https://996.icu", ExpectedResult = true)]
+        [TestCase("http://996.rip", ExpectedResult = true)]
+        public bool IsValidUrl_All(string str)
+        {
+            return str.IsValidUrl(Utils.UrlScheme.All);
+        }
+
         [TestCase("")]
         [TestCase("DC1")]
         [TestCase("DC1,DC2")]
