@@ -132,5 +132,16 @@ namespace Elf.Tests
 
             Assert.IsNotNull(result);
         }
+
+        [Test]
+        public async Task ClearTrackingDataAsync_OK()
+        {
+            mockDbConnection.SetupDapperAsync(c => c.ExecuteAsync(It.IsAny<string>(), null, null, null, null));
+
+            var service = CreateService();
+            await service.ClearTrackingDataAsync();
+
+            mockDbConnection.Verify();
+        }
     }
 }
