@@ -3,6 +3,7 @@ using System.Data;
 using System.Threading.Tasks;
 using Elf.Setup;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Elf.Web.Middleware
@@ -18,7 +19,10 @@ namespace Elf.Web.Middleware
             _next = next;
         }
 
-        public async Task Invoke(HttpContext httpContext, IDbConnection dbConnection, ILogger<FirstRunMiddleware> logger)
+        public async Task Invoke(HttpContext httpContext,
+            IDbConnection dbConnection,
+            IHostApplicationLifetime appLifetime,
+            ILogger<FirstRunMiddleware> logger)
         {
             var initFlag = AppDomain.CurrentDomain.GetData(Token);
             if (initFlag is not null)
@@ -34,11 +38,12 @@ namespace Elf.Web.Middleware
 
             if (!setupHelper.TestDatabaseConnection(exception =>
             {
-                logger.LogCritical(exception, $"Error {nameof(SetupHelper.TestDatabaseConnection)}, connection string: {dbConnection.ConnectionString}");
+                logger?.LogCritical(exception, $"Error {nameof(SetupHelper.TestDatabaseConnection)}, connection string: {dbConnection.ConnectionString}");
             }))
             {
                 httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 await httpContext.Response.WriteAsync("Database connection failed. Please see error log, fix it and RESTART this application.");
+                appLifetime?.StopApplication();
             }
             else
             {
@@ -53,6 +58,7 @@ namespace Elf.Web.Middleware
                         logger.LogCritical(e, e.Message);
                         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                         await httpContext.Response.WriteAsync("Error initializing first run, please check error log.");
+                        appLifetime?.StopApplication();
                     }
                 }
 
