@@ -18,7 +18,6 @@ namespace Elf.Services
         Task<Link> GetLinkAsync(int id);
         Task<Link> GetLinkAsync(string token);
         Task<string> GetTokenByAkaNameAsync(string akaName);
-        Task<int> GetClickCount(int linkId);
         Task DeleteLink(int linkId);
         Task<IReadOnlyList<LinkTrackingDateCount>> GetLinkTrackingDateCount(int daysFromNow);
         Task<IReadOnlyList<ClientTypeCount>> GetClientTypeCounts(int daysFromNow, int topTypes);

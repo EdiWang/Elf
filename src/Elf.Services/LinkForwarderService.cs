@@ -30,6 +30,8 @@ namespace Elf.Services
 
         public async Task<bool> IsLinkExistsAsync(string token)
         {
+            if (string.IsNullOrWhiteSpace(token)) return false;
+
             const string sql = @"SELECT TOP 1 1 FROM Link l WHERE l.FwToken = @token";
             var exist = await _conn.ExecuteScalarAsync<int>(sql, new { token }) == 1;
             return exist;
@@ -299,13 +301,6 @@ namespace Elf.Services
                                  ORDER BY lt.RequestTimeUtc DESC";
             var list = await _conn.QueryAsync<LinkTracking>(sql, new { top, linkId });
             return list.AsList();
-        }
-
-        public async Task<int> GetClickCount(int linkId)
-        {
-            const string sql = "SELECT COUNT(lt.Id) FROM LinkTracking lt WHERE lt.LinkId = @linkId";
-            var count = await _conn.ExecuteScalarAsync<int>(sql, new { linkId });
-            return count;
         }
 
         public async Task<IReadOnlyList<RequestTrack>> GetRecentRequests(int top)
