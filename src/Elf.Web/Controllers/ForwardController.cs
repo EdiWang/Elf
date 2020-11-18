@@ -12,6 +12,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using Microsoft.FeatureManagement;
 
 namespace Elf.Web.Controllers
 {
@@ -24,6 +25,7 @@ namespace Elf.Web.Controllers
         private readonly ILinkVerifier _linkVerifier;
         private readonly ILinkForwarderService _linkForwarderService;
         private readonly IMemoryCache _cache;
+        private readonly IFeatureManager _featureManager;
 
         private StringValues UserAgent => Request.Headers["User-Agent"];
 
@@ -33,7 +35,8 @@ namespace Elf.Web.Controllers
             ILinkForwarderService linkForwarderService,
             ITokenGenerator tokenGenerator,
             IMemoryCache cache,
-            ILinkVerifier linkVerifier)
+            ILinkVerifier linkVerifier,
+            IFeatureManager featureManager)
         {
             _appSettings = settings.Value;
             _logger = logger;
@@ -41,6 +44,7 @@ namespace Elf.Web.Controllers
             _tokenGenerator = tokenGenerator;
             _cache = cache;
             _linkVerifier = linkVerifier;
+            _featureManager = featureManager;
         }
 
         [AddForwarderHeader]
@@ -82,12 +86,13 @@ namespace Elf.Web.Controllers
 
             if (!_cache.TryGetValue(token, out Link linkEntry))
             {
+                var flag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
                 var link = await _linkForwarderService.GetLinkAsync(validatedToken);
                 if (link is null)
                 {
                     if (string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl)) return NotFound();
 
-                    var result = _linkVerifier.Verify(_appSettings.DefaultRedirectionUrl, Url, Request, _appSettings.AllowSelfRedirection);
+                    var result = _linkVerifier.Verify(_appSettings.DefaultRedirectionUrl, Url, Request, flag);
                     if (result == LinkVerifyResult.Valid) return Redirect(_appSettings.DefaultRedirectionUrl);
 
                     throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
@@ -95,7 +100,7 @@ namespace Elf.Web.Controllers
 
                 if (!link.IsEnabled) return BadRequest("This link is disabled.");
 
-                var verifyOriginUrl = _linkVerifier.Verify(link.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
+                var verifyOriginUrl = _linkVerifier.Verify(link.OriginUrl, Url, Request, flag);
                 switch (verifyOriginUrl)
                 {
                     case LinkVerifyResult.Valid:
@@ -122,7 +127,8 @@ namespace Elf.Web.Controllers
 
             linkEntry ??= _cache.Get<Link>(token);
 
-            if (!_appSettings.HonorDNT) return Redirect(linkEntry.OriginUrl);
+            var honorDNTFlag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.HonorDNT));
+            if (!honorDNTFlag) return Redirect(linkEntry.OriginUrl);
 
             // Check if browser sends "Do Not Track"
             var dntFlag = Request.Headers["DNT"];
