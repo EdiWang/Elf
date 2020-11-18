@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 
 namespace Elf.Web.Controllers
 {
@@ -29,19 +30,22 @@ namespace Elf.Web.Controllers
         private readonly ILinkForwarderService _linkForwarderService;
         private readonly ILinkVerifier _linkVerifier;
         private readonly IMemoryCache _cache;
+        private readonly IFeatureManager _featureManager;
 
         public AdminController(
             IOptions<AppSettings> settings,
             ILogger<AdminController> logger,
             ILinkForwarderService linkForwarderService,
             ILinkVerifier linkVerifier,
-            IMemoryCache cache)
+            IMemoryCache cache,
+            IFeatureManager featureManager)
         {
             _appSettings = settings.Value;
             _logger = logger;
             _linkForwarderService = linkForwarderService;
             _linkVerifier = linkVerifier;
             _cache = cache;
+            _featureManager = featureManager;
             _authenticationSettings = AppDomain.CurrentDomain.GetData(nameof(AuthenticationSettings)) as AuthenticationSettings;
         }
 
@@ -191,7 +195,8 @@ namespace Elf.Web.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
+            var flag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
+            var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, flag);
             switch (verifyResult)
             {
                 case LinkVerifyResult.InvalidFormat:
@@ -240,7 +245,8 @@ namespace Elf.Web.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, _appSettings.AllowSelfRedirection);
+            var flag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
+            var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, flag);
             switch (verifyResult)
             {
                 case LinkVerifyResult.InvalidFormat:

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
 
@@ -27,6 +28,7 @@ namespace Elf.Tests.Controllers
         private Mock<ILinkVerifier> _linkVerifierMock;
         private Mock<ILinkForwarderService> _linkForwarderServiceMock;
         private Mock<IMemoryCache> _memoryCacheMock;
+        private Mock<IFeatureManager> _mockFeatureManager;
 
         [SetUp]
         public void Setup()
@@ -37,6 +39,7 @@ namespace Elf.Tests.Controllers
             _linkVerifierMock = new();
             _linkForwarderServiceMock = new();
             _memoryCacheMock = new();
+            _mockFeatureManager = new();
         }
 
         [TestCase("")]
@@ -50,7 +53,8 @@ namespace Elf.Tests.Controllers
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
                 _memoryCacheMock.Object,
-                _linkVerifierMock.Object);
+                _linkVerifierMock.Object,
+                _mockFeatureManager.Object);
 
             var result = await ctl.Forward(token);
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
@@ -67,7 +71,8 @@ namespace Elf.Tests.Controllers
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
                 _memoryCacheMock.Object,
-                _linkVerifierMock.Object)
+                _linkVerifierMock.Object,
+                _mockFeatureManager.Object)
             {
                 ControllerContext = new()
                 {
@@ -95,7 +100,8 @@ namespace Elf.Tests.Controllers
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
                 _memoryCacheMock.Object,
-                _linkVerifierMock.Object)
+                _linkVerifierMock.Object,
+                _mockFeatureManager.Object)
             {
                 ControllerContext = GetHappyPathHttpContext()
             };
@@ -120,10 +126,7 @@ namespace Elf.Tests.Controllers
             var memoryCache = MockMemoryCacheService.GetMemoryCache(link);
             // var cachedResponse = memoryCache.Get<Link>(inputToken);
 
-            _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings()
-            {
-                HonorDNT = false
-            });
+            _mockFeatureManager.Setup(p => p.IsEnabledAsync(nameof(FeatureFlags.HonorDNT))).Returns(Task.FromResult(false));
 
             var ctl = new ForwardController(
                 _appSettingsMock.Object,
@@ -131,7 +134,8 @@ namespace Elf.Tests.Controllers
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
                 memoryCache,
-                _linkVerifierMock.Object)
+                _linkVerifierMock.Object,
+                _mockFeatureManager.Object)
             {
                 ControllerContext = GetHappyPathHttpContext()
             };
@@ -167,7 +171,8 @@ namespace Elf.Tests.Controllers
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
                 memoryCache,
-                _linkVerifierMock.Object)
+                _linkVerifierMock.Object,
+                _mockFeatureManager.Object)
             {
                 ControllerContext = GetHappyPathHttpContext()
             };
@@ -207,7 +212,8 @@ namespace Elf.Tests.Controllers
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
                 memoryCache,
-                _linkVerifierMock.Object)
+                _linkVerifierMock.Object,
+                _mockFeatureManager.Object)
             {
                 ControllerContext = GetHappyPathHttpContext()
             };
@@ -249,7 +255,8 @@ namespace Elf.Tests.Controllers
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
                 memoryCache,
-                _linkVerifierMock.Object)
+                _linkVerifierMock.Object,
+                _mockFeatureManager.Object)
             {
                 ControllerContext = GetHappyPathHttpContext()
             };
@@ -286,7 +293,8 @@ namespace Elf.Tests.Controllers
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
                 memoryCache,
-                _linkVerifierMock.Object)
+                _linkVerifierMock.Object,
+                _mockFeatureManager.Object)
             {
                 ControllerContext = GetHappyPathHttpContext()
             };
@@ -316,10 +324,7 @@ namespace Elf.Tests.Controllers
                 .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
                 .Returns(LinkVerifyResult.Valid);
 
-            _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
-            {
-                HonorDNT = false
-            });
+            _mockFeatureManager.Setup(p => p.IsEnabledAsync(nameof(FeatureFlags.HonorDNT))).Returns(Task.FromResult(false));
 
             var ctl = new ForwardController(
                 _appSettingsMock.Object,
@@ -327,7 +332,8 @@ namespace Elf.Tests.Controllers
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
                 memoryCache,
-                _linkVerifierMock.Object)
+                _linkVerifierMock.Object,
+                _mockFeatureManager.Object)
             {
                 ControllerContext = GetHappyPathHttpContext()
             };
@@ -367,7 +373,8 @@ namespace Elf.Tests.Controllers
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
                 memoryCache,
-                _linkVerifierMock.Object)
+                _linkVerifierMock.Object,
+                _mockFeatureManager.Object)
             {
                 ControllerContext = GetHappyPathHttpContext()
             };
@@ -389,7 +396,8 @@ namespace Elf.Tests.Controllers
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
                 _memoryCacheMock.Object,
-                _linkVerifierMock.Object);
+                _linkVerifierMock.Object,
+                _mockFeatureManager.Object);
 
             var result = await ctl.Aka(akaName);
             Assert.IsInstanceOf(typeof(BadRequestResult), result);
@@ -406,7 +414,8 @@ namespace Elf.Tests.Controllers
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
                 _memoryCacheMock.Object,
-                _linkVerifierMock.Object)
+                _linkVerifierMock.Object,
+                _mockFeatureManager.Object)
             {
                 ControllerContext = new()
                 {

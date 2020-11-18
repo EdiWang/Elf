@@ -18,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
 
 namespace Elf.Web
 {
@@ -37,6 +38,7 @@ namespace Elf.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddFeatureManagement();
             services.AddRateLimit(Configuration.GetSection("IpRateLimiting"));
 
             services.AddSession(options =>
