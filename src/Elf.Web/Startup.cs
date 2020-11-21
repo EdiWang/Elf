@@ -39,6 +39,11 @@ namespace Elf.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddFeatureManagement();
+            if (bool.Parse(Configuration["AppSettings:PreferAzureAppConfiguration"]))
+            {
+                services.AddAzureAppConfiguration();
+            }
+
             services.AddRateLimit(Configuration.GetSection("IpRateLimiting"));
 
             services.AddSession(options =>
@@ -94,6 +99,11 @@ namespace Elf.Web
                 app.UseStatusCodePages();
                 app.UseHsts();
                 app.UseHttpsRedirection();
+            }
+
+            if (bool.Parse(Configuration["AppSettings:PreferAzureAppConfiguration"]))
+            {
+                app.UseAzureAppConfiguration();
             }
 
             app.UseMiddleware<PoweredByMiddleware>();

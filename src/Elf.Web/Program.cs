@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -31,6 +32,16 @@ namespace Elf.Web
                               .ConfigureLogging(logging =>
                               {
                                   logging.AddAzureWebAppDiagnostics();
+                              })
+                              .ConfigureAppConfiguration((hostingContext, config) => {
+                                  var settings = config.Build();
+                                  if (bool.Parse(settings["AppSettings:PreferAzureAppConfiguration"]))
+                                  {
+                                      config.AddAzureAppConfiguration(options => {
+                                          options.Connect(settings["ConnectionStrings:AzureAppConfig"])
+                                                 .UseFeatureFlags();
+                                      });
+                                  }
                               });
                 });
     }
