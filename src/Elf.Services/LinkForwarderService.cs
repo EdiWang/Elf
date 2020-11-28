@@ -52,31 +52,23 @@ namespace Elf.Services
                     $"{nameof(offset)} can not be less than 0, current value: {offset}.");
             }
 
-            const string sql = @"SELECT
-                                 l.Id,
-                                 l.OriginUrl,
-                                 l.FwToken,
-                                 l.Note,
-                                 l.AkaName,
-                                 l.IsEnabled,
-                                 l.UpdateTimeUtc,
-                                 l.TTL
-                                 FROM Link l
-                                 WHERE @noteKeyword IS NULL 
-                                 OR l.Note LIKE '%' + @noteKeyword + '%' 
-                                 OR l.FwToken LIKE '%' + @noteKeyword + '%'
-                                 ORDER BY UpdateTimeUtc DESC 
-                                 OFFSET @offset ROWS 
-                                 FETCH NEXT @pageSize ROWS ONLY";
+            var links = from l in _connection.Link
+                        select l;
 
-            var links = await _conn.QueryAsync<Link>(sql, new { offset, pageSize, noteKeyword });
+            if (noteKeyword is not null)
+            {
+                links = from l in _connection.Link
+                        where l.Note.Contains(noteKeyword) || l.FwToken.Contains(noteKeyword)
+                        select l;
+            }
 
-            const string sqlTotalRows = @"SELECT COUNT(l.Id)
-                                          FROM Link l
-                                          WHERE @noteKeyword IS NULL OR l.Note LIKE '%' + @noteKeyword + '%'";
+            var totalRows = await links.CountAsync();
+            var data = await links.OrderByDescending(p => p.UpdateTimeUtc)
+                                  .Skip(offset)
+                                  .Take(pageSize)
+                                  .ToListAsync();
 
-            var totalRows = await _conn.ExecuteScalarAsync<int>(sqlTotalRows, new { noteKeyword });
-            return (links.AsList(), totalRows);
+            return (data, totalRows);
         }
 
         public async Task<string> CreateLinkAsync(CreateLinkRequest createLinkRequest)
