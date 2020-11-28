@@ -177,25 +177,28 @@ namespace Elf.Services
                 return $"{c.OS.Family}-{c.UA.Family}";
             }
 
-            const string sql = @"SELECT lt.UserAgent, COUNT(lt.Id) AS RequestCount
-                                 FROM LinkTracking lt
-                                 WHERE lt.RequestTimeUtc < GETUTCDATE() 
-                                 AND lt.RequestTimeUtc > DATEADD(DAY, -@daysFromNow, CAST(GETUTCDATE() AS DATE))
-                                 GROUP BY lt.UserAgent";
+            var utc = DateTime.UtcNow;
+            var uac = await _connection.LinkTracking
+                                        .Where(p =>
+                                           p.RequestTimeUtc < utc &&
+                                           p.RequestTimeUtc > utc.AddDays(-1 * daysFromNow))
+                                        .GroupBy(p => p.UserAgent)
+                                        .Select(p => new UserAgentCount
+                                        {
+                                            RequestCount = p.Count(),
+                                            UserAgent = p.Key
+                                        }).ToListAsync();
 
-            var rawData = await _conn.QueryAsync<UserAgentCount>(sql, new { daysFromNow });
-            var userAgentCounts = rawData as UserAgentCount[] ?? rawData.ToArray();
-            if (userAgentCounts.Any())
+            if (uac is not null && uac.Any())
             {
-                var q =
-                    from d in userAgentCounts
-                    group d by GetClientTypeName(d.UserAgent)
-                    into g
-                    select new ClientTypeCount
-                    {
-                        ClientTypeName = g.Key,
-                        Count = g.Sum(gp => gp.RequestCount)
-                    };
+                var q = from d in uac
+                        group d by GetClientTypeName(d.UserAgent)
+                        into g
+                        select new ClientTypeCount
+                        {
+                            ClientTypeName = g.Key,
+                            Count = g.Sum(gp => gp.RequestCount)
+                        };
 
                 if (topTypes > 0) q = q.OrderByDescending(p => p.Count).Take(topTypes);
                 return q.AsList();
