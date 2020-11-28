@@ -262,10 +262,9 @@ namespace Elf.Services
             await _conn.ExecuteAsync(sqlInsertLt, lt);
         }
 
-        public async Task ClearTrackingDataAsync()
+        public Task ClearTrackingDataAsync()
         {
-            const string sqlClearTracking = "DELETE FROM LinkTracking";
-            await _conn.ExecuteAsync(sqlClearTracking);
+            return _connection.LinkTracking.DeleteAsync();
         }
 
         //public async Task<IReadOnlyList<LinkTracking>> GetTrackingRecords(int linkId, int top = 100)
