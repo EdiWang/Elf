@@ -7,6 +7,7 @@ using Dapper;
 using Elf.Services.Entities;
 using Elf.Services.Models;
 using Elf.Services.TokenGenerator;
+using LinqToDB;
 using Microsoft.Extensions.Logging;
 using UAParser;
 
@@ -17,15 +18,18 @@ namespace Elf.Services
         private readonly ILogger<LinkForwarderService> _logger;
         private readonly ITokenGenerator _tokenGenerator;
         private readonly IDbConnection _conn;
+        private readonly AppDataConnection _connection;
 
         public LinkForwarderService(
             ILogger<LinkForwarderService> logger,
             ITokenGenerator tokenGenerator,
-            IDbConnection conn)
+            IDbConnection conn, 
+            AppDataConnection connection)
         {
             _logger = logger;
             _tokenGenerator = tokenGenerator;
             _conn = conn;
+            _connection = connection;
         }
 
         public async Task<bool> IsLinkExistsAsync(string token)
@@ -176,18 +180,7 @@ namespace Elf.Services
 
         public async Task<Link> GetLinkAsync(string token)
         {
-            const string sql = @"SELECT TOP 1 
-                                 l.Id,
-                                 l.OriginUrl,
-                                 l.FwToken,
-                                 l.Note, 
-                                 l.AkaName,
-                                 l.IsEnabled,
-                                 l.UpdateTimeUtc, 
-                                 l.TTL
-                                 FROM Link l
-                                 WHERE l.FwToken = @fwToken";
-            var link = await _conn.QueryFirstOrDefaultAsync<Link>(sql, new { fwToken = token });
+            var link = await _connection.Link.FirstOrDefaultAsync(p => p.FwToken == token);
             return link;
         }
 

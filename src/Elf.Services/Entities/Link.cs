@@ -1,9 +1,11 @@
 ﻿using System;
+using LinqToDB.Mapping;
 
 namespace Elf.Services.Entities
 {
     public class Link
     {
+        [PrimaryKey]
         public int Id { get; set; }
 
         public string OriginUrl { get; set; }

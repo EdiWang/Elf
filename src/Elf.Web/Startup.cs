@@ -3,11 +3,15 @@ using System.Data;
 using System.Text;
 using AspNetCoreRateLimit;
 using Elf.Services;
+using Elf.Services.Entities;
 using Elf.Services.TokenGenerator;
 using Elf.Web.Authentication;
 using Elf.Web.Extensions;
 using Elf.Web.Middleware;
 using Elf.Web.Models;
+using LinqToDB.AspNet;
+using LinqToDB.AspNet.Logging;
+using LinqToDB.DataProvider.SqlServer;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Builder;
@@ -75,6 +79,14 @@ namespace Elf.Web
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            services.AddLinqToDbContext<AppDataConnection>((provider, options) =>
+            {
+                SqlServerTools.Provider = SqlServerProvider.MicrosoftDataSqlClient;
+
+                options.UseSqlServer(Configuration.GetConnectionString("ElfDatabase"))
+                       .UseDefaultLogging(provider);
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger, TelemetryConfiguration configuration)

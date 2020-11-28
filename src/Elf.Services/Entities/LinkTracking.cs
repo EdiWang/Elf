@@ -1,10 +1,12 @@
 ﻿using System;
+using LinqToDB.Mapping;
 
 namespace Elf.Services.Entities
 {
     public class LinkTracking
     {
-        public Guid Id { get; set; }
+        [PrimaryKey]
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         public int LinkId { get; set; }
 
