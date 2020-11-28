@@ -253,13 +253,19 @@ namespace Elf.Services
 
         public async Task<IReadOnlyList<RequestTrack>> GetRecentRequests(int top)
         {
-            const string sql = @"SELECT TOP (@top)
-                                 l.FwToken, l.Note, lt.RequestTimeUtc, lt.IpAddress, lt.UserAgent
-                                 FROM LinkTracking lt INNER JOIN Link l ON lt.LinkId = l.Id
-                                 ORDER BY lt.RequestTimeUtc DESC";
+            var result = await (from l in _connection.Link
+                                join lt in _connection.LinkTracking on l.Id equals lt.LinkId
+                                orderby lt.RequestTimeUtc descending
+                                select new RequestTrack
+                                {
+                                    FwToken = l.FwToken,
+                                    Note = l.Note,
+                                    RequestTimeUtc = lt.RequestTimeUtc,
+                                    IpAddress = lt.IpAddress,
+                                    UserAgent = lt.UserAgent
+                                }).Take(top).ToListAsync();
 
-            var list = await _conn.QueryAsync<RequestTrack>(sql, new { top });
-            return list.AsList();
+            return result;
         }
     }
 }
