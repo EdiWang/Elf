@@ -81,8 +81,8 @@ namespace Elf.Services
 
         public async Task<string> CreateLinkAsync(CreateLinkRequest createLinkRequest)
         {
-            const string sqlLinkExist = "SELECT TOP 1 FwToken FROM Link l WHERE l.OriginUrl = @originUrl";
-            var tempToken = await _conn.ExecuteScalarAsync<string>(sqlLinkExist, new { createLinkRequest.OriginUrl });
+            var l = await _connection.Link.FirstOrDefaultAsync(p => p.OriginUrl == createLinkRequest.OriginUrl);
+            var tempToken = l?.FwToken;
             if (tempToken is not null)
             {
                 if (_tokenGenerator.TryParseToken(tempToken, out var tk))
@@ -95,12 +95,11 @@ namespace Elf.Services
                 _logger.LogError(message);
             }
 
-            const string sqlTokenExist = "SELECT TOP 1 1 FROM Link l WHERE l.FwToken = @token";
             string token;
             do
             {
                 token = _tokenGenerator.GenerateToken();
-            } while (await _conn.ExecuteScalarAsync<int>(sqlTokenExist, new { token }) == 1);
+            } while (await _connection.Link.AnyAsync(p => p.FwToken == token));
 
             _logger.LogInformation($"Generated Token '{token}' for url '{createLinkRequest.OriginUrl}'");
 
@@ -114,9 +113,8 @@ namespace Elf.Services
                 UpdateTimeUtc = DateTime.UtcNow,
                 TTL = createLinkRequest.TTL
             };
-            const string sqlInsertLk = @"INSERT INTO Link (OriginUrl, FwToken, Note, AkaName, IsEnabled, UpdateTimeUtc, TTL) 
-                                         VALUES (@OriginUrl, @FwToken, @Note, @AkaName, @IsEnabled, @UpdateTimeUtc, @TTL)";
-            await _conn.ExecuteAsync(sqlInsertLk, link);
+
+            await _connection.InsertAsync(link);
             return link.FwToken;
         }
 

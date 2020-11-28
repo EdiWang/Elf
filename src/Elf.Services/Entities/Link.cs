@@ -5,7 +5,7 @@ namespace Elf.Services.Entities
 {
     public class Link
     {
-        [PrimaryKey]
+        [PrimaryKey, Identity]
         public int Id { get; set; }
 
         public string OriginUrl { get; set; }
