@@ -32,13 +32,10 @@ namespace Elf.Services
             _connection = connection;
         }
 
-        public async Task<bool> IsLinkExistsAsync(string token)
+        public Task<bool> IsLinkExistsAsync(string token)
         {
-            if (string.IsNullOrWhiteSpace(token)) return false;
-
-            const string sql = @"SELECT TOP 1 1 FROM Link l WHERE l.FwToken = @token";
-            var exist = await _conn.ExecuteScalarAsync<int>(sql, new { token }) == 1;
-            return exist;
+            if (string.IsNullOrWhiteSpace(token)) return Task.FromResult(false);
+            return _connection.Link.AnyAsync(p => p.FwToken == token);
         }
 
         public async Task<(IReadOnlyList<Link> Links, int TotalRows)> GetPagedLinksAsync(
