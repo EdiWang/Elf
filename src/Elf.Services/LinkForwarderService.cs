@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Dapper;
 using Elf.Services.Entities;
 using Elf.Services.Models;
 using Elf.Services.TokenGenerator;
@@ -17,18 +16,15 @@ namespace Elf.Services
     {
         private readonly ILogger<LinkForwarderService> _logger;
         private readonly ITokenGenerator _tokenGenerator;
-        private readonly IDbConnection _conn;
         private readonly AppDataConnection _connection;
 
         public LinkForwarderService(
             ILogger<LinkForwarderService> logger,
             ITokenGenerator tokenGenerator,
-            IDbConnection conn,
             AppDataConnection connection)
         {
             _logger = logger;
             _tokenGenerator = tokenGenerator;
-            _conn = conn;
             _connection = connection;
         }
 
@@ -203,7 +199,7 @@ namespace Elf.Services
                         };
 
                 if (topTypes > 0) q = q.OrderByDescending(p => p.Count).Take(topTypes);
-                return q.AsList();
+                return q.ToList();
             }
             return new List<ClientTypeCount>();
         }
