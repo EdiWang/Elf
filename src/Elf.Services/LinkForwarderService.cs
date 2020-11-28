@@ -189,10 +189,9 @@ namespace Elf.Services
             return link?.FwToken;
         }
 
-        public async Task DeleteLink(int linkId)
+        public Task DeleteLink(int linkId)
         {
-            const string sql = "DELETE FROM Link WHERE Id = @linkId";
-            await _conn.ExecuteAsync(sql, new { linkId });
+            return _connection.Link.Where(p => p.Id == linkId).DeleteAsync();
         }
 
         public async Task<IReadOnlyList<LinkTrackingDateCount>> GetLinkTrackingDateCount(int daysFromNow)
