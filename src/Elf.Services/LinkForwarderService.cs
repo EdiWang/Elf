@@ -153,16 +153,18 @@ namespace Elf.Services
 
         public async Task<IReadOnlyList<LinkTrackingDateCount>> GetLinkTrackingDateCount(int daysFromNow)
         {
-            const string sql = @"SELECT 
-                                 COUNT(lt.Id) AS RequestCount, 
-                                 CAST(lt.RequestTimeUtc AS DATE) TrackingDateUtc
-                                 FROM LinkTracking lt
-                                 WHERE lt.RequestTimeUtc < GETUTCDATE() 
-                                 AND lt.RequestTimeUtc > DATEADD(DAY, -@daysFromNow, CAST(GETUTCDATE() AS DATE))
-                                 GROUP BY CAST(lt.RequestTimeUtc AS DATE)";
+            var utc = DateTime.UtcNow;
 
-            var list = await _conn.QueryAsync<LinkTrackingDateCount>(sql, new { daysFromNow });
-            return list.AsList();
+            var data = await (from lt in _connection.LinkTracking
+                              where lt.RequestTimeUtc < utc && lt.RequestTimeUtc > utc.AddDays(-1 * daysFromNow)
+                              group lt by lt.RequestTimeUtc.Date into g
+                              select new LinkTrackingDateCount
+                              {
+                                  TrackingDateUtc = g.Key,
+                                  RequestCount = g.Count()
+                              }).ToListAsync();
+
+            return data;
         }
 
         public async Task<IReadOnlyList<ClientTypeCount>> GetClientTypeCounts(int daysFromNow, int topTypes)
@@ -242,16 +244,6 @@ namespace Elf.Services
         {
             return _connection.LinkTracking.DeleteAsync();
         }
-
-        //public async Task<IReadOnlyList<LinkTracking>> GetTrackingRecords(int linkId, int top = 100)
-        //{
-        //    const string sql = @"SELECT TOP (@top)
-        //                         lt.Id, lt.LinkId, lt.UserAgent, lt.IpAddress, lt.RequestTimeUtc 
-        //                         FROM LinkTracking lt WHERE lt.linkId = @linkId
-        //                         ORDER BY lt.RequestTimeUtc DESC";
-        //    var list = await _conn.QueryAsync<LinkTracking>(sql, new { top, linkId });
-        //    return list.AsList();
-        //}
 
         public async Task<IReadOnlyList<RequestTrack>> GetRecentRequests(int top)
         {
