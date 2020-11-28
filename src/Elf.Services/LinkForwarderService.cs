@@ -208,14 +208,21 @@ namespace Elf.Services
 
         public async Task<IReadOnlyList<MostRequestedLinkCount>> GetMostRequestedLinkCount(int daysFromNow)
         {
-            const string sql = @"SELECT l.FwToken, l.Note, COUNT(lt.Id) AS RequestCount
-                                 FROM Link l INNER JOIN LinkTracking lt ON l.Id = lt.LinkId
-                                 WHERE lt.RequestTimeUtc < GETUTCDATE() 
-                                 AND lt.RequestTimeUtc > DATEADD(DAY, -@daysFromNow, CAST(GETUTCDATE() AS DATE))
-                                 GROUP BY l.FwToken, l.Note";
+            var utc = DateTime.UtcNow;
 
-            var list = await _conn.QueryAsync<MostRequestedLinkCount>(sql, new { daysFromNow });
-            return list.AsList();
+            var data = await (from l in _connection.Link
+                              join lt in _connection.LinkTracking on l.Id equals lt.LinkId
+                              where lt.RequestTimeUtc < utc && lt.RequestTimeUtc > utc.AddDays(-1 * daysFromNow)
+                              group lt by new { l.FwToken, l.Note }
+                              into g
+                              select new MostRequestedLinkCount
+                              {
+                                  Note = g.Key.Note,
+                                  FwToken = g.Key.FwToken,
+                                  RequestCount = g.Count()
+                              }).ToListAsync();
+
+            return data;
         }
 
         public Task TrackSucessRedirectionAsync(LinkTrackingRequest request)
