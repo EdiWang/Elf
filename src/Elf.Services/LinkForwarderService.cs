@@ -120,17 +120,7 @@ namespace Elf.Services
 
         public async Task<string> EditLinkAsync(EditLinkRequest editLinkRequest)
         {
-            const string sqlFindLink = @"SELECT TOP 1 
-                                         l.Id,
-                                         l.OriginUrl,
-                                         l.FwToken,
-                                         l.Note,
-                                         l.AkaName,
-                                         l.IsEnabled,
-                                         l.UpdateTimeUtc,
-                                         l.TTL
-                                         FROM Link l WHERE l.Id = @id";
-            var link = await _conn.QueryFirstOrDefaultAsync<Link>(sqlFindLink, new { id = editLinkRequest.Id });
+            var link = await _connection.Link.FirstOrDefaultAsync(p => p.Id == editLinkRequest.Id);
             if (link is null) return null;
 
             link.OriginUrl = editLinkRequest.NewUrl;
@@ -139,14 +129,7 @@ namespace Elf.Services
             link.IsEnabled = editLinkRequest.IsEnabled;
             link.TTL = editLinkRequest.TTL;
 
-            const string sqlUpdate = @"UPDATE Link SET 
-                                       OriginUrl = @OriginUrl,
-                                       Note = @Note,
-                                       AkaName = @AkaName,
-                                       IsEnabled = @IsEnabled,
-                                       TTL = @TTL
-                                       WHERE Id = @Id";
-            await _conn.ExecuteAsync(sqlUpdate, link);
+            await _connection.UpdateAsync(link);
             return link.FwToken;
         }
 
