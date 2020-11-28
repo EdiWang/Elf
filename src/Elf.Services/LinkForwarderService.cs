@@ -245,20 +245,17 @@ namespace Elf.Services
             return list.AsList();
         }
 
-        public async Task TrackSucessRedirectionAsync(LinkTrackingRequest request)
+        public Task TrackSucessRedirectionAsync(LinkTrackingRequest request)
         {
             var lt = new LinkTracking
             {
-                Id = Guid.NewGuid(),
                 IpAddress = request.IpAddress,
                 LinkId = request.LinkId,
                 RequestTimeUtc = DateTime.UtcNow,
                 UserAgent = request.UserAgent
             };
 
-            const string sqlInsertLt = @"INSERT INTO LinkTracking (Id, IpAddress, LinkId, RequestTimeUtc, UserAgent) 
-                                         VALUES (@Id, @IpAddress, @LinkId, @RequestTimeUtc, @UserAgent)";
-            await _conn.ExecuteAsync(sqlInsertLt, lt);
+            return _connection.InsertAsync(lt);
         }
 
         public Task ClearTrackingDataAsync()
