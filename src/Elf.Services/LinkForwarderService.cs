@@ -23,7 +23,7 @@ namespace Elf.Services
         public LinkForwarderService(
             ILogger<LinkForwarderService> logger,
             ITokenGenerator tokenGenerator,
-            IDbConnection conn, 
+            IDbConnection conn,
             AppDataConnection connection)
         {
             _logger = logger;
@@ -178,20 +178,15 @@ namespace Elf.Services
             return link;
         }
 
-        public async Task<Link> GetLinkAsync(string token)
+        public Task<Link> GetLinkAsync(string token)
         {
-            var link = await _connection.Link.FirstOrDefaultAsync(p => p.FwToken == token);
-            return link;
+            return _connection.Link.FirstOrDefaultAsync(p => p.FwToken == token);
         }
 
         public async Task<string> GetTokenByAkaNameAsync(string akaName)
         {
-            const string sql = @"SELECT TOP 1 
-                                 l.FwToken
-                                 FROM Link l
-                                 WHERE l.AkaName = @akaName";
-            var token = await _conn.ExecuteScalarAsync<string>(sql, new { akaName });
-            return token;
+            var link = await _connection.Link.FirstOrDefaultAsync(p => p.AkaName == akaName);
+            return link?.FwToken;
         }
 
         public async Task DeleteLink(int linkId)
