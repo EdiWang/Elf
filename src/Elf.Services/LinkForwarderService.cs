@@ -161,21 +161,9 @@ namespace Elf.Services
             return linkCount;
         }
 
-        public async Task<Link> GetLinkAsync(int id)
+        public Task<Link> GetLinkAsync(int id)
         {
-            const string sql = @"SELECT TOP 1 
-                                 l.Id,
-                                 l.OriginUrl,
-                                 l.FwToken,
-                                 l.Note,
-                                 l.AkaName,
-                                 l.IsEnabled,
-                                 l.UpdateTimeUtc,
-                                 l.TTL
-                                 FROM Link l
-                                 WHERE l.Id = @id";
-            var link = await _conn.QueryFirstOrDefaultAsync<Link>(sql, new { id });
-            return link;
+            return _connection.Link.FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public Task<Link> GetLinkAsync(string token)
