@@ -155,10 +155,9 @@ namespace Elf.Services
             return link.FwToken;
         }
 
-        public async Task<int> CountLinksAsync()
+        public Task<int> CountLinksAsync()
         {
-            var linkCount = await _conn.ExecuteScalarAsync<int>("SELECT Count(l.Id) FROM Link l");
-            return linkCount;
+            return _connection.Link.CountAsync();
         }
 
         public Task<Link> GetLinkAsync(int id)
