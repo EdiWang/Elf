@@ -128,7 +128,7 @@ namespace Elf.Services
 
         public Task<Link> GetLinkAsync(int id)
         {
-            return _connection.Link.FirstOrDefaultAsync(p => p.Id == id);
+            return _connection.Link.FindAsync(id);
         }
 
         public Task<Link> GetLinkAsync(string token)
@@ -208,17 +208,15 @@ namespace Elf.Services
         {
             var utc = DateTime.UtcNow;
 
-            var data = await (from l in _connection.Link
-                              join lt in _connection.LinkTracking on l.Id equals lt.LinkId
-                              where lt.RequestTimeUtc < utc && lt.RequestTimeUtc > utc.AddDays(-1 * daysFromNow)
-                              group lt by new { l.FwToken, l.Note }
-                              into g
-                              select new MostRequestedLinkCount
-                              {
-                                  Note = g.Key.Note,
-                                  FwToken = g.Key.FwToken,
-                                  RequestCount = g.Count()
-                              }).ToListAsync();
+            var data = await _connection.LinkTracking
+                            .Where(lt => lt.RequestTimeUtc < utc && lt.RequestTimeUtc > utc.AddDays(-1 * daysFromNow))
+                            .GroupBy(lt => new { lt.Link.FwToken, lt.Link.Note })
+                            .Select(g => new MostRequestedLinkCount
+                            {
+                                Note = g.Key.Note,
+                                FwToken = g.Key.FwToken,
+                                RequestCount = g.Count()
+                            }).ToListAsync();
 
             return data;
         }
@@ -243,17 +241,18 @@ namespace Elf.Services
 
         public async Task<IReadOnlyList<RequestTrack>> GetRecentRequests(int top)
         {
-            var result = await (from l in _connection.Link
-                                join lt in _connection.LinkTracking on l.Id equals lt.LinkId
-                                orderby lt.RequestTimeUtc descending
-                                select new RequestTrack
-                                {
-                                    FwToken = l.FwToken,
-                                    Note = l.Note,
-                                    RequestTimeUtc = lt.RequestTimeUtc,
-                                    IpAddress = lt.IpAddress,
-                                    UserAgent = lt.UserAgent
-                                }).Take(top).ToListAsync();
+            var result = await _connection.LinkTracking
+                               .Select(p => new RequestTrack
+                               {
+                                   FwToken = p.Link.FwToken,
+                                   Note = p.Link.Note,
+                                   RequestTimeUtc = p.RequestTimeUtc,
+                                   IpAddress = p.IpAddress,
+                                   UserAgent = p.UserAgent
+                               })
+                               .OrderByDescending(lt => lt.RequestTimeUtc)
+                               .Take(top)
+                               .ToListAsync();
 
             return result;
         }
