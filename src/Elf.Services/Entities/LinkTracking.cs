@@ -3,22 +3,23 @@ using LinqToDB.Mapping;
 
 namespace Elf.Services.Entities
 {
-    [Table]
-    public class LinkTracking
-    {
-        [PrimaryKey]
-        public Guid Id { get; set; } = Guid.NewGuid();
+	[Table(Schema = "dbo", Name = "LinkTracking")]
+	public partial class LinkTracking
+	{
+		[PrimaryKey, NotNull] public Guid Id { get; set; } // uniqueidentifier
+		[Column, NotNull] public int LinkId { get; set; } // int
+		[Column, Nullable] public string UserAgent { get; set; } // nvarchar(256)
+		[Column, Nullable] public string IpAddress { get; set; } // varchar(64)
+		[Column, NotNull] public DateTime RequestTimeUtc { get; set; } // datetime
 
-        [Column]
-        public int LinkId { get; set; }
+		#region Associations
 
-        [Column]
-        public string UserAgent { get; set; }
+		/// <summary>
+		/// FK_LinkTracking_Link
+		/// </summary>
+		[Association(ThisKey = "LinkId", OtherKey = "Id", CanBeNull = false, Relationship = Relationship.ManyToOne, KeyName = "FK_LinkTracking_Link", BackReferenceName = "LinkTrackings")]
+		public Link Link { get; set; }
 
-        [Column]
-        public string IpAddress { get; set; }
-
-        [Column]
-        public DateTime RequestTimeUtc { get; set; }
-    }
+		#endregion
+	}
 }
