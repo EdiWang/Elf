@@ -33,11 +33,13 @@ namespace Elf.Web
                               {
                                   logging.AddAzureWebAppDiagnostics();
                               })
-                              .ConfigureAppConfiguration((hostingContext, config) => {
+                              .ConfigureAppConfiguration((hostingContext, config) =>
+                              {
                                   var settings = config.Build();
                                   if (bool.Parse(settings["AppSettings:PreferAzureAppConfiguration"]))
                                   {
-                                      config.AddAzureAppConfiguration(options => {
+                                      config.AddAzureAppConfiguration(options =>
+                                      {
                                           options.Connect(settings["ConnectionStrings:AzureAppConfig"])
                                                  .UseFeatureFlags();
                                       });

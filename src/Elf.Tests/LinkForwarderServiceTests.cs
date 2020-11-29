@@ -1,14 +1,12 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Elf.Services;
 using Elf.Services.Entities;
-using Elf.Services.Models;
 using Elf.Services.TokenGenerator;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 
 namespace Elf.Tests
 {

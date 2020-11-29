@@ -1,10 +1,7 @@
-using Elf.Setup;
-using Moq;
-using NUnit.Framework;
-using System;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.Data.SqlClient;
+using Moq;
+using NUnit.Framework;
 
 namespace Elf.Tests
 {
