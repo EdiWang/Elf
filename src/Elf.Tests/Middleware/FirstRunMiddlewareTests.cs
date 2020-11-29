@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Elf.Services.Entities;
 using Elf.Web.Middleware;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -15,13 +15,13 @@ namespace Elf.Tests.Middleware
     {
         private MockRepository mockRepository;
 
-        private Mock<IDbConnection> mockDbConnection;
+        private Mock<AppDataConnection> mockDbConnection;
 
         [SetUp]
         public void SetUp()
         {
             mockRepository = new MockRepository(MockBehavior.Default);
-            mockDbConnection = mockRepository.Create<IDbConnection>();
+            mockDbConnection = mockRepository.Create<AppDataConnection>();
         }
 
         [Test]

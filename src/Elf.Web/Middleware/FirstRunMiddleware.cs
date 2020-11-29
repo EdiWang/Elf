@@ -20,7 +20,6 @@ namespace Elf.Web.Middleware
         }
 
         public async Task Invoke(HttpContext httpContext,
-            IDbConnection dbConnection,
             AppDataConnection dataConnection,
             IHostApplicationLifetime appLifetime,
             ILogger<FirstRunMiddleware> logger)
@@ -37,7 +36,7 @@ namespace Elf.Web.Middleware
 
             if (!dataConnection.TestDatabaseConnection(exception =>
             {
-                logger?.LogCritical(exception, $"Error {nameof(dataConnection.TestDatabaseConnection)}, connection string: {dbConnection.ConnectionString}");
+                logger?.LogCritical(exception, $"Error {nameof(dataConnection.TestDatabaseConnection)}, connection string: {dataConnection.ConnectionString}");
             }))
             {
                 httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;

@@ -38,13 +38,13 @@ namespace Elf.Tests
                 mockDbConnection.Object);
         }
 
-        [Test]
-        public async Task IsLinkExistsAsync_EmptyToken()
-        {
-            var service = CreateService();
-            var result = await service.IsLinkExistsAsync(string.Empty);
-            Assert.AreEqual(result, false);
-        }
+        //[Test]
+        //public async Task IsLinkExistsAsync_EmptyToken()
+        //{
+        //    var service = CreateService();
+        //    var result = await service.IsLinkExistsAsync(string.Empty);
+        //    Assert.AreEqual(result, false);
+        //}
 
         //[Test]
         //public async Task IsLinkExistsAsync_Yes()
@@ -70,28 +70,28 @@ namespace Elf.Tests
         //    Assert.AreEqual(result, false);
         //}
 
-        [TestCase(0)]
-        [TestCase(-1)]
-        public void GetPagedLinksAsync_Invalid_PageSize(int pageSize)
-        {
-            var service = CreateService();
+        //[TestCase(0)]
+        //[TestCase(-1)]
+        //public void GetPagedLinksAsync_Invalid_PageSize(int pageSize)
+        //{
+        //    var service = CreateService();
 
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
-            {
-                await service.GetPagedLinksAsync(0, pageSize);
-            });
-        }
+        //    Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
+        //    {
+        //        await service.GetPagedLinksAsync(0, pageSize);
+        //    });
+        //}
 
-        [Test]
-        public void GetPagedLinksAsync_Invalid_Offset()
-        {
-            var service = CreateService();
+        //[Test]
+        //public void GetPagedLinksAsync_Invalid_Offset()
+        //{
+        //    var service = CreateService();
 
-            Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
-            {
-                await service.GetPagedLinksAsync(-1, 10);
-            });
-        }
+        //    Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
+        //    {
+        //        await service.GetPagedLinksAsync(-1, 10);
+        //    });
+        //}
 
         //[Test]
         //public async Task GetPagedLinksAsync_Happy()
