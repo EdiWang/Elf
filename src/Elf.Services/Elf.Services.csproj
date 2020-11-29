@@ -6,6 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="DbSchema\schema-mssql-140.sql" />
+    <EmbeddedResource Include="DbSchema\schema-mssql-140.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="linq2db" Version="3.1.6" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />

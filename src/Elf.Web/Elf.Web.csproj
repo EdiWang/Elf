@@ -24,6 +24,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Elf.Services\Elf.Services.csproj" />
-    <ProjectReference Include="..\Elf.Setup\Elf.Setup.csproj" />
   </ItemGroup>
 </Project>
