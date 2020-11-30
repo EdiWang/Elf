@@ -3,12 +3,19 @@
 # Author: Edi Wang
 # ---------------------------------------------------------------------------------------------------------
 # You need to install Azure CLI and login to Azure (run 'az login') before running this script.
+# To install Azure CLI, please run:
+# Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'
 # Reference: https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest
 
+param(
+    $subscriptionName = "Microsoft MVP", 
+    $regionName = "East Asia", 
+    [bool] $useLinuxPlanWithDocker = 1, 
+    [bool] $createCDN = 0
+)
+
 # Replace with your own values
-$subscriptionName = "Microsoft MVP"
 $rsgName = "Elf-Test-RSG"
-$regionName = "East Asia"
 $webAppName = "elf-test-web"
 $aspName = "elf-test-plan"
 $sqlServerName = "elftestsqlsvr"
@@ -17,7 +24,6 @@ $sqlServerPassword = "DotNet3lf"
 $sqlDatabaseName = "elf-test-db"
 $elfAdminUsername = "admin"
 $elfAdminPassword = "admin123"
-[bool] $useLinuxPlanWithDocker = 1
 
 function Check-Command($cmdname) {
     return [bool](Get-Command -Name $cmdname -ErrorAction SilentlyContinue)
