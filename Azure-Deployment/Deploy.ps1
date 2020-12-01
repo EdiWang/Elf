@@ -10,28 +10,45 @@
 param(
     $subscriptionName = "Microsoft MVP", 
     $regionName = "East Asia", 
-    [bool] $useLinuxPlanWithDocker = 1, 
-    [bool] $createCDN = 0
+    [bool] $useLinuxPlanWithDocker = 1
 )
 
-# Replace with your own values
-$rsgName = "Elf-Test-RSG"
-$webAppName = "elf-test-web"
-$aspName = "elf-test-plan"
-$sqlServerName = "elftestsqlsvr"
+# Start script
+$rndNumber = Get-Random -Minimum 100 -Maximum 999
+$rsgName = "elfgroup$rndNumber"
+$webAppName = "elfweb$rndNumber"
+$aspName = "elfplan$rndNumber"
+$sqlServerName = "elfsqlsvr$rndNumber"
 $sqlServerUsername = "elf"
-$sqlServerPassword = "DotNet3lf"
-$sqlDatabaseName = "elf-test-db"
-$elfAdminUsername = "admin"
-$elfAdminPassword = "admin123"
+$sqlDatabaseName = "elfdb$rndNumber"
+
+function Get-RandomCharacters($length, $characters) {
+    $random = 1..$length | ForEach-Object { Get-Random -Maximum $characters.length }
+    $private:ofs=""
+    return [String]$characters[$random]
+}
+ 
+function Scramble-String([string]$inputString){     
+    $characterArray = $inputString.ToCharArray()   
+    $scrambledStringArray = $characterArray | Get-Random -Count $characterArray.Length     
+    $outputString = -join $scrambledStringArray
+    return $outputString 
+}
+
+$password = Get-RandomCharacters -length 4 -characters 'abcdefghiklmnoprstuvwxyz'
+$password += Get-RandomCharacters -length 1 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
+$password += Get-RandomCharacters -length 2 -characters '1234567890'
+$password += Get-RandomCharacters -length 1 -characters '!$%&@#'
+$password = Scramble-String $password
+
+$sqlServerPassword = "e$password"
 
 function Check-Command($cmdname) {
     return [bool](Get-Command -Name $cmdname -ErrorAction SilentlyContinue)
 }
 
 if (Check-Command -cmdname 'az') {
-    Write-Host "Azure CLI is found on your machine. If something blow up, please check update for Azure CLI." -ForegroundColor Yellow
-    az --version
+    Write-Host "Azure CLI is found..."
 }
 else {
     Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'
@@ -39,8 +56,12 @@ else {
 }
 
 # Confirmation
-Write-Host "Your Elf will be deployed to [$rsgName] in [$regionName] under Azure subscription [$subscriptionName]. Please confirm before continue."
-Read-Host -Prompt "Press [ENTER] to continue"
+Write-Host "Your Elf will be deployed to [$rsgName] in [$regionName] under Azure subscription [$subscriptionName]. Please confirm before continue." -ForegroundColor Green
+if ($useLinuxPlanWithDocker) {
+    Write-Host "+ Linux App Service Plan with Docker" -ForegroundColor Cyan
+}
+
+Read-Host -Prompt "Press [ENTER] to continue, [CTRL + C] to cancel"
 
 # Select Subscription
 az account set --subscription $subscriptionName
@@ -112,7 +133,8 @@ $sqlDbCheck = az sql db list --resource-group $rsgName --server $sqlServerName -
 $sqlDbExists = $sqlDbCheck.Length -gt 0
 if (!$sqlDbExists) {
     Write-Host "Creating SQL Database"
-    az sql db create --resource-group $rsgName --server $sqlServerName --name $sqlDatabaseName --service-objective S1
+    az sql db create --resource-group $rsgName --server $sqlServerName --name $sqlDatabaseName --service-objective S0 --backup-storage-redundancy Local
+    Write-Host "SQL Server Password: $sqlServerPassword" -ForegroundColor Yellow
 }
 
 # Configuration Update
@@ -123,11 +145,6 @@ Write-Host "Setting SQL Database Connection String"
 $sqlConnStrTemplate = az sql db show-connection-string -s $sqlServerName -n $sqlDatabaseName -c ado.net --auth-type SqlPassword
 $sqlConnStr = $sqlConnStrTemplate.Replace("<username>", $sqlServerUsername).Replace("<password>", $sqlServerPassword)
 az webapp config connection-string set -g $rsgName -n $webAppName -t SQLAzure --settings ElfDatabase=$sqlConnStr
-
-Write-Host "Setting Admin Account"
-az webapp config appsettings set -g $rsgName -n $webAppName --settings Authentication__Provider="Local"
-az webapp config appsettings set -g $rsgName -n $webAppName --settings Authentication__Local__Username=$elfAdminUsername
-az webapp config appsettings set -g $rsgName -n $webAppName --settings Authentication__Local__Password=$elfAdminPassword
 
 if ($useLinuxPlanWithDocker) {
     Read-Host -Prompt "Setup is done, you should be able to run Elf on '$webAppUrl' now, press [ENTER] to exit."
