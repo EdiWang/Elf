@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 
 namespace Elf.Web.Controllers
@@ -24,7 +23,6 @@ namespace Elf.Web.Controllers
     [Route("admin")]
     public class AdminController : Controller
     {
-        private readonly AppSettings _appSettings;
         private readonly AuthenticationSettings _authenticationSettings;
         private readonly ILogger<AdminController> _logger;
         private readonly ILinkForwarderService _linkForwarderService;
@@ -33,14 +31,12 @@ namespace Elf.Web.Controllers
         private readonly IFeatureManager _featureManager;
 
         public AdminController(
-            IOptions<AppSettings> settings,
             ILogger<AdminController> logger,
             ILinkForwarderService linkForwarderService,
             ILinkVerifier linkVerifier,
             IMemoryCache cache,
             IFeatureManager featureManager)
         {
-            _appSettings = settings.Value;
             _logger = logger;
             _linkForwarderService = linkForwarderService;
             _linkVerifier = linkVerifier;

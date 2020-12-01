@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Elf.Services.Entities;
@@ -187,7 +186,7 @@ namespace Elf.Services
                                             UserAgent = p.Key
                                         }).ToListAsync();
 
-            if (uac is not null && uac.Any())
+            if (uac.Any())
             {
                 var q = from d in uac
                         group d by GetClientTypeName(d.UserAgent)

@@ -81,7 +81,7 @@ namespace Elf.Web.Controllers
 
         private async Task<IActionResult> PerformTokenRedirection(string token, string ip)
         {
-            bool isValid = _tokenGenerator.TryParseToken(token, out var validatedToken);
+            var isValid = _tokenGenerator.TryParseToken(token, out var validatedToken);
             if (!isValid) return BadRequest();
 
             if (!_cache.TryGetValue(token, out Link linkEntry))
@@ -132,11 +132,20 @@ namespace Elf.Web.Controllers
 
             // Check if browser sends "Do Not Track"
             var dntFlag = Request.Headers["DNT"];
-            bool dnt = !string.IsNullOrWhiteSpace(dntFlag) && dntFlag == 1.ToString();
+            var dnt = !string.IsNullOrWhiteSpace(dntFlag) && dntFlag == "1";
             if (dnt) return Redirect(linkEntry.OriginUrl);
 
-            var req = new LinkTrackingRequest(ip, UserAgent, linkEntry.Id);
-            await _linkForwarderService.TrackSucessRedirectionAsync(req);
+            try
+            {
+                var req = new LinkTrackingRequest(ip, UserAgent, linkEntry.Id);
+                await _linkForwarderService.TrackSucessRedirectionAsync(req);
+            }
+            catch (Exception e)
+            {
+                // Eat exception, pretend everything is fine
+                // Do not block workflow here
+                _logger.LogError(e.Message, e);
+            }
 
             return Redirect(linkEntry.OriginUrl);
         }
