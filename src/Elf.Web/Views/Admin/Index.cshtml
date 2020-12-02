@@ -25,7 +25,7 @@
                         if(e.keyCode == 13 || e.type == 'blur') {
                             table.search( this.value ).draw();
                         }
-                    }); 
+                    });
                 },
                 "columns": [
                     { "data": "fwToken" },
@@ -48,13 +48,13 @@
                     "targets": 0,
                     "data": "fwToken",
                     "render": function (data, type, row, meta) {
-                        return `<a href="/fw/${data}" target="_blank">${data}</a>`;
+                        return `<a href="/fw/${data}" class="col-token" target="_blank">${data}</a>`;
                     }
                 }, {
                     "targets": 1,
                     "data": "originUrl",
                     "render": function (data, type, row, meta) {
-                        return `<span class="wordwrap"><a href="${data}" target="_blank">${data}</a></span>`;
+                        return `<span class="d-flex"><a href="${data}" class="col-link" target="_blank">${data}</a><a class="d-inline-block btn btn-sm btn-outline-secondary btn-copy-url" href="javascript:copyUrl('${data}');">Copy</a></span>`;
                     }
                 },
                 {
@@ -95,6 +95,16 @@
                 }
             });
         });
+
+        function copyUrl(url) {
+            const el = document.createElement('textarea');
+            el.value = url;
+            document.body.appendChild(el);
+            el.select();
+            el.setSelectionRange(0, 99999); /*For mobile devices*/
+            document.execCommand('copy');
+            document.body.removeChild(el);
+        }
 
         function showLink(token) {
             var url = `@showLinkUrlPrefix${token}`;
