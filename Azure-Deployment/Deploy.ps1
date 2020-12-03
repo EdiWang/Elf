@@ -52,10 +52,12 @@ if (Check-Command -cmdname 'az') {
 }
 else {
     Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'
-    az login
+    Write-Host "Please run 'az-login' and re-execute this script"
+    return
 }
 
 # Confirmation
+cls
 Write-Host "Your Elf will be deployed to [$rsgName] in [$regionName] under Azure subscription [$subscriptionName]. Please confirm before continue." -ForegroundColor Green
 if ($useLinuxPlanWithDocker) {
     Write-Host "+ Linux App Service Plan with Docker" -ForegroundColor Cyan
@@ -64,15 +66,15 @@ if ($useLinuxPlanWithDocker) {
 Read-Host -Prompt "Press [ENTER] to continue, [CTRL + C] to cancel"
 
 # Select Subscription
-az account set --subscription $subscriptionName
+$echo = az account set --subscription $subscriptionName
 Write-Host "Selected Azure Subscription: " $subscriptionName -ForegroundColor Cyan
 
 # Resource Group
 Write-Host "Preparing Resource Group" -ForegroundColor Green
 $rsgExists = az group exists -n $rsgName
 if ($rsgExists -eq 'false') {
-    Write-Host "Creating Resource Group"
-    az group create -l $regionName -n $rsgName
+    Write-Host "Creating Resource Group..."
+    $echo = az group create -l $regionName -n $rsgName
 }
 
 # App Service Plan
@@ -81,35 +83,35 @@ Write-Host "Preparing App Service Plan" -ForegroundColor Green
 $planCheck = az appservice plan list --query "[?name=='$aspName']" | ConvertFrom-Json
 $planExists = $planCheck.Length -gt 0
 if (!$planExists) {
-    Write-Host "Creating App Service Plan"
+    Write-Host "Creating App Service Plan..."
     if ($useLinuxPlanWithDocker){
-        az appservice plan create -n $aspName -g $rsgName --is-linux --sku S1 --location $regionName
+        $echo = az appservice plan create -n $aspName -g $rsgName --is-linux --sku S1 --location $regionName
     }
     else {
-        az appservice plan create -n $aspName -g $rsgName --sku S1 --location $regionName
+        $echo = az appservice plan create -n $aspName -g $rsgName --sku S1 --location $regionName
     }
 }
 
 # Web App
 Write-Host ""
-Write-Host "Preparing Web App" -ForegroundColor Green
+Write-Host "Preparing Web App..." -ForegroundColor Green
 $appCheck = az webapp list --query "[?name=='$webAppName']" | ConvertFrom-Json
 $appExists = $appCheck.Length -gt 0
 if (!$appExists) {
     Write-Host "Creating Web App"
     if ($useLinuxPlanWithDocker) {
         Write-Host "Using Linux Plan with Docker image from 'ediwang/elf', this deployment will be ready to run."
-        az webapp create -g $rsgName -p $aspName -n $webAppName --deployment-container-image-name ediwang/elf
+        $echo = az webapp create -g $rsgName -p $aspName -n $webAppName --deployment-container-image-name ediwang/elf
     }
     else {
         Write-Host "Using Windows Plan with deployment from GitHub source code."
-        az webapp create -g $rsgName -p $aspName -n $webAppName
-        az webapp config set -g $rsgName -n $webAppName --net-framework-version v5.0
+        $echo = az webapp create -g $rsgName -p $aspName -n $webAppName
+        $echo = az webapp config set -g $rsgName -n $webAppName --net-framework-version v5.0
 
-        Write-Host "Pulling source code and run build on Azure..."
-        az webapp deployment source config --branch master --manual-integration --name $webAppName --repo-url https://github.com/EdiWang/Elf --resource-group $rsgName
+        Write-Host "Pulling source code and run build on Azure (this takes time, please wait)..."
+        $echo = az webapp deployment source config --branch master --manual-integration --name $webAppName --repo-url https://github.com/EdiWang/Elf --resource-group $rsgName
     }
-    az webapp config set -g $rsgName -n $webAppName --always-on true --use-32bit-worker-process false --http20-enabled true 
+    $echo = az webapp config set -g $rsgName -n $webAppName --always-on true --use-32bit-worker-process false --http20-enabled true 
 }
 
 $createdApp = az webapp list --query "[?name=='$webAppName']" | ConvertFrom-Json
@@ -125,19 +127,19 @@ Write-Host "Preparing Azure SQL" -ForegroundColor Green
 $sqlServerCheck = az sql server list --query "[?name=='$sqlServerName']" | ConvertFrom-Json
 $sqlServerExists = $sqlServerCheck.Length -gt 0
 if (!$sqlServerExists) {
-    Write-Host "Creating SQL Server"
-    az sql server create --name $sqlServerName --resource-group $rsgName --location $regionName --admin-user $sqlServerUsername --admin-password $sqlServerPassword
+    Write-Host "Creating SQL Server..."
+    $echo = az sql server create --name $sqlServerName --resource-group $rsgName --location $regionName --admin-user $sqlServerUsername --admin-password $sqlServerPassword
 
     Write-Host "Setting Firewall to Allow Azure Connection"
     # When both starting IP and end IP are set to 0.0.0.0, the firewall is only opened for other Azure resources.
-    az sql server firewall-rule create --resource-group $rsgName --server $sqlServerName --name AllowAllIps --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
+    $echo = az sql server firewall-rule create --resource-group $rsgName --server $sqlServerName --name AllowAllIps --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
 }
 
 $sqlDbCheck = az sql db list --resource-group $rsgName --server $sqlServerName --query "[?name=='$sqlDatabaseName']" | ConvertFrom-Json
 $sqlDbExists = $sqlDbCheck.Length -gt 0
 if (!$sqlDbExists) {
     Write-Host "Creating SQL Database"
-    az sql db create --resource-group $rsgName --server $sqlServerName --name $sqlDatabaseName --service-objective S0 --backup-storage-redundancy Local
+    $echo = az sql db create --resource-group $rsgName --server $sqlServerName --name $sqlDatabaseName --service-objective S0 --backup-storage-redundancy Local
     Write-Host "SQL Server Password: $sqlServerPassword" -ForegroundColor Yellow
 }
 
@@ -148,6 +150,6 @@ Write-Host "Updating Configuration" -ForegroundColor Green
 Write-Host "Setting SQL Database Connection String"
 $sqlConnStrTemplate = az sql db show-connection-string -s $sqlServerName -n $sqlDatabaseName -c ado.net --auth-type SqlPassword
 $sqlConnStr = $sqlConnStrTemplate.Replace("<username>", $sqlServerUsername).Replace("<password>", $sqlServerPassword)
-az webapp config connection-string set -g $rsgName -n $webAppName -t SQLAzure --settings ElfDatabase=$sqlConnStr
+$echo = az webapp config connection-string set -g $rsgName -n $webAppName -t SQLAzure --settings ElfDatabase=$sqlConnStr
 
 Read-Host -Prompt "Setup is done, you should be able to run Elf on '$webAppUrl' now, press [ENTER] to exit."
