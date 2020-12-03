@@ -102,10 +102,14 @@ if (!$appExists) {
         az webapp create -g $rsgName -p $aspName -n $webAppName --deployment-container-image-name ediwang/elf
     }
     else {
-        Write-Host "Using Windows Plan with deployment method as not set, you need to build and deploy the code yourself."
+        Write-Host "Using Windows Plan with deployment from GitHub source code."
         az webapp create -g $rsgName -p $aspName -n $webAppName
+        az webapp config set -g $rsgName -n $webAppName --net-framework-version v5.0
+
+        Write-Host "Pulling source code and run build on Azure..."
+        az webapp deployment source config --branch master --manual-integration --name $webAppName --repo-url https://github.com/EdiWang/Elf --resource-group $rsgName
     }
-    az webapp config set -g $rsgName -n $webAppName --always-on true --use-32bit-worker-process false --http20-enabled true
+    az webapp config set -g $rsgName -n $webAppName --always-on true --use-32bit-worker-process false --http20-enabled true 
 }
 
 $createdApp = az webapp list --query "[?name=='$webAppName']" | ConvertFrom-Json
@@ -146,9 +150,4 @@ $sqlConnStrTemplate = az sql db show-connection-string -s $sqlServerName -n $sql
 $sqlConnStr = $sqlConnStrTemplate.Replace("<username>", $sqlServerUsername).Replace("<password>", $sqlServerPassword)
 az webapp config connection-string set -g $rsgName -n $webAppName -t SQLAzure --settings ElfDatabase=$sqlConnStr
 
-if ($useLinuxPlanWithDocker) {
-    Read-Host -Prompt "Setup is done, you should be able to run Elf on '$webAppUrl' now, press [ENTER] to exit."
-}
-else {
-    Read-Host -Prompt "Setup is done, you can now deploy the code to '$webAppUrl', press [ENTER] to exit."
-}
+Read-Host -Prompt "Setup is done, you should be able to run Elf on '$webAppUrl' now, press [ENTER] to exit."
