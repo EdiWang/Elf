@@ -198,13 +198,6 @@
                     }]
             });
 
-            $(this).initUTCTime({
-                daysAgo: ' days ago',
-                hoursAgo: ' hours ago',
-                minutesAgo: ' minutes ago',
-                secondsAgo: ' seconds ago'
-            });
-
             $(".btn-refresh").click(function () {
                 table.ajax.reload();
                 toastr.success("Data Refreshed");
