@@ -10,6 +10,8 @@
         $(function () {
             var table = $(".table-links").DataTable({
                 "order": [[4, "desc"]],
+                "pageLength": 15,
+                "lengthMenu": [10, 15, 20, 30, 50, 100],
                 "processing": true,
                 "serverSide": true,
                 "ordering": false,
@@ -50,7 +52,7 @@
                         "targets": 0,
                         "data": "fwToken",
                         "render": function (data, type, row, meta) {
-                            return `<a href="/fw/${data}" class="col-token" target="_blank">${data}</a>`;
+                            return `<a href="/fw/${data}" class="badge badge-secondary" target="_blank">${data}</a>`;
                         }
                     },
                     {
@@ -65,7 +67,7 @@
                         "data": "akaName",
                         "render": function (data, type, row, meta) {
                             if (data) {
-                                return `<a href="/aka/${data}" class="col-aka" target="_blank">${data}</a>`;
+                                return `<a href="/aka/${data}" class="col-aka badge badge-pill badge-info" target="_blank">${data}</a>`;
                             } else {
                                 return ``;
                             }
@@ -82,7 +84,7 @@
                         "targets": 6,
                         "data": "updateTimeUtc",
                         "render": function (data, type, row, meta) {
-                            return `<span>${(new Date(data)).toLocaleString()}</span>`;
+                            return `<span class="text-muted">${(new Date(data)).toLocaleString()}</span>`;
                     }
                 }]
             });
@@ -178,28 +180,20 @@
     </script>
 }
 
-<button class="btn btn-outline-success btn-create-link">
-    + New
-</button>
-<hr />
-
-<style>
-    table {
-        table-layout: fixed;
-        font-size: 0.95rem;
-    }
-
-    .wordwrap {
-        word-wrap: break-word;
-    }
-</style>
-
 @Html.AntiForgeryToken()
 
-<button class="btn btn-sm btn-success btn-refresh float-right">Refresh</button>
+<div class="float-right">
+    <button class="btn btn-sm btn-success btn-create-link">
+        + New
+    </button>
+    <button class="btn btn-sm btn-outline-success btn-refresh">
+        Refresh
+    </button>
+</div>
 
-<table class="table table-bordered table-sm table-links">
-    <thead>
+
+<table class="table table-bordered table-sm table-hover table-links">
+    <thead class="bg-light">
         <tr>
             <th style="width: 80px;">Token</th>
             <th>Origin Url</th>
