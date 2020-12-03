@@ -37,38 +37,52 @@
                     { "data": "updateTimeUtc" },
                     { "data": null }
                 ],
-                "columnDefs": [{
-                    "targets": -1,
-                    "render": function (data, type, row, meta) {
-                        return `<a href="javascript:;" onclick="showLink('${data.fwToken
-                            }')" class="btn btn-sm btn-outline-success">Share</a> <a href="javascript:;" onclick="editLink('${data.id
-                            }')" class="btn btn-sm btn-outline-primary">Edit</a> <button class="btn btn-sm btn-outline-danger btn-delete">Delete</button>`;
-                    }
-                }, {
-                    "targets": 0,
-                    "data": "fwToken",
-                    "render": function (data, type, row, meta) {
-                        return `<a href="/fw/${data}" class="col-token" target="_blank">${data}</a>`;
-                    }
-                }, {
-                    "targets": 1,
-                    "data": "originUrl",
-                    "render": function (data, type, row, meta) {
-                        return `<span class="d-flex"><a href="${data}" class="col-link" target="_blank">${data}</a><a class="d-inline-block btn btn-sm btn-outline-secondary btn-copy-url" href="javascript:copyUrl('${data}');">Copy</a></span>`;
-                    }
-                },
-                {
-                    "targets": 4,
-                    "data": "isEnabled",
-                    "render": function (data, type, row, meta) {
-                        return data ? '✔' : '❌';
-                    }
-                },
-                {
-                    "targets": 6,
-                    "data": "updateTimeUtc",
-                    "render": function (data, type, row, meta) {
-                        return `<span>${(new Date(data)).toLocaleString()}</span>`;
+                "columnDefs": [
+                    {
+                        "targets": -1,
+                        "render": function (data, type, row, meta) {
+                            return `<a href="javascript:;" onclick="showLink('${data.fwToken
+                                }')" class="btn btn-sm btn-outline-success">Share</a> <a href="javascript:;" onclick="editLink('${data.id
+                                }')" class="btn btn-sm btn-outline-primary">Edit</a> <button class="btn btn-sm btn-outline-danger btn-delete">Delete</button>`;
+                        }
+                    },
+                    {
+                        "targets": 0,
+                        "data": "fwToken",
+                        "render": function (data, type, row, meta) {
+                            return `<a href="/fw/${data}" class="col-token" target="_blank">${data}</a>`;
+                        }
+                    },
+                    {
+                        "targets": 1,
+                        "data": "originUrl",
+                        "render": function (data, type, row, meta) {
+                            return `<span class="d-flex"><a href="${data}" class="col-link" target="_blank">${data}</a><a class="d-inline-block btn btn-sm btn-outline-secondary btn-copy-url" href="javascript:copyUrl('${data}');">Copy</a></span>`;
+                        }
+                    },
+                    {
+                        "targets": 3,
+                        "data": "akaName",
+                        "render": function (data, type, row, meta) {
+                            if (data) {
+                                return `<a href="/aka/${data}" class="col-aka" target="_blank">${data}</a>`;
+                            } else {
+                                return ``;
+                            }
+                        }
+                    },
+                    {
+                        "targets": 4,
+                        "data": "isEnabled",
+                        "render": function (data, type, row, meta) {
+                            return data ? '✔' : '❌';
+                        }
+                    },
+                    {
+                        "targets": 6,
+                        "data": "updateTimeUtc",
+                        "render": function (data, type, row, meta) {
+                            return `<span>${(new Date(data)).toLocaleString()}</span>`;
                     }
                 }]
             });
