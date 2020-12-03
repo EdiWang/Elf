@@ -68,7 +68,7 @@
                     "targets": 6,
                     "data": "updateTimeUtc",
                     "render": function (data, type, row, meta) {
-                        return `<span data-utc-time="${data}"></span>`;
+                        return `<span>${(new Date(data)).toLocaleString()}</span>`;
                     }
                 }]
             });
@@ -190,7 +190,7 @@
             <th style="width: 80px;">Aka</th>
             <th style="width: 80px;">Enabled</th>
             <th style="width: 80px;">TTL</th>
-            <th style="width: 100px;">Update Time</th>
+            <th style="width: 180px;">Update Time</th>
             <th style="width: 180px;">Action</th>
         </tr>
     </thead>

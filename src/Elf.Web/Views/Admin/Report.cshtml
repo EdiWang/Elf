@@ -186,7 +186,7 @@
                         "targets": 0,
                         "data": "requestTimeUtc",
                         "render": function (data, type, row, meta) {
-                            return '<span data-utc-time="' + data + '"></span>';
+                            return `<span>${(new Date(data)).toLocaleString()}</span>`;
                         }
                     },
                     {
@@ -278,7 +278,7 @@
         <table class="recent-requests-table table table-bordered table-sm">
             <thead>
                 <tr>
-                    <th style="width: 120px;">Request Time</th>
+                    <th style="width: 180px;">Request Time</th>
                     <th style="width: 80px;">Token</th>
                     <th>User Agent</th>
                     <th style="width: 100px;">IP Address</th>
