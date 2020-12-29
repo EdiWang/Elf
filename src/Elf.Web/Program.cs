@@ -41,7 +41,12 @@ namespace Elf.Web
                                       config.AddAzureAppConfiguration(options =>
                                       {
                                           options.Connect(settings["ConnectionStrings:AzureAppConfig"])
-                                                 .UseFeatureFlags();
+                                              .ConfigureRefresh(refresh =>
+                                              {
+                                                  refresh.Register("Elf:Settings:Sentinel", refreshAll: true)
+                                                      .SetCacheExpiration(TimeSpan.FromSeconds(10));
+                                              })
+                                              .UseFeatureFlags(o => o.Label = "Elf");
                                       });
                                   }
                               });

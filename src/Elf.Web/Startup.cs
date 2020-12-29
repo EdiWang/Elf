@@ -87,6 +87,8 @@ namespace Elf.Web
                 options.UseSqlServer(Configuration.GetConnectionString("ElfDatabase"))
                        .UseDefaultLogging(provider);
             });
+
+            services.AddAzureAppConfiguration();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger, TelemetryConfiguration configuration)
