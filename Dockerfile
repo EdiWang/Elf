@@ -13,10 +13,10 @@ RUN for file in $(ls *.csproj); do mkdir -p ./${file%.*}/ && mv $file ./${file%.
 RUN dotnet restore "Elf.Web/Elf.Web.csproj"
 COPY ./src .
 WORKDIR "/src/Elf.Web"
-RUN dotnet build "Elf.Web.csproj" -p:Version=3.5.2-docker -c Release -o /app/build
+RUN dotnet build "Elf.Web.csproj" -p:Version=3.5.3-docker -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Elf.Web.csproj" -p:Version=3.5.2-docker -c Release -o /app/publish
+RUN dotnet publish "Elf.Web.csproj" -p:Version=3.5.3-docker -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
