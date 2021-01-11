@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ontreport:latest
+      run: docker build . --file Dockerfile --tag elf:latest
     - name: ACR Login
       uses: azure/docker-login@v1
       with:
