@@ -25,5 +25,5 @@ jobs:
     - name: ACR Build and Publish
       run: |
         docker build . --file Dockerfile --tag ${{ secrets.ACR_SERVER }}/elf:latest
-        docker tag ${{ secrets.ACR_SERVER }}/elf:latest ${{ secrets.ACR_SERVER }}/azureregistrygitactions:$(date +%s)
+        docker tag ${{ secrets.ACR_SERVER }}/elf:latest ${{ secrets.ACR_SERVER }}/elf:$(date +%s)
         docker push ${{ secrets.ACR_SERVER }}/elf
