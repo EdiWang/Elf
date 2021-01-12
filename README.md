@@ -20,6 +20,12 @@ will translate to
 https://yourdomain/fw/token
 ```
 
+or 
+
+```
+https://yourdomain/aka/name
+```
+
 ## Features
 
 Forward Link, Create/Manage/Share Link, View Report
