@@ -24,6 +24,7 @@ https://yourdomain/fw/token
 
 Forward Link, Create/Manage/Share Link, View Report
 
+![image](https://user-images.githubusercontent.com/3304703/104278012-dfdbd400-54e2-11eb-8ea3-c5c7e332b685.png)
 ![image](https://blog.ediwangcdn.com/web-assets/lf/sc-report.png)
 
 ## Forward Logic
