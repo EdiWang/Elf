@@ -123,8 +123,6 @@ namespace Elf.Web
             app.UseMiddleware<PoweredByMiddleware>();
             app.UseStaticFiles();
 
-            app.UseMiddleware<FirstRunMiddleware>();
-
             app.UseIpRateLimiting();
 
             app.MapWhen(context => context.Request.Path == "/", builder =>

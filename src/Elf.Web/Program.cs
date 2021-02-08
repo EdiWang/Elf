@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using Elf.Services.Entities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -19,7 +21,26 @@ namespace Elf.Web
             Trace.WriteLine(info);
             Console.WriteLine(info);
 
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+
+            using (var scope = host.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+                var logger = loggerFactory.CreateLogger<Program>();
+
+                try
+                {
+                    var dbConnection = services.GetRequiredService<AppDataConnection>();
+                    TryInitFirstRun(dbConnection, logger);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Moonglade start up boom boom");
+                }
+            }
+
+            host.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -51,5 +72,29 @@ namespace Elf.Web
                                   }
                               });
                 });
+
+        private static void TryInitFirstRun(AppDataConnection dbConnection, ILogger logger)
+        {
+            if (dbConnection.TestDatabaseConnection(ex =>
+            {
+                Trace.WriteLine(ex);
+                Console.WriteLine(ex);
+            }))
+            {
+                if (dbConnection.IsFirstRun())
+                {
+                    try
+                    {
+                        logger.LogInformation("Initializing first run configuration...");
+                        dbConnection.SetupDatabase();
+                        logger.LogInformation("Database setup successfully.");
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogCritical(e, e.Message);
+                    }
+                }
+            }
+        }
     }
 }
