@@ -8,6 +8,7 @@ namespace Elf.Services.Entities
     public partial class Link
     {
         [PrimaryKey, Identity] public int Id { get; set; } // int
+        [PrimaryKey, NotNull] public Guid TenantId { get; set; } // uniqueidentifier
         [Column, Nullable] public string OriginUrl { get; set; } // nvarchar(256)
         [Column, Nullable] public string FwToken { get; set; } // varchar(32)
         [Column, Nullable] public string Note { get; set; } // nvarchar(max)
