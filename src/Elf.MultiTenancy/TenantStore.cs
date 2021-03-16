@@ -25,7 +25,7 @@ namespace Elf.MultiTenancy
             {
                 new Tenant
                 {
-                    Id = Guid.Parse("80fdb3c0-5888-4295-bf40-ebee0e3cd8f3"),
+                    Id = Guid.Parse("00000000-0000-0000-0000-000000000000"),
                     Identifier = "localhost",
                     Items = new()
                     {

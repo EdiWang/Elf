@@ -130,14 +130,14 @@ namespace Elf.Services
             return _connection.Link.FindAsync(id);
         }
 
-        public Task<Link> GetLinkAsync(string token)
+        public Task<Link> GetLinkAsync(Guid tenantId, string token)
         {
-            return _connection.Link.FirstOrDefaultAsync(p => p.FwToken == token);
+            return _connection.Link.FirstOrDefaultAsync(p => p.FwToken == token && p.TenantId == tenantId);
         }
 
-        public async Task<string> GetTokenByAkaNameAsync(string akaName)
+        public async Task<string> GetTokenByAkaNameAsync(Guid tenantId, string akaName)
         {
-            var link = await _connection.Link.FirstOrDefaultAsync(p => p.AkaName == akaName);
+            var link = await _connection.Link.FirstOrDefaultAsync(p => p.AkaName == akaName && p.TenantId == tenantId);
             return link?.FwToken;
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Elf.Services.Entities;
 using Elf.Services.Models;
@@ -16,8 +17,8 @@ namespace Elf.Services
         Task<string> EditLinkAsync(EditLinkRequest editLinkRequest);
         Task<int> CountLinksAsync();
         Task<Link> GetLinkAsync(int id);
-        Task<Link> GetLinkAsync(string token);
-        Task<string> GetTokenByAkaNameAsync(string akaName);
+        Task<Link> GetLinkAsync(Guid tenantId, string token);
+        Task<string> GetTokenByAkaNameAsync(Guid tenantId, string akaName);
         Task DeleteLink(int linkId);
         Task<IReadOnlyList<LinkTrackingDateCount>> GetLinkTrackingDateCount(int daysFromNow);
         Task<IReadOnlyList<ClientTypeCount>> GetClientTypeCounts(int daysFromNow, int topTypes);
