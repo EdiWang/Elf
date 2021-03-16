@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{A3995125
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elf.Tests", "Elf.Tests\Elf.Tests.csproj", "{5EA676F8-A271-40E2-BCBF-09E80E5925C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elf.MultiTenancy", "Elf.MultiTenancy\Elf.MultiTenancy.csproj", "{899F0DD6-262B-4DE8-A567-F5E2CD97C825}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,10 @@ Global
 		{5EA676F8-A271-40E2-BCBF-09E80E5925C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5EA676F8-A271-40E2-BCBF-09E80E5925C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5EA676F8-A271-40E2-BCBF-09E80E5925C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{899F0DD6-262B-4DE8-A567-F5E2CD97C825}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{899F0DD6-262B-4DE8-A567-F5E2CD97C825}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{899F0DD6-262B-4DE8-A567-F5E2CD97C825}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{899F0DD6-262B-4DE8-A567-F5E2CD97C825}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,6 +56,7 @@ Global
 		{A5F03891-9A66-4CF1-9BA9-D23C9B22AE6E} = {3FD57E01-5791-42AC-BA79-384D6CC46501}
 		{31EC911F-E050-41D5-BB22-3D193C99FF50} = {3FD57E01-5791-42AC-BA79-384D6CC46501}
 		{5EA676F8-A271-40E2-BCBF-09E80E5925C6} = {A3995125-2A8A-4BD8-BB11-BECE6DBCA76A}
+		{899F0DD6-262B-4DE8-A567-F5E2CD97C825} = {3FD57E01-5791-42AC-BA79-384D6CC46501}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3E5311F2-DE82-4527-81F8-DC851A2C4963}

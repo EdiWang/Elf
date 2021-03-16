@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Elf.MultiTenancy\Elf.MultiTenancy.csproj" />
     <ProjectReference Include="..\Elf.Services\Elf.Services.csproj" />
   </ItemGroup>
 </Project>
