@@ -46,10 +46,6 @@ namespace Elf.Web
             services.AddMultiTenancy()
                 .WithResolutionStrategy<HostResolutionStrategy>()
                 .WithStore<InMemoryTenantStore>();
-                //.WithPerTenantOptions<AppSettings>((options, tenant) =>
-                //{
-                //    options.DefaultRedirectionUrl = tenant.Items["DefaultRedirectionUrl"].ToString();
-                //});
 
             services.AddFeatureManagement();
             if (bool.Parse(Configuration["AppSettings:PreferAzureAppConfiguration"]))
