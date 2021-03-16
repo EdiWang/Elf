@@ -1,4 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\Common.props" />
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -9,3 +10,4 @@
   </ItemGroup>
 
 </Project>
+<!-- Credits: https://michael-mckenna.com/multi-tenant-asp-dot-net-core-application-tenant-resolution -->
