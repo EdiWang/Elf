@@ -13,7 +13,7 @@ namespace Elf.MultiTenancy
         /// <param name="services"></param>
         /// <returns></returns>
         public static TenantBuilder<T> AddMultiTenancy<T>(this IServiceCollection services) where T : Tenant
-            => new TenantBuilder<T>(services);
+            => new(services);
 
         /// <summary>
         /// Add the services (default tenant class)
@@ -21,6 +21,6 @@ namespace Elf.MultiTenancy
         /// <param name="services"></param>
         /// <returns></returns>
         public static TenantBuilder<Tenant> AddMultiTenancy(this IServiceCollection services)
-            => new TenantBuilder<Tenant>(services);
+            => new(services);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Elf.MultiTenancy
 {
-    public interface ITenantAccessor<T> where T : Tenant
+    public interface ITenantAccessor<out T> where T : Tenant
     {
         T Tenant { get; }
     }

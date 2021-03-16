@@ -5,7 +5,7 @@ namespace Elf.MultiTenancy
     /// <summary>
     /// Nice method to register our middleware
     /// </summary>
-    public static class IApplicationBuilderExtensions
+    public static class ApplicationBuilderExtensions
     {
         /// <summary>
         /// Use the Teanant Middleware to process the request
