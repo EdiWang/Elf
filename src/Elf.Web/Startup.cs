@@ -75,7 +75,7 @@ namespace Elf.Web
                 options.HeaderName = "XSRF-TOKEN";
             });
 
-            services.AddScoped<IDbConnection>(_ => new SqlConnection(Configuration.GetConnectionString(Constants.DbName)));
+            services.AddScoped<IDbConnection>(_ => new SqlConnection(Configuration.GetConnectionString("ElfDatabase")));
             services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
             services.AddScoped<ILinkForwarderService, LinkForwarderService>();
             services.AddScoped<ILinkVerifier, LinkVerifier>();
@@ -99,6 +99,8 @@ namespace Elf.Web
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger, TelemetryConfiguration configuration)
         {
             _logger = logger;
+
+            app.UseMultiTenancy();
 
             if (!env.IsProduction())
             {
@@ -139,7 +141,8 @@ namespace Elf.Web
                     {
                         ElfVersion = Utils.AppVersion,
                         DotNetVersion = System.Environment.Version.ToString(),
-                        EnvironmentTags = Utils.GetEnvironmentTags()
+                        EnvironmentTags = Utils.GetEnvironmentTags(),
+                        Tenant = context.GetTenant()
                     };
 
                     var json = System.Text.Json.JsonSerializer.Serialize(obj);
