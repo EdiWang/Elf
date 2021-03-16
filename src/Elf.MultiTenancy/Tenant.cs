@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Elf.MultiTenancy
 {
@@ -10,7 +11,7 @@ namespace Elf.MultiTenancy
         /// <summary>
         /// The tenant Id
         /// </summary>
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// The tenant identifier
