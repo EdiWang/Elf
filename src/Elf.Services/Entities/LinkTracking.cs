@@ -7,6 +7,7 @@ namespace Elf.Services.Entities
     public partial class LinkTracking
     {
         [PrimaryKey, NotNull] public Guid Id { get; set; } = Guid.NewGuid(); // uniqueidentifier
+        [PrimaryKey, NotNull] public Guid TenantId { get; set; } // uniqueidentifier
         [Column, NotNull] public int LinkId { get; set; } // int
         [Column, Nullable] public string UserAgent { get; set; } // nvarchar(256)
         [Column, Nullable] public string IpAddress { get; set; } // varchar(64)

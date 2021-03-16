@@ -5,29 +5,30 @@ namespace Elf.MultiTenancy
 {
     public class Constants
     {
-        public static string HttpContextTenantKey = "Tenant";
+        public static string HttpContextTenantKey => "Tenant";
     }
 
     public class TenantMiddleware<T> where T : Tenant
     {
-        private readonly RequestDelegate next;
+        private readonly RequestDelegate _next;
 
         public TenantMiddleware(RequestDelegate next)
         {
-            this.next = next;
+            _next = next;
         }
 
         public async Task Invoke(HttpContext context)
         {
             if (!context.Items.ContainsKey(Constants.HttpContextTenantKey))
             {
-                var tenantService = context.RequestServices.GetService(typeof(TenantAccessService<T>)) as TenantAccessService<T>;
-                context.Items.Add(Constants.HttpContextTenantKey, await tenantService.GetTenantAsync());
+                if (context.RequestServices.GetService(typeof(TenantAccessService<T>)) is TenantAccessService<T> tenantService)
+                {
+                    context.Items.Add(Constants.HttpContextTenantKey, await tenantService.GetTenantAsync());
+                }
             }
 
             //Continue processing
-            if (next != null)
-                await next(context);
+            if (_next != null) await _next(context);
         }
     }
 }

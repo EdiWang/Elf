@@ -20,25 +20,27 @@ namespace Elf.MultiTenancy
         /// <summary>
         /// Register the tenant resolver implementation
         /// </summary>
-        /// <typeparam name="V"></typeparam>
+        /// <typeparam name="TResolutionStrategy"></typeparam>
         /// <param name="lifetime"></param>
         /// <returns></returns>
-        public TenantBuilder<T> WithResolutionStrategy<V>(ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantResolutionStrategy
+        public TenantBuilder<T> WithResolutionStrategy<TResolutionStrategy>(ServiceLifetime lifetime = ServiceLifetime.Transient)
+            where TResolutionStrategy : class, ITenantResolutionStrategy
         {
             _services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            _services.Add(ServiceDescriptor.Describe(typeof(ITenantResolutionStrategy), typeof(V), lifetime));
+            _services.Add(ServiceDescriptor.Describe(typeof(ITenantResolutionStrategy), typeof(TResolutionStrategy), lifetime));
             return this;
         }
 
         /// <summary>
         /// Register the tenant store implementation
         /// </summary>
-        /// <typeparam name="V"></typeparam>
+        /// <typeparam name="TStore"></typeparam>
         /// <param name="lifetime"></param>
         /// <returns></returns>
-        public TenantBuilder<T> WithStore<V>(ServiceLifetime lifetime = ServiceLifetime.Transient) where V : class, ITenantStore<T>
+        public TenantBuilder<T> WithStore<TStore>(ServiceLifetime lifetime = ServiceLifetime.Transient)
+            where TStore : class, ITenantStore<T>
         {
-            _services.Add(ServiceDescriptor.Describe(typeof(ITenantStore<T>), typeof(V), lifetime));
+            _services.Add(ServiceDescriptor.Describe(typeof(ITenantStore<T>), typeof(TStore), lifetime));
             return this;
         }
     }
