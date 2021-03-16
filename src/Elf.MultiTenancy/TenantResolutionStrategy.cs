@@ -27,7 +27,6 @@ namespace Elf.MultiTenancy
         /// <summary>
         /// Get the tenant identifier
         /// </summary>
-        /// <param name="context"></param>
         /// <returns></returns>
         public async Task<string> GetTenantIdentifierAsync()
         {
