@@ -142,7 +142,7 @@ namespace Elf.Web
                         ElfVersion = Utils.AppVersion,
                         DotNetVersion = System.Environment.Version.ToString(),
                         EnvironmentTags = Utils.GetEnvironmentTags(),
-                        Tenant = context.GetTenant()
+                        TenantId = context.GetTenant().Id
                     };
 
                     var json = System.Text.Json.JsonSerializer.Serialize(obj);

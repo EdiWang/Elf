@@ -18,7 +18,7 @@ namespace Elf.Services.Entities
         public AppDataConnection(LinqToDbConnectionOptions<AppDataConnection> options)
             : base(options)
         {
-            
+
         }
 
         public bool IsFirstRun()

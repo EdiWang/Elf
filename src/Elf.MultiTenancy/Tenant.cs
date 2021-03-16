@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Elf.MultiTenancy
 {
@@ -14,7 +11,7 @@ namespace Elf.MultiTenancy
         /// <summary>
         /// The tenant Id
         /// </summary>
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// The tenant identifier
@@ -24,6 +21,6 @@ namespace Elf.MultiTenancy
         /// <summary>
         /// Tenant items
         /// </summary>
-        public Dictionary<string, object> Items { get; } = new();
+        public Dictionary<string, object> Items { get; set; } = new();
     }
 }
