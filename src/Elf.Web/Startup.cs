@@ -2,6 +2,7 @@
 using System.Data;
 using System.Text;
 using AspNetCoreRateLimit;
+using Elf.MultiTenancy;
 using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Services.TokenGenerator;
@@ -42,6 +43,10 @@ namespace Elf.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMultiTenancy()
+                .WithResolutionStrategy<HostResolutionStrategy>()
+                .WithStore<InMemoryTenantStore>();
+
             services.AddFeatureManagement();
             if (bool.Parse(Configuration["AppSettings:PreferAzureAppConfiguration"]))
             {
