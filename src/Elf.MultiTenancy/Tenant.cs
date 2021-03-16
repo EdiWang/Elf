@@ -24,6 +24,6 @@ namespace Elf.MultiTenancy
         /// <summary>
         /// Tenant items
         /// </summary>
-        public Dictionary<string, object> Items { get; } = new();
+        public Dictionary<string, object> Items { get; set; } = new();
     }
 }
