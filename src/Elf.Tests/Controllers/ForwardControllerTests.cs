@@ -150,10 +150,10 @@ namespace Elf.Tests.Controllers
                 .Setup(p => p.GetLinkAsync(It.IsAny<Guid>(), null))
                 .ReturnsAsync(() => null);
 
-            _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
-            {
-                DefaultRedirectionUrl = string.Empty
-            });
+            //_appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
+            //{
+            //    DefaultRedirectionUrl = string.Empty
+            //});
 
             var ctl = CreateController(memoryCache);
 
@@ -183,10 +183,10 @@ namespace Elf.Tests.Controllers
                 .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
                 .Returns(LinkVerifyResult.Valid);
 
-            _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
-            {
-                DefaultRedirectionUrl = "https://edi.wang"
-            });
+            //_appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
+            //{
+            //    DefaultRedirectionUrl = "https://edi.wang"
+            //});
 
             var ctl = CreateController(memoryCache);
             ctl.ControllerContext = GetHappyPathHttpContext();
@@ -217,10 +217,10 @@ namespace Elf.Tests.Controllers
                 .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
                 .Returns(linkVerifyResult);
 
-            _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
-            {
-                DefaultRedirectionUrl = "INVALID_VALUE"
-            });
+            //_appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
+            //{
+            //    DefaultRedirectionUrl = "INVALID_VALUE"
+            //});
 
             var ctl = CreateController(memoryCache);
             ctl.ControllerContext = GetHappyPathHttpContext();
@@ -308,10 +308,10 @@ namespace Elf.Tests.Controllers
                 .Setup(p => p.Verify(It.IsAny<string>(), It.IsAny<IUrlHelper>(), It.IsAny<HttpRequest>(), false))
                 .Returns(LinkVerifyResult.InvalidFormat);
 
-            _appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
-            {
-                DefaultRedirectionUrl = "https://edi.wang"
-            });
+            //_appSettingsMock.Setup(p => p.Value).Returns(new AppSettings
+            //{
+            //    DefaultRedirectionUrl = "https://edi.wang"
+            //});
 
             var ctl = CreateController(memoryCache);
             ctl.ControllerContext = GetHappyPathHttpContext();

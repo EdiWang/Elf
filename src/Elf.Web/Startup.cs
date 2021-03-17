@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using AspNetCoreRateLimit;
@@ -43,9 +44,10 @@ namespace Elf.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<List<Tenant>>(Configuration.GetSection("Tenants"));
             services.AddMultiTenancy()
                 .WithResolutionStrategy<HostResolutionStrategy>()
-                .WithStore<InMemoryTenantStore>();
+                .WithStore<AppSettingsTenantStore>();
 
             services.AddFeatureManagement();
             if (bool.Parse(Configuration["AppSettings:PreferAzureAppConfiguration"]))

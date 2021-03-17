@@ -29,7 +29,7 @@ namespace Elf.Web.Controllers
         private readonly IFeatureManager _featureManager;
 
         private StringValues UserAgent => Request.Headers["User-Agent"];
-        private readonly Guid _tenantId;
+        private readonly Tenant _tenant;
 
         public ForwardController(
             ITenantAccessor<Tenant> tenantAccessor,
@@ -49,7 +49,7 @@ namespace Elf.Web.Controllers
             _linkVerifier = linkVerifier;
             _featureManager = featureManager;
 
-            _tenantId = tenantAccessor.Tenant.Id;
+            _tenant = tenantAccessor.Tenant;
         }
 
         [AddForwarderHeader]
@@ -62,7 +62,7 @@ namespace Elf.Web.Controllers
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "N/A";
             if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
 
-            var token = await _linkForwarderService.GetTokenByAkaNameAsync(_tenantId, akaName);
+            var token = await _linkForwarderService.GetTokenByAkaNameAsync(_tenant.Id, akaName);
 
             // can not redirect to default url because it will confuse user that the aka points to that default url.
             if (token is null) return NotFound();
@@ -92,13 +92,13 @@ namespace Elf.Web.Controllers
             if (!_cache.TryGetValue(token, out Link linkEntry))
             {
                 var flag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
-                var link = await _linkForwarderService.GetLinkAsync(_tenantId, validatedToken);
+                var link = await _linkForwarderService.GetLinkAsync(_tenant.Id, validatedToken);
                 if (link is null)
                 {
-                    if (string.IsNullOrWhiteSpace(_appSettings.DefaultRedirectionUrl)) return NotFound();
+                    if (string.IsNullOrWhiteSpace(_tenant.Items["DefaultRedirectionUrl"])) return NotFound();
 
-                    var result = _linkVerifier.Verify(_appSettings.DefaultRedirectionUrl, Url, Request, flag);
-                    if (result == LinkVerifyResult.Valid) return Redirect(_appSettings.DefaultRedirectionUrl);
+                    var result = _linkVerifier.Verify(_tenant.Items["DefaultRedirectionUrl"], Url, Request, flag);
+                    if (result == LinkVerifyResult.Valid) return Redirect(_tenant.Items["DefaultRedirectionUrl"]);
 
                     throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
                 }
