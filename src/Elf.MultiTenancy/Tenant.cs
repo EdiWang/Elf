@@ -18,6 +18,8 @@ namespace Elf.MultiTenancy
         /// </summary>
         public string Identifier { get; set; }
 
+        public bool IsDefault { get; set; }
+
         /// <summary>
         /// Tenant items
         /// </summary>
