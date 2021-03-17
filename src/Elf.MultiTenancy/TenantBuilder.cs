@@ -14,6 +14,8 @@ namespace Elf.MultiTenancy
         public TenantBuilder(IServiceCollection services)
         {
             services.AddTransient<TenantAccessService<T>>();
+            services.AddTransient<ITenantAccessor<Tenant>, TenantAccessor<Tenant>>();
+
             _services = services;
         }
 

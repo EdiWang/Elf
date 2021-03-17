@@ -2,8 +2,6 @@
 {
     public class AppSettings
     {
-        public string DefaultRedirectionUrl { get; set; }
-
         public int TopClientTypes { get; set; }
     }
 
