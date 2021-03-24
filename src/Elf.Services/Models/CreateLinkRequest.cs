@@ -1,4 +1,6 @@
-﻿namespace Elf.Services.Models
+﻿using System;
+
+namespace Elf.Services.Models
 {
     public class CreateLinkRequest
     {
@@ -11,5 +13,7 @@
         public bool IsEnabled { get; set; }
 
         public int TTL { get; set; }
+
+        public Guid TenantId { get; set; }
     }
 }

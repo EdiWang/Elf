@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Elf.MultiTenancy;
 using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Services.Models;
@@ -29,14 +30,17 @@ namespace Elf.Web.Controllers
         private readonly ILinkVerifier _linkVerifier;
         private readonly IMemoryCache _cache;
         private readonly IFeatureManager _featureManager;
+        private readonly Tenant _tenant;
 
         public AdminController(
+            ITenantAccessor<Tenant> tenantAccessor,
             ILogger<AdminController> logger,
             ILinkForwarderService linkForwarderService,
             ILinkVerifier linkVerifier,
             IMemoryCache cache,
             IFeatureManager featureManager)
         {
+            _tenant = tenantAccessor.Tenant;
             _logger = logger;
             _linkForwarderService = linkForwarderService;
             _linkVerifier = linkVerifier;
@@ -209,7 +213,8 @@ namespace Elf.Web.Controllers
                 Note = model.Note,
                 AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
                 IsEnabled = model.IsEnabled,
-                TTL = model.TTL
+                TTL = model.TTL,
+                TenantId = _tenant.Id
             };
 
             var response = await _linkForwarderService.CreateLinkAsync(createLinkRequest);

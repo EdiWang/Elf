@@ -98,7 +98,8 @@ namespace Elf.Services
                 AkaName = createLinkRequest.AkaName,
                 OriginUrl = createLinkRequest.OriginUrl,
                 UpdateTimeUtc = DateTime.UtcNow,
-                TTL = createLinkRequest.TTL
+                TTL = createLinkRequest.TTL,
+                TenantId = createLinkRequest.TenantId
             };
 
             await _connection.InsertAsync(link);
