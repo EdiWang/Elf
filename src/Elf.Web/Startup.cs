@@ -13,6 +13,7 @@ using Elf.Web.Middleware;
 using Elf.Web.Models;
 using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;
+using LinqToDB.Configuration;
 using LinqToDB.DataProvider.SqlServer;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
