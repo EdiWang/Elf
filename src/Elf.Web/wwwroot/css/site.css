@@ -58,3 +58,26 @@ html {
     flex: auto;
     padding-right: 10px;
 }
+
+.aspnet-tag-elf-userinfo,
+.aspnet-tag-elf-userinfo-name,
+.aspnet-tag-elf-userinfo-email {
+    display: inline-block;
+}
+
+.aspnet-tag-elf-userinfo-name {
+    font-weight: bold;
+}
+
+.aspnet-tag-elf-userinfo-email {
+    font-size: 12px;
+    margin-left: 6px;
+}
+
+.aspnet-tag-elf-userinfo-email:before {
+    content: '(';
+}
+
+.aspnet-tag-elf-userinfo-email:after {
+    content: ')';
+}
