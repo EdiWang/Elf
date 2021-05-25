@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
@@ -25,7 +24,6 @@ namespace Elf.Tests.Controllers
     public class ForwardControllerTests
     {
         private Mock<ILogger<ForwardController>> _loggerMock;
-        private Mock<IOptions<AppSettings>> _appSettingsMock;
         private Mock<ITokenGenerator> _tokenGeneratorMock;
         private Mock<ILinkVerifier> _linkVerifierMock;
         private Mock<ILinkForwarderService> _linkForwarderServiceMock;
@@ -37,7 +35,6 @@ namespace Elf.Tests.Controllers
         public void Setup()
         {
             _loggerMock = new();
-            _appSettingsMock = new();
             _tokenGeneratorMock = new();
             _linkVerifierMock = new();
             _linkForwarderServiceMock = new();
@@ -55,7 +52,6 @@ namespace Elf.Tests.Controllers
 
         private ForwardController CreateController(IMemoryCache men = null) => new(
                 _mockTenantAccessor.Object,
-                _appSettingsMock.Object,
                 _loggerMock.Object,
                 _linkForwarderServiceMock.Object,
                 _tokenGeneratorMock.Object,
@@ -153,7 +149,7 @@ namespace Elf.Tests.Controllers
 
             _mockTenantAccessor.Setup(p => p.Tenant).Returns(new Tenant
             {
-                Items = new Dictionary<string, string> { { "DefaultRedirectionUrl", string.Empty } }
+                Items = new() { { "DefaultRedirectionUrl", string.Empty } }
             });
 
             var ctl = CreateController(memoryCache);
@@ -186,7 +182,7 @@ namespace Elf.Tests.Controllers
 
             _mockTenantAccessor.Setup(p => p.Tenant).Returns(new Tenant
             {
-                Items = new Dictionary<string, string> { { "DefaultRedirectionUrl", "https://edi.wang" } }
+                Items = new() { { "DefaultRedirectionUrl", "https://edi.wang" } }
             });
 
             var ctl = CreateController(memoryCache);
@@ -220,7 +216,7 @@ namespace Elf.Tests.Controllers
 
             _mockTenantAccessor.Setup(p => p.Tenant).Returns(new Tenant
             {
-                Items = new Dictionary<string, string> { { "DefaultRedirectionUrl", "INVALID_VALUE" } }
+                Items = new() { { "DefaultRedirectionUrl", "INVALID_VALUE" } }
             });
 
             var ctl = CreateController(memoryCache);
@@ -311,7 +307,7 @@ namespace Elf.Tests.Controllers
 
             _mockTenantAccessor.Setup(p => p.Tenant).Returns(new Tenant
             {
-                Items = new Dictionary<string, string> { { "DefaultRedirectionUrl", "https://edi.wang" } }
+                Items = new() { { "DefaultRedirectionUrl", "https://edi.wang" } }
             });
 
             var ctl = CreateController(memoryCache);

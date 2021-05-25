@@ -11,7 +11,6 @@ using Elf.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.FeatureManagement;
 
@@ -20,7 +19,6 @@ namespace Elf.Web.Controllers
     [ApiController]
     public class ForwardController : ControllerBase
     {
-        private readonly AppSettings _appSettings;
         private readonly ILogger<ForwardController> _logger;
         private readonly ITokenGenerator _tokenGenerator;
         private readonly ILinkVerifier _linkVerifier;
@@ -33,7 +31,6 @@ namespace Elf.Web.Controllers
 
         public ForwardController(
             ITenantAccessor<Tenant> tenantAccessor,
-            IOptions<AppSettings> settings,
             ILogger<ForwardController> logger,
             ILinkForwarderService linkForwarderService,
             ITokenGenerator tokenGenerator,
@@ -41,7 +38,6 @@ namespace Elf.Web.Controllers
             ILinkVerifier linkVerifier,
             IFeatureManager featureManager)
         {
-            _appSettings = settings.Value;
             _logger = logger;
             _linkForwarderService = linkForwarderService;
             _tokenGenerator = tokenGenerator;

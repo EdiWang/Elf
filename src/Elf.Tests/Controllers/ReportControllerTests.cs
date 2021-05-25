@@ -17,27 +17,27 @@ namespace Elf.Tests.Controllers
     [ExcludeFromCodeCoverage]
     public class ReportControllerTests
     {
-        private MockRepository mockRepository;
+        private MockRepository _mockRepository;
 
-        private Mock<IOptions<AppSettings>> mockOptions;
-        private Mock<ILinkForwarderService> mockLinkForwarderService;
+        private Mock<IOptions<AppSettings>> _mockOptions;
+        private Mock<ILinkForwarderService> _mockLinkForwarderService;
 
         [SetUp]
         public void SetUp()
         {
-            mockRepository = new MockRepository(MockBehavior.Default);
+            _mockRepository = new(MockBehavior.Default);
 
-            mockOptions = mockRepository.Create<IOptions<AppSettings>>();
-            mockLinkForwarderService = mockRepository.Create<ILinkForwarderService>();
+            _mockOptions = _mockRepository.Create<IOptions<AppSettings>>();
+            _mockLinkForwarderService = _mockRepository.Create<ILinkForwarderService>();
         }
 
         private ReportController CreateReportController()
         {
-            mockOptions.Setup(p => p.Value).Returns(new AppSettings { TopClientTypes = 251 });
+            _mockOptions.Setup(p => p.Value).Returns(new AppSettings { TopClientTypes = 251 });
 
-            return new ReportController(
-                mockOptions.Object,
-                mockLinkForwarderService.Object);
+            return new(
+                _mockOptions.Object,
+                _mockLinkForwarderService.Object);
         }
 
         [Test]
@@ -47,23 +47,23 @@ namespace Elf.Tests.Controllers
 
             IReadOnlyList<RequestTrack> list = new List<RequestTrack>()
             {
-               new RequestTrack
+               new()
                {
                    FwToken = "996",
                    IpAddress = "007",
                    Note = "251",
-                   RequestTimeUtc = new DateTime(2000, 1, 1),
+                   RequestTimeUtc = new(2000, 1, 1),
                    UserAgent = "404"
                }
             };
-            mockLinkForwarderService.Setup(p => p.GetRecentRequests(It.IsAny<int>()))
+            _mockLinkForwarderService.Setup(p => p.GetRecentRequests(It.IsAny<int>()))
                 .Returns(Task.FromResult(list));
 
             var result = await reportController.RecentRequests();
             Assert.IsInstanceOf<OkObjectResult>(result);
             Assert.IsNotNull((result as OkObjectResult).Value);
 
-            mockRepository.VerifyAll();
+            _mockRepository.VerifyAll();
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace Elf.Tests.Controllers
 
             IReadOnlyList<MostRequestedLinkCount> list = new List<MostRequestedLinkCount>()
             {
-               new MostRequestedLinkCount
+               new()
                {
                    FwToken = "996",
                    Note = "251",
@@ -81,14 +81,14 @@ namespace Elf.Tests.Controllers
                }
             };
 
-            mockLinkForwarderService.Setup(p => p.GetMostRequestedLinkCount(It.IsAny<int>()))
+            _mockLinkForwarderService.Setup(p => p.GetMostRequestedLinkCount(It.IsAny<int>()))
                .Returns(Task.FromResult(list));
 
             var result = await reportController.MostRequestedLinksPastMonth();
             Assert.IsInstanceOf<OkObjectResult>(result);
             Assert.IsNotNull((result as OkObjectResult).Value);
 
-            mockRepository.VerifyAll();
+            _mockRepository.VerifyAll();
         }
 
         [Test]
@@ -98,21 +98,21 @@ namespace Elf.Tests.Controllers
 
             IReadOnlyList<ClientTypeCount> list = new List<ClientTypeCount>()
             {
-               new ClientTypeCount
+               new()
                {
                    ClientTypeName = "ICU",
                    Count = 996
                }
             };
 
-            mockLinkForwarderService.Setup(p => p.GetClientTypeCounts(It.IsAny<int>(), It.IsAny<int>()))
+            _mockLinkForwarderService.Setup(p => p.GetClientTypeCounts(It.IsAny<int>(), It.IsAny<int>()))
                .Returns(Task.FromResult(list));
 
             var result = await reportController.ClientTypePastMonth();
             Assert.IsInstanceOf<OkObjectResult>(result);
             Assert.IsNotNull((result as OkObjectResult).Value);
 
-            mockRepository.VerifyAll();
+            _mockRepository.VerifyAll();
         }
 
         [Test]
@@ -122,21 +122,21 @@ namespace Elf.Tests.Controllers
 
             IReadOnlyList<LinkTrackingDateCount> list = new List<LinkTrackingDateCount>()
             {
-               new LinkTrackingDateCount
+               new()
                {
                    RequestCount = 996,
                    TrackingDateUtc = DateTime.Now
                }
             };
 
-            mockLinkForwarderService.Setup(p => p.GetLinkTrackingDateCount(It.IsAny<int>()))
+            _mockLinkForwarderService.Setup(p => p.GetLinkTrackingDateCount(It.IsAny<int>()))
                .Returns(Task.FromResult(list));
 
             var result = await reportController.TrackingCountPastWeek();
             Assert.IsInstanceOf<OkObjectResult>(result);
             Assert.IsNotNull((result as OkObjectResult).Value);
 
-            this.mockRepository.VerifyAll();
+            this._mockRepository.VerifyAll();
         }
 
         [Test]
@@ -144,12 +144,12 @@ namespace Elf.Tests.Controllers
         {
             var reportController = CreateReportController();
 
-            mockLinkForwarderService.Setup(p => p.ClearTrackingDataAsync());
+            _mockLinkForwarderService.Setup(p => p.ClearTrackingDataAsync());
 
             var result = await reportController.ClearTrackingData();
             Assert.IsInstanceOf<OkResult>(result);
 
-            this.mockRepository.VerifyAll();
+            this._mockRepository.VerifyAll();
         }
     }
 }
