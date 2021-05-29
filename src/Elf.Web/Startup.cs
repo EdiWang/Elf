@@ -147,8 +147,7 @@ namespace Elf.Web
                         TenantId = context.GetTenant().Id
                     };
 
-                    var json = System.Text.Json.JsonSerializer.Serialize(obj);
-                    await context.Response.WriteAsync(json, Encoding.UTF8);
+                    await context.Response.WriteAsJsonAsync(obj);
                 });
             });
 
