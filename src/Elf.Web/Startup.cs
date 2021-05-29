@@ -8,7 +8,6 @@ using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Services.TokenGenerator;
 using Elf.Web.Authentication;
-using Elf.Web.Extensions;
 using Elf.Web.Middleware;
 using Elf.Web.Models;
 using LinqToDB.AspNet;
@@ -45,30 +44,26 @@ namespace Elf.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // Framework
+            services.AddOptions();
+            services.Configure<AppSettings>(Configuration.GetSection(nameof(AppSettings)));
             services.Configure<List<Tenant>>(Configuration.GetSection("Tenants"));
             services.AddMultiTenancy()
-                .WithResolutionStrategy<HostResolutionStrategy>()
-                .WithStore<AppSettingsTenantStore>();
-
+                    .WithResolutionStrategy<HostResolutionStrategy>()
+                    .WithStore<AppSettingsTenantStore>();
             services.AddFeatureManagement();
-            if (bool.Parse(Configuration["AppSettings:PreferAzureAppConfiguration"]))
-            {
-                services.AddAzureAppConfiguration();
-            }
-
-            services.AddRateLimit(Configuration.GetSection("IpRateLimiting"));
+            services.AddMemoryCache();
+            services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
+            services.AddInMemoryRateLimiting();
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+            services.AddControllersWithViews();
+            services.AddRazorPages();
 
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(20);
                 options.Cookie.HttpOnly = true;
             });
-
-            services.Configure<AppSettings>(Configuration.GetSection(nameof(AppSettings)));
-
-            var authentication = new AuthenticationSettings();
-            Configuration.Bind(nameof(Authentication), authentication);
-            services.AddElfAuthenticaton(authentication);
 
             services.AddAntiforgery(options =>
             {
@@ -78,16 +73,6 @@ namespace Elf.Web
                 options.HeaderName = "XSRF-TOKEN";
             });
 
-            services.AddScoped<IDbConnection>(_ => new SqlConnection(Configuration.GetConnectionString("ElfDatabase")));
-            services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
-            services.AddScoped<ILinkForwarderService, LinkForwarderService>();
-            services.AddScoped<ILinkVerifier, LinkVerifier>();
-
-            services.AddApplicationInsightsTelemetry();
-
-            services.AddControllersWithViews();
-            services.AddRazorPages();
-
             services.AddLinqToDbContext<AppDataConnection>((provider, options) =>
             {
                 SqlServerTools.Provider = SqlServerProvider.MicrosoftDataSqlClient;
@@ -96,13 +81,28 @@ namespace Elf.Web
                        .UseDefaultLogging(provider);
             });
 
+            // Azure
+            if (bool.Parse(Configuration["AppSettings:PreferAzureAppConfiguration"]))
+            {
+                services.AddAzureAppConfiguration();
+            }
+            services.AddApplicationInsightsTelemetry();
             services.AddAzureAppConfiguration();
+
+            // Elf
+            var authentication = new AuthenticationSettings();
+            Configuration.Bind(nameof(Authentication), authentication);
+
+            services.AddElfAuthenticaton(authentication);
+            services.AddScoped<IDbConnection>(_ => new SqlConnection(Configuration.GetConnectionString("ElfDatabase")));
+            services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
+            services.AddScoped<ILinkForwarderService, LinkForwarderService>();
+            services.AddScoped<ILinkVerifier, LinkVerifier>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger, TelemetryConfiguration configuration)
         {
             _logger = logger;
-
             app.UseMultiTenancy();
 
             if (!env.IsProduction())
@@ -115,7 +115,6 @@ namespace Elf.Web
 
             if (env.IsDevelopment())
             {
-                _logger.LogWarning("Elf is running in DEBUG.");
                 app.UseDeveloperExceptionPage();
             }
             else
