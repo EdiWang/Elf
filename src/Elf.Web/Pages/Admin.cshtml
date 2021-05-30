@@ -1,7 +1,8 @@
+@page "/admin"
 @model Elf.Web.Models.LinkEditModel
 
 @{
-    var showLinkUrlPrefix = $"{Context.Request.Scheme}://{Context.Request.Host}/fw/";
+    var showLinkUrlPrefix = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/fw/";
 }
 
 @section scripts{

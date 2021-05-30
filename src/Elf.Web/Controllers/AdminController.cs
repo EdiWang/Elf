@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 
 namespace Elf.Web.Controllers
@@ -28,7 +27,6 @@ namespace Elf.Web.Controllers
 
         public AdminController(
             ITenantAccessor<Tenant> tenantAccessor,
-            ILogger<AdminController> logger,
             ILinkForwarderService linkForwarderService,
             ILinkVerifier linkVerifier,
             IMemoryCache cache,
@@ -47,7 +45,7 @@ namespace Elf.Web.Controllers
         [AllowAnonymous]
         public IActionResult SignIn()
         {
-            var redirectUrl = Url.Action("Index", "Admin");
+            var redirectUrl = Url.Page("/Admin");
             return Challenge(
                 new AuthenticationProperties { RedirectUri = redirectUrl },
                 OpenIdConnectDefaults.AuthenticationScheme);
@@ -78,18 +76,6 @@ namespace Elf.Web.Controllers
         }
 
         #endregion
-
-        [Route("")]
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        [Route("report")]
-        public IActionResult Report()
-        {
-            return View();
-        }
 
         [HttpPost]
         [Route("list")]
@@ -143,7 +129,7 @@ namespace Elf.Web.Controllers
             return Json(response);
         }
 
-        [Route("get-edit-model/{id}")]
+        [Route("get-edit-model/{id:int}")]
         public async Task<IActionResult> GetEditModel(int id)
         {
             var link = await _linkForwarderService.GetLinkAsync(id);

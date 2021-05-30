@@ -55,8 +55,11 @@ namespace Elf.Web
             services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
             services.AddInMemoryRateLimiting();
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
-            services.AddControllersWithViews();
-            services.AddRazorPages();
+            services.AddControllers();
+            services.AddRazorPages().AddRazorPagesOptions(options =>
+            {
+                options.Conventions.AuthorizeFolder("/");
+            });
 
             services.AddSession(options =>
             {
@@ -161,9 +164,7 @@ namespace Elf.Web
                     await context.Response.WriteAsync("Access Denied");
                 });
 
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllers();
                 endpoints.MapRazorPages();
             });
         }
