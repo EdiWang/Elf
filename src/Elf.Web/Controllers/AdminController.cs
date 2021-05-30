@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Elf.MultiTenancy;
 using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Services.Models;
-using Elf.Web.Authentication;
 using Elf.Web.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -24,8 +20,6 @@ namespace Elf.Web.Controllers
     [Route("admin")]
     public class AdminController : Controller
     {
-        private readonly AuthenticationSettings _authenticationSettings;
-        private readonly ILogger<AdminController> _logger;
         private readonly ILinkForwarderService _linkForwarderService;
         private readonly ILinkVerifier _linkVerifier;
         private readonly IMemoryCache _cache;
@@ -41,104 +35,32 @@ namespace Elf.Web.Controllers
             IFeatureManager featureManager)
         {
             _tenant = tenantAccessor.Tenant;
-            _logger = logger;
             _linkForwarderService = linkForwarderService;
             _linkVerifier = linkVerifier;
             _cache = cache;
             _featureManager = featureManager;
-            _authenticationSettings = AppDomain.CurrentDomain.GetData(nameof(AuthenticationSettings)) as AuthenticationSettings;
         }
 
         #region Authentication
 
         [HttpGet("signin")]
         [AllowAnonymous]
-        public async Task<IActionResult> SignIn()
+        public IActionResult SignIn()
         {
-            switch (_authenticationSettings.Provider)
-            {
-                case AuthenticationProvider.AzureAD:
-                    {
-                        var redirectUrl = Url.Action("Index", "Admin");
-                        return Challenge(
-                            new AuthenticationProperties { RedirectUri = redirectUrl },
-                            OpenIdConnectDefaults.AuthenticationScheme);
-                    }
-                case AuthenticationProvider.Local:
-                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                    break;
-                case AuthenticationProvider.None:
-                    Response.StatusCode = StatusCodes.Status501NotImplemented;
-                    return Content("No AuthenticationProvider is set, please check system settings.");
-            }
-
-            return View();
-        }
-
-        [HttpPost("signin")]
-        [ValidateAntiForgeryToken]
-        [AllowAnonymous]
-        public async Task<IActionResult> SignIn(SignInViewModel model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    if (model.Username == _authenticationSettings.Local.Username &&
-                        model.Password == _authenticationSettings.Local.Password)
-                    {
-                        var claims = new List<Claim>
-                        {
-                            new(ClaimTypes.Name, model.Username),
-                            new(ClaimTypes.Role, "Administrator")
-                        };
-                        var ci = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                        var p = new ClaimsPrincipal(ci);
-                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, p);
-                        _logger.LogInformation($@"Authentication success for local account ""{model.Username}""");
-
-                        return RedirectToAction("Index");
-                    }
-                    ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
-                    return View(model);
-                }
-
-                _logger.LogWarning($@"Authentication failed for local account ""{model.Username}""");
-
-                Response.StatusCode = StatusCodes.Status400BadRequest;
-                ModelState.AddModelError(string.Empty, "Bad Request.");
-                return View(model);
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning($@"Authentication failed for local account ""{model.Username}""");
-
-                ModelState.AddModelError(string.Empty, e.Message);
-                return View(model);
-            }
+            var redirectUrl = Url.Action("Index", "Admin");
+            return Challenge(
+                new AuthenticationProperties { RedirectUri = redirectUrl },
+                OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         [HttpGet("signout")]
-        public async Task<IActionResult> SignOut(int nounce = 1055)
+        public IActionResult SignOut(int nounce = 1055)
         {
-            switch (_authenticationSettings.Provider)
-            {
-                case AuthenticationProvider.AzureAD:
-                    {
-                        var callbackUrl = Url.Action(nameof(SignedOut), "Admin", values: null, protocol: Request.Scheme);
-                        return SignOut(
-                            new AuthenticationProperties { RedirectUri = callbackUrl },
-                            CookieAuthenticationDefaults.AuthenticationScheme,
-                            OpenIdConnectDefaults.AuthenticationScheme);
-                    }
-                case AuthenticationProvider.Local:
-                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return Redirect("/");
+            var callbackUrl = Url.Action(nameof(SignedOut), "Admin", values: null, protocol: Request.Scheme);
+            return SignOut(
+                new AuthenticationProperties { RedirectUri = callbackUrl },
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         [HttpGet("signedout")]

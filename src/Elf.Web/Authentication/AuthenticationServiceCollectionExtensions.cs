@@ -8,43 +8,22 @@ namespace Elf.Web.Authentication
 {
     public static class AuthenticationServiceCollectionExtensions
     {
-        public static void AddElfAuthenticaton(this IServiceCollection services, AuthenticationSettings authenticationSettings)
+        public static void AddElfAuthenticaton(this IServiceCollection services, AzureAdOption aadOption)
         {
-            AppDomain.CurrentDomain.SetData(nameof(AuthenticationSettings), authenticationSettings);
-
-            switch (authenticationSettings.Provider)
+            services.Configure<AzureAdOption>(option =>
             {
-                case AuthenticationProvider.AzureAD:
-                    services.Configure<AzureAdOption>(option =>
-                    {
-                        option.CallbackPath = authenticationSettings.AzureAd.CallbackPath;
-                        option.ClientId = authenticationSettings.AzureAd.ClientId;
-                        option.Domain = authenticationSettings.AzureAd.Domain;
-                        option.Instance = authenticationSettings.AzureAd.Instance;
-                        option.TenantId = authenticationSettings.AzureAd.TenantId;
-                    }).AddSingleton<IConfigureOptions<OpenIdConnectOptions>, ConfigureAzureOptions>();
+                option.CallbackPath = aadOption.CallbackPath;
+                option.ClientId = aadOption.ClientId;
+                option.Domain = aadOption.Domain;
+                option.Instance = aadOption.Instance;
+                option.TenantId = aadOption.TenantId;
+            }).AddSingleton<IConfigureOptions<OpenIdConnectOptions>, ConfigureAzureOptions>();
 
-                    services.AddAuthentication(sharedOptions =>
-                    {
-                        sharedOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                        sharedOptions.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-                    }).AddOpenIdConnect().AddCookie();
-
-                    break;
-                case AuthenticationProvider.Local:
-                    services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-                            {
-                                options.AccessDeniedPath = "/accessdenied";
-                                options.LoginPath = "/admin/signin";
-                                options.LogoutPath = "/admin/signout";
-                            });
-
-                    break;
-                default:
-                    var msg = $"Provider {authenticationSettings.Provider} is not supported.";
-                    throw new NotSupportedException(msg);
-            }
+            services.AddAuthentication(sharedOptions =>
+            {
+                sharedOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                sharedOptions.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            }).AddOpenIdConnect().AddCookie();
         }
 
         private class ConfigureAzureOptions : IConfigureNamedOptions<OpenIdConnectOptions>

@@ -89,10 +89,10 @@ namespace Elf.Web
             services.AddAzureAppConfiguration();
 
             // Elf
-            var authentication = new AuthenticationSettings();
-            Configuration.Bind(nameof(Authentication), authentication);
+            var aadOption = new AzureAdOption();
+            Configuration.Bind("AzureAd", aadOption);
 
-            services.AddElfAuthenticaton(authentication);
+            services.AddElfAuthenticaton(aadOption);
             services.AddScoped<IDbConnection>(_ => new SqlConnection(Configuration.GetConnectionString("ElfDatabase")));
             services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
             services.AddScoped<ILinkForwarderService, LinkForwarderService>();

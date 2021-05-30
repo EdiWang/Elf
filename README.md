@@ -90,36 +90,15 @@ Example:
 
 Configure how to sign in to admin portal.
 
-#### Preferred: [Azure Active Directory]((https://azure.microsoft.com/en-us/services/active-directory/))
-
-Register an App in **Azure Active Directory**
-- Set Redirection URI to **"https://yourdomain/signin-oidc"**
-  - For local debugging, set URL to https://localhost:5001/signin-oidc
+Register an App in **[Azure Active Directory]((https://azure.microsoft.com/en-us/services/active-directory/))**
+- Set Redirection URI to `https://yourdomain/signin-oidc`
+  - For local debugging, set URL to `https://localhost:5001/signin-oidc`
 - Copy "**appId**" to set as **AzureAd:ClientId** in **appsettings.[env].json** file
 
 ```json
-"Authentication": {
-  "Provider": "AzureAD",
-  "AzureAd": {
-    "Domain": "{YOUR-VALUE}",
-    "TenantId": "{YOUR-VALUE}",
-    "ClientId": "{YOUR-VALUE}",
-  }
-}
-```
-
-#### Alternative: Local Account
-
-Set **Authentication:Provider** to **"Local"** and assign a pair of username and password. 
-
-*Currently password is not encrypted, use it at your own risk.*
-
-```json
-"Authentication": {
-  "Provider": "Local",
-  "Local": {
-    "Username": "{YOUR-VALUE}",
-    "Password": "{YOUR-VALUE}",
-  }
+"AzureAd": {
+  "Domain": "{YOUR-VALUE}",
+  "TenantId": "{YOUR-VALUE}",
+  "ClientId": "{YOUR-VALUE}",
 }
 ```
