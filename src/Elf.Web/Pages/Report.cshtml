@@ -202,22 +202,20 @@
 
 @Html.AntiForgeryToken()
 
-<button class="btn btn-danger" data-toggle="modal" data-target="#cleardataModal">Clear Tracking Data</button>
+<button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cleardataModal">Clear Tracking Data</button>
 
 <div class="modal fade" id="cleardataModal" tabindex="-1" role="dialog" aria-labelledby="cleardataModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="cleardataModalLabel">Clear Tracking Data</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 All tracking data will be cleared, are you sure?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-danger btn-restart btn-clear-data">Clear Data</button>
             </div>
         </div>
@@ -242,7 +240,7 @@
             <div class="card-body">
                 <h6>Client Type / Last month</h6>
                 <div class="clienttype-section mt-3">
-                    <canvas id="clienttype-canvas"></canvas>
+                    <canvas id="clienttype-canvas" class="pie-canvas"></canvas>
                 </div>
             </div>
         </div>
@@ -252,7 +250,7 @@
             <div class="card-body">
                 <h6>Most Requested Links / Last month</h6>
                 <div class="mostreqlinks-section mt-3">
-                    <canvas id="mostreqlinks-canvas"></canvas>
+                    <canvas id="mostreqlinks-canvas" class="pie-canvas"></canvas>
                 </div>
             </div>
         </div>
@@ -261,7 +259,7 @@
 
 <div class="card mt-4">
     <div class="card-body">
-        <button class="btn btn-sm btn-success btn-refresh float-right">Refresh</button>
+        <button class="btn btn-sm btn-success btn-refresh float-end">Refresh</button>
 
         <h6>
             Recent Requests

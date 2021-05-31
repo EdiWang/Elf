@@ -13,13 +13,12 @@
     <script src="~/js/jquery.min.js"></script>
     <script src="~/js/jquery.validate.min.js"></script>
     <script src="~/js/jquery.validate.unobtrusive.min.js"></script>
-    <script src="~/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/toastr.min.js"></script>
     <script src="~/js/jquery.dataTables.min.js"></script>
-    <script src="~/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/js/dataTables.min.js"></script>
+    <script src="~/js/toastr.min.js"></script>
     <link href="~/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/css/toastr.min.css" rel="stylesheet" />
-    <link href="~/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="~/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
     <link href="~/css/site.min.css" rel="stylesheet" />
     @await RenderSectionAsync("head", required: false)
     <environment include="Production">
@@ -33,7 +32,7 @@
                 <img src="~/images/logo.svg" height="24" width="24" />
                 Elf
             </span>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -59,12 +58,13 @@
         @RenderBody()
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer text-muted bg-light">
         <div class="small container-fluid">
             <a href="https://github.com/EdiWang/Elf" target="_blank">Elf</a> Version @Utils.AppVersion, .NET @Environment.Version
         </div>
     </footer>
 
+    <script src="~/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.min.js"></script>
     @await RenderSectionAsync("scripts", required: false)
 </body>
