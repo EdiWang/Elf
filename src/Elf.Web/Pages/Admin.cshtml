@@ -95,7 +95,7 @@
 
             $(".btn-refresh").click(function () {
                 table.ajax.reload();
-                toastr.success("Data Refreshed");
+                elfToast.success("Data Refreshed");
             });
 
             $('.table-links tbody').on('click', 'button', function () {
@@ -131,11 +131,11 @@
                         function (data) {
                             $("#edit-form")[0].reset();
                             $("#editLinkModal").modal('hide');
-                            toastr.success(`Operation succeed, link token: ${data}`);
+                            elfToast.success(`Operation succeed, link token: ${data}`);
                             showLink(data);
 
                             table.ajax.reload();
-                            toastr.success("Data Refreshed");
+                            elfToast.success("Data Refreshed");
                         });
 
                     editLinkCanvas.hide();

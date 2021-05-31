@@ -15,9 +15,7 @@
     <script src="~/js/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/js/jquery.dataTables.min.js"></script>
     <script src="~/js/dataTables.min.js"></script>
-    <script src="~/js/toastr.min.js"></script>
     <link href="~/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="~/css/toastr.min.css" rel="stylesheet" />
     <link href="~/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
     <link href="~/css/site.min.css" rel="stylesheet" />
     @await RenderSectionAsync("head", required: false)
@@ -64,6 +62,16 @@
         </div>
     </footer>
 
+    <div class="toast-container position-fixed p-5 bottom-0 start-50 translate-middle-x" id="toastPlacement" style="z-index: 996">
+        <div id="liveToast" class="toast hide align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="blogtoast-message">
+
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
     <script src="~/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.min.js"></script>
     @await RenderSectionAsync("scripts", required: false)
