@@ -86,3 +86,10 @@ html {
     max-height: 400px;
     max-width: 400px;
 }
+
+#input-link-url {
+    font-size: .875em;
+    color: #d63384;
+    word-wrap: break-word;
+    font-family: var(--bs-font-monospace);
+}

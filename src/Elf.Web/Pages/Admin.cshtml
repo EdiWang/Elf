@@ -107,57 +107,13 @@
                     $(this).parents('tr').hide();
                 }
             });
-
-            $(".btn-submit").click(function() {
-                if ($("#edit-form").valid()) {
-                    var action = '';
-                    var linkId = $("#input-id").val();
-                    if (linkId == 0) {
-                        action = "create";
-                    }
-                    else {
-                        action = "edit";
-                    }
-
-                    ajaxPostWithCSRFToken(`/admin/${action}`,
-                        {
-                            "Id": $("#input-id").val(),
-                            "OriginUrl": $("#OriginUrl").val(),
-                            "Note": $("#Note").val(),
-                            "AkaName": $("#AkaName").val(),
-                            "TTL": $("#TTL").val(),
-                            "IsEnabled": $("#check-is-enabled").is(":checked")
-                        },
-                        function (data) {
-                            $("#edit-form")[0].reset();
-                            $("#editLinkModal").modal('hide');
-                            elfToast.success(`Operation succeed, link token: ${data}`);
-                            showLink(data);
-
-                            table.ajax.reload();
-                            elfToast.success("Data Refreshed");
-                        });
-
-                    editLinkCanvas.hide();
-                }
-            });
         });
-
-        function copyUrl(url) {
-            const el = document.createElement('textarea');
-            el.value = url;
-            document.body.appendChild(el);
-            el.select();
-            el.setSelectionRange(0, 99999); /*For mobile devices*/
-            document.execCommand('copy');
-            document.body.removeChild(el);
-        }
 
         function showLink(token) {
             var url = `@showLinkUrlPrefix${token}`;
             $(".qrcode").empty();
             $(".qrcode").qrcode(url);
-            $("#share-link-url").html(url);
+            $("#input-link-url").val(url);
             shareLinkCanvas.show();
         }
 
@@ -173,9 +129,15 @@
             });
         }
 
+        function deleteLink(linkId) {
+            ajaxPostWithCSRFToken('/admin/delete', { linkId: linkId }, function (data) {
+                elfToast.success("Link deleted.");
+            });
+        }
+
         $(".btn-copy").click(function () {
-            var link = $("#share-link-url").html();
-            copyUrl(link);
+            $("#input-link-url").select();
+            document.execCommand('copy');
         });
 
         $(".btn-create-link").click(function () {
@@ -183,6 +145,40 @@
             $("#input-id").val(0);
             $("#TTL").val(3600);
             editLinkCanvas.show();
+        });
+
+        $(".btn-submit").click(function() {
+            if ($("#edit-form").valid()) {
+                var action = '';
+                var linkId = $("#input-id").val();
+                if (linkId == 0) {
+                    action = "create";
+                }
+                else {
+                    action = "edit";
+                }
+
+                ajaxPostWithCSRFToken(`/admin/${action}`,
+                    {
+                        "Id": $("#input-id").val(),
+                        "OriginUrl": $("#OriginUrl").val(),
+                        "Note": $("#Note").val(),
+                        "AkaName": $("#AkaName").val(),
+                        "TTL": $("#TTL").val(),
+                        "IsEnabled": $("#check-is-enabled").is(":checked")
+                    },
+                    function (data) {
+                        $("#edit-form")[0].reset();
+                        $("#editLinkModal").modal('hide');
+                        elfToast.success(`Operation succeed, link token: ${data}`);
+                        showLink(data);
+
+                        table.ajax.reload();
+                        elfToast.success("Data Refreshed");
+                    });
+
+                editLinkCanvas.hide();
+            }
         });
     </script>
 }
@@ -260,7 +256,7 @@
         <section class="qrcode mt-3 text-center align-content-center"></section>
         <div class="text-center">
             <div class="mb-2">
-                <code id="share-link-url"></code>
+                <input type="text" id="input-link-url" class="form-control form-control-sm form-control-plaintext text-center" />
             </div>
             <button class="btn btn-sm btn-outline-success btn-copy">Copy link</button>
         </div>

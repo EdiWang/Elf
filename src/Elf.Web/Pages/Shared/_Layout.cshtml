@@ -10,15 +10,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Elf</title>
+    <link href="~/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <environment exclude="Production">
+        <link href="~/css/site.css" rel="stylesheet" />
+    </environment>
+    <environment include="Production">
+        <link href="~/css/site.min.css" rel="stylesheet" asp-append-version="true" />
+    </environment>
     <script src="~/js/jquery.min.js"></script>
     <script src="~/js/jquery.validate.min.js"></script>
     <script src="~/js/jquery.validate.unobtrusive.min.js"></script>
-    <script src="~/js/jquery.dataTables.min.js"></script>
     <script src="~/js/dataTables.min.js"></script>
-    <link href="~/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="~/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
-    <link href="~/css/site.min.css" rel="stylesheet" />
-    @await RenderSectionAsync("head", required: false)
     <environment include="Production">
         @Html.Raw(_javaScriptSnippet.FullScript)
     </environment>
@@ -73,7 +76,12 @@
         </div>
     </div>
     <script src="~/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.min.js"></script>
+    <environment exclude="Production">
+        <script src="~/js/site.js"></script>
+    </environment>
+    <environment include="Production">
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+    </environment>
     @await RenderSectionAsync("scripts", required: false)
 </body>
 </html>

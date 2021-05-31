@@ -14,10 +14,15 @@ function ajaxPostWithCSRFToken(url, pData, funcSuccess) {
     $.ajax(options);
 }
 
-function deleteLink(linkId) {
-    ajaxPostWithCSRFToken('/admin/delete', { linkId: linkId }, function (data) {
-        elfToast.success("Link deleted.");
-    });
+
+function copyUrl(url) {
+    const el = document.createElement('textarea');
+    el.value = url;
+    document.body.appendChild(el);
+    el.select();
+    el.setSelectionRange(0, 99999); /*For mobile devices*/
+    document.execCommand('copy');
+    document.body.removeChild(el);
 }
 
 var bsToast = new bootstrap.Toast(document.getElementById('liveToast'));
