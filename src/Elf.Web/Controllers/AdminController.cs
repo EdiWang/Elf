@@ -72,7 +72,7 @@ namespace Elf.Web.Controllers
         [HttpGet("accessdenied")]
         public IActionResult AccessDenied()
         {
-            return StatusCode(StatusCodes.Status403Forbidden);
+            return Forbid();
         }
 
         #endregion
@@ -178,19 +178,6 @@ namespace Elf.Web.Controllers
             var token = await _linkForwarderService.EditLinkAsync(editRequest);
             if (token is not null) _cache.Remove(token);
             return Json(token);
-        }
-
-        [Route("delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteLink(int linkId)
-        {
-            var link = await _linkForwarderService.GetLinkAsync(linkId);
-            if (link is null) return BadRequest();
-
-            await _linkForwarderService.DeleteLink(linkId);
-
-            _cache.Remove(link);
-            return Content(linkId.ToString());
         }
     }
 }

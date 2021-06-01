@@ -18,6 +18,7 @@ using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,6 +57,12 @@ namespace Elf.Web
             services.AddInMemoryRateLimiting();
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
             services.AddControllers();
+            services.Configure<RouteOptions>(options =>
+            {
+                options.LowercaseUrls = true;
+                options.LowercaseQueryStrings = true;
+                options.AppendTrailingSlash = false;
+            });
             services.AddRazorPages().AddRazorPagesOptions(options =>
             {
                 options.Conventions.AuthorizeFolder("/");

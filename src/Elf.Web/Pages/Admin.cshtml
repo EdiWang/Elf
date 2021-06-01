@@ -130,9 +130,10 @@
         }
 
         function deleteLink(linkId) {
-            ajaxPostWithCSRFToken('/admin/delete', { linkId: linkId }, function (data) {
-                elfToast.success("Link deleted.");
-            });
+            callApi(`/api/link/${linkId}`, 'DELETE', {},
+                (resp) => {
+                    elfToast.success("Link deleted.");
+                });
         }
 
         $(".btn-copy").click(function () {

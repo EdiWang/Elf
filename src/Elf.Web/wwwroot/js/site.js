@@ -14,6 +14,34 @@ function ajaxPostWithCSRFToken(url, pData, funcSuccess) {
     $.ajax(options);
 }
 
+function callApi(uri, method, request, funcSuccess, funcAlways) {
+    const csrfValue = $(`input[name=${csrfFieldName}]`).val();
+    fetch(uri, {
+        method: method,
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'XSRF-TOKEN': csrfValue
+        },
+        credentials: 'include',
+        body: method === 'GET' ? null : JSON.stringify(request)
+    }).then(async (response) => {
+        if (!response.ok) {
+            await handleHttpError(response);
+        } else {
+            if (funcSuccess) {
+                funcSuccess(response);
+            }
+        }
+    }).then(response => {
+        if (funcAlways) {
+            funcAlways(response);
+        }
+    }).catch(err => {
+        elfToast.error(err);
+        console.error(err);
+    });
+}
 
 function copyUrl(url) {
     const el = document.createElement('textarea');
