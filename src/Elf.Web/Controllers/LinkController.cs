@@ -4,6 +4,7 @@ using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Services.Models;
 using Elf.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -11,6 +12,7 @@ using Microsoft.FeatureManagement;
 
 namespace Elf.Web.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class LinkController : ControllerBase
