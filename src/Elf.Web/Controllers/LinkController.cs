@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Elf.Services;
+using Elf.Services.Entities;
 using Elf.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -20,6 +21,25 @@ namespace Elf.Web.Controllers
         {
             _linkForwarderService = linkForwarderService;
             _cache = cache;
+        }
+
+        [HttpPost]
+        [Route("list")]
+        public async Task<IActionResult> List([FromForm] DataTableRequest model)
+        {
+            var searchBy = model.Search?.Value;
+            var take = model.Length;
+            var offset = model.Start;
+
+            var links = await _linkForwarderService.GetPagedLinksAsync(offset, take, searchBy);
+            var jqdtResponse = new JqDataTableResponse<Link>
+            {
+                Draw = model.Draw,
+                RecordsFiltered = links.TotalRows,
+                RecordsTotal = links.TotalRows,
+                Data = links.Links
+            };
+            return Ok(jqdtResponse);
         }
 
         [HttpGet("{id:int}")]

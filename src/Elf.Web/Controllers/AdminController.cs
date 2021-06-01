@@ -78,25 +78,6 @@ namespace Elf.Web.Controllers
         #endregion
 
         [HttpPost]
-        [Route("list")]
-        public async Task<IActionResult> List(DataTableRequest model)
-        {
-            var searchBy = model.Search?.Value;
-            var take = model.Length;
-            var offset = model.Start;
-
-            var links = await _linkForwarderService.GetPagedLinksAsync(offset, take, searchBy);
-            var jqdtResponse = new JqDataTableResponse<Link>
-            {
-                Draw = model.Draw,
-                RecordsFiltered = links.TotalRows,
-                RecordsTotal = links.TotalRows,
-                Data = links.Links
-            };
-            return Json(jqdtResponse);
-        }
-
-        [HttpPost]
         [Route("create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(LinkEditModel model)
