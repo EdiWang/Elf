@@ -118,15 +118,17 @@
         }
 
         function editLink(linkId) {
-            $.get(`/admin/get-edit-model/${linkId}`, function(data) {
-                $("#input-id").val(data.id);
-                $("#OriginUrl").val(data.originUrl);
-                $("#Note").val(data.note);
-                $("#AkaName").val(data.akaName);
-                $("#TTL").val(data.ttl);
-                $("#check-is-enabled").attr('checked', data.isEnabled);
-                editLinkCanvas.show();
-            });
+            callApi(`/api/link/${linkId}`, 'GET', {},
+                async (resp) => {
+                    var data = await resp.json();
+                    $("#input-id").val(data.id);
+                    $("#OriginUrl").val(data.originUrl);
+                    $("#Note").val(data.note);
+                    $("#AkaName").val(data.akaName);
+                    $("#TTL").val(data.ttl);
+                    $("#check-is-enabled").attr('checked', data.isEnabled);
+                    editLinkCanvas.show();
+                });
         }
 
         function deleteLink(linkId) {

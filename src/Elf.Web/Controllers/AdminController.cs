@@ -129,25 +129,6 @@ namespace Elf.Web.Controllers
             return Json(response);
         }
 
-        [Route("get-edit-model/{id:int}")]
-        public async Task<IActionResult> GetEditModel(int id)
-        {
-            var link = await _linkForwarderService.GetLinkAsync(id);
-            if (link is null) return NotFound();
-
-            var model = new LinkEditModel
-            {
-                Id = link.Id,
-                Note = link.Note,
-                AkaName = link.AkaName,
-                OriginUrl = link.OriginUrl,
-                IsEnabled = link.IsEnabled,
-                TTL = link.TTL ?? 0
-            };
-
-            return Json(model);
-        }
-
         [HttpPost("edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(LinkEditModel model)
