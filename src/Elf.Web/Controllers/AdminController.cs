@@ -1,17 +1,8 @@
-﻿using System.Threading.Tasks;
-using Elf.MultiTenancy;
-using Elf.Services;
-using Elf.Services.Entities;
-using Elf.Services.Models;
-using Elf.Web.Models;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.FeatureManagement;
 
 namespace Elf.Web.Controllers
 {
@@ -19,28 +10,6 @@ namespace Elf.Web.Controllers
     [Route("admin")]
     public class AdminController : Controller
     {
-        private readonly ILinkForwarderService _linkForwarderService;
-        private readonly ILinkVerifier _linkVerifier;
-        private readonly IMemoryCache _cache;
-        private readonly IFeatureManager _featureManager;
-        private readonly Tenant _tenant;
-
-        public AdminController(
-            ITenantAccessor<Tenant> tenantAccessor,
-            ILinkForwarderService linkForwarderService,
-            ILinkVerifier linkVerifier,
-            IMemoryCache cache,
-            IFeatureManager featureManager)
-        {
-            _tenant = tenantAccessor.Tenant;
-            _linkForwarderService = linkForwarderService;
-            _linkVerifier = linkVerifier;
-            _cache = cache;
-            _featureManager = featureManager;
-        }
-
-        #region Authentication
-
         [HttpGet("signin")]
         [AllowAnonymous]
         public IActionResult SignIn()
@@ -73,73 +42,6 @@ namespace Elf.Web.Controllers
         public IActionResult AccessDenied()
         {
             return Forbid();
-        }
-
-        #endregion
-
-        [HttpPost]
-        [Route("create")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(LinkEditModel model)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var flag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
-            var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, flag);
-            switch (verifyResult)
-            {
-                case LinkVerifyResult.InvalidFormat:
-                    return BadRequest("Not a valid URL.");
-                case LinkVerifyResult.InvalidLocal:
-                    return BadRequest("Can not use local URL.");
-                case LinkVerifyResult.InvalidSelfReference:
-                    return BadRequest("Can not use url pointing to this site.");
-            }
-
-            var createLinkRequest = new CreateLinkRequest
-            {
-                OriginUrl = model.OriginUrl,
-                Note = model.Note,
-                AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
-                IsEnabled = model.IsEnabled,
-                TTL = model.TTL,
-                TenantId = _tenant.Id
-            };
-
-            var response = await _linkForwarderService.CreateLinkAsync(createLinkRequest);
-            return Json(response);
-        }
-
-        [HttpPost("edit")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(LinkEditModel model)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var flag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
-            var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, flag);
-            switch (verifyResult)
-            {
-                case LinkVerifyResult.InvalidFormat:
-                    return BadRequest("Not a valid URL.");
-                case LinkVerifyResult.InvalidLocal:
-                    return BadRequest("Can not use local URL.");
-                case LinkVerifyResult.InvalidSelfReference:
-                    return BadRequest("Can not use url pointing to this site.");
-            }
-
-            var editRequest = new EditLinkRequest(model.Id)
-            {
-                NewUrl = model.OriginUrl,
-                Note = model.Note,
-                AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
-                IsEnabled = model.IsEnabled,
-                TTL = model.TTL
-            };
-
-            var token = await _linkForwarderService.EditLinkAsync(editRequest);
-            if (token is not null) _cache.Remove(token);
-            return Json(token);
         }
     }
 }

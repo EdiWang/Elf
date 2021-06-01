@@ -10,9 +10,9 @@
     <script>
         var shareLinkCanvas = new bootstrap.Offcanvas(document.getElementById('shareLinkCanvas'));
         var editLinkCanvas = new bootstrap.Offcanvas(document.getElementById('editLinkCanvas'));
+        var linkId = 0;
 
-        $(function () {
-            var table = $(".table-links").DataTable({
+        var table = $(".table-links").DataTable({
                 "order": [[4, "desc"]],
                 "pageLength": 15,
                 "lengthMenu": [10, 15, 20, 30, 50, 100],
@@ -93,20 +93,19 @@
                     }]
             });
 
-            $(".btn-refresh").click(function () {
-                table.ajax.reload();
-                elfToast.success("Data Refreshed");
-            });
+        $(".btn-refresh").click(function () {
+            table.ajax.reload();
+            elfToast.success("Data Refreshed");
+        });
 
-            $('.table-links tbody').on('click', 'button', function () {
-                var data = table.row($(this).parents('tr')).data();
-                console.info(data);
-                var cfm = confirm("Delete Confirmation?");
-                if (cfm) {
-                    deleteLink(data.id);
-                    $(this).parents('tr').hide();
-                }
-            });
+        $('.table-links tbody').on('click', 'button', function () {
+            var data = table.row($(this).parents('tr')).data();
+            console.info(data);
+            var cfm = confirm("Delete Confirmation?");
+            if (cfm) {
+                deleteLink(data.id);
+                $(this).parents('tr').hide();
+            }
         });
 
         function showLink(token) {
@@ -117,11 +116,11 @@
             shareLinkCanvas.show();
         }
 
-        function editLink(linkId) {
-            callApi(`/api/link/${linkId}`, 'GET', {},
+        function editLink(id) {
+            callApi(`/api/link/${id}`, 'GET', {},
                 async (resp) => {
                     var data = await resp.json();
-                    $("#input-id").val(data.id);
+                    linkId = data.id;
                     $("#OriginUrl").val(data.originUrl);
                     $("#Note").val(data.note);
                     $("#AkaName").val(data.akaName);
@@ -145,32 +144,36 @@
 
         $(".btn-create-link").click(function () {
             $("#edit-form")[0].reset();
-            $("#input-id").val(0);
+            linkId = 0;
             $("#TTL").val(3600);
             editLinkCanvas.show();
         });
 
         $(".btn-submit").click(function() {
             if ($("#edit-form").valid()) {
-                var action = '';
-                var linkId = $("#input-id").val();
+                var apiAddress = '';
+                var verb = '';
+
                 if (linkId == 0) {
-                    action = "create";
+                    apiAddress = '/api/link/create';
+                    verb = 'POST';
                 }
                 else {
-                    action = "edit";
+                    apiAddress = `/api/link/${linkId}`;
+                    verb = 'PUT';
                 }
 
-                ajaxPostWithCSRFToken(`/admin/${action}`,
+                callApi(apiAddress, verb,
                     {
-                        "Id": $("#input-id").val(),
                         "OriginUrl": $("#OriginUrl").val(),
                         "Note": $("#Note").val(),
                         "AkaName": $("#AkaName").val(),
                         "TTL": $("#TTL").val(),
                         "IsEnabled": $("#check-is-enabled").is(":checked")
                     },
-                    function (data) {
+                    async (resp) => {
+                        var data = await resp.json();
+
                         $("#edit-form")[0].reset();
                         $("#editLinkModal").modal('hide');
                         elfToast.success(`Operation succeed, link token: ${data}`);

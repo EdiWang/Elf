@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Elf.Web.Models
 {
     public class LinkEditModel
     {
-        [HiddenInput]
         public int Id { get; set; }
 
         [Required]
