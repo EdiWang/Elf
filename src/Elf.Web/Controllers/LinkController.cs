@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Web.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -25,6 +26,7 @@ namespace Elf.Web.Controllers
 
         [HttpPost]
         [Route("list")]
+        [ProducesResponseType(typeof(JqDataTableResponse<Link>), StatusCodes.Status200OK)]
         public async Task<IActionResult> List([FromForm] DataTableRequest model)
         {
             var searchBy = model.Search?.Value;
@@ -43,6 +45,7 @@ namespace Elf.Web.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(LinkEditModel), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get(int id)
         {
             var link = await _linkForwarderService.GetLinkAsync(id);
@@ -63,6 +66,7 @@ namespace Elf.Web.Controllers
 
         [HttpDelete("{linkId:int}")]
         [ValidateAntiForgeryToken]
+        [ProducesResponseType(typeof(LinkEditModel), StatusCodes.Status200OK)]
         public async Task<IActionResult> Delete(int linkId)
         {
             var link = await _linkForwarderService.GetLinkAsync(linkId);
@@ -71,7 +75,7 @@ namespace Elf.Web.Controllers
             await _linkForwarderService.DeleteLink(linkId);
 
             _cache.Remove(link);
-            return Content(linkId.ToString());
+            return Ok();
         }
     }
 }
