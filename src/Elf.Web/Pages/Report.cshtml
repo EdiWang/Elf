@@ -1,4 +1,4 @@
-﻿@page "/report"
+﻿@page "/admin/report"
 @section scripts{
     <script src="~/js/Chart.min.js"></script>
     <script src="~/js/jquery.dateFormat.min.js"></script>
@@ -15,9 +15,11 @@
         });
 
         function tryClearTrackingData() {
-            ajaxPostWithCSRFToken("/api/report/clear-tracking-data", {}, function () {
-                location.href = "/admin/report";
-            });
+            callApi(`/api/report/clear-tracking-data`, 'POST', {},
+                async (resp) => {
+                    location.href = "/admin/report";
+                });
+
             $(".btn-clear-data").text("Wait...");
             $(".btn-clear-data").addClass("disabled");
             $(".btn-clear-data").attr("disabled", "disabled");
