@@ -6,11 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Elf.Web.Controllers
 {
-    [Authorize]
-    [Route("admin")]
-    public class AdminController : Controller
+    public class AuthController : ControllerBase
     {
-        [HttpGet("signin")]
+        [HttpGet]
         [AllowAnonymous]
         public IActionResult SignIn()
         {
@@ -20,28 +18,21 @@ namespace Elf.Web.Controllers
                 OpenIdConnectDefaults.AuthenticationScheme);
         }
 
-        [HttpGet("signout")]
+        [HttpGet]
         public IActionResult SignOut(int nounce = 1055)
         {
-            var callbackUrl = Url.Action(nameof(SignedOut), "Admin", values: null, protocol: Request.Scheme);
+            var callbackUrl = Url.Action(nameof(SignedOut), "Auth", values: null, protocol: Request.Scheme);
             return SignOut(
                 new AuthenticationProperties { RedirectUri = callbackUrl },
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 OpenIdConnectDefaults.AuthenticationScheme);
         }
 
-        [HttpGet("signedout")]
+        [HttpGet]
         [AllowAnonymous]
         public IActionResult SignedOut()
         {
             return Redirect("/");
-        }
-
-        [AllowAnonymous]
-        [HttpGet("accessdenied")]
-        public IActionResult AccessDenied()
-        {
-            return Forbid();
         }
     }
 }
