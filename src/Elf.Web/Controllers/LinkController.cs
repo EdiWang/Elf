@@ -27,7 +27,7 @@ namespace Elf.Web.Controllers
             ITenantAccessor<Tenant> tenantAccessor,
             ILinkForwarderService linkForwarderService,
             ILinkVerifier linkVerifier,
-            IMemoryCache cache, 
+            IMemoryCache cache,
             IFeatureManager featureManager)
         {
             _linkForwarderService = linkForwarderService;
