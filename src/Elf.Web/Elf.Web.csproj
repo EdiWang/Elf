@@ -13,13 +13,13 @@
   <ItemGroup>
     <PackageReference Include="AspNetCoreRateLimit" Version="4.0.0" />
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
-    <PackageReference Include="linq2db.AspNet" Version="3.3.0" />
+    <PackageReference Include="linq2db.AspNet" Version="3.4.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.17.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.7" />
     <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="4.4.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.3" />
-    <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="5.0.6" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="5.0.7" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="2.3.0" />
   </ItemGroup>
 
