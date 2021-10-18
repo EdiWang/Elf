@@ -1,8 +1,7 @@
-﻿namespace Elf.Services.Models
+﻿namespace Elf.Services.Models;
+
+internal class UserAgentCount
 {
-    internal class UserAgentCount
-    {
-        public string UserAgent { get; set; }
-        public int RequestCount { get; set; }
-    }
+    public string UserAgent { get; set; }
+    public int RequestCount { get; set; }
 }

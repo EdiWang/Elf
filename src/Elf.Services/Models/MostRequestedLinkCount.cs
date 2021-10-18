@@ -1,9 +1,9 @@
-﻿namespace Elf.Services.Models
+﻿namespace Elf.Services.Models;
+
+public class MostRequestedLinkCount
 {
-    public class MostRequestedLinkCount
-    {
-        public string FwToken { get; set; }
-        public string Note { get; set; }
-        public int RequestCount { get; set; }
-    }
+    public string FwToken { get; set; }
+    public string Note { get; set; }
+    public int RequestCount { get; set; }
 }
+

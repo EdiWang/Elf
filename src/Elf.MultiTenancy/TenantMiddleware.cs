@@ -1,34 +1,32 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
-namespace Elf.MultiTenancy
+namespace Elf.MultiTenancy;
+
+public class Constants
 {
-    public class Constants
+    public static string HttpContextTenantKey => "Tenant";
+}
+
+public class TenantMiddleware<T> where T : Tenant
+{
+    private readonly RequestDelegate _next;
+
+    public TenantMiddleware(RequestDelegate next)
     {
-        public static string HttpContextTenantKey => "Tenant";
+        _next = next;
     }
 
-    public class TenantMiddleware<T> where T : Tenant
+    public async Task Invoke(HttpContext context)
     {
-        private readonly RequestDelegate _next;
-
-        public TenantMiddleware(RequestDelegate next)
+        if (!context.Items.ContainsKey(Constants.HttpContextTenantKey))
         {
-            _next = next;
-        }
-
-        public async Task Invoke(HttpContext context)
-        {
-            if (!context.Items.ContainsKey(Constants.HttpContextTenantKey))
+            if (context.RequestServices.GetService(typeof(TenantAccessService<T>)) is TenantAccessService<T> tenantService)
             {
-                if (context.RequestServices.GetService(typeof(TenantAccessService<T>)) is TenantAccessService<T> tenantService)
-                {
-                    context.Items.Add(Constants.HttpContextTenantKey, await tenantService.GetTenantAsync());
-                }
+                context.Items.Add(Constants.HttpContextTenantKey, await tenantService.GetTenantAsync());
             }
-
-            //Continue processing
-            if (_next != null) await _next(context);
         }
+
+        //Continue processing
+        if (_next != null) await _next(context);
     }
 }

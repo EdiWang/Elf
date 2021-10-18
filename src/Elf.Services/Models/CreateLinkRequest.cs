@@ -1,19 +1,17 @@
-﻿using System;
+﻿namespace Elf.Services.Models;
 
-namespace Elf.Services.Models
+public class CreateLinkRequest
 {
-    public class CreateLinkRequest
-    {
-        public string OriginUrl { get; set; }
+    public string OriginUrl { get; set; }
 
-        public string Note { get; set; }
+    public string Note { get; set; }
 
-        public string AkaName { get; set; }
+    public string AkaName { get; set; }
 
-        public bool IsEnabled { get; set; }
+    public bool IsEnabled { get; set; }
 
-        public int TTL { get; set; }
+    public int TTL { get; set; }
 
-        public Guid TenantId { get; set; }
-    }
+    public Guid TenantId { get; set; }
 }
+

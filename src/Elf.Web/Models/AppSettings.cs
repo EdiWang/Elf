@@ -1,13 +1,12 @@
-﻿namespace Elf.Web.Models
-{
-    public class AppSettings
-    {
-        public int TopClientTypes { get; set; }
-    }
+﻿namespace Elf.Web.Models;
 
-    public enum FeatureFlags
-    {
-        HonorDNT,
-        AllowSelfRedirection
-    }
+public class AppSettings
+{
+    public int TopClientTypes { get; set; }
+}
+
+public enum FeatureFlags
+{
+    HonorDNT,
+    AllowSelfRedirection
 }

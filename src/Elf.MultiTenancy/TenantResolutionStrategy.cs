@@ -1,32 +1,30 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
-namespace Elf.MultiTenancy
+namespace Elf.MultiTenancy;
+
+public interface ITenantResolutionStrategy
 {
-    public interface ITenantResolutionStrategy
+    Task<string> GetTenantIdentifierAsync();
+}
+
+/// <summary>
+/// Resolve the host to a tenant identifier
+/// </summary>
+public class HostResolutionStrategy : ITenantResolutionStrategy
+{
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public HostResolutionStrategy(IHttpContextAccessor httpContextAccessor)
     {
-        Task<string> GetTenantIdentifierAsync();
+        _httpContextAccessor = httpContextAccessor;
     }
 
     /// <summary>
-    /// Resolve the host to a tenant identifier
+    /// Get the tenant identifier
     /// </summary>
-    public class HostResolutionStrategy : ITenantResolutionStrategy
+    /// <returns></returns>
+    public async Task<string> GetTenantIdentifierAsync()
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public HostResolutionStrategy(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
-
-        /// <summary>
-        /// Get the tenant identifier
-        /// </summary>
-        /// <returns></returns>
-        public async Task<string> GetTenantIdentifierAsync()
-        {
-            return await Task.FromResult(_httpContextAccessor.HttpContext.Request.Host.Host);
-        }
+        return await Task.FromResult(_httpContextAccessor.HttpContext.Request.Host.Host);
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace Elf.Services.TokenGenerator
-{
-    public interface ITokenGenerator
-    {
-        string GenerateToken();
+﻿namespace Elf.Services.TokenGenerator;
 
-        bool TryParseToken(string input, out string token);
-    }
+public interface ITokenGenerator
+{
+    string GenerateToken();
+
+    bool TryParseToken(string input, out string token);
 }

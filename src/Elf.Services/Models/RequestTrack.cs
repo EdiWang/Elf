@@ -1,17 +1,14 @@
-﻿using System;
+﻿namespace Elf.Services.Models;
 
-namespace Elf.Services.Models
+public class RequestTrack
 {
-    public class RequestTrack
-    {
-        public string FwToken { get; set; }
+    public string FwToken { get; set; }
 
-        public string Note { get; set; }
+    public string Note { get; set; }
 
-        public string UserAgent { get; set; }
+    public string UserAgent { get; set; }
 
-        public string IpAddress { get; set; }
+    public string IpAddress { get; set; }
 
-        public DateTime RequestTimeUtc { get; set; }
-    }
+    public DateTime RequestTimeUtc { get; set; }
 }

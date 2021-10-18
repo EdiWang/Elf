@@ -1,28 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace Elf.MultiTenancy;
 
-namespace Elf.MultiTenancy
+/// <summary>
+/// Tenant information
+/// </summary>
+public class Tenant
 {
     /// <summary>
-    /// Tenant information
+    /// The tenant Id
     /// </summary>
-    public class Tenant
-    {
-        /// <summary>
-        /// The tenant Id
-        /// </summary>
-        public Guid Id { get; set; }
+    public Guid Id { get; set; }
 
-        /// <summary>
-        /// The tenant identifier
-        /// </summary>
-        public string Identifier { get; set; }
+    /// <summary>
+    /// The tenant identifier
+    /// </summary>
+    public string Identifier { get; set; }
 
-        public bool IsDefault { get; set; }
+    public bool IsDefault { get; set; }
 
-        /// <summary>
-        /// Tenant items
-        /// </summary>
-        public Dictionary<string, string> Items { get; set; } = new();
-    }
+    /// <summary>
+    /// Tenant items
+    /// </summary>
+    public Dictionary<string, string> Items { get; set; } = new();
 }
