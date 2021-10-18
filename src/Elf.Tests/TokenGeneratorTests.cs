@@ -1,6 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
 using Elf.Services.TokenGenerator;
 using NUnit.Framework;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Elf.Tests;
 

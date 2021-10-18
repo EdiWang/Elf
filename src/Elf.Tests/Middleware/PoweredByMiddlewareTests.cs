@@ -1,9 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Elf.Web.Middleware;
+﻿using Elf.Web.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using NUnit.Framework;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Elf.Tests.Middleware;
 

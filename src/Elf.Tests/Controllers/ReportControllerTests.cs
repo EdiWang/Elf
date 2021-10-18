@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Elf.Services;
 using Elf.Services.Models;
 using Elf.Web.Controllers;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Elf.Tests.Controllers;
 

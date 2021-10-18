@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Elf.Web;
+﻿using Elf.Web;
 using NUnit.Framework;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Elf.Tests;
 

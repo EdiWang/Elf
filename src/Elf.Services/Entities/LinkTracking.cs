@@ -1,5 +1,4 @@
-﻿using System;
-using LinqToDB.Mapping;
+﻿using LinqToDB.Mapping;
 
 namespace Elf.Services.Entities
 {

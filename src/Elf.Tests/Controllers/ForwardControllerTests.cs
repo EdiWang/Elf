@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Elf.MultiTenancy;
+﻿using Elf.MultiTenancy;
 using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Services.TokenGenerator;
@@ -13,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Elf.Tests.Controllers;
 

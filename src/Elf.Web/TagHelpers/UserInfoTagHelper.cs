@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Elf.Web.TagHelpers
 {

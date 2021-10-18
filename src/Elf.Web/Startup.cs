@@ -1,5 +1,4 @@
-﻿using System.Data;
-using AspNetCoreRateLimit;
+﻿using AspNetCoreRateLimit;
 using Elf.MultiTenancy;
 using Elf.Services;
 using Elf.Services.Entities;
@@ -15,6 +14,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.Data.SqlClient;
 using Microsoft.FeatureManagement;
+using System.Data;
 
 namespace Elf.Web;
 
