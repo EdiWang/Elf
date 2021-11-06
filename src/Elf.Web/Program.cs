@@ -37,6 +37,14 @@ public class Program
         host.Run();
     }
 
+    public static bool IsRunningInsideIIS()
+    {
+        var value = typeof(Microsoft.AspNetCore.Server.IISIntegration.IISDefaults).Namespace;
+        return value != null &&
+               Environment.GetEnvironmentVariable("ASPNETCORE_HOSTINGSTARTUPASSEMBLIES") is { } startupAssemblies &&
+               startupAssemblies.Contains(value);
+    }
+
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
             .ConfigureWebHostDefaults(webBuilder =>
