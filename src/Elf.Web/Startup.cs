@@ -15,7 +15,6 @@ using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.Data.SqlClient;
 using Microsoft.FeatureManagement;
 using System.Data;
-using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Elf.Web;
@@ -41,13 +40,10 @@ public class Startup
         // Fix docker deployments on Azure App Service blows up with Azure AD authentication
         // https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-6.0
         // "Outside of using IIS Integration when hosting out-of-process, Forwarded Headers Middleware isn't enabled by default."
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !Program.IsRunningInsideIIS())
+        services.Configure<ForwardedHeadersOptions>(options =>
         {
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            });
-        }
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        });
 
         services.AddOptions();
         services.Configure<AppSettings>(Configuration.GetSection(nameof(AppSettings)));
@@ -115,10 +111,7 @@ public class Startup
     {
         _logger = logger;
 
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !Program.IsRunningInsideIIS())
-        {
-            app.UseForwardedHeaders();
-        }
+        app.UseForwardedHeaders();
 
         app.UseMultiTenancy();
 

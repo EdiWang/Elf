@@ -7,14 +7,6 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var info = $"Elf Version {Utils.AppVersion}\n" +
-                   $"Directory: {Environment.CurrentDirectory} \n" +
-                   $"OS: {Environment.OSVersion.VersionString} \n" +
-                   $"Machine Name: {Environment.MachineName} \n" +
-                   $"User Name: {Environment.UserName}";
-        Trace.WriteLine(info);
-        Console.WriteLine(info);
-
         var host = CreateHostBuilder(args).Build();
 
         using (var scope = host.Services.CreateScope())
@@ -30,19 +22,11 @@ public class Program
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Moonglade start up boom boom");
+                logger.LogError(ex, "Elf start up boom boom");
             }
         }
 
         host.Run();
-    }
-
-    public static bool IsRunningInsideIIS()
-    {
-        var value = typeof(Microsoft.AspNetCore.Server.IISIntegration.IISDefaults).Namespace;
-        return value != null &&
-               Environment.GetEnvironmentVariable("ASPNETCORE_HOSTINGSTARTUPASSEMBLIES") is { } startupAssemblies &&
-               startupAssemblies.Contains(value);
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
