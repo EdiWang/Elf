@@ -7,7 +7,6 @@ using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Services.TokenGenerator;
 using Elf.Web;
-using Elf.Web.Authentication;
 using Elf.Web.Models;
 using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;
@@ -15,9 +14,11 @@ using LinqToDB.Configuration;
 using LinqToDB.DataProvider.SqlServer;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.SqlClient;
 using Microsoft.FeatureManagement;
+using Microsoft.Identity.Web;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -106,8 +107,8 @@ builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddAzureAppConfiguration();
 
 // Elf
-var aadOption = builder.Configuration.GetSection("AzureAd").Get<AzureAdOption>();
-builder.Services.AddElfAuthenticaton(aadOption);
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
 builder.Services.AddScoped<IDbConnection>(_ => new SqlConnection(builder.Configuration.GetConnectionString("ElfDatabase")));
 builder.Services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
 builder.Services.AddScoped<ILinkForwarderService, LinkForwarderService>();
