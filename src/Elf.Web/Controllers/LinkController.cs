@@ -123,6 +123,7 @@ public class LinkController : ControllerBase
 
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(LinkEditModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get(int id)
     {
         var link = await _linkForwarderService.GetLinkAsync(id);
@@ -144,10 +145,11 @@ public class LinkController : ControllerBase
     [HttpDelete("{linkId:int}")]
     [ValidateAntiForgeryToken]
     [ProducesResponseType(typeof(LinkEditModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int linkId)
     {
         var link = await _linkForwarderService.GetLinkAsync(linkId);
-        if (link is null) return BadRequest();
+        if (link is null) return NotFound();
 
         await _linkForwarderService.DeleteLink(linkId);
 
