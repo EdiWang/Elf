@@ -8,7 +8,6 @@ using Elf.Services.Entities;
 using Elf.Services.TokenGenerator;
 using Elf.Web;
 using Elf.Web.Authentication;
-using Elf.Web.Middleware;
 using Elf.Web.Models;
 using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;
@@ -178,7 +177,6 @@ if (bool.Parse(app.Configuration["AppSettings:PreferAzureAppConfiguration"]))
     app.UseAzureAppConfiguration();
 }
 
-app.UseMiddleware<PoweredByMiddleware>();
 app.UseStaticFiles();
 
 app.UseIpRateLimiting();
