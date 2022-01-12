@@ -13,8 +13,8 @@
     <PackageReference Include="AspNetCoreRateLimit" Version="4.0.1" />
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
     <PackageReference Include="linq2db.AspNet" Version="3.6.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.19.0" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="1.21.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="1.22.1" />
     <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="4.5.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="6.0.1" />
