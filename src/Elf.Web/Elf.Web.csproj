@@ -17,7 +17,7 @@
     <PackageReference Include="Microsoft.Identity.Web" Version="1.22.3" />
     <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="6.0.2" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="2.4.0" />
   </ItemGroup>
 
