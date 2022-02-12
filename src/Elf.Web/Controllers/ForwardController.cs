@@ -107,6 +107,10 @@ public class ForwardController : ControllerBase
                     {
                         await _cache.SetLink(token, link, TimeSpan.FromSeconds(link.TTL.GetValueOrDefault()));
                     }
+                    else
+                    {
+                        await _cache.SetLink(token, link);
+                    }
                     break;
                 case LinkVerifyResult.InvalidFormat:
                     throw new UriFormatException(

@@ -18,11 +18,18 @@ public static class DistributedCacheExtensions
         return cachedLink;
     }
 
-    public static async Task SetLink(this IDistributedCache cache, string token, Link link, TimeSpan ttl)
+    public static async Task SetLink(this IDistributedCache cache, string token, Link link, TimeSpan? ttl = null)
     {
         var json = JsonSerializer.Serialize(link);
         var bytes = Encoding.UTF8.GetBytes(json);
 
-        await cache.SetAsync(token, bytes, new() { SlidingExpiration = ttl });
+        if (ttl == null)
+        {
+            await cache.SetAsync(token, bytes);
+        }
+        else
+        {
+            await cache.SetAsync(token, bytes, new() { SlidingExpiration = ttl });
+        }
     }
 }
