@@ -102,3 +102,13 @@ Register an App in **[Azure Active Directory]((https://azure.microsoft.com/en-us
   "ClientId": "{YOUR-VALUE}",
 }
 ```
+
+### Azure Cache for Redis
+
+To use Redis, follow these steps:
+
+1. Create an [Azure Cache for Redis instance](https://docs.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview?WT.mc_id=AZ-MVP-5002809)
+2. Copy the connection string in "Access keys"
+3. Set the connection string in `ConnectionStrings:RedisConnection` in `appsettings.[env].json` or environment variable
+4. Set `AppSettings:UseRedis` to `true` in `appsettings.[env].json` or environment variable
+5. Restart the application
