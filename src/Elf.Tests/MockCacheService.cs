@@ -1,9 +1,9 @@
-﻿using Moq;
+﻿using Elf.Services.Entities;
+using Microsoft.Extensions.Caching.Distributed;
+using Moq;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
-using Elf.Services.Entities;
-using Microsoft.Extensions.Caching.Distributed;
 
 namespace Elf.Tests;
 
