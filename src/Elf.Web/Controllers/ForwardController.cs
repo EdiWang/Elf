@@ -1,12 +1,11 @@
 ﻿using Elf.MultiTenancy;
 using Elf.Services;
-using Elf.Services.Entities;
 using Elf.Services.Models;
 using Elf.Services.TokenGenerator;
 using Elf.Web.Filters;
 using Elf.Web.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Primitives;
 using Microsoft.FeatureManagement;
 using System.Text.Json;
@@ -20,7 +19,7 @@ public class ForwardController : ControllerBase
     private readonly ITokenGenerator _tokenGenerator;
     private readonly ILinkVerifier _linkVerifier;
     private readonly ILinkForwarderService _linkForwarderService;
-    private readonly IMemoryCache _cache;
+    private readonly IDistributedCache _cache;
     private readonly IFeatureManager _featureManager;
 
     private StringValues UserAgent => Request.Headers["User-Agent"];
@@ -31,7 +30,7 @@ public class ForwardController : ControllerBase
         ILogger<ForwardController> logger,
         ILinkForwarderService linkForwarderService,
         ITokenGenerator tokenGenerator,
-        IMemoryCache cache,
+        IDistributedCache cache,
         ILinkVerifier linkVerifier,
         IFeatureManager featureManager)
     {
@@ -82,7 +81,8 @@ public class ForwardController : ControllerBase
         var isValid = _tokenGenerator.TryParseToken(token, out var validatedToken);
         if (!isValid) return BadRequest();
 
-        if (!_cache.TryGetValue(token, out Link linkEntry))
+        var linkEntry = await _cache.GetLink(token);
+        if (null == linkEntry)
         {
             var flag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
             var link = await _linkForwarderService.GetLinkAsync(_tenant.Id, validatedToken);
@@ -105,7 +105,11 @@ public class ForwardController : ControllerBase
                     // cache valid link entity only.
                     if (link.TTL is not null)
                     {
-                        _cache.Set(token, link, TimeSpan.FromSeconds(link.TTL.GetValueOrDefault()));
+                        await _cache.SetLink(token, link, TimeSpan.FromSeconds(link.TTL.GetValueOrDefault()));
+                    }
+                    else
+                    {
+                        await _cache.SetLink(token, link);
                     }
                     break;
                 case LinkVerifyResult.InvalidFormat:
@@ -123,7 +127,7 @@ public class ForwardController : ControllerBase
             }
         }
 
-        linkEntry ??= _cache.Get<Link>(token);
+        linkEntry ??= await _cache.GetLink(token);
 
         var honorDNTFlag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.HonorDNT));
         if (!honorDNTFlag) return Redirect(linkEntry.OriginUrl);

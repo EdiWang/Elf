@@ -1,7 +1,4 @@
-﻿using System.Data;
-using System.Diagnostics;
-using System.Text;
-using AspNetCoreRateLimit;
+﻿using AspNetCoreRateLimit;
 using Elf.MultiTenancy;
 using Elf.Services;
 using Elf.Services.Entities;
@@ -19,6 +16,9 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.SqlClient;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
+using System.Data;
+using System.Diagnostics;
+using System.Text;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -60,7 +60,20 @@ builder.Services.AddMultiTenancy()
         .WithResolutionStrategy<HostResolutionStrategy>()
         .WithStore<AppSettingsTenantStore>();
 builder.Services.AddFeatureManagement();
-builder.Services.AddMemoryCache();
+
+bool useRedis = builder.Configuration.GetSection("AppSettings:UseRedis").Get<bool>();
+if (useRedis)
+{
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+    });
+}
+else
+{
+    builder.Services.AddDistributedMemoryCache();
+}
+
 builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
 builder.Services.AddInMemoryRateLimiting();
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
