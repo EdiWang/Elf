@@ -5,7 +5,7 @@ using Elf.Services.Models;
 using Elf.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.FeatureManagement;
 
 namespace Elf.Web.Controllers;
@@ -17,7 +17,7 @@ public class LinkController : ControllerBase
 {
     private readonly ILinkForwarderService _linkForwarderService;
     private readonly ILinkVerifier _linkVerifier;
-    private readonly IMemoryCache _cache;
+    private readonly IDistributedCache _cache;
     private readonly IFeatureManager _featureManager;
     private readonly Tenant _tenant;
 
@@ -25,7 +25,7 @@ public class LinkController : ControllerBase
         ITenantAccessor<Tenant> tenantAccessor,
         ILinkForwarderService linkForwarderService,
         ILinkVerifier linkVerifier,
-        IMemoryCache cache,
+        IDistributedCache cache,
         IFeatureManager featureManager)
     {
         _linkForwarderService = linkForwarderService;
@@ -97,7 +97,7 @@ public class LinkController : ControllerBase
         };
 
         var token = await _linkForwarderService.EditLinkAsync(editRequest);
-        if (token is not null) _cache.Remove(token);
+        if (token is not null) await _cache.RemoveAsync(token);
         return Ok(token);
     }
 
@@ -153,7 +153,7 @@ public class LinkController : ControllerBase
 
         await _linkForwarderService.DeleteLink(linkId);
 
-        _cache.Remove(link);
+        await _cache.RemoveAsync(link.FwToken);
         return Ok();
     }
 }
