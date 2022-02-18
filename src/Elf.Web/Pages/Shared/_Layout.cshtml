@@ -12,12 +12,7 @@
     <title>Elf</title>
     <link href="~/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
-    <environment exclude="Production">
-        <link href="~/css/site.css" rel="stylesheet" />
-    </environment>
-    <environment include="Production">
-        <link href="~/css/site.min.css" rel="stylesheet" asp-append-version="true" />
-    </environment>
+    <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
     <script src="~/js/jquery.min.js"></script>
     <script src="~/js/jquery.validate.min.js"></script>
     <script src="~/js/jquery.validate.unobtrusive.min.js"></script>
@@ -69,19 +64,13 @@
         <div id="liveToast" class="toast hide align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body" id="blogtoast-message">
-
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
     </div>
     <script src="~/js/bootstrap.bundle.min.js"></script>
-    <environment exclude="Production">
-        <script src="~/js/site.js"></script>
-    </environment>
-    <environment include="Production">
-        <script src="~/js/site.min.js" asp-append-version="true"></script>
-    </environment>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("scripts", required: false)
 </body>
 </html>

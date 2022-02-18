@@ -5,13 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="bundleconfig.json" />
-    <Content Update="bundleconfig.json" CopyToPublishDirectory="Never" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AspNetCoreRateLimit" Version="4.0.1" />
-    <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
     <PackageReference Include="linq2db.AspNet" Version="3.6.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.2" />
