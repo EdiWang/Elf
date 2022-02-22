@@ -1,8 +1,6 @@
 ﻿using Elf.Services;
-using Elf.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace Elf.Web.Controllers;
 
@@ -11,15 +9,13 @@ namespace Elf.Web.Controllers;
 [Route("api/[controller]")]
 public class ReportController : ControllerBase
 {
-    private readonly AppSettings _appSettings;
     private readonly ILinkForwarderService _linkForwarderService;
+    private readonly IConfiguration _configuration;
 
-    public ReportController(
-        IOptions<AppSettings> settings,
-        ILinkForwarderService linkForwarderService)
+    public ReportController(ILinkForwarderService linkForwarderService, IConfiguration configuration)
     {
-        _appSettings = settings.Value;
         _linkForwarderService = linkForwarderService;
+        _configuration = configuration;
     }
 
     [HttpPost("recent-requests")]
@@ -42,7 +38,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> ClientTypePastMonth()
     {
-        var types = await _linkForwarderService.GetClientTypeCounts(30, _appSettings.TopClientTypes);
+        var types = await _linkForwarderService.GetClientTypeCounts(30, _configuration.GetSection("AppSettings:TopClientTypes").Get<int>());
         return Ok(types);
     }
 

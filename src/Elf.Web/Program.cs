@@ -4,7 +4,6 @@ using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Services.TokenGenerator;
 using Elf.Web;
-using Elf.Web.Models;
 using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;
 using LinqToDB.Configuration;
@@ -54,7 +53,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 builder.Services.AddOptions();
-builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
 builder.Services.Configure<List<Tenant>>(builder.Configuration.GetSection("Tenants"));
 builder.Services.AddMultiTenancy()
         .WithResolutionStrategy<HostResolutionStrategy>()
@@ -195,21 +193,18 @@ app.UseStaticFiles();
 
 app.UseIpRateLimiting();
 
-app.MapWhen(context => context.Request.Path == "/", builder =>
+app.MapGet("/", (HttpContext httpContext) =>
 {
-    builder.Run(async context =>
+    httpContext.Response.Headers.Add("X-Elf-Version", Utils.AppVersion);
+    var obj = new
     {
-        context.Response.Headers.Add("X-Elf-Version", Utils.AppVersion);
-        var obj = new
-        {
-            ElfVersion = Utils.AppVersion,
-            DotNetVersion = System.Environment.Version.ToString(),
-            EnvironmentTags = Utils.GetEnvironmentTags(),
-            TenantId = context.GetTenant().Id
-        };
+        ElfVersion = Utils.AppVersion,
+        DotNetVersion = Environment.Version.ToString(),
+        EnvironmentTags = Utils.GetEnvironmentTags(),
+        TenantId = httpContext.GetTenant().Id
+    };
 
-        await context.Response.WriteAsJsonAsync(obj);
-    });
+    return obj;
 });
 
 app.UseRouting();
