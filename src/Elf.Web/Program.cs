@@ -24,14 +24,13 @@ Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddAzureWebAppDiagnostics();
 
-builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
+builder.Host.ConfigureAppConfiguration(config =>
 {
-    var settings = config.Build();
-    if (bool.Parse(settings["AppSettings:PreferAzureAppConfiguration"]))
+    if (bool.Parse(builder.Configuration["AppSettings:PreferAzureAppConfiguration"]))
     {
         config.AddAzureAppConfiguration(options =>
         {
-            options.Connect(settings["ConnectionStrings:AzureAppConfig"])
+            options.Connect(builder.Configuration["ConnectionStrings:AzureAppConfig"])
                 .ConfigureRefresh(refresh =>
                 {
                     refresh.Register("Elf:Settings:Sentinel", refreshAll: true)
