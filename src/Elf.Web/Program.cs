@@ -42,90 +42,7 @@ builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
     }
 });
 
-#region DI
-
-// Fix docker deployments on Azure App Service blows up with Azure AD authentication
-// https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-6.0
-// "Outside of using IIS Integration when hosting out-of-process, Forwarded Headers Middleware isn't enabled by default."
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-});
-
-builder.Services.AddOptions();
-builder.Services.Configure<List<Tenant>>(builder.Configuration.GetSection("Tenants"));
-builder.Services.AddMultiTenancy()
-        .WithResolutionStrategy<HostResolutionStrategy>()
-        .WithStore<AppSettingsTenantStore>();
-builder.Services.AddFeatureManagement();
-
-bool useRedis = builder.Configuration.GetSection("AppSettings:UseRedis").Get<bool>();
-if (useRedis)
-{
-    builder.Services.AddStackExchangeRedisCache(options =>
-    {
-        options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
-    });
-}
-else
-{
-    builder.Services.AddDistributedMemoryCache();
-}
-
-builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
-builder.Services.AddInMemoryRateLimiting();
-builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
-builder.Services.AddControllers();
-builder.Services.Configure<RouteOptions>(options =>
-{
-    options.LowercaseUrls = true;
-    options.LowercaseQueryStrings = true;
-    options.AppendTrailingSlash = false;
-});
-builder.Services.AddRazorPages().AddRazorPagesOptions(options =>
-{
-    options.Conventions.AuthorizeFolder("/");
-});
-
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(20);
-    options.Cookie.HttpOnly = true;
-});
-
-builder.Services.AddAntiforgery(options =>
-{
-    const string cookieBaseName = "CSRF-TOKEN-ELF";
-    options.Cookie.Name = $"X-{cookieBaseName}";
-    options.FormFieldName = $"{cookieBaseName}-FORM";
-    options.HeaderName = "XSRF-TOKEN";
-});
-
-builder.Services.AddLinqToDbContext<AppDataConnection>((provider, options) =>
-{
-    SqlServerTools.Provider = SqlServerProvider.MicrosoftDataSqlClient;
-
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ElfDatabase"))
-           .UseDefaultLogging(provider);
-});
-
-// Azure
-if (bool.Parse(builder.Configuration["AppSettings:PreferAzureAppConfiguration"]))
-{
-    builder.Services.AddAzureAppConfiguration();
-}
-builder.Services.AddApplicationInsightsTelemetry();
-builder.Services.AddAzureAppConfiguration();
-
-// Elf
-builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
-builder.Services.AddScoped<IDbConnection>(_ => new SqlConnection(builder.Configuration.GetConnectionString("ElfDatabase")));
-builder.Services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
-builder.Services.AddScoped<ILinkForwarderService, LinkForwarderService>();
-builder.Services.AddScoped<ILinkVerifier, LinkVerifier>();
-
-#endregion
+ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
@@ -160,59 +77,149 @@ using (var scope = app.Services.CreateScope())
 
 #endregion
 
-#region Middleware
+ConfigureMiddleware(app);
+ConfigureEndpoints(app);
 
-app.UseForwardedHeaders();
+app.Run();
 
-app.UseMultiTenancy();
-
-if (!app.Environment.IsProduction())
+void ConfigureServices(IServiceCollection services)
 {
-    var tc = app.Services.GetRequiredService<TelemetryConfiguration>();
-    tc.DisableTelemetry = true;
-    TelemetryDebugWriter.IsTracingDisabled = true;
-}
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-}
-else
-{
-    app.UseStatusCodePages();
-    app.UseHsts();
-    app.UseHttpsRedirection();
-}
-
-if (bool.Parse(app.Configuration["AppSettings:PreferAzureAppConfiguration"]))
-{
-    app.UseAzureAppConfiguration();
-}
-
-app.UseStaticFiles();
-
-app.UseIpRateLimiting();
-
-app.MapGet("/", (HttpContext httpContext) =>
-{
-    httpContext.Response.Headers.Add("X-Elf-Version", Utils.AppVersion);
-    var obj = new
+    // Fix docker deployments on Azure App Service blows up with Azure AD authentication
+    // https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-6.0
+    // "Outside of using IIS Integration when hosting out-of-process, Forwarded Headers Middleware isn't enabled by default."
+    services.Configure<ForwardedHeadersOptions>(options =>
     {
-        ElfVersion = Utils.AppVersion,
-        DotNetVersion = Environment.Version.ToString(),
-        EnvironmentTags = Utils.GetEnvironmentTags(),
-        TenantId = httpContext.GetTenant().Id
-    };
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    });
 
-    return obj;
-});
+    services.AddOptions();
+    services.Configure<List<Tenant>>(builder.Configuration.GetSection("Tenants"));
+    services.AddMultiTenancy()
+            .WithResolutionStrategy<HostResolutionStrategy>()
+            .WithStore<AppSettingsTenantStore>();
+    services.AddFeatureManagement();
 
-app.UseRouting();
+    bool useRedis = builder.Configuration.GetSection("AppSettings:UseRedis").Get<bool>();
+    if (useRedis)
+    {
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+        });
+    }
+    else
+    {
+        services.AddDistributedMemoryCache();
+    }
 
-app.UseAuthentication();
-app.UseAuthorization();
+    services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+    services.AddInMemoryRateLimiting();
+    services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+    services.AddControllers();
+    services.Configure<RouteOptions>(options =>
+    {
+        options.LowercaseUrls = true;
+        options.LowercaseQueryStrings = true;
+        options.AppendTrailingSlash = false;
+    });
+    services.AddRazorPages().AddRazorPagesOptions(options =>
+    {
+        options.Conventions.AuthorizeFolder("/");
+    });
 
-app.UseEndpoints(endpoints =>
+    services.AddSession(options =>
+    {
+        options.IdleTimeout = TimeSpan.FromMinutes(20);
+        options.Cookie.HttpOnly = true;
+    });
+
+    services.AddAntiforgery(options =>
+    {
+        const string cookieBaseName = "CSRF-TOKEN-ELF";
+        options.Cookie.Name = $"X-{cookieBaseName}";
+        options.FormFieldName = $"{cookieBaseName}-FORM";
+        options.HeaderName = "XSRF-TOKEN";
+    });
+
+    services.AddLinqToDbContext<AppDataConnection>((provider, options) =>
+    {
+        SqlServerTools.Provider = SqlServerProvider.MicrosoftDataSqlClient;
+
+        options.UseSqlServer(builder.Configuration.GetConnectionString("ElfDatabase"))
+               .UseDefaultLogging(provider);
+    });
+
+    // Azure
+    if (bool.Parse(builder.Configuration["AppSettings:PreferAzureAppConfiguration"]))
+    {
+        services.AddAzureAppConfiguration();
+    }
+    services.AddApplicationInsightsTelemetry();
+    services.AddAzureAppConfiguration();
+
+    // Elf
+    services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+    services.AddScoped<IDbConnection>(_ => new SqlConnection(builder.Configuration.GetConnectionString("ElfDatabase")));
+    services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
+    services.AddScoped<ILinkForwarderService, LinkForwarderService>();
+    services.AddScoped<ILinkVerifier, LinkVerifier>();
+}
+
+void ConfigureMiddleware(IApplicationBuilder appBuilder)
+{
+    appBuilder.UseForwardedHeaders();
+
+    appBuilder.UseMultiTenancy();
+
+    if (!app.Environment.IsProduction())
+    {
+        var tc = app.Services.GetRequiredService<TelemetryConfiguration>();
+        tc.DisableTelemetry = true;
+        TelemetryDebugWriter.IsTracingDisabled = true;
+    }
+
+    if (app.Environment.IsDevelopment())
+    {
+        appBuilder.UseDeveloperExceptionPage();
+    }
+    else
+    {
+        appBuilder.UseStatusCodePages();
+        appBuilder.UseHsts();
+        appBuilder.UseHttpsRedirection();
+    }
+
+    if (bool.Parse(app.Configuration["AppSettings:PreferAzureAppConfiguration"]))
+    {
+        appBuilder.UseAzureAppConfiguration();
+    }
+
+    appBuilder.UseStaticFiles();
+
+    appBuilder.UseIpRateLimiting();
+
+    app.MapGet("/", (HttpContext httpContext) =>
+    {
+        httpContext.Response.Headers.Add("X-Elf-Version", Utils.AppVersion);
+        var obj = new
+        {
+            ElfVersion = Utils.AppVersion,
+            DotNetVersion = Environment.Version.ToString(),
+            EnvironmentTags = Utils.GetEnvironmentTags(),
+            TenantId = httpContext.GetTenant().Id
+        };
+
+        return obj;
+    });
+
+    appBuilder.UseRouting();
+
+    appBuilder.UseAuthentication();
+    appBuilder.UseAuthorization();
+}
+
+void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
 {
     endpoints.MapGet("/accessdenied", async context =>
     {
@@ -222,8 +229,4 @@ app.UseEndpoints(endpoints =>
 
     endpoints.MapControllers();
     endpoints.MapRazorPages();
-});
-
-#endregion
-
-app.Run();
+}
