@@ -108,8 +108,7 @@ public class LinkController : ControllerBase
         {
             Links = data.Links,
             TotalRows = data.TotalRows,
-            PageSize = take,
-            PageIndex = offset * take
+            PageSize = take
         };
 
         return Ok(result);
