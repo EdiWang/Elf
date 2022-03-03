@@ -159,12 +159,20 @@ void ConfigureServices(IServiceCollection services)
     services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
     services.AddScoped<ILinkForwarderService, LinkForwarderService>();
     services.AddScoped<ILinkVerifier, LinkVerifier>();
+
+    services.AddCors(o => o.AddPolicy("local", x =>
+    {
+        x.AllowAnyOrigin()
+         .AllowAnyMethod()
+         .AllowAnyHeader();
+    }));
 }
 
 void ConfigureMiddleware(IApplicationBuilder appBuilder)
 {
     if (app.Environment.IsDevelopment())
     {
+        app.UseCors("local");
         app.UseSwagger();
         app.UseSwaggerUI();
     }
