@@ -28,7 +28,9 @@ https://yourdomain/aka/name
 
 ## Features
 
-Forward Link, Create/Manage/Share Link, View Report
+Forward Link, Create/Manage/Share Link, View Report.
+
+Example UI (Not included in this repo, you can build your own)
 
 ![image](https://user-images.githubusercontent.com/3304703/104278012-dfdbd400-54e2-11eb-8ea3-c5c7e332b685.png)
 ![image](https://ediwang.cdn.moonglade.blog/web-assets/lf/sc-report.png)
@@ -91,8 +93,8 @@ Example:
 Configure how to sign in to admin portal.
 
 Register an App in **[Azure Active Directory]((https://azure.microsoft.com/en-us/services/active-directory/))**
-- Set Redirection URI to `https://yourdomain/signin-oidc`
-  - For local debugging, set URL to `https://localhost:5001/signin-oidc`
+- Expose an API with name `access_as_user`
+- Change `accessTokenAcceptedVersion` to `2` in Manifest
 - Copy "**appId**" to set as **AzureAd:ClientId** in **appsettings.[env].json** file
 
 ```json

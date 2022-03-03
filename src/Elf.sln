@@ -1,16 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28922.388
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elf.Web", "Elf.Web\Elf.Web.csproj", "{A5F03891-9A66-4CF1-9BA9-D23C9B22AE6E}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{4FFC9D65-CFAE-4D77-8822-3E019CC6CE10}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitattributes = ..\.gitattributes
 		..\.gitignore = ..\.gitignore
-		Directory.Build.props = Directory.Build.props
 		..\Azure-Deployment\Deploy.ps1 = ..\Azure-Deployment\Deploy.ps1
+		Directory.Build.props = Directory.Build.props
 		..\Dockerfile = ..\Dockerfile
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
@@ -24,7 +22,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{A3995125
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elf.Tests", "Elf.Tests\Elf.Tests.csproj", "{5EA676F8-A271-40E2-BCBF-09E80E5925C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elf.MultiTenancy", "Elf.MultiTenancy\Elf.MultiTenancy.csproj", "{899F0DD6-262B-4DE8-A567-F5E2CD97C825}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elf.MultiTenancy", "Elf.MultiTenancy\Elf.MultiTenancy.csproj", "{899F0DD6-262B-4DE8-A567-F5E2CD97C825}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elf.Api", "Elf.Api\Elf.Api.csproj", "{39CE3BC4-A96C-4986-A735-932BB5546F90}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,10 +32,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A5F03891-9A66-4CF1-9BA9-D23C9B22AE6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5F03891-9A66-4CF1-9BA9-D23C9B22AE6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5F03891-9A66-4CF1-9BA9-D23C9B22AE6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5F03891-9A66-4CF1-9BA9-D23C9B22AE6E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{31EC911F-E050-41D5-BB22-3D193C99FF50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{31EC911F-E050-41D5-BB22-3D193C99FF50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31EC911F-E050-41D5-BB22-3D193C99FF50}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,15 +44,19 @@ Global
 		{899F0DD6-262B-4DE8-A567-F5E2CD97C825}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{899F0DD6-262B-4DE8-A567-F5E2CD97C825}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{899F0DD6-262B-4DE8-A567-F5E2CD97C825}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39CE3BC4-A96C-4986-A735-932BB5546F90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39CE3BC4-A96C-4986-A735-932BB5546F90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39CE3BC4-A96C-4986-A735-932BB5546F90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39CE3BC4-A96C-4986-A735-932BB5546F90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{A5F03891-9A66-4CF1-9BA9-D23C9B22AE6E} = {3FD57E01-5791-42AC-BA79-384D6CC46501}
 		{31EC911F-E050-41D5-BB22-3D193C99FF50} = {3FD57E01-5791-42AC-BA79-384D6CC46501}
 		{5EA676F8-A271-40E2-BCBF-09E80E5925C6} = {A3995125-2A8A-4BD8-BB11-BECE6DBCA76A}
 		{899F0DD6-262B-4DE8-A567-F5E2CD97C825} = {3FD57E01-5791-42AC-BA79-384D6CC46501}
+		{39CE3BC4-A96C-4986-A735-932BB5546F90} = {3FD57E01-5791-42AC-BA79-384D6CC46501}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3E5311F2-DE82-4527-81F8-DC851A2C4963}
