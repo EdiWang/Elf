@@ -12,7 +12,7 @@ WORKDIR /src
 COPY ./src/**/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p ./${file%.*}/ && mv $file ./${file%.*}/; done
 
-RUN dotnet restore "Elf.Web/Elf.Api.csproj"
+RUN dotnet restore "Elf.Api/Elf.Api.csproj"
 COPY ./src .
 WORKDIR "/src/Elf.Api"
 RUN dotnet build "Elf.Api.csproj" -c Release -o /app/build
