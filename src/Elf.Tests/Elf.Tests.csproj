@@ -19,8 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Elf.Services\Elf.Services.csproj" />
-    <ProjectReference Include="..\Elf.Web\Elf.Web.csproj" />
+    <ProjectReference Include="..\Elf.Api\Elf.Api.csproj" />
   </ItemGroup>
 
 </Project>

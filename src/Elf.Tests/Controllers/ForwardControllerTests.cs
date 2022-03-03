@@ -1,10 +1,10 @@
-﻿using Elf.MultiTenancy;
+﻿using Elf.Api;
+using Elf.Api.Controllers;
+using Elf.Api.Models;
+using Elf.MultiTenancy;
 using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Services.TokenGenerator;
-using Elf.Web;
-using Elf.Web.Controllers;
-using Elf.Web.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;

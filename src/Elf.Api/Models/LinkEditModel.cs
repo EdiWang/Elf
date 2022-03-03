@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Elf.Web.Models;
+namespace Elf.Api.Models;
 
 public class LinkEditModel
 {

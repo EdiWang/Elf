@@ -1,14 +1,14 @@
-﻿using Elf.MultiTenancy;
+﻿using Elf.Api.Models;
+using Elf.MultiTenancy;
 using Elf.Services;
 using Elf.Services.Entities;
 using Elf.Services.Models;
-using Elf.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.FeatureManagement;
 
-namespace Elf.Web.Controllers;
+namespace Elf.Api.Controllers;
 
 [Authorize]
 [ApiController]
@@ -36,9 +36,7 @@ public class LinkController : ControllerBase
         _tenant = tenantAccessor.Tenant;
     }
 
-    [HttpPost]
-    [Route("create")]
-    [ValidateAntiForgeryToken]
+    [HttpPost("create")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(LinkEditModel model)
@@ -70,7 +68,6 @@ public class LinkController : ControllerBase
     }
 
     [HttpPut("{linkId:int}")]
-    [ValidateAntiForgeryToken]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Edit(int linkId, LinkEditModel model)
@@ -101,24 +98,12 @@ public class LinkController : ControllerBase
         return Ok(token);
     }
 
-    [HttpPost]
-    [Route("list")]
-    [ProducesResponseType(typeof(JqDataTableResponse<Link>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> List([FromForm] DataTableRequest model)
+    [HttpGet("list")]
+    [ProducesResponseType(typeof(IReadOnlyList<Link>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> List(string term, int take, int offset)
     {
-        var searchBy = model.Search?.Value;
-        var take = model.Length;
-        var offset = model.Start;
-
-        var links = await _linkForwarderService.GetPagedLinksAsync(offset, take, searchBy);
-        var jqdtResponse = new JqDataTableResponse<Link>
-        {
-            Draw = model.Draw,
-            RecordsFiltered = links.TotalRows,
-            RecordsTotal = links.TotalRows,
-            Data = links.Links
-        };
-        return Ok(jqdtResponse);
+        var links = await _linkForwarderService.GetPagedLinksAsync(offset, take, term);
+        return Ok(links);
     }
 
     [HttpGet("{id:int}")]
@@ -143,7 +128,6 @@ public class LinkController : ControllerBase
     }
 
     [HttpDelete("{linkId:int}")]
-    [ValidateAntiForgeryToken]
     [ProducesResponseType(typeof(LinkEditModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int linkId)
