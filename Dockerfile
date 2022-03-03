@@ -12,15 +12,15 @@ WORKDIR /src
 COPY ./src/**/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p ./${file%.*}/ && mv $file ./${file%.*}/; done
 
-RUN dotnet restore "Elf.Web/Elf.Web.csproj"
+RUN dotnet restore "Elf.Web/Elf.Api.csproj"
 COPY ./src .
-WORKDIR "/src/Elf.Web"
-RUN dotnet build "Elf.Web.csproj" -c Release -o /app/build
+WORKDIR "/src/Elf.Api"
+RUN dotnet build "Elf.Api.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Elf.Web.csproj" -c Release -o /app/publish
+RUN dotnet publish "Elf.Api.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Elf.Web.dll"]
+ENTRYPOINT ["dotnet", "Elf.Api.dll"]
