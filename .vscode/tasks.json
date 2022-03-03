@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/LinkForwarder/LinkForwarder.csproj"
+                "${workspaceFolder}/src/Elf.Api/Elf.Api.csproj"
             ],
             "problemMatcher": "$tsc"
         },
@@ -17,7 +17,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/src/LinkForwarder/LinkForwarder.csproj"
+                "${workspaceFolder}/src/Elf.Api/Elf.Api.csproj"
             ],
             "problemMatcher": "$tsc"
         },
@@ -28,7 +28,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/src/LinkForwarder/LinkForwarder.csproj"
+                "${workspaceFolder}/src/Elf.Api/Elf.Api.csproj"
             ],
             "problemMatcher": "$tsc"
         }
