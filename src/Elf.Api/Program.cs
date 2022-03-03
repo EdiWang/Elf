@@ -18,6 +18,7 @@ using Microsoft.Identity.Web;
 using System.Data;
 using System.Diagnostics;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -149,8 +150,11 @@ void ConfigureServices(IServiceCollection services)
     services.AddAzureAppConfiguration();
 
     // Elf
-    services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+
+    services.AddAuthorization();
+
     services.AddScoped<IDbConnection>(_ => new SqlConnection(builder.Configuration.GetConnectionString("ElfDatabase")));
     services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
     services.AddScoped<ILinkForwarderService, LinkForwarderService>();
