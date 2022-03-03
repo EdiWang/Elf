@@ -45,7 +45,7 @@ public class ForwardController : ControllerBase
     }
 
     [AddForwarderHeader]
-    [Route("/aka/{akaName:regex(^(?!-)([[a-zA-Z0-9-]]+)$)}")]
+    [HttpGet("/aka/{akaName:regex(^(?!-)([[a-zA-Z0-9-]]+)$)}")]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Aka(string akaName)
     {
@@ -64,7 +64,7 @@ public class ForwardController : ControllerBase
     }
 
     [AddForwarderHeader]
-    [Route("/fw/{token}")]
+    [HttpGet("/fw/{token}")]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Forward(string token)
     {
