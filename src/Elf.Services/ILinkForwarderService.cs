@@ -5,7 +5,7 @@ namespace Elf.Services;
 
 public interface ILinkForwarderService
 {
-    Task<IReadOnlyList<Link>> GetPagedLinksAsync(int offset, int pageSize, string noteKeyword = null);
+    Task<(IReadOnlyList<Link> Links, int TotalRows)> GetPagedLinksAsync(int offset, int pageSize, string noteKeyword = null);
     Task<bool> IsLinkExistsAsync(string token);
     Task TrackSucessRedirectionAsync(LinkTrackingRequest request);
     Task ClearTrackingDataAsync();

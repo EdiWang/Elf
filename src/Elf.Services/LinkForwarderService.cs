@@ -29,7 +29,7 @@ public class LinkForwarderService : ILinkForwarderService
         return _connection.Link.AnyAsync(p => p.FwToken == token);
     }
 
-    public async Task<IReadOnlyList<Link>> GetPagedLinksAsync(
+    public async Task<(IReadOnlyList<Link> Links, int TotalRows)> GetPagedLinksAsync(
         int offset, int pageSize, string noteKeyword = null)
     {
         if (pageSize < 1)
@@ -53,13 +53,13 @@ public class LinkForwarderService : ILinkForwarderService
                     select l;
         }
 
-        //var totalRows = await links.CountAsync();
+        int totalRows = await links.CountAsync();
         var data = await links.OrderByDescending(p => p.UpdateTimeUtc)
                               .Skip(offset)
                               .Take(pageSize)
                               .ToListAsync();
 
-        return data;
+        return (data, totalRows);
     }
 
     public async Task<string> CreateLinkAsync(CreateLinkRequest createLinkRequest)

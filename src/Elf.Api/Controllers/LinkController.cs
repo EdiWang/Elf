@@ -99,11 +99,20 @@ public class LinkController : ControllerBase
     }
 
     [HttpGet("list")]
-    [ProducesResponseType(typeof(IReadOnlyList<Link>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedLinkResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(string term, int take, int offset)
     {
-        var links = await _linkForwarderService.GetPagedLinksAsync(offset, take, term);
-        return Ok(links);
+        var data = await _linkForwarderService.GetPagedLinksAsync(offset, take, term);
+
+        var result = new PagedLinkResult
+        {
+            Links = data.Links,
+            TotalRows = data.TotalRows,
+            PageSize = take,
+            PageIndex = offset * take
+        };
+
+        return Ok(result);
     }
 
     [HttpGet("{id:int}")]
