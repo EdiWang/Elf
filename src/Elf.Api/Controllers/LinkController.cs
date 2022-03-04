@@ -98,6 +98,14 @@ public class LinkController : ControllerBase
         return Ok(token);
     }
 
+    [HttpPut("{linkId:int}/enable")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> SetEnable(int linkId, bool isEnabled)
+    {
+        await _linkForwarderService.SetEnableAsync(linkId, isEnabled);
+        return NoContent();
+    }
+
     [HttpGet("list")]
     [ProducesResponseType(typeof(PagedLinkResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(string term, int take, int offset)

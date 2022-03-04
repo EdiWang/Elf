@@ -12,6 +12,7 @@ public interface ILinkForwarderService
     //Task<IReadOnlyList<LinkTracking>> GetTrackingRecords(int linkId, int top = 100);
     Task<string> CreateLinkAsync(CreateLinkRequest createLinkRequest);
     Task<string> EditLinkAsync(EditLinkRequest editLinkRequest);
+    Task SetEnableAsync(int id, bool isEnabled);
     Task<int> CountLinksAsync();
     Task<Link> GetLinkAsync(int id);
     Task<Link> GetLinkAsync(Guid tenantId, string token);
