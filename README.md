@@ -93,8 +93,9 @@ Example:
 Configure how to sign in to admin portal.
 
 Register an App in **[Azure Active Directory]((https://azure.microsoft.com/en-us/services/active-directory/))**
-- Expose an API with name `access_as_user`
-- Change `accessTokenAcceptedVersion` to `2` in Manifest
+- Set an **Application ID URI** as unique for this app
+- Expose an API with name `access_as_user` and with **Admins and users** type
+- Change `accessTokenAcceptedVersion` to `2` in Manifest blade
 - Copy "**appId**" to set as **AzureAd:ClientId** in **appsettings.[env].json** file
 
 ```json
