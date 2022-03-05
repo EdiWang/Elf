@@ -30,10 +30,10 @@ https://yourdomain/aka/name
 
 Forward Link, Create/Manage/Share Link, View Report.
 
-Example UI (Not included in this repo, you can build your own)
+Example UI [ElfAdmin](https://github.com/EdiWang/ElfAdmin)
 
-![image](https://user-images.githubusercontent.com/3304703/104278012-dfdbd400-54e2-11eb-8ea3-c5c7e332b685.png)
-![image](https://ediwang.cdn.moonglade.blog/web-assets/lf/sc-report.png)
+![image](https://user-images.githubusercontent.com/3304703/156873651-845c72fe-84e7-4536-bfe4-6785accae5ce.png)
+![image](https://user-images.githubusercontent.com/3304703/156873643-38f9d582-777e-4cb1-b053-6656fb5bd36e.png)
 
 ## Forward Logic
 
