@@ -1,16 +1,16 @@
 using AspNetCoreRateLimit;
 using Elf.Api;
+using Elf.Api.Features;
+using Elf.Api.TokenGenerator;
 using Elf.MultiTenancy;
-using Elf.Services;
 using Elf.Services.Entities;
-using Elf.Services.TokenGenerator;
 using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;
 using LinqToDB.Configuration;
 using LinqToDB.DataProvider.SqlServer;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.SqlClient;
 using Microsoft.FeatureManagement;
@@ -18,7 +18,6 @@ using Microsoft.Identity.Web;
 using System.Data;
 using System.Diagnostics;
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 

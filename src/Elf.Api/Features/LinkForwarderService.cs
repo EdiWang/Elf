@@ -1,11 +1,10 @@
-﻿using Elf.Services.Entities;
+﻿using Elf.Api.TokenGenerator;
+using Elf.Services.Entities;
 using Elf.Services.Models;
-using Elf.Services.TokenGenerator;
 using LinqToDB;
-using Microsoft.Extensions.Logging;
 using UAParser;
 
-namespace Elf.Services;
+namespace Elf.Api.Features;
 
 public class LinkForwarderService : ILinkForwarderService
 {

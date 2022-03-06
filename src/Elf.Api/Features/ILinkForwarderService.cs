@@ -1,7 +1,7 @@
 ﻿using Elf.Services.Entities;
 using Elf.Services.Models;
 
-namespace Elf.Services;
+namespace Elf.Api.Features;
 
 public interface ILinkForwarderService
 {

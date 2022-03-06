@@ -1,4 +1,4 @@
-﻿namespace Elf.Services.TokenGenerator;
+﻿namespace Elf.Api.TokenGenerator;
 
 public class ShortGuidTokenGenerator : ITokenGenerator
 {
