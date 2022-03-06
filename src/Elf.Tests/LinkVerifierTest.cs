@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using System.Diagnostics.CodeAnalysis;
+using Elf.Api.Features;
 
 namespace Elf.Tests;
 

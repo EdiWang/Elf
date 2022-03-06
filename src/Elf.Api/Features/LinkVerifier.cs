@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Elf.Api;
+namespace Elf.Api.Features;
 
 public enum LinkVerifyResult
 {
