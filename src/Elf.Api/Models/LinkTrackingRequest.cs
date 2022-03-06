@@ -1,4 +1,4 @@
-﻿namespace Elf.Services.Models;
+﻿namespace Elf.Api.Models;
 
 public class LinkTrackingRequest
 {

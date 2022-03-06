@@ -3,7 +3,6 @@ using Elf.Api.Filters;
 using Elf.Api.Models;
 using Elf.Api.TokenGenerator;
 using Elf.MultiTenancy;
-using Elf.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Primitives;

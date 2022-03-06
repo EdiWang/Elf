@@ -1,5 +1,5 @@
 ﻿using Elf.Api.Features;
-using Elf.Services.Models;
+using Elf.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

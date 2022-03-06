@@ -1,7 +1,6 @@
 ﻿using Elf.Api.Features;
 using Elf.Api.Models;
 using Elf.MultiTenancy;
-using Elf.Services.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;

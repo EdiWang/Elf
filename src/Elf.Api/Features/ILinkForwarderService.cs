@@ -1,5 +1,5 @@
-﻿using Elf.Services.Entities;
-using Elf.Services.Models;
+﻿using Elf.Api.Models;
+using Elf.Services.Entities;
 
 namespace Elf.Api.Features;
 

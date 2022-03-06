@@ -1,6 +1,6 @@
-﻿using Elf.Api.TokenGenerator;
+﻿using Elf.Api.Models;
+using Elf.Api.TokenGenerator;
 using Elf.Services.Entities;
-using Elf.Services.Models;
 using LinqToDB;
 using UAParser;
 
