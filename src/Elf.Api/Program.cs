@@ -165,7 +165,6 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddScoped<IDbConnection>(_ => new SqlConnection(builder.Configuration.GetConnectionString("ElfDatabase")));
     services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
-    services.AddScoped<ILinkForwarderService, LinkForwarderService>();
     services.AddScoped<ILinkVerifier, LinkVerifier>();
 
     services.AddCors(o => o.AddPolicy("local", x =>

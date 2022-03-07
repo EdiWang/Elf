@@ -8,13 +8,11 @@ namespace Elf.Api.Controllers;
 [Route("api/[controller]")]
 public class ReportController : ControllerBase
 {
-    private readonly ILinkForwarderService _linkForwarderService;
     private readonly IConfiguration _configuration;
     private readonly IMediator _mediator;
 
-    public ReportController(ILinkForwarderService linkForwarderService, IConfiguration configuration, IMediator mediator)
+    public ReportController(IConfiguration configuration, IMediator mediator)
     {
-        _linkForwarderService = linkForwarderService;
         _configuration = configuration;
         _mediator = mediator;
     }
@@ -39,8 +37,8 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<ClientTypeCount>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ClientTypePastMonth()
     {
-        var types = await _linkForwarderService.GetClientTypeCounts(30,
-            _configuration.GetSection("AppSettings:TopClientTypes").Get<int>());
+        var types = await _mediator.Send(new GetClientTypeCountsQuery(30,
+            _configuration.GetSection("AppSettings:TopClientTypes").Get<int>()));
         return Ok(types);
     }
 
