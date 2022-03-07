@@ -8,58 +8,11 @@ namespace Elf.Api.Features;
 
 public class LinkForwarderService : ILinkForwarderService
 {
-    private readonly ILogger<LinkForwarderService> _logger;
-    private readonly ITokenGenerator _tokenGenerator;
     private readonly AppDataConnection _connection;
 
-    public LinkForwarderService(
-        ILogger<LinkForwarderService> logger,
-        ITokenGenerator tokenGenerator,
-        AppDataConnection connection)
+    public LinkForwarderService(AppDataConnection connection)
     {
-        _logger = logger;
-        _tokenGenerator = tokenGenerator;
         _connection = connection;
-    }
-
-    public async Task<string> CreateLinkAsync(CreateLinkRequest createLinkRequest)
-    {
-        var l = await _connection.Link.FirstOrDefaultAsync(p => p.OriginUrl == createLinkRequest.OriginUrl);
-        var tempToken = l?.FwToken;
-        if (tempToken is not null)
-        {
-            if (_tokenGenerator.TryParseToken(tempToken, out var tk))
-            {
-                _logger.LogInformation($"Link already exists for token '{tk}'");
-                return tk;
-            }
-
-            string message = $"Invalid token '{tempToken}' found for existing url '{createLinkRequest.OriginUrl}'";
-            _logger.LogError(message);
-        }
-
-        string token;
-        do
-        {
-            token = _tokenGenerator.GenerateToken();
-        } while (await _connection.Link.AnyAsync(p => p.FwToken == token));
-
-        _logger.LogInformation($"Generated Token '{token}' for url '{createLinkRequest.OriginUrl}'");
-
-        var link = new Link
-        {
-            FwToken = token,
-            IsEnabled = createLinkRequest.IsEnabled,
-            Note = createLinkRequest.Note,
-            AkaName = createLinkRequest.AkaName,
-            OriginUrl = createLinkRequest.OriginUrl,
-            UpdateTimeUtc = DateTime.UtcNow,
-            TTL = createLinkRequest.TTL,
-            TenantId = createLinkRequest.TenantId
-        };
-
-        await _connection.InsertAsync(link);
-        return link.FwToken;
     }
 
     public async Task<IReadOnlyList<ClientTypeCount>> GetClientTypeCounts(int daysFromNow, int topTypes)

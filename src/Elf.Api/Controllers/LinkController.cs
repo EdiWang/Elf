@@ -11,7 +11,6 @@ namespace Elf.Api.Controllers;
 [Route("api/[controller]")]
 public class LinkController : ControllerBase
 {
-    private readonly ILinkForwarderService _linkForwarderService;
     private readonly ILinkVerifier _linkVerifier;
     private readonly IDistributedCache _cache;
     private readonly IFeatureManager _featureManager;
@@ -20,12 +19,10 @@ public class LinkController : ControllerBase
 
     public LinkController(
         ITenantAccessor<Tenant> tenantAccessor,
-        ILinkForwarderService linkForwarderService,
         ILinkVerifier linkVerifier,
         IDistributedCache cache,
         IFeatureManager featureManager, IMediator mediator)
     {
-        _linkForwarderService = linkForwarderService;
         _linkVerifier = linkVerifier;
         _cache = cache;
         _featureManager = featureManager;
@@ -61,7 +58,7 @@ public class LinkController : ControllerBase
             TenantId = _tenant.Id
         };
 
-        var response = await _linkForwarderService.CreateLinkAsync(createLinkRequest);
+        var response = await _mediator.Send(new CreateLinkCommand(createLinkRequest));
         return Ok(response);
     }
 

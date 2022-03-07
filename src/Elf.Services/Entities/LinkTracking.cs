@@ -11,14 +11,4 @@ public partial class LinkTracking
     [Column, Nullable] public string UserAgent { get; set; } // nvarchar(256)
     [Column, Nullable] public string IpAddress { get; set; } // varchar(64)
     [Column, NotNull] public DateTime RequestTimeUtc { get; set; } // datetime
-
-    #region Associations
-
-    /// <summary>
-    /// FK_LinkTracking_Link
-    /// </summary>
-    [Association(ThisKey = "LinkId", OtherKey = "Id", CanBeNull = false, Relationship = Relationship.ManyToOne, KeyName = "FK_LinkTracking_Link", BackReferenceName = "LinkTrackings")]
-    public Link Link { get; set; }
-
-    #endregion
 }

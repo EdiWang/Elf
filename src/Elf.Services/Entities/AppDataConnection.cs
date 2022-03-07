@@ -8,8 +8,6 @@ namespace Elf.Services.Entities;
 
 public class AppDataConnection : DataConnection
 {
-    public ITable<Link> Link => GetTable<Link>();
-
     public ITable<LinkTracking> LinkTracking => GetTable<LinkTracking>();
 
     public AppDataConnection(LinqToDbConnectionOptions<AppDataConnection> options)
@@ -85,12 +83,6 @@ public class AppDataConnection : DataConnection
 
 public static class TableExtensions
 {
-    public static Task<Link> FindAsync(this ITable<Link> table, int id)
-    {
-        return table.FirstOrDefaultAsync(t =>
-            t.Id == id);
-    }
-
     public static Task<LinkTracking> FindAsync(this ITable<LinkTracking> table, Guid id)
     {
         return table.FirstOrDefaultAsync(t =>
