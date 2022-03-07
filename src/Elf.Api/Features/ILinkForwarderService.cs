@@ -5,8 +5,6 @@ namespace Elf.Api.Features;
 public interface ILinkForwarderService
 {
     Task TrackSucessRedirectionAsync(LinkTrackingRequest request);
-    Task ClearTrackingDataAsync();
-    //Task<IReadOnlyList<LinkTracking>> GetTrackingRecords(int linkId, int top = 100);
     Task<string> CreateLinkAsync(CreateLinkRequest createLinkRequest);
     Task SetEnableAsync(int id, bool isEnabled);
     Task<IReadOnlyList<LinkTrackingDateCount>> GetLinkTrackingDateCount(int daysFromNow);

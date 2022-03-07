@@ -140,9 +140,4 @@ public class LinkForwarderService : ILinkForwarderService
 
         return _connection.InsertAsync(lt);
     }
-
-    public Task ClearTrackingDataAsync()
-    {
-        return _connection.LinkTracking.DeleteAsync();
-    }
 }

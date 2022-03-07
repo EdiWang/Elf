@@ -56,7 +56,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ClearTrackingData()
     {
-        await _linkForwarderService.ClearTrackingDataAsync();
+        await _mediator.Send(new ClearTrackingDataCommand());
         return NoContent();
     }
 }
