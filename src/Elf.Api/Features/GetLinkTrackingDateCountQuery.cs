@@ -27,7 +27,7 @@ public class GetLinkTrackingDateCountQueryHandler :
                           {
                               TrackingDateUtc = g.Key,
                               RequestCount = g.Count()
-                          }).ToListAsync(cancellationToken: cancellationToken);
+                          }).AsNoTracking().ToListAsync(cancellationToken);
 
         return data;
     }

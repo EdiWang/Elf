@@ -29,7 +29,7 @@ builder.Host.ConfigureAppConfiguration(config =>
             options.Connect(builder.Configuration["ConnectionStrings:AzureAppConfig"])
                 .ConfigureRefresh(refresh =>
                 {
-                    refresh.Register("Elf:Settings:Sentinel", refreshAll: true)
+                    refresh.Register("Elf:Settings:Sentinel", true)
                         .SetCacheExpiration(TimeSpan.FromSeconds(10));
                 })
                 .UseFeatureFlags(o => o.Label = "Elf");

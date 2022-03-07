@@ -28,7 +28,7 @@ public class GetMostRequestedLinkCountQueryHandler :
                 Note = g.Key.Note,
                 FwToken = g.Key.FwToken,
                 RequestCount = g.Count()
-            }).ToListAsync(cancellationToken);
+            }).AsNoTracking().ToListAsync(cancellationToken);
 
         return data;
     }
