@@ -137,16 +137,16 @@ public class ForwardController : ControllerBase
 
         try
         {
-            _ = Task.Run(async () =>
-            {
-                var scope = _factory.CreateScope();
-                var mediator = scope.ServiceProvider.GetService<IMediator>();
-                if (mediator != null)
-                {
-                    var req = new LinkTrackingRequest(ip, UserAgent, linkEntry.Id);
-                    await _mediator.Send(new TrackSucessRedirectionCommand(req));
-                }
-            });
+            //_ = Task.Run(async () =>
+            //{
+            //    var scope = _factory.CreateScope();
+            //    var mediator = scope.ServiceProvider.GetService<IMediator>();
+            //    if (mediator != null)
+            //    {
+            var req = new LinkTrackingRequest(ip, UserAgent, linkEntry.Id);
+            await _mediator.Send(new TrackSucessRedirectionCommand(req));
+            //    }
+            //});
         }
         catch (Exception e)
         {

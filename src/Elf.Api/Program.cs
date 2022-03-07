@@ -119,8 +119,7 @@ void ConfigureServices(IServiceCollection services)
         options.HeaderName = "XSRF-TOKEN";
     });
 
-    services.AddDbContext<ElfDbContext>(options =>
-        options.UseLazyLoadingProxies()
+    services.AddDbContext<ElfDbContext>(options => options.UseLazyLoadingProxies()
             .UseSqlServer(builder.Configuration.GetConnectionString("ElfDatabase"))
             .EnableDetailedErrors());
 
