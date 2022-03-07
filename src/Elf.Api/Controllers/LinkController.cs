@@ -91,7 +91,7 @@ public class LinkController : ControllerBase
             TTL = model.TTL
         };
 
-        var token = await _linkForwarderService.EditLinkAsync(editRequest);
+        var token = await _mediator.Send(new EditLinkCommand(editRequest));
         if (token is not null) await _cache.RemoveAsync(token);
         return Ok(token);
     }

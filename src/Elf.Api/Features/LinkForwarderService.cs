@@ -62,21 +62,6 @@ public class LinkForwarderService : ILinkForwarderService
         return link.FwToken;
     }
 
-    public async Task<string> EditLinkAsync(EditLinkRequest editLinkRequest)
-    {
-        var link = await _connection.Link.FirstOrDefaultAsync(p => p.Id == editLinkRequest.Id);
-        if (link is null) return null;
-
-        link.OriginUrl = editLinkRequest.NewUrl;
-        link.Note = editLinkRequest.Note;
-        link.AkaName = editLinkRequest.AkaName;
-        link.IsEnabled = editLinkRequest.IsEnabled;
-        link.TTL = editLinkRequest.TTL;
-
-        await _connection.UpdateAsync(link);
-        return link.FwToken;
-    }
-
     public async Task SetEnableAsync(int id, bool isEnabled)
     {
         var link = await _connection.Link.FirstOrDefaultAsync(p => p.Id == id);
