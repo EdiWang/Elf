@@ -1,8 +1,6 @@
 ﻿using Elf.Api.Features;
 using Elf.Api.Models;
 using Elf.MultiTenancy;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.FeatureManagement;
 
@@ -18,18 +16,20 @@ public class LinkController : ControllerBase
     private readonly IDistributedCache _cache;
     private readonly IFeatureManager _featureManager;
     private readonly Tenant _tenant;
+    private readonly IMediator _mediator;
 
     public LinkController(
         ITenantAccessor<Tenant> tenantAccessor,
         ILinkForwarderService linkForwarderService,
         ILinkVerifier linkVerifier,
         IDistributedCache cache,
-        IFeatureManager featureManager)
+        IFeatureManager featureManager, IMediator mediator)
     {
         _linkForwarderService = linkForwarderService;
         _linkVerifier = linkVerifier;
         _cache = cache;
         _featureManager = featureManager;
+        _mediator = mediator;
 
         _tenant = tenantAccessor.Tenant;
     }
@@ -108,7 +108,7 @@ public class LinkController : ControllerBase
     [ProducesResponseType(typeof(PagedLinkResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> List(string term, int take, int offset)
     {
-        var data = await _linkForwarderService.GetPagedLinksAsync(offset, take, term);
+        var data = await _mediator.Send(new ListLinkQuery(offset, take, term));
 
         var result = new PagedLinkResult
         {
@@ -125,7 +125,7 @@ public class LinkController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get(int id)
     {
-        var link = await _linkForwarderService.GetLinkAsync(id);
+        var link = await _mediator.Send(new GetLinkQuery(id));
         if (link is null) return NotFound();
 
         var model = new LinkEditModel
@@ -146,7 +146,7 @@ public class LinkController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int linkId)
     {
-        var link = await _linkForwarderService.GetLinkAsync(linkId);
+        var link = await _mediator.Send(new GetLinkQuery(linkId));
         if (link is null) return NotFound();
 
         await _linkForwarderService.DeleteLink(linkId);

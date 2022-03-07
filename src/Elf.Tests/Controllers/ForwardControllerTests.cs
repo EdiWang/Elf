@@ -1,10 +1,10 @@
-﻿using Elf.Api;
-using Elf.Api.Controllers;
+﻿using Elf.Api.Controllers;
+using Elf.Api.Data;
 using Elf.Api.Features;
 using Elf.Api.Models;
 using Elf.Api.TokenGenerator;
 using Elf.MultiTenancy;
-using Elf.Services.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
@@ -26,6 +26,7 @@ public class ForwardControllerTests
     private Mock<ILinkForwarderService> _linkForwarderServiceMock;
     private Mock<IDistributedCache> _cacheMock;
     private Mock<IFeatureManager> _mockFeatureManager;
+    private Mock<IMediator> _mockMediator;
     private Mock<ITenantAccessor<Tenant>> _mockTenantAccessor;
 
     [SetUp]
@@ -38,6 +39,7 @@ public class ForwardControllerTests
         _cacheMock = new();
         _mockFeatureManager = new();
         _mockTenantAccessor = new();
+        _mockMediator = new();
 
         _mockTenantAccessor.Setup(p => p.Tenant).Returns(new Tenant
         {
@@ -54,7 +56,8 @@ public class ForwardControllerTests
             _tokenGeneratorMock.Object,
             men ?? _cacheMock.Object,
             _linkVerifierMock.Object,
-            _mockFeatureManager.Object);
+            _mockFeatureManager.Object,
+            _mockMediator.Object);
 
 
     [TestCase("")]
@@ -110,7 +113,7 @@ public class ForwardControllerTests
         _tokenGeneratorMock.Setup(p => p.TryParseToken(inputToken, out t))
                            .Returns(true);
 
-        var link = new Link
+        var link = new LinkEntity
         {
             OriginUrl = "https://996.icu"
         };
@@ -136,11 +139,11 @@ public class ForwardControllerTests
             .Setup(p => p.TryParseToken(inputToken, out t))
             .Returns(true);
 
-        var link = new Link();
+        var link = new LinkEntity();
         var cache = MockCacheService.GetFakeCache(link, false);
 
-        _linkForwarderServiceMock
-            .Setup(p => p.GetLinkAsync(It.IsAny<Guid>(), null))
+        _mockMediator
+            .Setup(p => p.Send(It.IsAny<GetLinkByTokenQuery>(), default))
             .ReturnsAsync(() => null);
 
 
@@ -166,11 +169,11 @@ public class ForwardControllerTests
             .Setup(p => p.TryParseToken(inputToken, out t))
             .Returns(true);
 
-        var link = new Link();
+        var link = new LinkEntity();
         var cache = MockCacheService.GetFakeCache(link, false);
 
-        _linkForwarderServiceMock
-            .Setup(p => p.GetLinkAsync(It.IsAny<Guid>(), null))
+        _mockMediator
+            .Setup(p => p.Send(It.IsAny<GetLinkByTokenQuery>(), default))
             .ReturnsAsync(() => null);
 
         _linkVerifierMock
@@ -200,11 +203,11 @@ public class ForwardControllerTests
             .Setup(p => p.TryParseToken(inputToken, out t))
             .Returns(true);
 
-        var link = new Link();
+        var link = new LinkEntity();
         var cache = MockCacheService.GetFakeCache(link, false);
 
-        _linkForwarderServiceMock
-            .Setup(p => p.GetLinkAsync(It.IsAny<Guid>(), null))
+        _mockMediator
+            .Setup(p => p.Send(It.IsAny<GetLinkByTokenQuery>(), default))
             .ReturnsAsync(() => null);
 
         _linkVerifierMock
@@ -234,11 +237,11 @@ public class ForwardControllerTests
             .Setup(p => p.TryParseToken(inputToken, out t))
             .Returns(true);
 
-        var link = new Link { IsEnabled = false };
+        var link = new LinkEntity() { IsEnabled = false };
         var cache = MockCacheService.GetFakeCache(link, false);
 
-        _linkForwarderServiceMock
-            .Setup(p => p.GetLinkAsync(It.IsAny<Guid>(), null))
+        _mockMediator
+            .Setup(p => p.Send(It.IsAny<GetLinkByTokenQuery>(), default))
             .ReturnsAsync(link);
 
         _linkVerifierMock
@@ -291,11 +294,11 @@ public class ForwardControllerTests
             .Setup(p => p.TryParseToken(inputToken, out t))
             .Returns(true);
 
-        var link = new Link { IsEnabled = true, OriginUrl = "INVALID_VALUE" };
+        var link = new LinkEntity { IsEnabled = true, OriginUrl = "INVALID_VALUE" };
         var cache = MockCacheService.GetFakeCache(link, false);
 
-        _linkForwarderServiceMock
-            .Setup(p => p.GetLinkAsync(It.IsAny<Guid>(), null))
+        _mockMediator
+            .Setup(p => p.Send(It.IsAny<GetLinkByTokenQuery>(), default))
             .ReturnsAsync(link);
 
         _linkVerifierMock

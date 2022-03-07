@@ -1,4 +1,4 @@
-﻿using Elf.Services.Entities;
+﻿using Elf.Api.Data;
 using Microsoft.Extensions.Caching.Distributed;
 using Moq;
 using System.Diagnostics.CodeAnalysis;
@@ -10,7 +10,7 @@ namespace Elf.Tests;
 [ExcludeFromCodeCoverage]
 public static class MockCacheService
 {
-    public static IDistributedCache GetFakeCache(Link link, bool found = true)
+    public static IDistributedCache GetFakeCache(LinkEntity link, bool found = true)
     {
         var json = JsonSerializer.Serialize(link);
         var bytes = Encoding.UTF8.GetBytes(json);

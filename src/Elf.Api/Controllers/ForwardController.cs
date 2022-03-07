@@ -3,7 +3,6 @@ using Elf.Api.Filters;
 using Elf.Api.Models;
 using Elf.Api.TokenGenerator;
 using Elf.MultiTenancy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Primitives;
 using Microsoft.FeatureManagement;
@@ -20,7 +19,7 @@ public class ForwardController : ControllerBase
     private readonly ILinkForwarderService _linkForwarderService;
     private readonly IDistributedCache _cache;
     private readonly IFeatureManager _featureManager;
-
+    private readonly IMediator _mediator;
     private StringValues UserAgent => Request.Headers["User-Agent"];
     private readonly Tenant _tenant;
 
@@ -31,7 +30,7 @@ public class ForwardController : ControllerBase
         ITokenGenerator tokenGenerator,
         IDistributedCache cache,
         ILinkVerifier linkVerifier,
-        IFeatureManager featureManager)
+        IFeatureManager featureManager, IMediator mediator)
     {
         _logger = logger;
         _linkForwarderService = linkForwarderService;
@@ -39,6 +38,7 @@ public class ForwardController : ControllerBase
         _cache = cache;
         _linkVerifier = linkVerifier;
         _featureManager = featureManager;
+        _mediator = mediator;
 
         _tenant = tenantAccessor.Tenant;
     }
@@ -53,7 +53,7 @@ public class ForwardController : ControllerBase
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "N/A";
         if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
 
-        var token = await _linkForwarderService.GetTokenByAkaNameAsync(_tenant.Id, akaName);
+        var token = await _mediator.Send(new GetTokenByAkaNameQuery(_tenant.Id, akaName));
 
         // can not redirect to default url because it will confuse user that the aka points to that default url.
         if (token is null) return NotFound();
@@ -84,7 +84,7 @@ public class ForwardController : ControllerBase
         if (null == linkEntry)
         {
             var flag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
-            var link = await _linkForwarderService.GetLinkAsync(_tenant.Id, validatedToken);
+            var link = await _mediator.Send(new GetLinkByTokenQuery(_tenant.Id, validatedToken));
             if (link is null)
             {
                 if (string.IsNullOrWhiteSpace(_tenant.Items["DefaultRedirectionUrl"])) return NotFound();

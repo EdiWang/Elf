@@ -1,5 +1,6 @@
 using AspNetCoreRateLimit;
 using Elf.Api;
+using Elf.Api.Data;
 using Elf.Api.Features;
 using Elf.Api.TokenGenerator;
 using Elf.MultiTenancy;
@@ -13,11 +14,12 @@ using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using System.Data;
 using System.Diagnostics;
-using System.Text;
+using System.Reflection;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -83,6 +85,8 @@ app.Run();
 
 void ConfigureServices(IServiceCollection services)
 {
+    builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+
     // Fix docker deployments on Azure App Service blows up with Azure AD authentication
     // https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-6.0
     // "Outside of using IIS Integration when hosting out-of-process, Forwarded Headers Middleware isn't enabled by default."
@@ -131,6 +135,11 @@ void ConfigureServices(IServiceCollection services)
         options.FormFieldName = $"{cookieBaseName}-FORM";
         options.HeaderName = "XSRF-TOKEN";
     });
+
+    services.AddDbContext<ElfDbContext>(options =>
+        options.UseLazyLoadingProxies()
+            .UseSqlServer(builder.Configuration.GetConnectionString("ElfDatabase"))
+            .EnableDetailedErrors());
 
     services.AddLinqToDbContext<AppDataConnection>((provider, options) =>
     {

@@ -1,10 +1,10 @@
-﻿using Elf.Services.Entities;
+﻿using Elf.Api.Data;
 
 namespace Elf.Api.Models;
 
 public class PagedLinkResult
 {
-    public IReadOnlyList<Link> Links { get; set; }
+    public IReadOnlyList<LinkEntity> Links { get; set; }
 
     public int TotalRows { get; set; }
 

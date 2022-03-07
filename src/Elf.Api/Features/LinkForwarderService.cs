@@ -22,45 +22,6 @@ public class LinkForwarderService : ILinkForwarderService
         _connection = connection;
     }
 
-    public Task<bool> IsLinkExistsAsync(string token)
-    {
-        if (string.IsNullOrWhiteSpace(token)) return Task.FromResult(false);
-        return _connection.Link.AnyAsync(p => p.FwToken == token);
-    }
-
-    public async Task<(IReadOnlyList<Link> Links, int TotalRows)> GetPagedLinksAsync(
-        int offset, int pageSize, string noteKeyword = null)
-    {
-        if (pageSize < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(pageSize),
-                $"{nameof(pageSize)} can not be less than 1, current value: {pageSize}.");
-        }
-        if (offset < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(offset),
-                $"{nameof(offset)} can not be less than 0, current value: {offset}.");
-        }
-
-        var links = from l in _connection.Link
-                    select l;
-
-        if (noteKeyword is not null)
-        {
-            links = from l in _connection.Link
-                    where l.Note.Contains(noteKeyword) || l.FwToken.Contains(noteKeyword)
-                    select l;
-        }
-
-        int totalRows = await links.CountAsync();
-        var data = await links.OrderByDescending(p => p.UpdateTimeUtc)
-                              .Skip(offset)
-                              .Take(pageSize)
-                              .ToListAsync();
-
-        return (data, totalRows);
-    }
-
     public async Task<string> CreateLinkAsync(CreateLinkRequest createLinkRequest)
     {
         var l = await _connection.Link.FirstOrDefaultAsync(p => p.OriginUrl == createLinkRequest.OriginUrl);
@@ -125,27 +86,6 @@ public class LinkForwarderService : ILinkForwarderService
         await _connection.UpdateAsync(link);
     }
 
-    public Task<int> CountLinksAsync()
-    {
-        return _connection.Link.CountAsync();
-    }
-
-    public Task<Link> GetLinkAsync(int id)
-    {
-        return _connection.Link.FindAsync(id);
-    }
-
-    public Task<Link> GetLinkAsync(Guid tenantId, string token)
-    {
-        return _connection.Link.FirstOrDefaultAsync(p => p.FwToken == token && p.TenantId == tenantId);
-    }
-
-    public async Task<string> GetTokenByAkaNameAsync(Guid tenantId, string akaName)
-    {
-        var link = await _connection.Link.FirstOrDefaultAsync(p => p.AkaName == akaName && p.TenantId == tenantId);
-        return link?.FwToken;
-    }
-
     public Task DeleteLink(int linkId)
     {
         return _connection.Link.Where(p => p.Id == linkId).DeleteAsync();
@@ -208,23 +148,6 @@ public class LinkForwarderService : ILinkForwarderService
         return new List<ClientTypeCount>();
     }
 
-    public async Task<IReadOnlyList<MostRequestedLinkCount>> GetMostRequestedLinkCount(int daysFromNow)
-    {
-        var utc = DateTime.UtcNow;
-
-        var data = await _connection.LinkTracking
-                        .Where(lt => lt.RequestTimeUtc < utc && lt.RequestTimeUtc > utc.AddDays(-1 * daysFromNow))
-                        .GroupBy(lt => new { lt.Link.FwToken, lt.Link.Note })
-                        .Select(g => new MostRequestedLinkCount
-                        {
-                            Note = g.Key.Note,
-                            FwToken = g.Key.FwToken,
-                            RequestCount = g.Count()
-                        }).ToListAsync();
-
-        return data;
-    }
-
     public Task TrackSucessRedirectionAsync(LinkTrackingRequest request)
     {
         var lt = new LinkTracking
@@ -241,23 +164,5 @@ public class LinkForwarderService : ILinkForwarderService
     public Task ClearTrackingDataAsync()
     {
         return _connection.LinkTracking.DeleteAsync();
-    }
-
-    public async Task<IReadOnlyList<RequestTrack>> GetRecentRequests(int top)
-    {
-        var result = await _connection.LinkTracking
-                           .Select(p => new RequestTrack
-                           {
-                               FwToken = p.Link.FwToken,
-                               Note = p.Link.Note,
-                               RequestTimeUtc = p.RequestTimeUtc,
-                               IpAddress = p.IpAddress,
-                               UserAgent = p.UserAgent
-                           })
-                           .OrderByDescending(lt => lt.RequestTimeUtc)
-                           .Take(top)
-                           .ToListAsync();
-
-        return result;
     }
 }

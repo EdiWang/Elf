@@ -1,7 +1,5 @@
 ﻿using Elf.Api.Features;
 using Elf.Api.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Elf.Api.Controllers;
 
@@ -12,18 +10,20 @@ public class ReportController : ControllerBase
 {
     private readonly ILinkForwarderService _linkForwarderService;
     private readonly IConfiguration _configuration;
+    private readonly IMediator _mediator;
 
-    public ReportController(ILinkForwarderService linkForwarderService, IConfiguration configuration)
+    public ReportController(ILinkForwarderService linkForwarderService, IConfiguration configuration, IMediator mediator)
     {
         _linkForwarderService = linkForwarderService;
         _configuration = configuration;
+        _mediator = mediator;
     }
 
     [HttpGet("requests/recent")]
     [ProducesResponseType(typeof(IReadOnlyList<RequestTrack>), StatusCodes.Status200OK)]
     public async Task<IActionResult> RecentRequests()
     {
-        var requests = await _linkForwarderService.GetRecentRequests(64);
+        var requests = await _mediator.Send(new GetRecentRequestsQuery(64));
         return Ok(requests);
     }
 
@@ -31,7 +31,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<MostRequestedLinkCount>), StatusCodes.Status200OK)]
     public async Task<IActionResult> MostRequestedLinksPastMonth()
     {
-        var linkCounts = await _linkForwarderService.GetMostRequestedLinkCount(30);
+        var linkCounts = await _mediator.Send(new GetMostRequestedLinkCountQuery(30));
         return Ok(linkCounts);
     }
 
