@@ -15,7 +15,6 @@
 	<ItemGroup>
 		<PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
 		<PackageReference Include="AspNetCoreRateLimit" Version="4.0.1" />
-		<PackageReference Include="linq2db.AspNet" Version="3.6.0" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.2" />
@@ -41,7 +40,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Elf.MultiTenancy\Elf.MultiTenancy.csproj" />
-		<ProjectReference Include="..\Elf.Services\Elf.Services.csproj" />
 	</ItemGroup>
 
 </Project>

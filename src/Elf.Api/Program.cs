@@ -4,11 +4,6 @@ using Elf.Api.Data;
 using Elf.Api.Features;
 using Elf.Api.TokenGenerator;
 using Elf.MultiTenancy;
-using Elf.Services.Entities;
-using LinqToDB.AspNet;
-using LinqToDB.AspNet.Logging;
-using LinqToDB.Configuration;
-using LinqToDB.DataProvider.SqlServer;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using System.Data;
-using System.Diagnostics;
 using System.Reflection;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -53,27 +47,16 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
 
-    var dbConnection = services.GetRequiredService<AppDataConnection>();
-    if (dbConnection.TestDatabaseConnection(ex =>
+    var context = services.GetRequiredService<ElfDbContext>();
+    bool canConnect = await context.Database.CanConnectAsync();
+    if (!canConnect)
     {
-        Trace.WriteLine(ex);
-        Console.WriteLine(ex);
-    }))
-    {
-        if (dbConnection.IsFirstRun())
-        {
-            try
-            {
-                app.Logger.LogInformation("Initializing first run configuration...");
-                dbConnection.SetupDatabase();
-                app.Logger.LogInformation("Database setup successfully.");
-            }
-            catch (Exception e)
-            {
-                app.Logger.LogCritical(e, e.Message);
-            }
-        }
+        app.MapGet("/", _ => throw new DataException(
+            "Database connection test failed, please check your connection string and firewall settings, then RESTART Moonglade manually."));
+        app.Run();
     }
+
+    await context.Database.EnsureCreatedAsync();
 }
 
 #endregion
@@ -140,14 +123,6 @@ void ConfigureServices(IServiceCollection services)
         options.UseLazyLoadingProxies()
             .UseSqlServer(builder.Configuration.GetConnectionString("ElfDatabase"))
             .EnableDetailedErrors());
-
-    services.AddLinqToDbContext<AppDataConnection>((provider, options) =>
-    {
-        SqlServerTools.Provider = SqlServerProvider.MicrosoftDataSqlClient;
-
-        options.UseSqlServer(builder.Configuration.GetConnectionString("ElfDatabase"))
-               .UseDefaultLogging(provider);
-    });
 
     // Azure
     if (bool.Parse(builder.Configuration["AppSettings:PreferAzureAppConfiguration"]))
