@@ -149,7 +149,7 @@ public class LinkController : ControllerBase
         var link = await _mediator.Send(new GetLinkQuery(linkId));
         if (link is null) return NotFound();
 
-        await _linkForwarderService.DeleteLink(linkId);
+        await _mediator.Send(new DeleteLinkCommand(linkId));
 
         await _cache.RemoveAsync(link.FwToken);
         return Ok();

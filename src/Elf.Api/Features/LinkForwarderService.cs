@@ -71,11 +71,6 @@ public class LinkForwarderService : ILinkForwarderService
         await _connection.UpdateAsync(link);
     }
 
-    public Task DeleteLink(int linkId)
-    {
-        return _connection.Link.Where(p => p.Id == linkId).DeleteAsync();
-    }
-
     public async Task<IReadOnlyList<LinkTrackingDateCount>> GetLinkTrackingDateCount(int daysFromNow)
     {
         var utc = DateTime.UtcNow;
