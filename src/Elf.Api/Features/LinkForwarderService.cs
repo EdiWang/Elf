@@ -62,22 +62,6 @@ public class LinkForwarderService : ILinkForwarderService
         return link.FwToken;
     }
 
-    public async Task<IReadOnlyList<LinkTrackingDateCount>> GetLinkTrackingDateCount(int daysFromNow)
-    {
-        var utc = DateTime.UtcNow;
-
-        var data = await (from lt in _connection.LinkTracking
-                          where lt.RequestTimeUtc < utc && lt.RequestTimeUtc > utc.AddDays(-1 * daysFromNow)
-                          group lt by lt.RequestTimeUtc.Date into g
-                          select new LinkTrackingDateCount
-                          {
-                              TrackingDateUtc = g.Key,
-                              RequestCount = g.Count()
-                          }).ToListAsync();
-
-        return data;
-    }
-
     public async Task<IReadOnlyList<ClientTypeCount>> GetClientTypeCounts(int daysFromNow, int topTypes)
     {
         var uaParser = Parser.GetDefault();

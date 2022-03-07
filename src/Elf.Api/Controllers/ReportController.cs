@@ -48,7 +48,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<LinkTrackingDateCount>), StatusCodes.Status200OK)]
     public async Task<IActionResult> TrackingCountPastWeek()
     {
-        var dateCounts = await _linkForwarderService.GetLinkTrackingDateCount(7);
+        var dateCounts = await _mediator.Send(new GetLinkTrackingDateCountQuery(7));
         return Ok(dateCounts);
     }
 
