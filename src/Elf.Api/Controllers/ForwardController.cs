@@ -16,29 +16,28 @@ public class ForwardController : ControllerBase
     private readonly ILogger<ForwardController> _logger;
     private readonly ITokenGenerator _tokenGenerator;
     private readonly ILinkVerifier _linkVerifier;
-    private readonly ILinkForwarderService _linkForwarderService;
     private readonly IDistributedCache _cache;
     private readonly IFeatureManager _featureManager;
     private readonly IMediator _mediator;
     private StringValues UserAgent => Request.Headers["User-Agent"];
     private readonly Tenant _tenant;
+    private readonly IServiceScopeFactory _factory;
 
     public ForwardController(
         ITenantAccessor<Tenant> tenantAccessor,
         ILogger<ForwardController> logger,
-        ILinkForwarderService linkForwarderService,
         ITokenGenerator tokenGenerator,
         IDistributedCache cache,
         ILinkVerifier linkVerifier,
-        IFeatureManager featureManager, IMediator mediator)
+        IFeatureManager featureManager, IMediator mediator, IServiceScopeFactory factory)
     {
         _logger = logger;
-        _linkForwarderService = linkForwarderService;
         _tokenGenerator = tokenGenerator;
         _cache = cache;
         _linkVerifier = linkVerifier;
         _featureManager = featureManager;
         _mediator = mediator;
+        _factory = factory;
 
         _tenant = tenantAccessor.Tenant;
     }
@@ -138,8 +137,16 @@ public class ForwardController : ControllerBase
 
         try
         {
-            var req = new LinkTrackingRequest(ip, UserAgent, linkEntry.Id);
-            await _linkForwarderService.TrackSucessRedirectionAsync(req);
+            _ = Task.Run(async () =>
+            {
+                var scope = _factory.CreateScope();
+                var mediator = scope.ServiceProvider.GetService<IMediator>();
+                if (mediator != null)
+                {
+                    var req = new LinkTrackingRequest(ip, UserAgent, linkEntry.Id);
+                    await _mediator.Send(new TrackSucessRedirectionCommand(req));
+                }
+            });
         }
         catch (Exception e)
         {

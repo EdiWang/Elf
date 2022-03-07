@@ -55,17 +55,4 @@ public class LinkForwarderService : ILinkForwarderService
         }
         return new List<ClientTypeCount>();
     }
-
-    public Task TrackSucessRedirectionAsync(LinkTrackingRequest request)
-    {
-        var lt = new LinkTracking
-        {
-            IpAddress = request.IpAddress,
-            LinkId = request.LinkId,
-            RequestTimeUtc = DateTime.UtcNow,
-            UserAgent = request.UserAgent
-        };
-
-        return _connection.InsertAsync(lt);
-    }
 }

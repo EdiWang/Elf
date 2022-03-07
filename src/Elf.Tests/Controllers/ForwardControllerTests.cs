@@ -13,6 +13,7 @@ using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Elf.Tests.Controllers;
 
@@ -23,7 +24,7 @@ public class ForwardControllerTests
     private Mock<ILogger<ForwardController>> _loggerMock;
     private Mock<ITokenGenerator> _tokenGeneratorMock;
     private Mock<ILinkVerifier> _linkVerifierMock;
-    private Mock<ILinkForwarderService> _linkForwarderServiceMock;
+    private Mock<IServiceScopeFactory> _serviceScopeFactoryMock;
     private Mock<IDistributedCache> _cacheMock;
     private Mock<IFeatureManager> _mockFeatureManager;
     private Mock<IMediator> _mockMediator;
@@ -35,7 +36,7 @@ public class ForwardControllerTests
         _loggerMock = new();
         _tokenGeneratorMock = new();
         _linkVerifierMock = new();
-        _linkForwarderServiceMock = new();
+        _serviceScopeFactoryMock = new();
         _cacheMock = new();
         _mockFeatureManager = new();
         _mockTenantAccessor = new();
@@ -52,12 +53,12 @@ public class ForwardControllerTests
     private ForwardController CreateController(IDistributedCache men = null) => new(
             _mockTenantAccessor.Object,
             _loggerMock.Object,
-            _linkForwarderServiceMock.Object,
             _tokenGeneratorMock.Object,
             men ?? _cacheMock.Object,
             _linkVerifierMock.Object,
             _mockFeatureManager.Object,
-            _mockMediator.Object);
+            _mockMediator.Object, 
+            _serviceScopeFactoryMock.Object);
 
 
     [TestCase("")]
