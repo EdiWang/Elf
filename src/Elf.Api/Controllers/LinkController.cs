@@ -100,7 +100,7 @@ public class LinkController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> SetEnable(int linkId, bool isEnabled)
     {
-        await _linkForwarderService.SetEnableAsync(linkId, isEnabled);
+        await _mediator.Send(new SetEnableCommand(linkId, isEnabled));
         return NoContent();
     }
 

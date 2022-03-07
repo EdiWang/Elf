@@ -62,15 +62,6 @@ public class LinkForwarderService : ILinkForwarderService
         return link.FwToken;
     }
 
-    public async Task SetEnableAsync(int id, bool isEnabled)
-    {
-        var link = await _connection.Link.FirstOrDefaultAsync(p => p.Id == id);
-        if (link is null) return;
-
-        link.IsEnabled = isEnabled;
-        await _connection.UpdateAsync(link);
-    }
-
     public async Task<IReadOnlyList<LinkTrackingDateCount>> GetLinkTrackingDateCount(int daysFromNow)
     {
         var utc = DateTime.UtcNow;
