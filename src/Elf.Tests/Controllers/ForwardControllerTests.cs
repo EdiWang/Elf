@@ -8,12 +8,12 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Elf.Tests.Controllers;
 
@@ -57,7 +57,7 @@ public class ForwardControllerTests
             men ?? _cacheMock.Object,
             _linkVerifierMock.Object,
             _mockFeatureManager.Object,
-            _mockMediator.Object, 
+            _mockMediator.Object,
             _serviceScopeFactoryMock.Object);
 
 

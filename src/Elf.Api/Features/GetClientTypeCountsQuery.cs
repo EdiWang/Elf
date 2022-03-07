@@ -5,7 +5,7 @@ using UAParser;
 
 namespace Elf.Api.Features;
 
-public record GetClientTypeCountsQuery(int DaysFromNow, int TopTypes): IRequest<IReadOnlyList<ClientTypeCount>>;
+public record GetClientTypeCountsQuery(int DaysFromNow, int TopTypes) : IRequest<IReadOnlyList<ClientTypeCount>>;
 
 public class GetClientTypeCountsQueryHandler : IRequestHandler<GetClientTypeCountsQuery, IReadOnlyList<ClientTypeCount>>
 {
@@ -43,13 +43,13 @@ public class GetClientTypeCountsQueryHandler : IRequestHandler<GetClientTypeCoun
         if (uac.Any())
         {
             var q = from d in uac
-                group d by GetClientTypeName(d.UserAgent)
+                    group d by GetClientTypeName(d.UserAgent)
                 into g
-                select new ClientTypeCount
-                {
-                    ClientTypeName = g.Key,
-                    Count = g.Sum(gp => gp.RequestCount)
-                };
+                    select new ClientTypeCount
+                    {
+                        ClientTypeName = g.Key,
+                        Count = g.Sum(gp => gp.RequestCount)
+                    };
 
             if (request.TopTypes > 0) q = q.OrderByDescending(p => p.Count).Take(request.TopTypes);
             return q.ToList();

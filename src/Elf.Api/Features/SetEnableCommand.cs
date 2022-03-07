@@ -4,7 +4,7 @@ namespace Elf.Api.Features;
 
 public record SetEnableCommand(int Id, bool IsEnabled) : IRequest;
 
-public class SetEnableCommandHandler:IRequestHandler<SetEnableCommand>
+public class SetEnableCommandHandler : IRequestHandler<SetEnableCommand>
 {
     private readonly ElfDbContext _dbContext;
 

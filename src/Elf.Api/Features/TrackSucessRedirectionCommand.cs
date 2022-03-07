@@ -3,7 +3,7 @@ using Elf.Api.Models;
 
 namespace Elf.Api.Features;
 
-public record TrackSucessRedirectionCommand(LinkTrackingRequest Request):IRequest;
+public record TrackSucessRedirectionCommand(LinkTrackingRequest Request) : IRequest;
 
 public class TrackSucessRedirectionCommandHandler : IRequestHandler<TrackSucessRedirectionCommand>
 {

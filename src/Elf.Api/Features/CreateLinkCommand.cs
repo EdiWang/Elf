@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record CreateLinkCommand(CreateLinkRequest CreateLinkRequest):IRequest<string>;
+public record CreateLinkCommand(CreateLinkRequest CreateLinkRequest) : IRequest<string>;
 
 public class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand, string>
 {

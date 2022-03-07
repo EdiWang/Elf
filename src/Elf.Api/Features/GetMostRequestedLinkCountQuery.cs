@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record GetMostRequestedLinkCountQuery(int DaysFromNow): IRequest<IReadOnlyList<MostRequestedLinkCount>>;
+public record GetMostRequestedLinkCountQuery(int DaysFromNow) : IRequest<IReadOnlyList<MostRequestedLinkCount>>;
 
-public class GetMostRequestedLinkCountQueryHandler : 
+public class GetMostRequestedLinkCountQueryHandler :
     IRequestHandler<GetMostRequestedLinkCountQuery, IReadOnlyList<MostRequestedLinkCount>>
 {
     private readonly ElfDbContext _dbContext;
