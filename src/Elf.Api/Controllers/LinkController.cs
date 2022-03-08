@@ -2,6 +2,7 @@
 using Elf.MultiTenancy;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.FeatureManagement;
+using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Api.Controllers;
 
@@ -47,17 +48,7 @@ public class LinkController : ControllerBase
                 return BadRequest("Can not use url pointing to this site.");
         }
 
-        var createLinkRequest = new CreateLinkRequest
-        {
-            OriginUrl = model.OriginUrl,
-            Note = model.Note,
-            AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
-            IsEnabled = model.IsEnabled,
-            TTL = model.TTL,
-            TenantId = _tenant.Id
-        };
-
-        var response = await _mediator.Send(new CreateLinkCommand(createLinkRequest));
+        var response = await _mediator.Send(new CreateLinkCommand(_tenant.Id, model));
         return Ok(response);
     }
 
@@ -93,14 +84,17 @@ public class LinkController : ControllerBase
 
     [HttpGet("list")]
     [ProducesResponseType(typeof(PagedLinkResult), StatusCodes.Status200OK)]
-    public async Task<IActionResult> List(string term, int take, int offset)
+    public async Task<IActionResult> List(
+        string term,
+        [Range(1, int.MaxValue)] int take,
+        [Range(0, int.MaxValue)] int offset)
     {
-        var data = await _mediator.Send(new ListLinkQuery(offset, take, term));
+        var (links, totalRows) = await _mediator.Send(new ListLinkQuery(offset, take, term));
 
         var result = new PagedLinkResult
         {
-            Links = data.Links,
-            TotalRows = data.TotalRows,
+            Links = links,
+            TotalRows = totalRows,
             PageSize = take
         };
 
@@ -115,16 +109,7 @@ public class LinkController : ControllerBase
         var link = await _mediator.Send(new GetLinkQuery(id));
         if (link is null) return NotFound();
 
-        var model = new LinkEditModel
-        {
-            Note = link.Note,
-            AkaName = link.AkaName,
-            OriginUrl = link.OriginUrl,
-            IsEnabled = link.IsEnabled,
-            TTL = link.TTL ?? 0
-        };
-
-        return Ok(model);
+        return Ok(link);
     }
 
     [HttpDelete("{id:int}")]
