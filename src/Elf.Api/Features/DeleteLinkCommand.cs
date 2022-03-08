@@ -2,7 +2,7 @@
 
 namespace Elf.Api.Features;
 
-public record DeleteLinkCommand(int LinkId) : IRequest;
+public record DeleteLinkCommand(int Id) : IRequest;
 
 public class DeleteLinkCommandHandler : IRequestHandler<DeleteLinkCommand>
 {
@@ -15,7 +15,7 @@ public class DeleteLinkCommandHandler : IRequestHandler<DeleteLinkCommand>
 
     public async Task<Unit> Handle(DeleteLinkCommand request, CancellationToken cancellationToken)
     {
-        var link = await _dbContext.Link.FindAsync(request.LinkId);
+        var link = await _dbContext.Link.FindAsync(request.Id);
         if (link != null)
         {
             _dbContext.Remove(link);

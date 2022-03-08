@@ -1,6 +1,5 @@
 ﻿using Elf.Api.Features;
 using Elf.Api.Filters;
-using Elf.Api.Models;
 using Elf.Api.TokenGenerator;
 using Elf.MultiTenancy;
 using Microsoft.Extensions.Caching.Distributed;

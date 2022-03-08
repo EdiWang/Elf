@@ -1,5 +1,4 @@
 ﻿using Elf.Api.Data;
-using Elf.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using UAParser;
 

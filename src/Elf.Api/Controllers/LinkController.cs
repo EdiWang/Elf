@@ -1,5 +1,4 @@
 ﻿using Elf.Api.Features;
-using Elf.Api.Models;
 using Elf.MultiTenancy;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.FeatureManagement;
@@ -62,10 +61,10 @@ public class LinkController : ControllerBase
         return Ok(response);
     }
 
-    [HttpPut("{linkId:int}")]
+    [HttpPut("{id:int}")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Edit(int linkId, LinkEditModel model)
+    public async Task<IActionResult> Edit(int id, LinkEditModel model)
     {
         var flag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
         var verifyResult = _linkVerifier.Verify(model.OriginUrl, Url, Request, flag);
@@ -79,25 +78,16 @@ public class LinkController : ControllerBase
                 return BadRequest("Can not use url pointing to this site.");
         }
 
-        var editRequest = new EditLinkRequest(linkId)
-        {
-            NewUrl = model.OriginUrl,
-            Note = model.Note,
-            AkaName = string.IsNullOrWhiteSpace(model.AkaName) ? null : model.AkaName,
-            IsEnabled = model.IsEnabled,
-            TTL = model.TTL
-        };
-
-        var token = await _mediator.Send(new EditLinkCommand(editRequest));
+        var token = await _mediator.Send(new EditLinkCommand(id, model));
         if (token is not null) await _cache.RemoveAsync(token);
         return Ok(token);
     }
 
-    [HttpPut("{linkId:int}/enable")]
+    [HttpPut("{id:int}/enable")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> SetEnable(int linkId, bool isEnabled)
+    public async Task<IActionResult> SetEnable(int id, bool isEnabled)
     {
-        await _mediator.Send(new SetEnableCommand(linkId, isEnabled));
+        await _mediator.Send(new SetEnableCommand(id, isEnabled));
         return NoContent();
     }
 
@@ -127,7 +117,6 @@ public class LinkController : ControllerBase
 
         var model = new LinkEditModel
         {
-            Id = link.Id,
             Note = link.Note,
             AkaName = link.AkaName,
             OriginUrl = link.OriginUrl,
@@ -138,15 +127,15 @@ public class LinkController : ControllerBase
         return Ok(model);
     }
 
-    [HttpDelete("{linkId:int}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(typeof(LinkEditModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(int linkId)
+    public async Task<IActionResult> Delete(int id)
     {
-        var link = await _mediator.Send(new GetLinkQuery(linkId));
+        var link = await _mediator.Send(new GetLinkQuery(id));
         if (link is null) return NotFound();
 
-        await _mediator.Send(new DeleteLinkCommand(linkId));
+        await _mediator.Send(new DeleteLinkCommand(id));
 
         await _cache.RemoveAsync(link.FwToken);
         return Ok();

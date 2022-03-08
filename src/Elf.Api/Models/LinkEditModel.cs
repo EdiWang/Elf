@@ -4,8 +4,6 @@ namespace Elf.Api.Models;
 
 public class LinkEditModel
 {
-    public int Id { get; set; }
-
     [Required]
     [MinLength(1)]
     [MaxLength(256)]
@@ -29,9 +27,4 @@ public class LinkEditModel
     [Display(Name = "TTL (seconds)")]
     [Range(0, 24 * 60 * 60)]
     public int TTL { get; set; }
-
-    public LinkEditModel()
-    {
-        TTL = 3600;
-    }
 }

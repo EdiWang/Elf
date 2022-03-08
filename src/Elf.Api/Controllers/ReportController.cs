@@ -1,5 +1,4 @@
 ﻿using Elf.Api.Features;
-using Elf.Api.Models;
 
 namespace Elf.Api.Controllers;
 
