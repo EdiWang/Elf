@@ -111,14 +111,6 @@ void ConfigureServices(IServiceCollection services)
         options.AppendTrailingSlash = false;
     });
 
-    services.AddAntiforgery(options =>
-    {
-        const string cookieBaseName = "CSRF-TOKEN-ELF";
-        options.Cookie.Name = $"X-{cookieBaseName}";
-        options.FormFieldName = $"{cookieBaseName}-FORM";
-        options.HeaderName = "XSRF-TOKEN";
-    });
-
     services.AddDbContext<ElfDbContext>(options => options.UseLazyLoadingProxies()
             .UseSqlServer(builder.Configuration.GetConnectionString("ElfDatabase"))
             .EnableDetailedErrors());
@@ -151,34 +143,26 @@ void ConfigureServices(IServiceCollection services)
 
 void ConfigureMiddleware(IApplicationBuilder appBuilder)
 {
+    appBuilder.UseForwardedHeaders();
+    appBuilder.UseMultiTenancy();
+
     if (app.Environment.IsDevelopment())
     {
         app.UseCors("local");
         app.UseSwagger();
         app.UseSwaggerUI();
-    }
-
-    appBuilder.UseForwardedHeaders();
-
-    appBuilder.UseMultiTenancy();
-
-    if (!app.Environment.IsProduction())
-    {
         var tc = app.Services.GetRequiredService<TelemetryConfiguration>();
         tc.DisableTelemetry = true;
         TelemetryDebugWriter.IsTracingDisabled = true;
-    }
-
-    if (app.Environment.IsDevelopment())
-    {
         appBuilder.UseDeveloperExceptionPage();
     }
     else
     {
         appBuilder.UseStatusCodePages();
-        appBuilder.UseHsts();
-        appBuilder.UseHttpsRedirection();
     }
+
+    appBuilder.UseHsts();
+    appBuilder.UseHttpsRedirection();
 
     if (bool.Parse(app.Configuration["AppSettings:PreferAzureAppConfiguration"]))
     {
@@ -186,10 +170,15 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder)
     }
 
     appBuilder.UseStaticFiles();
-
     appBuilder.UseIpRateLimiting();
+    appBuilder.UseRouting();
+    appBuilder.UseAuthentication();
+    appBuilder.UseAuthorization();
+}
 
-    app.MapGet("/", (HttpContext httpContext) =>
+void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
+{
+    endpoints.MapGet("/", (HttpContext httpContext) =>
     {
         httpContext.Response.Headers.Add("X-Elf-Version", Utils.AppVersion);
         var obj = new
@@ -201,20 +190,6 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder)
         };
 
         return obj;
-    });
-
-    appBuilder.UseRouting();
-
-    appBuilder.UseAuthentication();
-    appBuilder.UseAuthorization();
-}
-
-void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
-{
-    endpoints.MapGet("/accessdenied", async context =>
-    {
-        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        await context.Response.WriteAsync("Access Denied");
     });
 
     endpoints.MapControllers();
