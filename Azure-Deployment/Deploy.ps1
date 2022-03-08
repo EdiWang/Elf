@@ -16,7 +16,7 @@ param(
 # Start script
 $rndNumber = Get-Random -Minimum 100 -Maximum 999
 $rsgName = "elfgroup$rndNumber"
-$webAppName = "elfweb$rndNumber"
+$webAppName = "elfapi$rndNumber"
 $aspName = "elfplan$rndNumber"
 $sqlServerName = "elfsqlsvr$rndNumber"
 $sqlServerUsername = "elf"
@@ -94,18 +94,18 @@ if (!$planExists) {
 
 # Web App
 Write-Host ""
-Write-Host "Preparing Web App..." -ForegroundColor Green
+Write-Host "Preparing Api..." -ForegroundColor Green
 $appCheck = az webapp list --query "[?name=='$webAppName']" | ConvertFrom-Json
 $appExists = $appCheck.Length -gt 0
 if (!$appExists) {
-    Write-Host "Creating Web App"
+    Write-Host "Creating Api"
     if ($useLinuxPlanWithDocker) {
         Write-Host "Using Linux Plan with Docker image from 'ediwang/elf', this deployment will be ready to run."
         $echo = az webapp create -g $rsgName -p $aspName -n $webAppName --deployment-container-image-name ediwang/elf
     }
     else {
         Write-Host "Using Windows Plan with deployment from GitHub source code."
-        $echo = az webapp create -g $rsgName -p $aspName -n $webAppName --runtime "DOTNET |5.0"
+        $echo = az webapp create -g $rsgName -p $aspName -n $webAppName --runtime "DOTNET |6.0"
     }
     $echo = az webapp config set -g $rsgName -n $webAppName --always-on true --use-32bit-worker-process false --http20-enabled true 
 }
@@ -114,7 +114,7 @@ $createdApp = az webapp list --query "[?name=='$webAppName']" | ConvertFrom-Json
 $createdExists = $createdApp.Length -gt 0
 if ($createdExists) {
     $webAppUrl = "https://" + $createdApp.defaultHostName
-    Write-Host "Web App URL: $webAppUrl"
+    Write-Host "Api URL: $webAppUrl"
 }
 
 # Azure SQL
