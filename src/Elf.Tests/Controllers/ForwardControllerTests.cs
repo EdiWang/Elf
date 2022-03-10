@@ -1,19 +1,18 @@
 ﻿using Elf.Api.Controllers;
 using Elf.Api.Data;
 using Elf.Api.Features;
-using Elf.Api.Models;
 using Elf.Api.TokenGenerator;
 using Elf.MultiTenancy;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 using Moq;
 using NUnit.Framework;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Elf.Tests.Controllers;
 
@@ -27,6 +26,8 @@ public class ForwardControllerTests
     private Mock<IDistributedCache> _cacheMock;
     private Mock<IFeatureManager> _mockFeatureManager;
     private Mock<IMediator> _mockMediator;
+    private Mock<IServiceScopeFactory> _mockFactory;
+
     private Mock<ITenantAccessor<Tenant>> _mockTenantAccessor;
 
     [SetUp]
@@ -39,6 +40,7 @@ public class ForwardControllerTests
         _mockFeatureManager = new();
         _mockTenantAccessor = new();
         _mockMediator = new();
+        _mockFactory = new();
 
         _mockTenantAccessor.Setup(p => p.Tenant).Returns(new Tenant
         {
@@ -55,7 +57,8 @@ public class ForwardControllerTests
             men ?? _cacheMock.Object,
             _linkVerifierMock.Object,
             _mockFeatureManager.Object,
-            _mockMediator.Object);
+            _mockMediator.Object,
+            _mockFactory.Object);
 
 
     [TestCase("")]

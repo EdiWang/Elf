@@ -18,6 +18,8 @@ public class ForwardController : ControllerBase
     private readonly IDistributedCache _cache;
     private readonly IFeatureManager _featureManager;
     private readonly IMediator _mediator;
+    private readonly IServiceScopeFactory _factory;
+
     private StringValues UserAgent => Request.Headers["User-Agent"];
     private readonly Tenant _tenant;
 
@@ -28,7 +30,8 @@ public class ForwardController : ControllerBase
         IDistributedCache cache,
         ILinkVerifier linkVerifier,
         IFeatureManager featureManager,
-        IMediator mediator)
+        IMediator mediator,
+        IServiceScopeFactory factory)
     {
         _logger = logger;
         _tokenGenerator = tokenGenerator;
@@ -36,6 +39,7 @@ public class ForwardController : ControllerBase
         _linkVerifier = linkVerifier;
         _featureManager = featureManager;
         _mediator = mediator;
+        _factory = factory;
 
         _tenant = tenantAccessor.Tenant;
     }
@@ -134,18 +138,16 @@ public class ForwardController : ControllerBase
         {
             try
             {
-                //var factory = HttpContext.RequestServices.GetService<IServiceScopeFactory>();
-
-                //_ = Task.Run(async () =>
-                //{
-                //    var scope = factory.CreateScope();
-                //    var mediator = scope.ServiceProvider.GetService<IMediator>();
-                //    if (mediator != null)
-                //    {
-                var req = new LinkTrackingRequest(ip, UserAgent, linkEntry.Id);
-                await _mediator.Send(new TrackSucessRedirectionCommand(req));
-                //    }
-                //});
+                _ = Task.Run(async () =>
+                {
+                    var scope = _factory.CreateScope();
+                    var mediator = scope.ServiceProvider.GetService<IMediator>();
+                    if (mediator != null)
+                    {
+                        var req = new LinkTrackingRequest(ip, UserAgent, linkEntry.Id);
+                        await mediator.Send(new TrackSucessRedirectionCommand(req));
+                    }
+                });
             }
             catch (Exception e)
             {
