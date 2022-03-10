@@ -6,7 +6,7 @@ public class ShortGuidTokenGenerator : ITokenGenerator
 
     public string GenerateToken()
     {
-        return Guid.NewGuid().ToString().Substring(0, Length).ToLower();
+        return Guid.NewGuid().ToString()[..Length].ToLower();
     }
 
     public bool TryParseToken(string input, out string token)
