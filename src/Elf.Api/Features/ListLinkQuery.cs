@@ -28,7 +28,7 @@ namespace Elf.Api.Features
                         select l;
             }
 
-            int totalRows = query.Count();
+            var totalRows = query.Count();
             var data = await query.OrderByDescending(p => p.UpdateTimeUtc)
                 .Skip(offset)
                 .Take(take)

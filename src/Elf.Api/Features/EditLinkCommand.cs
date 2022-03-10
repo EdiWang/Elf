@@ -1,5 +1,4 @@
 ﻿using Elf.Api.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
@@ -18,7 +17,7 @@ public class EditLinkCommandHandler : IRequestHandler<EditLinkCommand, string>
     {
         var (id, payload) = request;
 
-        var link = await _dbContext.Link.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        var link = await _dbContext.Link.FindAsync(id, cancellationToken);
         if (link is null) return null;
 
         link.OriginUrl = payload.OriginUrl;

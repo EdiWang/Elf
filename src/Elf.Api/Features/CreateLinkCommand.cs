@@ -34,7 +34,7 @@ public class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand, strin
                 return tk;
             }
 
-            string message = $"Invalid token '{tempToken}' found for existing url '{payload.OriginUrl}'";
+            var message = $"Invalid token '{tempToken}' found for existing url '{payload.OriginUrl}'";
             _logger.LogError(message);
         }
 

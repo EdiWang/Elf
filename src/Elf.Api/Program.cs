@@ -48,7 +48,7 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
 
     var context = services.GetRequiredService<ElfDbContext>();
-    bool canConnect = await context.Database.CanConnectAsync();
+    var canConnect = await context.Database.CanConnectAsync();
     if (!canConnect)
     {
         app.MapGet("/", _ => throw new DataException(
@@ -85,7 +85,7 @@ void ConfigureServices(IServiceCollection services)
             .WithStore<AppSettingsTenantStore>();
     services.AddFeatureManagement();
 
-    bool useRedis = builder.Configuration.GetSection("AppSettings:UseRedis").Get<bool>();
+    var useRedis = builder.Configuration.GetSection("AppSettings:UseRedis").Get<bool>();
     if (useRedis)
     {
         services.AddStackExchangeRedisCache(options =>

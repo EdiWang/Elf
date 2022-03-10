@@ -23,7 +23,7 @@ public class GetClientTypeCountsQueryHandler : IRequestHandler<GetClientTypeCoun
         {
             if (string.IsNullOrWhiteSpace(userAgent)) return "N/A";
 
-            ClientInfo c = uaParser.Parse(userAgent);
+            var c = uaParser.Parse(userAgent);
             return $"{c.OS.Family}-{c.UA.Family}";
         }
 
@@ -43,7 +43,7 @@ public class GetClientTypeCountsQueryHandler : IRequestHandler<GetClientTypeCoun
         {
             var q = from d in uac
                     group d by GetClientTypeName(d.UserAgent)
-                into g
+                    into g
                     select new ClientTypeCount
                     {
                         ClientTypeName = g.Key,

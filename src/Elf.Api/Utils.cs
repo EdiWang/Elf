@@ -66,7 +66,7 @@ public static class Utils
 
         var tagRegex = new Regex(@"^[a-zA-Z0-9-#@$()\[\]/]+$");
         var tags = tagsEnv.Split(',');
-        foreach (string tag in tags)
+        foreach (var tag in tags)
         {
             var t = tag.Trim();
             if (tagRegex.IsMatch(t))
