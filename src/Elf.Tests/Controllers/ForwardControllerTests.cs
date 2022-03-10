@@ -24,7 +24,6 @@ public class ForwardControllerTests
     private Mock<ILogger<ForwardController>> _loggerMock;
     private Mock<ITokenGenerator> _tokenGeneratorMock;
     private Mock<ILinkVerifier> _linkVerifierMock;
-    private Mock<IServiceScopeFactory> _serviceScopeFactoryMock;
     private Mock<IDistributedCache> _cacheMock;
     private Mock<IFeatureManager> _mockFeatureManager;
     private Mock<IMediator> _mockMediator;
@@ -36,7 +35,6 @@ public class ForwardControllerTests
         _loggerMock = new();
         _tokenGeneratorMock = new();
         _linkVerifierMock = new();
-        _serviceScopeFactoryMock = new();
         _cacheMock = new();
         _mockFeatureManager = new();
         _mockTenantAccessor = new();
@@ -57,8 +55,7 @@ public class ForwardControllerTests
             men ?? _cacheMock.Object,
             _linkVerifierMock.Object,
             _mockFeatureManager.Object,
-            _mockMediator.Object,
-            _serviceScopeFactoryMock.Object);
+            _mockMediator.Object);
 
 
     [TestCase("")]
@@ -121,8 +118,6 @@ public class ForwardControllerTests
 
         var fakeCache = MockCacheService.GetFakeCache(link);
         // var cachedResponse = cache.Get<Link>(inputToken);
-
-        _mockFeatureManager.Setup(p => p.IsEnabledAsync(nameof(FeatureFlags.HonorDNT))).Returns(Task.FromResult(false));
 
         var ctl = CreateController(fakeCache);
         ctl.ControllerContext = GetHappyPathHttpContext();

@@ -20,7 +20,6 @@ public class ForwardController : ControllerBase
     private readonly IMediator _mediator;
     private StringValues UserAgent => Request.Headers["User-Agent"];
     private readonly Tenant _tenant;
-    private readonly IServiceScopeFactory _factory;
 
     public ForwardController(
         ITenantAccessor<Tenant> tenantAccessor,
@@ -28,7 +27,8 @@ public class ForwardController : ControllerBase
         ITokenGenerator tokenGenerator,
         IDistributedCache cache,
         ILinkVerifier linkVerifier,
-        IFeatureManager featureManager, IMediator mediator, IServiceScopeFactory factory)
+        IFeatureManager featureManager,
+        IMediator mediator)
     {
         _logger = logger;
         _tokenGenerator = tokenGenerator;
@@ -36,7 +36,6 @@ public class ForwardController : ControllerBase
         _linkVerifier = linkVerifier;
         _featureManager = featureManager;
         _mediator = mediator;
-        _factory = factory;
 
         _tenant = tenantAccessor.Tenant;
     }
@@ -126,32 +125,34 @@ public class ForwardController : ControllerBase
 
         linkEntry ??= await _cache.GetLink(token);
 
-        var honorDNTFlag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.HonorDNT));
-        if (!honorDNTFlag) return Redirect(linkEntry.OriginUrl);
-
         // Check if browser sends "Do Not Track"
         var dntFlag = Request.Headers["DNT"];
         var dnt = !string.IsNullOrWhiteSpace(dntFlag) && dntFlag == "1";
         if (dnt) return Redirect(linkEntry.OriginUrl);
 
-        try
+        if (await _featureManager.IsEnabledAsync(nameof(FeatureFlags.EnableTracking)))
         {
-            //_ = Task.Run(async () =>
-            //{
-            //    var scope = _factory.CreateScope();
-            //    var mediator = scope.ServiceProvider.GetService<IMediator>();
-            //    if (mediator != null)
-            //    {
-            var req = new LinkTrackingRequest(ip, UserAgent, linkEntry.Id);
-            await _mediator.Send(new TrackSucessRedirectionCommand(req));
-            //    }
-            //});
-        }
-        catch (Exception e)
-        {
-            // Eat exception, pretend everything is fine
-            // Do not block workflow here
-            _logger.LogError(e.Message, e);
+            try
+            {
+                //var factory = HttpContext.RequestServices.GetService<IServiceScopeFactory>();
+
+                //_ = Task.Run(async () =>
+                //{
+                //    var scope = factory.CreateScope();
+                //    var mediator = scope.ServiceProvider.GetService<IMediator>();
+                //    if (mediator != null)
+                //    {
+                var req = new LinkTrackingRequest(ip, UserAgent, linkEntry.Id);
+                await _mediator.Send(new TrackSucessRedirectionCommand(req));
+                //    }
+                //});
+            }
+            catch (Exception e)
+            {
+                // Eat exception, pretend everything is fine
+                // Do not block workflow here
+                _logger.LogError(e.Message, e);
+            }
         }
 
         return Redirect(linkEntry.OriginUrl);
