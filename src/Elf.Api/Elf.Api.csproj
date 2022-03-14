@@ -16,12 +16,12 @@
 
 	<ItemGroup>
 		<PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
-		<PackageReference Include="AspNetCoreRateLimit" Version="4.0.1" />
+		<PackageReference Include="AspNetCoreRateLimit" Version="4.0.2" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.3" />
-		<PackageReference Include="Microsoft.Identity.Web" Version="1.23.0" />
+		<PackageReference Include="Microsoft.Identity.Web" Version="1.23.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
 		<PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="6.0.3" />
