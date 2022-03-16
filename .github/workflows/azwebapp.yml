@@ -1,12 +1,12 @@
-name: Azure Web App Build and Deploy
+name: API Build and Deploy
 
 on:
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - '*'
+    paths:
+      - src/API/**
+      
 # CONFIGURATION
 # For help, go to https://github.com/Azure/Actions
 #
