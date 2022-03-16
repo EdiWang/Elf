@@ -4,7 +4,7 @@ namespace Elf.Api.Features;
 
 public record TrackSucessRedirectionCommand(LinkTrackingRequest Request) : IRequest;
 
-public class TrackSucessRedirectionCommandHandler : IRequestHandler<TrackSucessRedirectionCommand>
+public class TrackSucessRedirectionCommandHandler : AsyncRequestHandler<TrackSucessRedirectionCommand>
 {
     private readonly ElfDbContext _dbContext;
 
@@ -13,7 +13,7 @@ public class TrackSucessRedirectionCommandHandler : IRequestHandler<TrackSucessR
         _dbContext = dbContext;
     }
 
-    public async Task<Unit> Handle(TrackSucessRedirectionCommand request, CancellationToken cancellationToken)
+    protected override async Task Handle(TrackSucessRedirectionCommand request, CancellationToken cancellationToken)
     {
         var lt = new LinkTrackingEntity
         {
@@ -25,7 +25,5 @@ public class TrackSucessRedirectionCommandHandler : IRequestHandler<TrackSucessR
 
         await _dbContext.AddAsync(lt, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return Unit.Value;
     }
 }
