@@ -104,7 +104,7 @@ To use Redis, follow these steps:
 6. In the app's registration screen, click on the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Click the **Add a permission** button and then,
    - Ensure that the **My APIs** tab is selected.
-   - In the list of APIs, select the API you created in [Elf](https://github.com/EdiWang/Elf) project.
+   - In the list of APIs, select the API you created.
    - In the **Delegated permissions** section, select the **access_as_user** in the list. Use the search box if necessary.
    - Click on the **Add permissions** button at the bottom.
 
