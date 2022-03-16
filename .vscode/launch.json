@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Elf.Api/bin/Debug/net6.0/Elf.Api.dll",
+            "program": "${workspaceFolder}/src/API/Elf.Api/bin/Debug/net6.0/Elf.Api.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/Elf.Api",
+            "cwd": "${workspaceFolder}/src/API/Elf.Api",
             "stopAtEntry": false,
             "launchBrowser": {
                 "enabled": true
