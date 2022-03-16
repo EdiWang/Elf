@@ -3,9 +3,7 @@ name: Docker on Linux
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
+    paths: [ src/API/** ]
 jobs:
 
   build:
