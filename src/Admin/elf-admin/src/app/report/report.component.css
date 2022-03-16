@@ -1,0 +1,10 @@
+table {
+  width: 100%;
+}
+
+.mat-column-userAgent {
+  white-space: nowrap !important;
+  max-width: 500px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

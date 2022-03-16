@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>Share</h2>
+
+<mat-dialog-content>
+    <qrcode
+    [qrdata]="qrUrl"
+    [allowEmptyString]="true"
+    [cssClass]="'center'"
+    [colorDark]="'#000000ff'"
+    [colorLight]="'#ffffffff'"
+    [elementType]="'canvas'"
+    [errorCorrectionLevel]="'M'"
+    [margin]="4"
+    [scale]="1"
+    [width]="300"
+    ></qrcode>
+
+    <div class="text-center">
+        <code>{{ENV.elfApiBaseUrl}}/fw/{{ data.fwToken }}</code> <br />
+        <code *ngIf="data.akaName">{{ENV.elfApiBaseUrl}}/aka/{{ data.akaName }}</code>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-stroked-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

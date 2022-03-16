@@ -1,0 +1,31 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "a5f03891-9a66-4cf1-9ba9-d23c9b22ae6e": {
+      "ProjectGuid": "a5f03891-9a66-4cf1-9ba9-d23c9b22ae6e",
+      "DisplayName": "Elf.Web",
+      "ColorIndex": 0
+    },
+    "4ffc9d65-cfae-4d77-8822-3e019cc6ce10": {
+      "ProjectGuid": "4ffc9d65-cfae-4d77-8822-3e019cc6ce10",
+      "DisplayName": ".Solution Items",
+      "ColorIndex": 1
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Miscellaneous Files",
+      "ColorIndex": -1
+    },
+    "5ea676f8-a271-40e2-bcbf-09e80e5925c6": {
+      "ProjectGuid": "5ea676f8-a271-40e2-bcbf-09e80e5925c6",
+      "DisplayName": "Elf.Tests",
+      "ColorIndex": 2
+    },
+    "31ec911f-e050-41d5-bb22-3d193c99ff50": {
+      "ProjectGuid": "31ec911f-e050-41d5-bb22-3d193c99ff50",
+      "DisplayName": "Elf.Services",
+      "ColorIndex": 3
+    }
+  },
+  "NextColorIndex": 4
+}

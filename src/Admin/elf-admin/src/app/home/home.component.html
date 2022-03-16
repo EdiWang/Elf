@@ -1,0 +1,18 @@
+<div class="container mt-4">
+    <mat-card class="login-warning" *ngIf="!loginDisplay">
+        Please Sign-in with Azure AD
+    </mat-card>
+
+    <div class="text-center" *ngIf="loginDisplay">
+        <h3>
+            Elf
+        </h3>
+        <div>
+            The .NET 6 link forward service runs on Microsoft Azure
+        </div>
+        
+        <mat-divider class="mt-4 mb-4"></mat-divider>
+        <a mat-stroked-button href="https://github.com/EdiWang/Elf" target="_blank">GitHub</a>
+    </div>
+</div>
+

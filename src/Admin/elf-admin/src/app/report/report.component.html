@@ -1,0 +1,83 @@
+<mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+<div class="container-fluid">
+    <div class="row g-2">
+        <div class="col">
+            <mat-card class="mt-4 mb-4">
+                <mat-card-title>Requests in past 7 days</mat-card-title>
+                <mat-card-content>
+                    <canvas baseChart [data]="pastWeekChartData" [options]="pastWeekChartOptions"
+                        [type]="'line'"></canvas>
+                </mat-card-content>
+            </mat-card>
+        </div>
+        <div class="col">
+            <mat-card class="mt-4 mb-4">
+                <mat-card-title>Client type in past 30 days</mat-card-title>
+                <mat-card-content style="max-width: 500px;">
+                    <canvas baseChart [data]="clientTypeChartData" [options]="clientTypeChartOptions" [type]="'doughnut'"></canvas>
+                </mat-card-content>
+            </mat-card>
+        </div>
+        <div class="col">
+            <mat-card class="mt-4 mb-4">
+                <mat-card-title>Most requested in past 30 days</mat-card-title>
+                <mat-card-content style="max-width: 500px;">
+                    <canvas baseChart [data]="mostRequestedChartData" [options]="mostRequestedChartOptions" [type]="'pie'"></canvas>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+
+    <mat-card class="mb-4">
+        <div class="d-flex">
+            <div>
+                <mat-card-title>Recent Requests</mat-card-title>
+                <mat-card-subtitle>Top 64 requests</mat-card-subtitle>
+            </div>
+
+            <button mat-icon-button color="primary" (click)="getRecentRequests()">
+                <mat-icon class="material-icons">refresh</mat-icon>
+            </button>
+
+            <button mat-icon-button color="accent" (click)="clearTrackingData()">
+                <mat-icon class="material-icons">delete</mat-icon>
+            </button>
+        </div>
+
+        <mat-card-content>
+            <table mat-table [dataSource]="dataSource">
+                <ng-container matColumnDef="fwToken">
+                    <th mat-header-cell *matHeaderCellDef> Token </th>
+                    <td mat-cell *matCellDef="let link"> {{link.fwToken}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="note">
+                    <th mat-header-cell *matHeaderCellDef> Note </th>
+                    <td mat-cell *matCellDef="let link"> {{link.note}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="userAgent">
+                    <th mat-header-cell *matHeaderCellDef> User Agent </th>
+                    <td mat-cell *matCellDef="let link"> {{link.userAgent}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="ipAddress">
+                    <th mat-header-cell *matHeaderCellDef> IP Address </th>
+                    <td mat-cell *matCellDef="let link"> {{link.ipAddress}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="requestTimeUtc">
+                    <th mat-header-cell *matHeaderCellDef> Request Time (UTC) </th>
+                    <td mat-cell *matCellDef="let link"> {{link.requestTimeUtc | date:'yyyy-MM-dd HH:mm'}} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
+                aria-label="Select page of periodic elements">
+            </mat-paginator>
+        </mat-card-content>
+    </mat-card>
+</div>

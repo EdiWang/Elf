@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>Link</h2>
+<form [formGroup]="editLinkForm" (ngSubmit)="submitForm()" novalidate>
+    <mat-dialog-content class="edit-link-dialog-content d-flex flex-column">
+        <mat-form-field>
+            <input matInput type="url" placeholder="Origin Url" formControlName="originUrl">
+        </mat-form-field>
+        <mat-form-field>
+            <input matInput placeholder="Note" formControlName="note">
+        </mat-form-field>
+        <mat-form-field>
+            <input matInput type="number" placeholder="TTL" formControlName="ttl" min="0">
+            <span matSuffix>s</span>
+          </mat-form-field>
+        <mat-checkbox formControlName="isEnabled">Enable</mat-checkbox>
+
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <a mat-flat-button mat-dialog-close>Cancel</a>
+        <button type="submit" mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="!editLinkForm.valid">Save</button>
+    </mat-dialog-actions>
+</form>

@@ -1,0 +1,38 @@
+table {
+  width: 100%;
+}
+
+.mat-column-originUrl {
+  white-space: nowrap !important;
+  max-width: 300px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-field {
+  width: 300px;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.links-table-container {
+  margin-top: 64px;
+}
+
+.z-index-999 {
+  z-index: 999;
+}
+
+.copy-icon {
+  height: 20px;
+  width: 20px;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+.a-chip {
+  color: #333;
+  font-family: 'Cascadia Code', 'Consolas', 'Courier New', Courier, monospace;
+}

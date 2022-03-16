@@ -1,0 +1,20 @@
+<nav class="elf-navbar mat-elevation-z6">
+    <div class="elf-navbar-header">
+        <a mat-button [routerLink]="['/']" (click)="setMenu('home')">Elf Admin</a>
+
+        <a mat-button [routerLink]="['links']" [ngClass]="{'active': currentMenu == 'links'}" (click)="setMenu('links')">Manage Links</a>
+        <a mat-button [routerLink]="['report']" [ngClass]="{'active': currentMenu == 'report'}" (click)="setMenu('report')">Report</a>
+
+        <div class="flex-spacer"></div>
+
+        <div class="api-info me-3">API: {{ ENV.elfApiBaseUrl }}</div>
+        <div class="user-info d-flex me-3" *ngIf="loginDisplay">
+            <mat-icon class="me-2">account_circle</mat-icon>
+            {{ accountInfo.name }} ({{ accountInfo.username }})
+        </div>
+
+        <button mat-flat-button *ngIf="!loginDisplay" (click)="login()">Login</button>
+        <button mat-flat-button *ngIf="loginDisplay" (click)="logout()">Logout</button>
+    </div>
+</nav>
+<router-outlet *ngIf="!isIframe"></router-outlet>
