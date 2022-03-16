@@ -36,7 +36,7 @@ jobs:
       
       # Run dotnet build and publish
       - name: dotnet build and publish
-        working-directory: ./src
+        working-directory: ./src/API
         run: |
           dotnet build --configuration Release
           dotnet publish -c Release --no-build -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/elfapp' 
