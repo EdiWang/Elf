@@ -39,7 +39,7 @@ jobs:
         working-directory: ./src/API
         run: |
           dotnet build --configuration Release
-          dotnet publish -c Release --no-build -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/API/elfapi' 
+          dotnet publish -c Release --no-build -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/elfapi' 
           
       # Deploy to Azure Web apps
       - name: 'Run Azure webapp deploy action using publish profile credentials'
