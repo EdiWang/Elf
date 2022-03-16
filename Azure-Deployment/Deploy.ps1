@@ -58,7 +58,7 @@ else {
 
 # Confirmation
 Clear-Host
-Write-Host "Your Elf will be deployed to [$rsgName] in [$regionName] under Azure subscription [$subscriptionName]. Please confirm before continue." -ForegroundColor Green
+Write-Host "Your Elf API will be deployed to [$rsgName] in [$regionName] under Azure subscription [$subscriptionName]. Please confirm before continue." -ForegroundColor Green
 if ($useLinuxPlanWithDocker) {
     Write-Host "+ Linux App Service Plan with Docker" -ForegroundColor Cyan
 }
@@ -153,4 +153,4 @@ if (!$useLinuxPlanWithDocker){
     $echo = az webapp deployment source config --branch master --manual-integration --name $webAppName --repo-url https://github.com/EdiWang/Elf --resource-group $rsgName
 }
 
-Read-Host -Prompt "Setup is done, you should be able to run Elf on '$webAppUrl' now, press [ENTER] to exit."
+Read-Host -Prompt "Setup is done, you should be able to run Elf API on '$webAppUrl' now, press [ENTER] to exit."
