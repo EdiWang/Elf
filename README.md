@@ -14,23 +14,11 @@ Raw URL:
 https://www.somewebsite.com/a-very-long-and-complicated-link-that-can-also-change?with=parameters
 ```
 
-will translate to
-
-```
-https://yourdomain/fw/token
-```
-
-or 
-
-```
-https://yourdomain/aka/name
-```
+will be translate to `https://yourdomain/fw/token` or `https://yourdomain/aka/name`
 
 ## Features
 
 Forward Link, Create/Manage/Share Link, View Report.
-
-Example UI [ElfAdmin](https://github.com/EdiWang/ElfAdmin)
 
 ![image](https://user-images.githubusercontent.com/3304703/156873651-845c72fe-84e7-4536-bfe4-6785accae5ce.png)
 ![image](https://user-images.githubusercontent.com/3304703/156873643-38f9d582-777e-4cb1-b053-6656fb5bd36e.png)
@@ -45,7 +33,7 @@ https://hub.docker.com/r/ediwang/elf
 
 You can also follow the next section to build and run the project yourself.
 
-## Build and Run
+## Build and Run API
 
 Tools | Alternative
 --- | ---
@@ -57,46 +45,26 @@ For a quick Azure deployment, you can use the automation script ```Azure-Deploym
 
 ### Setup Database
 
-#### 1. Create Database 
-
-##### For Development (Light Weight, Recommended for Windows)
-
-Create an [SQL Server 2019 LocalDB](https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb?WT.mc_id=AZ-MVP-5002809) database. e.g. elf
-
-##### For Production
-
 [Create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started?WT.mc_id=AZ-MVP-5002809) or a SQL Server 2019+ database. e.g. elf
 
-#### 2. Set Connection String
+Update the connection string "**ElfDatabase**" in **appsettings.[env].json**
 
-Update the connection string "**ElfDatabase**" in **appsettings.[env].json** according to your database configuration.
-
-Example:
 ```json
 "ConnectionStrings": {
   "ElfDatabase": "Server=(localdb)\\MSSQLLocalDB;Database=elf;Trusted_Connection=True;"
 }
 ```
-
 ### Build Source
 
-1. Create an "**appsettings.Development.json**" under "**src\\Elf.Web**", this file defines development time settings like db connections. It is by default ignored by git, so you will need to manange it on your own.
-
-2. Build and run **Elf.sln**
-
-## Configuration
-
-> Below section discuss system settings in **appsettings.[env].json**. 
+Build and run `./src/API/Elf.sln`
 
 ### Authentication
-
-Configure how to sign in to admin portal.
 
 Register an App in **[Azure Active Directory]((https://azure.microsoft.com/en-us/services/active-directory/))**
 - Set an **Application ID URI** as unique for this app
 - Expose an API with name `access_as_user` and with **Admins and users** type
 - Change `accessTokenAcceptedVersion` to `2` in Manifest blade
-- Copy "**appId**" to set as **AzureAd:ClientId** in **appsettings.[env].json** file
+- Copy "**appId**" to set as **AzureAd:ClientId** in **appsettings.json** file
 
 ```json
 "AzureAd": {
@@ -106,12 +74,12 @@ Register an App in **[Azure Active Directory]((https://azure.microsoft.com/en-us
 }
 ```
 
-### Azure Cache for Redis
+### Azure Cache for Redis (Optional)
 
 To use Redis, follow these steps:
 
 1. Create an [Azure Cache for Redis instance](https://docs.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview?WT.mc_id=AZ-MVP-5002809)
 2. Copy the connection string in "Access keys"
-3. Set the connection string in `ConnectionStrings:RedisConnection` in `appsettings.[env].json` or environment variable
-4. Set `AppSettings:UseRedis` to `true` in `appsettings.[env].json` or environment variable
+3. Set the connection string in `ConnectionStrings:RedisConnection` in `appsettings.json` or environment variable
+4. Set `AppSettings:UseRedis` to `true` in `appsettings.json` or environment variable
 5. Restart the application
