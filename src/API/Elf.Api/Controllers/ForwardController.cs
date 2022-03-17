@@ -51,7 +51,7 @@ public class ForwardController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(akaName)) return BadRequest();
 
-        var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "N/A";
+        var ip = Utils.GetClientIP(HttpContext) ?? "N/A";
         if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
 
         var token = await _mediator.Send(new GetTokenByAkaNameQuery(_tenant.Id, akaName));
