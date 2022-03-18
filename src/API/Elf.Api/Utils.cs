@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace Elf.Api;
@@ -53,6 +54,18 @@ public static class Utils
 
         return ip;
     }
+
+    public static bool IsPrivateIP(string ip) => IPAddress.Parse(ip).GetAddressBytes() switch
+    {
+        // Regex.IsMatch(ip, @"(^127\.)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)")
+        // Regex has bad performance, this is better
+
+        var x when x[0] is 192 && x[1] is 168 => true,
+        var x when x[0] is 10 => true,
+        var x when x[0] is 127 => true,
+        var x when x[0] is 172 && x[1] is >= 16 and <= 31 => true,
+        _ => false
+    };
 
     public enum UrlScheme
     {
