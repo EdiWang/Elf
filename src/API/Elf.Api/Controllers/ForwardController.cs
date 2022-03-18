@@ -73,7 +73,7 @@ public class ForwardController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(token)) return BadRequest();
 
-        var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "N/A";
+        var ip = Utils.GetClientIP(HttpContext) ?? "N/A";
         if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
 
         return await PerformTokenRedirection(token, ip);
@@ -139,6 +139,10 @@ public class ForwardController : ControllerBase
 
         if (await _featureManager.IsEnabledAsync(nameof(FeatureFlags.EnableTracking)))
         {
+            Response.Headers.Add("X-Elf-Tracking-Enabled", "1");
+
+            _logger.LogInformation($"Tracking token: {token}, ip: {ip}");
+
             try
             {
                 _ = Task.Run(async () =>

@@ -31,7 +31,7 @@ builder.Host.ConfigureAppConfiguration(config =>
                 .ConfigureRefresh(refresh =>
                 {
                     refresh.Register("Elf:Settings:Sentinel", true)
-                        .SetCacheExpiration(TimeSpan.FromSeconds(10));
+                           .SetCacheExpiration(TimeSpan.FromSeconds(10));
                 })
                 .UseFeatureFlags(o => o.Label = "Elf");
         });
@@ -122,7 +122,6 @@ void ConfigureServices(IServiceCollection services)
         services.AddAzureAppConfiguration();
     }
     services.AddApplicationInsightsTelemetry();
-    services.AddAzureAppConfiguration();
 
     // Elf
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -190,7 +189,8 @@ void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
             ElfVersion = Utils.AppVersion,
             DotNetVersion = Environment.Version.ToString(),
             EnvironmentTags = Utils.GetEnvironmentTags(),
-            TenantId = httpContext.GetTenant().Id
+            TenantId = httpContext.GetTenant().Id,
+            DNT = httpContext.Request.Headers["DNT"]
         };
 
         return obj;
