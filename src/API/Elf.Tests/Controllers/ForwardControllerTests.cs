@@ -61,7 +61,7 @@ public class ForwardControllerTests
             _mockFeatureManager.Object,
             _mockMediator.Object,
             _mockFactory.Object,
-            _mockLocationService.Object);
+            _mockLocationService.Object, null);
 
 
     [TestCase("")]

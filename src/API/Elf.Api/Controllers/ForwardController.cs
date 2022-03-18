@@ -21,6 +21,7 @@ public class ForwardController : ControllerBase
     private readonly IServiceScopeFactory _factory;
     private readonly IIPLocationService _ipLocationService;
     private readonly Tenant _tenant;
+    private readonly CannonService _cannonService;
 
     private StringValues UserAgent => Request.Headers["User-Agent"];
 
@@ -33,7 +34,8 @@ public class ForwardController : ControllerBase
         IFeatureManager featureManager,
         IMediator mediator,
         IServiceScopeFactory factory,
-        IIPLocationService ipLocationService)
+        IIPLocationService ipLocationService, 
+        CannonService cannonService)
     {
         _logger = logger;
         _tokenGenerator = tokenGenerator;
@@ -43,6 +45,7 @@ public class ForwardController : ControllerBase
         _mediator = mediator;
         _factory = factory;
         _ipLocationService = ipLocationService;
+        _cannonService = cannonService;
 
         _tenant = tenantAccessor.Tenant;
     }
@@ -140,38 +143,45 @@ public class ForwardController : ControllerBase
         if (await _featureManager.IsEnabledAsync(nameof(FeatureFlags.EnableTracking)))
         {
             Response.Headers.Add("X-Elf-Tracking-For", ip);
+            var ua = UserAgent;
 
-            _ = Task.Run(async () =>
+            _cannonService.FireAsync<IMediator>(async mediator =>
             {
-                var scope = _factory.CreateScope();
-                var logger = scope.ServiceProvider.GetService<ILogger<ForwardController>>();
-                var mediator = scope.ServiceProvider.GetService<IMediator>();
-                var ipLocationService = scope.ServiceProvider.GetService<IIPLocationService>();
-
-                var ua = UserAgent;
-
-                logger?.LogInformation("debug1");
-
-                if (mediator != null && ipLocationService != null)
-                {
-                    logger?.LogInformation("debug2");
-
-                    IPLocation location;
-                    try
-                    {
-                        location = await ipLocationService.GetLocationAsync(ip, ua);
-                    }
-                    catch (Exception)
-                    {
-                        location = null;
-                    }
-
-                    logger?.LogInformation("debug3");
-
-                    var req = new LinkTrackingRequest(ip, ua, linkEntry.Id);
-                    await mediator.Send(new TrackSucessRedirectionCommand(req, location));
-                }
+                var req = new LinkTrackingRequest(ip, ua, linkEntry.Id);
+                await mediator.Send(new TrackSucessRedirectionCommand(req, null));
             });
+
+            //_ = Task.Run(async () =>
+            //{
+            //    var scope = _factory.CreateScope();
+            //    var logger = scope.ServiceProvider.GetService<ILogger<ForwardController>>();
+            //    var mediator = scope.ServiceProvider.GetService<IMediator>();
+            //    var ipLocationService = scope.ServiceProvider.GetService<IIPLocationService>();
+
+            //    var ua = UserAgent;
+
+            //    logger?.LogInformation("debug1");
+
+            //    if (mediator != null && ipLocationService != null)
+            //    {
+            //        logger?.LogInformation("debug2");
+
+            //        IPLocation location;
+            //        try
+            //        {
+            //            location = await ipLocationService.GetLocationAsync(ip, ua);
+            //        }
+            //        catch (Exception)
+            //        {
+            //            location = null;
+            //        }
+
+            //        logger?.LogInformation("debug3");
+
+            //        var req = new LinkTrackingRequest(ip, ua, linkEntry.Id);
+            //        await mediator.Send(new TrackSucessRedirectionCommand(req, location));
+            //    }
+            //});
         }
 
         return Redirect(linkEntry.OriginUrl);

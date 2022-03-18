@@ -124,6 +124,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddApplicationInsightsTelemetry();
 
     // Elf
+    services.AddSingleton<CannonService>();
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
