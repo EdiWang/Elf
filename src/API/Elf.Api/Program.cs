@@ -14,6 +14,7 @@ using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using System.Data;
 using System.Reflection;
+using Polly;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -132,6 +133,9 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<IDbConnection>(_ => new SqlConnection(builder.Configuration.GetConnectionString("ElfDatabase")));
     services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
     services.AddScoped<ILinkVerifier, LinkVerifier>();
+
+    services.AddHttpClient<IIPLocationService, IPLocationService>()
+            .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(3, retryCount => TimeSpan.FromSeconds(Math.Pow(2, retryCount))));
 
     services.AddCors(o => o.AddPolicy("local", x =>
     {
