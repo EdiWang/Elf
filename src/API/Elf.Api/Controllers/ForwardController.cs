@@ -141,40 +141,37 @@ public class ForwardController : ControllerBase
         {
             Response.Headers.Add("X-Elf-Tracking-For", ip);
 
-            try
+            _ = Task.Run(async () =>
             {
-                //_ = Task.Run(async () =>
-                //{
-                //    var scope = _factory.CreateScope();
-                //    var mediator = scope.ServiceProvider.GetService<IMediator>();
-                    var ua = UserAgent;
+                var scope = _factory.CreateScope();
+                var logger = scope.ServiceProvider.GetService<ILogger<ForwardController>>();
+                var mediator = scope.ServiceProvider.GetService<IMediator>();
+                var ipLocationService = scope.ServiceProvider.GetService<IIPLocationService>();
 
-                        //if (mediator != null)
-                    //{
-                        IPLocation location;
-                        try
-                        {
-                            location = await _ipLocationService.GetLocationAsync(ip, ua);
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.LogError(e.Message, e);
-                            location = null;
-                        }
+                var ua = UserAgent;
 
-                        var req = new LinkTrackingRequest(ip, ua, linkEntry.Id);
-                        await _mediator.Send(new TrackSucessRedirectionCommand(req, location));
-                    //}
-                //});
-            }
-            catch (Exception e)
-            {
-                Response.Headers.Add("X-Elf-Tracking-Exception", e.Message);
+                logger?.LogInformation("debug1");
 
-                // Eat exception, pretend everything is fine
-                // Do not block workflow here
-                _logger.LogError(e.Message, e);
-            }
+                if (mediator != null && ipLocationService != null)
+                {
+                    logger?.LogInformation("debug2");
+
+                    IPLocation location;
+                    try
+                    {
+                        location = await ipLocationService.GetLocationAsync(ip, ua);
+                    }
+                    catch (Exception)
+                    {
+                        location = null;
+                    }
+
+                    logger?.LogInformation("debug3");
+
+                    var req = new LinkTrackingRequest(ip, ua, linkEntry.Id);
+                    await mediator.Send(new TrackSucessRedirectionCommand(req, location));
+                }
+            });
         }
 
         return Redirect(linkEntry.OriginUrl);
