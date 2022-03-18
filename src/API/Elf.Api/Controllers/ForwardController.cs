@@ -139,9 +139,7 @@ public class ForwardController : ControllerBase
 
         if (await _featureManager.IsEnabledAsync(nameof(FeatureFlags.EnableTracking)))
         {
-            Response.Headers.Add("X-Elf-Tracking-Enabled", "1");
-
-            _logger.LogInformation($"Tracking token: {token}, ip: {ip}");
+            Response.Headers.Add("X-Elf-Tracking-For", ip);
 
             try
             {
@@ -165,12 +163,16 @@ public class ForwardController : ControllerBase
                         }
 
                         var req = new LinkTrackingRequest(ip, ua, linkEntry.Id);
+                        Response.Headers.Add("X-Elf-Tracking-Req", "1");
+
                         await mediator.Send(new TrackSucessRedirectionCommand(req, location));
                     }
                 });
             }
             catch (Exception e)
             {
+                Response.Headers.Add("X-Elf-Tracking-Exception", e.Message);
+
                 // Eat exception, pretend everything is fine
                 // Do not block workflow here
                 _logger.LogError(e.Message, e);
