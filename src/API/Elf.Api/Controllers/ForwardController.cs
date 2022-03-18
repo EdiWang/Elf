@@ -147,8 +147,10 @@ public class ForwardController : ControllerBase
 
             _cannonService.FireAsync<IMediator>(async mediator =>
             {
+                var location = await _ipLocationService.GetLocationAsync(ip, ua);
+
                 var req = new LinkTrackingRequest(ip, ua, linkEntry.Id);
-                await mediator.Send(new TrackSucessRedirectionCommand(req, null));
+                await mediator.Send(new TrackSucessRedirectionCommand(req, location));
             });
 
             //_ = Task.Run(async () =>
