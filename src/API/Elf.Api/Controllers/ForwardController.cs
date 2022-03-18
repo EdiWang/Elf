@@ -143,14 +143,14 @@ public class ForwardController : ControllerBase
 
             try
             {
-                _ = Task.Run(async () =>
-                {
-                    var scope = _factory.CreateScope();
-                    var mediator = scope.ServiceProvider.GetService<IMediator>();
+                //_ = Task.Run(async () =>
+                //{
+                //    var scope = _factory.CreateScope();
+                //    var mediator = scope.ServiceProvider.GetService<IMediator>();
                     var ua = UserAgent;
 
-                    if (mediator != null)
-                    {
+                        //if (mediator != null)
+                    //{
                         IPLocation location;
                         try
                         {
@@ -163,11 +163,9 @@ public class ForwardController : ControllerBase
                         }
 
                         var req = new LinkTrackingRequest(ip, ua, linkEntry.Id);
-                        Response.Headers.Add("X-Elf-Tracking-Req", "1");
-
-                        await mediator.Send(new TrackSucessRedirectionCommand(req, location));
-                    }
-                });
+                        await _mediator.Send(new TrackSucessRedirectionCommand(req, location));
+                    //}
+                //});
             }
             catch (Exception e)
             {
