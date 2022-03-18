@@ -12,9 +12,9 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
+using Polly;
 using System.Data;
 using System.Reflection;
-using Polly;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
