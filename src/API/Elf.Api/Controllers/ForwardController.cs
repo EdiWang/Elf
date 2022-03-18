@@ -19,9 +19,10 @@ public class ForwardController : ControllerBase
     private readonly IFeatureManager _featureManager;
     private readonly IMediator _mediator;
     private readonly IServiceScopeFactory _factory;
+    private readonly IIPLocationService _ipLocationService;
+    private readonly Tenant _tenant;
 
     private StringValues UserAgent => Request.Headers["User-Agent"];
-    private readonly Tenant _tenant;
 
     public ForwardController(
         ITenantAccessor<Tenant> tenantAccessor,
@@ -31,7 +32,8 @@ public class ForwardController : ControllerBase
         ILinkVerifier linkVerifier,
         IFeatureManager featureManager,
         IMediator mediator,
-        IServiceScopeFactory factory)
+        IServiceScopeFactory factory,
+        IIPLocationService ipLocationService)
     {
         _logger = logger;
         _tokenGenerator = tokenGenerator;
@@ -40,6 +42,7 @@ public class ForwardController : ControllerBase
         _featureManager = featureManager;
         _mediator = mediator;
         _factory = factory;
+        _ipLocationService = ipLocationService;
 
         _tenant = tenantAccessor.Tenant;
     }
@@ -142,10 +145,23 @@ public class ForwardController : ControllerBase
                 {
                     var scope = _factory.CreateScope();
                     var mediator = scope.ServiceProvider.GetService<IMediator>();
+                    var ua = UserAgent;
+
                     if (mediator != null)
                     {
-                        var req = new LinkTrackingRequest(ip, UserAgent, linkEntry.Id);
-                        await mediator.Send(new TrackSucessRedirectionCommand(req));
+                        IPLocation location;
+                        try
+                        {
+                            location = await _ipLocationService.GetLocationAsync(ip, ua);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e.Message, e);
+                            location = null;
+                        }
+
+                        var req = new LinkTrackingRequest(ip, ua, linkEntry.Id);
+                        await mediator.Send(new TrackSucessRedirectionCommand(req, location));
                     }
                 });
             }

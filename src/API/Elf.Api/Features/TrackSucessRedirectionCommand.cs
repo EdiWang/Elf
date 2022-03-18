@@ -2,7 +2,9 @@
 
 namespace Elf.Api.Features;
 
-public record TrackSucessRedirectionCommand(LinkTrackingRequest Request) : IRequest;
+public record LinkTrackingRequest(string IpAddress, string UserAgent, int LinkId);
+
+public record TrackSucessRedirectionCommand(LinkTrackingRequest Request, IPLocation Location) : IRequest;
 
 public class TrackSucessRedirectionCommandHandler : AsyncRequestHandler<TrackSucessRedirectionCommand>
 {
@@ -15,13 +17,24 @@ public class TrackSucessRedirectionCommandHandler : AsyncRequestHandler<TrackSuc
 
     protected override async Task Handle(TrackSucessRedirectionCommand request, CancellationToken cancellationToken)
     {
+        var (trackingRequest, ipLocation) = request;
+
         var lt = new LinkTrackingEntity
         {
-            IpAddress = request.Request.IpAddress,
-            LinkId = request.Request.LinkId,
+            IpAddress = trackingRequest.IpAddress,
+            LinkId = trackingRequest.LinkId,
             RequestTimeUtc = DateTime.UtcNow,
-            UserAgent = request.Request.UserAgent
+            UserAgent = trackingRequest.UserAgent
         };
+
+        if (null != ipLocation)
+        {
+            lt.IPASN = ipLocation.ASN;
+            lt.IPCity = ipLocation.City;
+            lt.IPCountry = ipLocation.Country;
+            lt.IPOrg = ipLocation.Org;
+            lt.IPRegion = ipLocation.Region;
+        }
 
         await _dbContext.AddAsync(lt, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);

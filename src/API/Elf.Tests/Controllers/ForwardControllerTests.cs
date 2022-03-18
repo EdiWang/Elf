@@ -27,6 +27,7 @@ public class ForwardControllerTests
     private Mock<IFeatureManager> _mockFeatureManager;
     private Mock<IMediator> _mockMediator;
     private Mock<IServiceScopeFactory> _mockFactory;
+    private Mock<IIPLocationService> _mockLocationService;
 
     private Mock<ITenantAccessor<Tenant>> _mockTenantAccessor;
 
@@ -41,6 +42,7 @@ public class ForwardControllerTests
         _mockTenantAccessor = new();
         _mockMediator = new();
         _mockFactory = new();
+        _mockLocationService = new();
 
         _mockTenantAccessor.Setup(p => p.Tenant).Returns(new Tenant
         {
@@ -58,7 +60,8 @@ public class ForwardControllerTests
             _linkVerifierMock.Object,
             _mockFeatureManager.Object,
             _mockMediator.Object,
-            _mockFactory.Object);
+            _mockFactory.Object,
+            _mockLocationService.Object);
 
 
     [TestCase("")]
