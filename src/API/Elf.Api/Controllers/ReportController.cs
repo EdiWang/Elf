@@ -25,7 +25,7 @@ public class ReportController : ControllerBase
         return Ok(requests);
     }
 
-    [HttpGet("requests/mostpastmonth/{daysFromNow:int}")]
+    [HttpGet("requests/link/{daysFromNow:int}")]
     [ProducesResponseType(typeof(IReadOnlyList<MostRequestedLinkCount>), StatusCodes.Status200OK)]
     public async Task<IActionResult> MostRequestedLinks([Range(1, 90)] int daysFromNow)
     {
@@ -42,7 +42,7 @@ public class ReportController : ControllerBase
         return Ok(types);
     }
 
-    [HttpGet("tracking/pastweek/{daysFromNow:int}")]
+    [HttpGet("tracking/{daysFromNow:int}")]
     [ProducesResponseType(typeof(IReadOnlyList<LinkTrackingDateCount>), StatusCodes.Status200OK)]
     public async Task<IActionResult> TrackingCount([Range(1, 90)] int daysFromNow)
     {
