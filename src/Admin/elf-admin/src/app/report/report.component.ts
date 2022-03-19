@@ -16,7 +16,18 @@ export class ReportComponent implements OnInit {
     isLoading = false;
 
     pipe = new DatePipe('en-US');
-    displayedColumns: string[] = ['fwToken', 'note', 'userAgent', 'ipAddress', 'requestTimeUtc'];
+    displayedColumns: string[] = [
+        'fwToken',
+        'note',
+        'userAgent',
+        'ipAddress',
+        'ipCountry',
+        'ipRegion',
+        'ipCity',
+        'ipasn',
+        'ipOrg',
+        'requestTimeUtc'
+    ];
     dataSource: MatTableDataSource<RequestTrack> = new MatTableDataSource();
 
     pastWeekChartData: ChartConfiguration['data'] = {
@@ -83,7 +94,7 @@ export class ReportComponent implements OnInit {
 
     getMostRequestedLinksPastMonth() {
         this.isLoading = true;
-        this.service.mostRequestedLinksPastMonth().subscribe((result: MostRequestedLinkCount[]) => {
+        this.service.mostRequestedLinks(30).subscribe((result: MostRequestedLinkCount[]) => {
             this.isLoading = false;
 
             const notes = [];
@@ -110,7 +121,7 @@ export class ReportComponent implements OnInit {
 
     getClientTypePastMonth() {
         this.isLoading = true;
-        this.service.clientTypePastMonth().subscribe((result: ClientTypeCount[]) => {
+        this.service.clientType(30).subscribe((result: ClientTypeCount[]) => {
             this.isLoading = false;
 
             const clientTypes = [];
@@ -137,7 +148,7 @@ export class ReportComponent implements OnInit {
 
     getTrackingCountPastWeek() {
         this.isLoading = true;
-        this.service.trackingCountPastWeek().subscribe((result: LinkTrackingDateCount[]) => {
+        this.service.trackingCount(7).subscribe((result: LinkTrackingDateCount[]) => {
             this.isLoading = false;
 
             const trackingDates = [];
@@ -164,7 +175,7 @@ export class ReportComponent implements OnInit {
     getRecentRequests() {
         this.isLoading = true;
 
-        this.service.recentRequests().subscribe((result: RequestTrack[]) => {
+        this.service.recentRequests(128).subscribe((result: RequestTrack[]) => {
             this.isLoading = false;
             this.dataSource = new MatTableDataSource(result);
             this.dataSource.paginator = this.paginator;

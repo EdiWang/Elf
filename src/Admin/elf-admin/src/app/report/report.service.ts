@@ -10,20 +10,20 @@ export class ReportService {
 
     constructor(private http: HttpClient) { }
 
-    recentRequests() {
-        return this.http.get<RequestTrack[]>(this.url + '/requests/recent');
+    recentRequests(top: number) {
+        return this.http.get<RequestTrack[]>(this.url + `/requests/recent/${top}`);
     }
 
-    mostRequestedLinksPastMonth() {
-        return this.http.get<MostRequestedLinkCount[]>(this.url + '/requests/mostpastmonth');
+    mostRequestedLinks(days: number) {
+        return this.http.get<MostRequestedLinkCount[]>(this.url + `/requests/link/${days}`);
     }
 
-    clientTypePastMonth() {
-        return this.http.get<ClientTypeCount[]>(this.url + '/requests/clienttypepastmonth');
+    clientType(days: number) {
+        return this.http.get<ClientTypeCount[]>(this.url + `/requests/clienttype/${days}`);
     }
 
-    trackingCountPastWeek() {
-        return this.http.get<LinkTrackingDateCount[]>(this.url + '/tracking/pastweek');
+    trackingCount(days: number) {
+        return this.http.get<LinkTrackingDateCount[]>(this.url + `/tracking/${days}`);
     }
 
     clearTrackingData() {
@@ -51,4 +51,9 @@ export interface RequestTrack {
     userAgent: string;
     ipAddress: string;
     requestTimeUtc: string;
+    ipCountry: string;
+    ipRegion: string;
+    ipCity: string;
+    ipasn: string;
+    ipOrg: string;
 }
