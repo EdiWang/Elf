@@ -190,8 +190,7 @@ void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
             ElfVersion = Utils.AppVersion,
             DotNetVersion = Environment.Version.ToString(),
             EnvironmentTags = Utils.GetEnvironmentTags(),
-            TenantId = httpContext.GetTenant().Id,
-            DNT = httpContext.Request.Headers["DNT"]
+            TenantId = httpContext.GetTenant().Id
         };
 
         return obj;

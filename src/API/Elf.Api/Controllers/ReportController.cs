@@ -1,4 +1,5 @@
-﻿using Elf.Api.Features;
+﻿using System.ComponentModel.DataAnnotations;
+using Elf.Api.Features;
 
 namespace Elf.Api.Controllers;
 
@@ -16,36 +17,36 @@ public class ReportController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet("requests/recent")]
+    [HttpGet("requests/recent/{top:int}")]
     [ProducesResponseType(typeof(IReadOnlyList<RequestTrack>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> RecentRequests()
+    public async Task<IActionResult> RecentRequests([Range(1, 128)] int top)
     {
-        var requests = await _mediator.Send(new GetRecentRequestsQuery(64));
+        var requests = await _mediator.Send(new GetRecentRequestsQuery(top));
         return Ok(requests);
     }
 
-    [HttpGet("requests/mostpastmonth")]
+    [HttpGet("requests/mostpastmonth/{daysFromNow:int}")]
     [ProducesResponseType(typeof(IReadOnlyList<MostRequestedLinkCount>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> MostRequestedLinksPastMonth()
+    public async Task<IActionResult> MostRequestedLinks([Range(1, 90)] int daysFromNow)
     {
-        var linkCounts = await _mediator.Send(new GetMostRequestedLinkCountQuery(30));
+        var linkCounts = await _mediator.Send(new GetMostRequestedLinkCountQuery(daysFromNow));
         return Ok(linkCounts);
     }
 
-    [HttpGet("requests/clienttypepastmonth")]
+    [HttpGet("requests/clienttype/{daysFromNow:int}")]
     [ProducesResponseType(typeof(IReadOnlyList<ClientTypeCount>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ClientTypePastMonth()
+    public async Task<IActionResult> ClientType([Range(1, 90)] int daysFromNow)
     {
-        var types = await _mediator.Send(new GetClientTypeCountsQuery(30,
+        var types = await _mediator.Send(new GetClientTypeCountsQuery(daysFromNow,
             _configuration.GetSection("AppSettings:TopClientTypes").Get<int>()));
         return Ok(types);
     }
 
-    [HttpGet("tracking/pastweek")]
+    [HttpGet("tracking/pastweek/{daysFromNow:int}")]
     [ProducesResponseType(typeof(IReadOnlyList<LinkTrackingDateCount>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> TrackingCountPastWeek()
+    public async Task<IActionResult> TrackingCount([Range(1, 90)] int daysFromNow)
     {
-        var dateCounts = await _mediator.Send(new GetLinkTrackingDateCountQuery(7));
+        var dateCounts = await _mediator.Send(new GetLinkTrackingDateCountQuery(daysFromNow));
         return Ok(dateCounts);
     }
 

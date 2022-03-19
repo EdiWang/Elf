@@ -23,7 +23,12 @@ public class GetRecentRequestsQueryHandler : IRequestHandler<GetRecentRequestsQu
                         Note = p.Link.Note,
                         RequestTimeUtc = p.RequestTimeUtc,
                         IpAddress = p.IpAddress,
-                        UserAgent = p.UserAgent
+                        UserAgent = p.UserAgent,
+                        IPASN = p.IPASN,
+                        IPCity = p.IPCity,
+                        IPCountry = p.IPCountry,
+                        IPOrg = p.IPOrg,
+                        IPRegion = p.IPRegion
                     })
                     .OrderByDescending(lt => lt.RequestTimeUtc)
                     .Take(request.Top)
