@@ -25,8 +25,5 @@ public static class HttpContextExtensions
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
-    public static Tenant GetTenant(this HttpContext context)
-    {
-        return context.GetTenant<Tenant>();
-    }
+    public static Tenant GetTenant(this HttpContext context) => context.GetTenant<Tenant>();
 }

@@ -9,10 +9,7 @@ public class GetRecentRequestsQueryHandler : IRequestHandler<GetRecentRequestsQu
 {
     private readonly ElfDbContext _dbContext;
 
-    public GetRecentRequestsQueryHandler(ElfDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public GetRecentRequestsQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
     public async Task<IReadOnlyList<RequestTrack>> Handle(GetRecentRequestsQuery request, CancellationToken cancellationToken)
     {

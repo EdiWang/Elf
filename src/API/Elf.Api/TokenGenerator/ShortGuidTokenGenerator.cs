@@ -4,10 +4,7 @@ public class ShortGuidTokenGenerator : ITokenGenerator
 {
     private const int Length = 8;
 
-    public string GenerateToken()
-    {
-        return Guid.NewGuid().ToString()[..Length].ToLower();
-    }
+    public string GenerateToken() => Guid.NewGuid().ToString()[..Length].ToLower();
 
     public bool TryParseToken(string input, out string token)
     {

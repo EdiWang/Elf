@@ -11,10 +11,7 @@ public class TenantMiddleware<T> where T : Tenant
 {
     private readonly RequestDelegate _next;
 
-    public TenantMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
+    public TenantMiddleware(RequestDelegate next) => _next = next;
 
     public async Task Invoke(HttpContext context)
     {

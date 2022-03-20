@@ -10,10 +10,7 @@ public class GetMostRequestedLinkCountQueryHandler :
 {
     private readonly ElfDbContext _dbContext;
 
-    public GetMostRequestedLinkCountQueryHandler(ElfDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public GetMostRequestedLinkCountQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
     public async Task<IReadOnlyList<MostRequestedLinkCount>> Handle(GetMostRequestedLinkCountQuery request, CancellationToken cancellationToken)
     {

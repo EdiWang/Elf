@@ -10,10 +10,7 @@ public class GetClientTypeCountsQueryHandler : IRequestHandler<GetClientTypeCoun
 {
     private readonly ElfDbContext _dbContext;
 
-    public GetClientTypeCountsQueryHandler(ElfDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public GetClientTypeCountsQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
     public async Task<IReadOnlyList<ClientTypeCount>> Handle(GetClientTypeCountsQuery request, CancellationToken cancellationToken)
     {

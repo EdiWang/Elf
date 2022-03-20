@@ -10,10 +10,7 @@ public class GetLinkTrackingDateCountQueryHandler :
 {
     private readonly ElfDbContext _dbContext;
 
-    public GetLinkTrackingDateCountQueryHandler(ElfDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public GetLinkTrackingDateCountQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
     public async Task<IReadOnlyList<LinkTrackingDateCount>> Handle(GetLinkTrackingDateCountQuery request, CancellationToken cancellationToken)
     {

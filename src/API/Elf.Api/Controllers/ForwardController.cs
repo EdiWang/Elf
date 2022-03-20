@@ -18,7 +18,6 @@ public class ForwardController : ControllerBase
     private readonly IDistributedCache _cache;
     private readonly IFeatureManager _featureManager;
     private readonly IMediator _mediator;
-    private readonly IServiceScopeFactory _factory;
     private readonly IIPLocationService _ipLocationService;
     private readonly Tenant _tenant;
     private readonly CannonService _cannonService;
@@ -33,7 +32,6 @@ public class ForwardController : ControllerBase
         ILinkVerifier linkVerifier,
         IFeatureManager featureManager,
         IMediator mediator,
-        IServiceScopeFactory factory,
         IIPLocationService ipLocationService,
         CannonService cannonService)
     {
@@ -43,7 +41,6 @@ public class ForwardController : ControllerBase
         _linkVerifier = linkVerifier;
         _featureManager = featureManager;
         _mediator = mediator;
-        _factory = factory;
         _ipLocationService = ipLocationService;
         _cannonService = cannonService;
 

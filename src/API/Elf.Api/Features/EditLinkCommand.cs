@@ -8,10 +8,7 @@ public class EditLinkCommandHandler : IRequestHandler<EditLinkCommand, string>
 {
     private readonly ElfDbContext _dbContext;
 
-    public EditLinkCommandHandler(ElfDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public EditLinkCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
     public async Task<string> Handle(EditLinkCommand request, CancellationToken cancellationToken)
     {

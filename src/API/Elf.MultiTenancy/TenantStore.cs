@@ -10,40 +10,6 @@ public interface ITenantStore<T> where T : Tenant
     Task<List<T>> GetAllTenantsAsync();
 }
 
-/// <summary>
-/// In memory store for testing
-/// </summary>
-public class InMemoryTenantStore : ITenantStore<Tenant>
-{
-    /// <summary>
-    /// Get a tenant for a given identifier
-    /// </summary>
-    /// <param name="identifier"></param>
-    /// <returns></returns>
-    public Task<Tenant> GetTenantAsync(string identifier)
-    {
-        var tenant = new[]
-        {
-                new Tenant
-                {
-                    Id = Guid.Parse("00000000-0000-0000-0000-000000000000"),
-                    Identifier = "localhost",
-                    Items = new()
-                    {
-                        { "DefaultRedirectionUrl","https://localhost" }
-                    }
-                }
-            }.SingleOrDefault(t => t.Identifier == identifier);
-
-        return Task.FromResult(tenant);
-    }
-
-    public Task<List<Tenant>> GetAllTenantsAsync()
-    {
-        throw new NotImplementedException();
-    }
-}
-
 public class AppSettingsTenantStore : ITenantStore<Tenant>
 {
     private readonly IOptionsSnapshot<List<Tenant>> _tenantOptionsSnapshot;

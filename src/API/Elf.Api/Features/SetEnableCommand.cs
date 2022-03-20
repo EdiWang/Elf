@@ -8,10 +8,7 @@ public class SetEnableCommandHandler : AsyncRequestHandler<SetEnableCommand>
 {
     private readonly ElfDbContext _dbContext;
 
-    public SetEnableCommandHandler(ElfDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public SetEnableCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
     protected override async Task Handle(SetEnableCommand request, CancellationToken cancellationToken)
     {

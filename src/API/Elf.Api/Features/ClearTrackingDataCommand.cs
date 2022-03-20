@@ -8,10 +8,7 @@ public class ClearTrackingDataCommandHandler : AsyncRequestHandler<ClearTracking
 {
     private readonly ElfDbContext _dbContext;
 
-    public ClearTrackingDataCommandHandler(ElfDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public ClearTrackingDataCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
     protected override async Task Handle(ClearTrackingDataCommand request, CancellationToken cancellationToken)
     {

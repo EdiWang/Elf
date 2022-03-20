@@ -9,10 +9,7 @@ public class GetTokenByAkaNameQueryHandler : IRequestHandler<GetTokenByAkaNameQu
 {
     private readonly ElfDbContext _dbContext;
 
-    public GetTokenByAkaNameQueryHandler(ElfDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public GetTokenByAkaNameQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
     public async Task<string> Handle(GetTokenByAkaNameQuery request, CancellationToken cancellationToken)
     {

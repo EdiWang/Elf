@@ -7,7 +7,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 using Moq;
@@ -26,7 +25,6 @@ public class ForwardControllerTests
     private Mock<IDistributedCache> _cacheMock;
     private Mock<IFeatureManager> _mockFeatureManager;
     private Mock<IMediator> _mockMediator;
-    private Mock<IServiceScopeFactory> _mockFactory;
     private Mock<IIPLocationService> _mockLocationService;
 
     private Mock<ITenantAccessor<Tenant>> _mockTenantAccessor;
@@ -41,7 +39,6 @@ public class ForwardControllerTests
         _mockFeatureManager = new();
         _mockTenantAccessor = new();
         _mockMediator = new();
-        _mockFactory = new();
         _mockLocationService = new();
 
         _mockTenantAccessor.Setup(p => p.Tenant).Returns(new Tenant
@@ -60,7 +57,6 @@ public class ForwardControllerTests
             _linkVerifierMock.Object,
             _mockFeatureManager.Object,
             _mockMediator.Object,
-            _mockFactory.Object,
             _mockLocationService.Object, null);
 
 

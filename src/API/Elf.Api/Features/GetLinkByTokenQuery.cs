@@ -9,10 +9,7 @@ public class GetLinkByTokenQueryHandler : IRequestHandler<GetLinkByTokenQuery, L
 {
     private readonly ElfDbContext _dbContext;
 
-    public GetLinkByTokenQueryHandler(ElfDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public GetLinkByTokenQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
     public Task<LinkEntity> Handle(GetLinkByTokenQuery request, CancellationToken cancellationToken)
     {

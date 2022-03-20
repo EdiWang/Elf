@@ -10,21 +10,18 @@ public class TrackSucessRedirectionCommandHandler : AsyncRequestHandler<TrackSuc
 {
     private readonly ElfDbContext _dbContext;
 
-    public TrackSucessRedirectionCommandHandler(ElfDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public TrackSucessRedirectionCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
     protected override async Task Handle(TrackSucessRedirectionCommand request, CancellationToken cancellationToken)
     {
-        var (trackingRequest, ipLocation) = request;
+        var ((ipAddress, userAgent, linkId), ipLocation) = request;
 
         var lt = new LinkTrackingEntity
         {
-            IpAddress = trackingRequest.IpAddress,
-            LinkId = trackingRequest.LinkId,
+            IpAddress = ipAddress,
+            LinkId = linkId,
             RequestTimeUtc = DateTime.UtcNow,
-            UserAgent = trackingRequest.UserAgent
+            UserAgent = userAgent
         };
 
         if (null != ipLocation)

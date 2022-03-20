@@ -8,10 +8,7 @@ public class DeleteLinkCommandHandler : AsyncRequestHandler<DeleteLinkCommand>
 {
     private readonly ElfDbContext _dbContext;
 
-    public DeleteLinkCommandHandler(ElfDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public DeleteLinkCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
     protected override async Task Handle(DeleteLinkCommand request, CancellationToken cancellationToken)
     {
