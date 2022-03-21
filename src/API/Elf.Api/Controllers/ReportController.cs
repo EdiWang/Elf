@@ -17,11 +17,13 @@ public class ReportController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet("requests/recent/{top:int}")]
+    [HttpGet("requests")]
     [ProducesResponseType(typeof(IReadOnlyList<RequestTrack>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> RecentRequests([Range(1, 128)] int top)
+    public async Task<IActionResult> Requests(
+        [Range(1, int.MaxValue)] int take,
+        [Range(0, int.MaxValue)] int offset)
     {
-        var requests = await _mediator.Send(new GetRecentRequestsQuery(top));
+        var requests = await _mediator.Send(new GetRecentRequestsQuery(offset, take));
         return Ok(requests);
     }
 

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record GetRecentRequestsQuery(int Top) : IRequest<IReadOnlyList<RequestTrack>>;
+public record GetRecentRequestsQuery(int Offset, int Take) : IRequest<IReadOnlyList<RequestTrack>>;
 
 public class GetRecentRequestsQueryHandler : IRequestHandler<GetRecentRequestsQuery, IReadOnlyList<RequestTrack>>
 {
@@ -13,6 +13,8 @@ public class GetRecentRequestsQueryHandler : IRequestHandler<GetRecentRequestsQu
 
     public async Task<IReadOnlyList<RequestTrack>> Handle(GetRecentRequestsQuery request, CancellationToken cancellationToken)
     {
+        var (offset, take) = request;
+
         var result = await _dbContext.LinkTracking
                     .Select(p => new RequestTrack
                     {
@@ -28,7 +30,8 @@ public class GetRecentRequestsQueryHandler : IRequestHandler<GetRecentRequestsQu
                         IPRegion = p.IPRegion
                     })
                     .OrderByDescending(lt => lt.RequestTimeUtc)
-                    .Take(request.Top)
+                    .Skip(offset)
+                    .Take(take)
                     .AsNoTracking()
                     .ToListAsync(cancellationToken);
 
