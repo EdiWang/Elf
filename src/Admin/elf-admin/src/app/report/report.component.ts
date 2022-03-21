@@ -175,7 +175,7 @@ export class ReportComponent implements OnInit {
     getRecentRequests() {
         this.isLoading = true;
 
-        this.service.recentRequests(128).subscribe((result: RequestTrack[]) => {
+        this.service.recentRequests(128, 0).subscribe((result: RequestTrack[]) => {
             this.isLoading = false;
             this.dataSource = new MatTableDataSource(result);
             this.dataSource.paginator = this.paginator;
