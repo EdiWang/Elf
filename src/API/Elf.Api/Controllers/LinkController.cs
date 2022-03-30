@@ -1,5 +1,4 @@
 ﻿using Elf.Api.Features;
-using Elf.MultiTenancy;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.FeatureManagement;
 using System.ComponentModel.DataAnnotations;
@@ -14,11 +13,9 @@ public class LinkController : ControllerBase
     private readonly ILinkVerifier _linkVerifier;
     private readonly IDistributedCache _cache;
     private readonly IFeatureManager _featureManager;
-    private readonly Tenant _tenant;
     private readonly IMediator _mediator;
 
     public LinkController(
-        ITenantAccessor<Tenant> tenantAccessor,
         ILinkVerifier linkVerifier,
         IDistributedCache cache,
         IFeatureManager featureManager, IMediator mediator)
@@ -27,8 +24,6 @@ public class LinkController : ControllerBase
         _cache = cache;
         _featureManager = featureManager;
         _mediator = mediator;
-
-        _tenant = tenantAccessor.Tenant;
     }
 
     [HttpPost("create")]
@@ -48,7 +43,7 @@ public class LinkController : ControllerBase
                 return BadRequest("Can not use url pointing to this site.");
         }
 
-        var response = await _mediator.Send(new CreateLinkCommand(_tenant.Id, model));
+        var response = await _mediator.Send(new CreateLinkCommand(model));
         return Ok(response);
     }
 

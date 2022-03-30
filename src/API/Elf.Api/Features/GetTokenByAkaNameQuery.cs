@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record GetTokenByAkaNameQuery(Guid TenantId, string AkaName) : IRequest<string>;
+public record GetTokenByAkaNameQuery(string AkaName) : IRequest<string>;
 
 public class GetTokenByAkaNameQueryHandler : IRequestHandler<GetTokenByAkaNameQuery, string>
 {
@@ -13,8 +13,7 @@ public class GetTokenByAkaNameQueryHandler : IRequestHandler<GetTokenByAkaNameQu
 
     public async Task<string> Handle(GetTokenByAkaNameQuery request, CancellationToken cancellationToken)
     {
-        var (tenantId, akaName) = request;
-        var link = await _dbContext.Link.FirstOrDefaultAsync(p => p.AkaName == akaName && p.TenantId == tenantId, cancellationToken);
+        var link = await _dbContext.Link.FirstOrDefaultAsync(p => p.AkaName == request.AkaName, cancellationToken);
 
         return link?.FwToken;
     }

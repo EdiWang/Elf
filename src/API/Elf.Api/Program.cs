@@ -3,7 +3,6 @@ using Elf.Api;
 using Elf.Api.Data;
 using Elf.Api.Features;
 using Elf.Api.TokenGenerator;
-using Elf.MultiTenancy;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -80,10 +79,6 @@ void ConfigureServices(IServiceCollection services)
     });
 
     services.AddOptions();
-    services.Configure<List<Tenant>>(builder.Configuration.GetSection("Tenants"));
-    services.AddMultiTenancy()
-            .WithResolutionStrategy<HostResolutionStrategy>()
-            .WithStore<AppSettingsTenantStore>();
     services.AddFeatureManagement();
 
     var useRedis = builder.Configuration.GetSection("AppSettings:UseRedis").Get<bool>();
@@ -148,7 +143,6 @@ void ConfigureServices(IServiceCollection services)
 void ConfigureMiddleware(IApplicationBuilder appBuilder)
 {
     appBuilder.UseForwardedHeaders();
-    appBuilder.UseMultiTenancy();
 
     if (app.Environment.IsDevelopment())
     {
@@ -189,8 +183,7 @@ void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
         {
             ElfVersion = Utils.AppVersion,
             DotNetVersion = Environment.Version.ToString(),
-            EnvironmentTags = Utils.GetEnvironmentTags(),
-            TenantId = httpContext.GetTenant().Id
+            EnvironmentTags = Utils.GetEnvironmentTags()
         };
 
         return obj;

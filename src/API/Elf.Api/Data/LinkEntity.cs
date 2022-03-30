@@ -12,7 +12,6 @@ public class LinkEntity
     }
 
     public int Id { get; set; } // int
-    public Guid TenantId { get; set; } // uniqueidentifier
     public string OriginUrl { get; set; } // nvarchar(256)
     public string FwToken { get; set; } // varchar(32)
     public string Note { get; set; } // nvarchar(max)

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record GetLinkByTokenQuery(Guid TenantId, string Token) : IRequest<LinkEntity>;
+public record GetLinkByTokenQuery(string Token) : IRequest<LinkEntity>;
 
 public class GetLinkByTokenQueryHandler : IRequestHandler<GetLinkByTokenQuery, LinkEntity>
 {
@@ -13,7 +13,6 @@ public class GetLinkByTokenQueryHandler : IRequestHandler<GetLinkByTokenQuery, L
 
     public Task<LinkEntity> Handle(GetLinkByTokenQuery request, CancellationToken cancellationToken)
     {
-        var (tenantId, token) = request;
-        return _dbContext.Link.FirstOrDefaultAsync(p => p.FwToken == token && p.TenantId == tenantId, cancellationToken);
+        return _dbContext.Link.FirstOrDefaultAsync(p => p.FwToken == request.Token, cancellationToken);
     }
 }

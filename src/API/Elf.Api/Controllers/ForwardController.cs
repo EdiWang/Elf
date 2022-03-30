@@ -1,7 +1,6 @@
 ﻿using Elf.Api.Features;
 using Elf.Api.Filters;
 using Elf.Api.TokenGenerator;
-using Elf.MultiTenancy;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Primitives;
 using Microsoft.FeatureManagement;
@@ -13,20 +12,20 @@ namespace Elf.Api.Controllers;
 public class ForwardController : ControllerBase
 {
     private readonly ILogger<ForwardController> _logger;
+    private readonly IConfiguration _configuration;
     private readonly ITokenGenerator _tokenGenerator;
     private readonly ILinkVerifier _linkVerifier;
     private readonly IDistributedCache _cache;
     private readonly IFeatureManager _featureManager;
     private readonly IMediator _mediator;
     private readonly IIPLocationService _ipLocationService;
-    private readonly Tenant _tenant;
     private readonly CannonService _cannonService;
 
     private StringValues UserAgent => Request.Headers["User-Agent"];
 
     public ForwardController(
-        ITenantAccessor<Tenant> tenantAccessor,
         ILogger<ForwardController> logger,
+        IConfiguration configuration,
         ITokenGenerator tokenGenerator,
         IDistributedCache cache,
         ILinkVerifier linkVerifier,
@@ -36,6 +35,7 @@ public class ForwardController : ControllerBase
         CannonService cannonService)
     {
         _logger = logger;
+        _configuration = configuration;
         _tokenGenerator = tokenGenerator;
         _cache = cache;
         _linkVerifier = linkVerifier;
@@ -43,8 +43,6 @@ public class ForwardController : ControllerBase
         _mediator = mediator;
         _ipLocationService = ipLocationService;
         _cannonService = cannonService;
-
-        _tenant = tenantAccessor.Tenant;
     }
 
     [AddForwarderHeader]
@@ -57,7 +55,7 @@ public class ForwardController : ControllerBase
         var ip = Utils.GetClientIP(HttpContext) ?? "N/A";
         if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
 
-        var token = await _mediator.Send(new GetTokenByAkaNameQuery(_tenant.Id, akaName));
+        var token = await _mediator.Send(new GetTokenByAkaNameQuery(akaName));
 
         // can not redirect to default url because it will confuse user that the aka points to that default url.
         if (token is null) return NotFound();
@@ -88,13 +86,14 @@ public class ForwardController : ControllerBase
         if (null == linkEntry)
         {
             var flag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
-            var link = await _mediator.Send(new GetLinkByTokenQuery(_tenant.Id, validatedToken));
+            var link = await _mediator.Send(new GetLinkByTokenQuery(validatedToken));
             if (link is null)
             {
-                if (string.IsNullOrWhiteSpace(_tenant.Items["DefaultRedirectionUrl"])) return NotFound();
+                var dru = _configuration["DefaultRedirectionUrl"];
+                if (string.IsNullOrWhiteSpace(dru)) return NotFound();
 
-                var result = _linkVerifier.Verify(_tenant.Items["DefaultRedirectionUrl"], Url, Request, flag);
-                if (result == LinkVerifyResult.Valid) return Redirect(_tenant.Items["DefaultRedirectionUrl"]);
+                var result = _linkVerifier.Verify(dru, Url, Request, flag);
+                if (result == LinkVerifyResult.Valid) return Redirect(dru);
 
                 throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
             }
