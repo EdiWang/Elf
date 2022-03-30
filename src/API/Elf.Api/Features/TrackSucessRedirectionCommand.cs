@@ -18,6 +18,7 @@ public class TrackSucessRedirectionCommandHandler : AsyncRequestHandler<TrackSuc
 
         var lt = new LinkTrackingEntity
         {
+            Id = Guid.NewGuid(),
             IpAddress = ipAddress,
             LinkId = linkId,
             RequestTimeUtc = DateTime.UtcNow,

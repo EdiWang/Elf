@@ -5,9 +5,7 @@ namespace Elf.Api.Data;
 
 public class LinkTrackingEntity
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
-
-    public Guid TenantId { get; set; }
+    public Guid Id { get; set; }
 
     public int LinkId { get; set; }
 
@@ -34,6 +32,8 @@ internal class LinkTrackingEntityConfiguration : IEntityTypeConfiguration<LinkTr
 {
     public void Configure(EntityTypeBuilder<LinkTrackingEntity> builder)
     {
+        builder.Property(e => e.Id).ValueGeneratedNever();
+
         builder.Property(e => e.UserAgent).HasMaxLength(256);
         builder.Property(e => e.IpAddress).HasMaxLength(64);
         builder.Property(e => e.IPCountry).HasMaxLength(64);
