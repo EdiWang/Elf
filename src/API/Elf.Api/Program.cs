@@ -81,12 +81,12 @@ void ConfigureServices(IServiceCollection services)
     services.AddOptions();
     services.AddFeatureManagement();
 
-    var useRedis = builder.Configuration.GetSection("AppSettings:UseRedis").Get<bool>();
-    if (useRedis)
+    var redisConn = builder.Configuration.GetConnectionString("RedisConnection");
+    if (!string.IsNullOrWhiteSpace(redisConn))
     {
         services.AddStackExchangeRedisCache(options =>
         {
-            options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+            options.Configuration = redisConn;
         });
     }
     else
