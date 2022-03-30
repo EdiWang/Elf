@@ -51,7 +51,6 @@ export interface Link {
     isEnabled: boolean;
     note: string;
     originUrl: string;
-    tenantId: string;
     ttl: number;
     updateTimeUtc: Date;
 }

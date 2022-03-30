@@ -22,7 +22,7 @@ export class LinksComponent implements OnInit {
     searchTerm: string;
     pageSizeOptions: number[] = [10, 15, 20, 50, 100];
 
-    displayedColumns: string[] = ['fwToken', 'originUrl', 'note', 'akaName', 'isEnabled', 'ttl', 'updateTimeUtc', 'tenantId', 'action', 'manage'];
+    displayedColumns: string[] = ['fwToken', 'originUrl', 'note', 'akaName', 'isEnabled', 'ttl', 'updateTimeUtc', 'action', 'manage'];
     dataSource: MatTableDataSource<Link> = new MatTableDataSource();
 
     constructor(
