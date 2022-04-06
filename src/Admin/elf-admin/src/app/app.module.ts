@@ -3,6 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -20,6 +22,14 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
 import { QRCodeModule } from 'angularx-qrcode';
 import { ClipboardModule } from 'ngx-clipboard';
+import { NgChartsModule } from 'ng2-charts';
+
+import { HomeComponent } from './home/home.component';
+import { LinkService } from './links/link.service';
+import { LinksComponent } from './links/links.component';
+import { EditLinkDialog } from './links/edit-link-dialog';
+import { ShareDialog } from './links/share-dialog';
+import { ReportComponent } from './report/report.component';
 
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
@@ -29,15 +39,6 @@ import { IPublicClientApplication, PublicClientApplication, InteractionType } fr
 import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HomeComponent } from './home/home.component';
-import { LinkService } from './links/link.service';
-import { LinksComponent } from './links/links.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { EditLinkDialog } from './links/edit-link-dialog';
-import { ShareDialog } from './links/share-dialog';
-import { ReportComponent } from './report/report.component';
-import { NgChartsModule } from 'ng2-charts';
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication(msalConfig);
