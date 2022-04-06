@@ -3,8 +3,8 @@ import { environment } from 'src/environments/environment';
 
 export const msalConfig: Configuration = {
     auth: {
-        clientId: 'ecfbb89d-9f5a-4914-939a-bf4800630581',
-        authority: 'https://login.microsoftonline.com/1f4e3112-81fc-4f46-81fd-5c37ac107e26',
+        clientId: environment.clientId,
+        authority: `https://login.microsoftonline.com/${environment.tenantId}`,
         redirectUri: '/',
     },
     cache: {
@@ -25,11 +25,11 @@ export const msalConfig: Configuration = {
 export const protectedResources = {
     linkApi: {
         endpoint: environment.elfApiBaseUrl + "/api/link",
-        scopes: ["api://a439e578-3ff8-4bee-91e5-96141234bc67/access_as_user"],
+        scopes: [`${environment.applicationIdUri}/access_as_user`]
     },
     reportApi: {
         endpoint: environment.elfApiBaseUrl + "/api/report",
-        scopes: ["api://a439e578-3ff8-4bee-91e5-96141234bc67/access_as_user"],
+        scopes: [`${environment.applicationIdUri}/access_as_user`]
     }
 }
 

@@ -106,16 +106,12 @@ To use Redis, follow these steps:
    - In the list of APIs, select the API you created.
    - In the **Delegated permissions** section, select the **access_as_user** in the list. Use the search box if necessary.
    - Click on the **Add permissions** button at the bottom.
-
-7. Open `./src/Admin/elf-admin/src/app/auth-config.ts`
-
-8. Replace `clientId`, `authority`, `scopes` with your own values.
-
+   
 ### Configure API endpoint
 
 Open `./src/Admin/elf-admin/src/environments/environment.ts` or `./src/Admin/elf-admin/src/environments/environment.prod.ts`
 
-Replace `elfApiBaseUrl` with your own values.
+Replace `elfApiBaseUrl`, `clientId`, `authority`, `scopes` with your own values.
 
 ### Run
 
