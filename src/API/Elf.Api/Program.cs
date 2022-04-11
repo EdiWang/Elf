@@ -52,7 +52,7 @@ using (var scope = app.Services.CreateScope())
     if (!canConnect)
     {
         app.MapGet("/", _ => throw new DataException(
-            "Database connection test failed, please check your connection string and firewall settings, then RESTART Moonglade manually."));
+            "Database connection test failed, please check your connection string and firewall settings, then RESTART Elf manually."));
         app.Run();
     }
 
