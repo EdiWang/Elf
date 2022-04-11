@@ -51,8 +51,10 @@ using (var scope = app.Services.CreateScope())
     var canConnect = await context.Database.CanConnectAsync();
     if (!canConnect)
     {
-        app.MapGet("/", _ => throw new DataException(
-            "Database connection test failed, please check your connection string and firewall settings, then RESTART Elf manually."));
+        app.MapGet("/", () => Results.Problem(
+            detail: "Database connection test failed, please check your connection string and firewall settings, then RESTART Elf manually.", 
+            statusCode: 500
+            ));
         app.Run();
     }
 
