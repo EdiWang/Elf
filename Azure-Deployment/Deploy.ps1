@@ -153,4 +153,29 @@ if (!$useLinuxPlanWithDocker){
     $echo = az webapp deployment source config --branch master --manual-integration --name $webAppName --repo-url https://github.com/EdiWang/Elf --resource-group $rsgName
 }
 
+# Azure AD
+Write-Host ""
+Write-Host "Creating Azure AD Application Registration..." -ForegroundColor Green
+$clientid=$(az ad app create --display-name $webAppName --query appId --output tsv)
+#$objectid=$(az ad app show --id $clientid --query objectId --output tsv)
+
+Write-Host "Removing default API scope..."
+$default_scope=(az ad app show --id $clientid | ConvertFrom-Json).oauth2Permissions
+$default_scope[0].isEnabled = 'false'
+$default_scope_new = ConvertTo-Json -InputObject @($default_scope)
+$default_scope_new | Out-File -FilePath .\oauth2Permissionsold.json
+az ad app update --id $clientid --set oauth2Permissions=@oauth2Permissionsold.json
+Remove-Item oauth2Permissionsold.json
+Write-Host "NOTE: You need to manually expose API with name access_as_user and set accessTokenAcceptedVersion to 2, please refer to Readme of https://github.com/EdiWang/Elf"
+
+Write-Host "Updating Configuration for AAD" -ForegroundColor Green
+if ($useLinuxPlanWithDocker) {
+    $echo = az webapp config appsettings set -g $rsgName -n $webAppName --settings AzureAd__ClientId=$clientid
+}
+else{
+    $echo = az webapp config appsettings set -g $rsgName -n $webAppName --settings AzureAd:ClientId=$clientid
+}
+
+Write-Host "NOTE: You need to manually set domain and tenantId with the AAD application, please refer to Readme of https://github.com/EdiWang/Elf"
+
 Read-Host -Prompt "Setup is done, you should be able to run Elf API on '$webAppUrl' now, press [ENTER] to exit."
