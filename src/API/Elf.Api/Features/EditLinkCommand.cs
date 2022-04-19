@@ -14,7 +14,7 @@ public class EditLinkCommandHandler : IRequestHandler<EditLinkCommand, string>
     {
         var (id, payload) = request;
 
-        var link = await _dbContext.Link.FindAsync(id, cancellationToken);
+        var link = await _dbContext.Link.FindAsync(id);
         if (link is null) return null;
 
         link.OriginUrl = payload.OriginUrl;
