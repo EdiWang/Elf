@@ -23,6 +23,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { QRCodeModule } from 'angularx-qrcode';
 import { ClipboardModule } from 'ngx-clipboard';
 import { NgChartsModule } from 'ng2-charts';
+import { ToastrModule } from 'ngx-toastr';
 
 import { HomeComponent } from './home/home.component';
 import { LinkService } from './links/link.service';
@@ -98,7 +99,10 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     FormsModule,
     ReactiveFormsModule,
     ClipboardModule,
-    NgChartsModule
+    NgChartsModule,
+    ToastrModule.forRoot({
+      positionClass: 'toast-bottom-center',
+    })
   ],
   providers: [
     {

@@ -2,6 +2,7 @@ import { Component, Inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Link, LinkService } from "./link.service";
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'edit-link-dialog',
@@ -12,6 +13,7 @@ export class EditLinkDialog {
     editLinkForm: FormGroup;
 
     constructor(
+        private toastr: ToastrService,
         public fb: FormBuilder,
         private service: LinkService,
         public dialogRef: MatDialogRef<EditLinkDialog>,
@@ -35,12 +37,12 @@ export class EditLinkDialog {
 
         if (this.data) {
             this.service.update(this.data.id, this.editLinkForm.value).subscribe(() => {
-                console.info('updated');
+                this.toastr.success('Updated');
             });
         }
         else {
             this.service.add(this.editLinkForm.value).subscribe(() => {
-                console.info('added');
+                this.toastr.success('Added');
             });
         }
     }

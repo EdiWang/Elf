@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditLinkDialog } from './edit-link-dialog';
 import { ShareDialog } from './share-dialog';
 import { ClipboardService } from 'ngx-clipboard';
+import { ToastrService } from 'ngx-toastr';
 import { environment } from 'src/environments/environment';
 @Component({
     selector: 'app-links',
@@ -26,6 +27,7 @@ export class LinksComponent implements OnInit {
     dataSource: MatTableDataSource<Link> = new MatTableDataSource();
 
     constructor(
+        private toastr: ToastrService,
         public dialog: MatDialog,
         private clipboardApi: ClipboardService,
         private service: LinkService) { }
@@ -91,6 +93,7 @@ export class LinksComponent implements OnInit {
 
     deleteLink(id: number): void {
         this.service.delete(id).subscribe(() => {
+            this.toastr.success('Deleted');
             this.getLinks();
         });
     }
@@ -104,9 +107,11 @@ export class LinksComponent implements OnInit {
 
     copyChip(link: Link) {
         this.clipboardApi.copyFromContent(environment.elfApiBaseUrl + '/fw/' + link.fwToken);
+        this.toastr.info('Copied');
     }
 
     copyAka(link: Link) {
         this.clipboardApi.copyFromContent(environment.elfApiBaseUrl + '/aka/' + link.akaName);
+        this.toastr.info('Aka url copied');
     }
 }
