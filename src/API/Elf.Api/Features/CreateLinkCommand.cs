@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record CreateLinkCommand(LinkEditModel Payload) : IRequest<string>;
+public record CreateLinkCommand(LinkEditModel Payload) : IRequest;
 
-public class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand, string>
+public class CreateLinkCommandHandler : AsyncRequestHandler<CreateLinkCommand>
 {
     private readonly ElfDbContext _dbContext;
     private readonly ITokenGenerator _tokenGenerator;
@@ -20,7 +20,7 @@ public class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand, strin
         _logger = logger;
     }
 
-    public async Task<string> Handle(CreateLinkCommand request, CancellationToken cancellationToken)
+    protected override async Task Handle(CreateLinkCommand request, CancellationToken cancellationToken)
     {
         var l = await _dbContext.Link.FirstOrDefaultAsync(p => p.OriginUrl == request.Payload.OriginUrl, cancellationToken);
         var tempToken = l?.FwToken;
@@ -29,7 +29,7 @@ public class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand, strin
             if (_tokenGenerator.TryParseToken(tempToken, out var tk))
             {
                 _logger.LogInformation($"Link already exists for token '{tk}'");
-                return tk;
+                return;
             }
 
             var message = $"Invalid token '{tempToken}' found for existing url '{request.Payload.OriginUrl}'";
@@ -57,7 +57,5 @@ public class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand, strin
 
         await _dbContext.AddAsync(link, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return link.FwToken;
     }
 }

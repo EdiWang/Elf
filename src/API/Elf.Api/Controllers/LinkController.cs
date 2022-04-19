@@ -27,7 +27,7 @@ public class LinkController : ControllerBase
     }
 
     [HttpPost("create")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(LinkEditModel model)
     {
@@ -43,8 +43,8 @@ public class LinkController : ControllerBase
                 return BadRequest("Can not use url pointing to this site.");
         }
 
-        var response = await _mediator.Send(new CreateLinkCommand(model));
-        return Ok(response);
+        await _mediator.Send(new CreateLinkCommand(model));
+        return NoContent();
     }
 
     [HttpPut("{id:int}")]
