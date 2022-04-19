@@ -48,7 +48,7 @@ public class LinkController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Edit(int id, LinkEditModel model)
     {
@@ -66,7 +66,7 @@ public class LinkController : ControllerBase
 
         var token = await _mediator.Send(new EditLinkCommand(id, model));
         if (token is not null) await _cache.RemoveAsync(token);
-        return Ok(token);
+        return NoContent();
     }
 
     [HttpPut("{id:int}/enable")]
