@@ -20,6 +20,9 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+
 import { QRCodeModule } from 'angularx-qrcode';
 import { ClipboardModule } from 'ngx-clipboard';
 import { NgChartsModule } from 'ng2-charts';
@@ -95,6 +98,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     MatDividerModule,
     MatDialogModule,
     MatChipsModule,
+    MatNativeDateModule,
+    MatDatepickerModule,
     QRCodeModule,
     FormsModule,
     ReactiveFormsModule,
