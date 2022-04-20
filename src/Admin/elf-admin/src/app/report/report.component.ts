@@ -148,7 +148,11 @@ export class ReportComponent implements OnInit {
 
     getTrackingCountPastWeek() {
         this.isLoading = true;
-        this.service.trackingCount(7).subscribe((result: LinkTrackingDateCount[]) => {
+
+        var date = new Date();
+        date.setDate(date.getDate() - 7);
+
+        this.service.trackingCount(date.toISOString(), new Date().toISOString()).subscribe((result: LinkTrackingDateCount[]) => {
             this.isLoading = false;
 
             const trackingDates = [];

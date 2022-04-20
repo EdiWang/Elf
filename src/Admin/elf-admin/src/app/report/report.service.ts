@@ -22,8 +22,12 @@ export class ReportService {
         return this.http.get<ClientTypeCount[]>(this.url + `/requests/clienttype/${days}`);
     }
 
-    trackingCount(days: number) {
-        return this.http.get<LinkTrackingDateCount[]>(this.url + `/tracking/${days}`);
+    trackingCount(startDateUtcStr: string, endDateUtcStr: string) {
+        return this.http.post<LinkTrackingDateCount[]>(this.url + `/tracking`,
+            {
+                startDateUtc: startDateUtcStr,
+                endDateUtc: endDateUtcStr
+            });
     }
 
     clearTrackingData() {
