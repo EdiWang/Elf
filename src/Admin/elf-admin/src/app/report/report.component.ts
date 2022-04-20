@@ -97,8 +97,8 @@ export class ReportComponent implements OnInit {
 
     getData() {
         this.getRecentRequests();
-        this.getTrackingCountPastWeek();
-        this.getClientTypePastMonth();
+        this.getTrackingCount();
+        this.getClientType();
         this.getMostRequestedLinksPastMonth();
     }
 
@@ -108,10 +108,11 @@ export class ReportComponent implements OnInit {
         });
     }
 
+    isMostRequestedLinksLoading: boolean;
     getMostRequestedLinksPastMonth() {
-        this.isLoading = true;
+        this.isMostRequestedLinksLoading = true;
         this.service.mostRequestedLinks(30).subscribe((result: MostRequestedLinkCount[]) => {
-            this.isLoading = false;
+            this.isMostRequestedLinksLoading = false;
 
             const notes = [];
             const requestCounts: number[] = [];
@@ -136,7 +137,7 @@ export class ReportComponent implements OnInit {
     }
 
     isClientTypeLoading: boolean;
-    getClientTypePastMonth() {
+    getClientType() {
         this.isClientTypeLoading = true;
         this.service
             .clientType(this.clientTypeDateRange.value.start, this.clientTypeDateRange.value.end)
@@ -166,7 +167,7 @@ export class ReportComponent implements OnInit {
     }
 
     isTrackingCountLoading: boolean;
-    getTrackingCountPastWeek() {
+    getTrackingCount() {
         this.isTrackingCountLoading = true;
 
         this.service

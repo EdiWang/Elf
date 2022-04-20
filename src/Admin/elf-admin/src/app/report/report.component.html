@@ -3,17 +3,20 @@
     <div class="row g-2">
         <div class="col">
             <mat-card class="mt-4 mb-4">
-                <mat-card-title>Requests</mat-card-title>
+                <mat-card-title>
+                    Requests
+                </mat-card-title>
                 <mat-card-content>
                     <div>
                         <mat-form-field appearance="standard">
                             <mat-label>Date range</mat-label>
-                            <mat-date-range-input [formGroup]="trackingCountDateRange" [rangePicker]="picker">
+                            <mat-date-range-input [formGroup]="trackingCountDateRange"
+                                [rangePicker]="pickerTrackingCount">
                                 <input matStartDate formControlName="start" placeholder="Start date">
                                 <input matEndDate formControlName="end" placeholder="End date">
                             </mat-date-range-input>
-                            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                            <mat-date-range-picker #picker></mat-date-range-picker>
+                            <mat-datepicker-toggle matSuffix [for]="pickerTrackingCount"></mat-datepicker-toggle>
+                            <mat-date-range-picker #pickerTrackingCount></mat-date-range-picker>
                         </mat-form-field>
 
                         <mat-error *ngIf="trackingCountDateRange.controls['start'].hasError('matStartDateInvalid')">
@@ -21,7 +24,7 @@
                         <mat-error *ngIf="trackingCountDateRange.controls['end'].hasError('matEndDateInvalid')">Invalid
                             end date</mat-error>
 
-                        <button mat-icon-button color="primary" (click)="getTrackingCountPastWeek()">
+                        <button mat-icon-button color="primary" (click)="getTrackingCount()">
                             <mat-icon>refresh</mat-icon>
                         </button>
                     </div>
@@ -39,8 +42,30 @@
             <mat-card class="mt-4 mb-4">
                 <mat-card-title>Client types</mat-card-title>
                 <mat-card-content style="max-width: 500px;">
-                    <canvas baseChart [data]="clientTypeChartData" [options]="clientTypeChartOptions"
-                        [type]="'doughnut'"></canvas>
+                    <div>
+                        <mat-form-field appearance="standard">
+                            <mat-label>Date range</mat-label>
+                            <mat-date-range-input [formGroup]="clientTypeDateRange" [rangePicker]="pickerClientType">
+                                <input matStartDate formControlName="start" placeholder="Start date">
+                                <input matEndDate formControlName="end" placeholder="End date">
+                            </mat-date-range-input>
+                            <mat-datepicker-toggle matSuffix [for]="pickerClientType"></mat-datepicker-toggle>
+                            <mat-date-range-picker #pickerClientType></mat-date-range-picker>
+                        </mat-form-field>
+
+                        <mat-error *ngIf="clientTypeDateRange.controls['start'].hasError('matStartDateInvalid')">Invalid
+                            start date</mat-error>
+                        <mat-error *ngIf="clientTypeDateRange.controls['end'].hasError('matEndDateInvalid')">Invalid end
+                            date</mat-error>
+
+                        <button mat-icon-button color="primary" (click)="getClientType()">
+                            <mat-icon>refresh</mat-icon>
+                        </button>
+                    </div>
+                    <div>
+                        <canvas baseChart [data]="clientTypeChartData" [options]="clientTypeChartOptions"
+                            [type]="'doughnut'"></canvas>
+                    </div>
                 </mat-card-content>
                 <mat-card-footer>
                     <mat-progress-bar mode="indeterminate" *ngIf="isClientTypeLoading"></mat-progress-bar>
@@ -54,6 +79,9 @@
                     <canvas baseChart [data]="mostRequestedChartData" [options]="mostRequestedChartOptions"
                         [type]="'pie'"></canvas>
                 </mat-card-content>
+                <mat-card-footer>
+                    <mat-progress-bar mode="indeterminate" *ngIf="isMostRequestedLinksLoading"></mat-progress-bar>
+                </mat-card-footer>
             </mat-card>
         </div>
     </div>
