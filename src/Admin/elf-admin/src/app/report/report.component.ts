@@ -49,7 +49,9 @@ export class ReportComponent implements OnInit {
     trackingCountChartOptions: ChartConfiguration['options'] = {
         plugins: {
             legend: { display: false }
-        }
+        },
+        responsive: true,
+        maintainAspectRatio: false
     };
 
     clientTypeChartData: ChartConfiguration['data'] = {
@@ -64,7 +66,8 @@ export class ReportComponent implements OnInit {
                 position: 'right'
             }
         },
-        responsive: true
+        responsive: true,
+        maintainAspectRatio: false
     };
 
     mostRequestedChartData: ChartConfiguration['data'] = {
@@ -79,7 +82,8 @@ export class ReportComponent implements OnInit {
                 position: 'right'
             }
         },
-        responsive: true
+        responsive: true,
+        maintainAspectRatio: false
     };
 
     @ViewChild(MatPaginator) paginator: MatPaginator;

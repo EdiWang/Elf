@@ -1,7 +1,7 @@
 <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
 <div class="container-fluid">
     <div class="row g-2">
-        <div class="col">
+        <div class="col-sm-6 col-lg-4">
             <mat-card class="mt-4 mb-4">
                 <mat-card-title>
                     Requests
@@ -28,9 +28,11 @@
                             <mat-icon>refresh</mat-icon>
                         </button>
                     </div>
-                    <div>
-                        <canvas baseChart [data]="trackingCountChartData" [options]="trackingCountChartOptions"
-                            [type]="'line'"></canvas>
+                    <div class="chart">
+                        <canvas baseChart 
+                        [data]="trackingCountChartData" 
+                        [options]="trackingCountChartOptions"
+                        [type]="'line'"></canvas>
                     </div>
                 </mat-card-content>
                 <mat-card-footer>
@@ -38,7 +40,7 @@
                 </mat-card-footer>
             </mat-card>
         </div>
-        <div class="col">
+        <div class="col-sm-6 col-lg-4">
             <mat-card class="mt-4 mb-4">
                 <mat-card-title>Client types</mat-card-title>
                 <mat-card-content>
@@ -62,9 +64,11 @@
                             <mat-icon>refresh</mat-icon>
                         </button>
                     </div>
-                    <div>
-                        <canvas baseChart [data]="clientTypeChartData" [options]="clientTypeChartOptions"
-                            [type]="'doughnut'"></canvas>
+                    <div class="chart">
+                        <canvas baseChart 
+                        [data]="clientTypeChartData" 
+                        [options]="clientTypeChartOptions"
+                        [type]="'doughnut'"></canvas>
                     </div>
                 </mat-card-content>
                 <mat-card-footer>
@@ -72,7 +76,7 @@
                 </mat-card-footer>
             </mat-card>
         </div>
-        <div class="col">
+        <div class="col-sm-6 col-lg-4">
             <mat-card class="mt-4 mb-4">
                 <mat-card-title>Most requested in past 30 days</mat-card-title>
                 <mat-card-content>
