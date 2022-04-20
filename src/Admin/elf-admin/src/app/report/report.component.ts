@@ -35,7 +35,7 @@ export class ReportComponent implements OnInit {
         this.getRecentRequests();
         this.getTrackingCount();
         this.getClientType();
-        this.getMostRequestedLinksPastMonth();
+        this.getMostRequestedLinks();
     }
 
     clearTrackingData() {
@@ -68,7 +68,7 @@ export class ReportComponent implements OnInit {
     };
 
     isMostRequestedLinksLoading: boolean;
-    getMostRequestedLinksPastMonth() {
+    getMostRequestedLinks() {
         this.isMostRequestedLinksLoading = true;
         this.service
             .mostRequestedLinks(this.mostRequestedDateRange.value.start, this.mostRequestedDateRange.value.end)

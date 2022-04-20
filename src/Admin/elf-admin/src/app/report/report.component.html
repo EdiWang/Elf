@@ -28,10 +28,8 @@
                         </button>
                     </div>
                     <div class="chart">
-                        <canvas baseChart 
-                        [data]="trackingCountChartData" 
-                        [options]="trackingCountChartOptions"
-                        [type]="'line'"></canvas>
+                        <canvas baseChart [data]="trackingCountChartData" [options]="trackingCountChartOptions"
+                            [type]="'line'"></canvas>
                     </div>
                 </mat-card-content>
                 <mat-card-footer>
@@ -64,10 +62,8 @@
                         </button>
                     </div>
                     <div class="chart">
-                        <canvas baseChart 
-                        [data]="clientTypeChartData" 
-                        [options]="clientTypeChartOptions"
-                        [type]="'doughnut'"></canvas>
+                        <canvas baseChart [data]="clientTypeChartData" [options]="clientTypeChartOptions"
+                            [type]="'doughnut'"></canvas>
                     </div>
                 </mat-card-content>
                 <mat-card-footer>
@@ -77,10 +73,32 @@
         </div>
         <div class="col-sm-6 col-lg-4">
             <mat-card class="mt-4 mb-4">
-                <mat-card-title>Most requested in past 30 days</mat-card-title>
+                <mat-card-title>Most requested links</mat-card-title>
                 <mat-card-content>
-                    <canvas baseChart [data]="mostRequestedChartData" [options]="mostRequestedChartOptions"
-                        [type]="'pie'"></canvas>
+                    <div>
+                        <mat-form-field appearance="standard">
+                            <mat-label>Date range</mat-label>
+                            <mat-date-range-input [formGroup]="mostRequestedDateRange" [rangePicker]="pickerMostRequestedDateRange">
+                                <input matStartDate formControlName="start" placeholder="Start date">
+                                <input matEndDate formControlName="end" placeholder="End date">
+                            </mat-date-range-input>
+                            <mat-datepicker-toggle matSuffix [for]="pickerMostRequestedDateRange"></mat-datepicker-toggle>
+                            <mat-date-range-picker #pickerMostRequestedDateRange></mat-date-range-picker>
+                        </mat-form-field>
+
+                        <mat-error *ngIf="mostRequestedDateRange.controls['start'].hasError('matStartDateInvalid')">Invalid
+                            start date</mat-error>
+                        <mat-error *ngIf="mostRequestedDateRange.controls['end'].hasError('matEndDateInvalid')">Invalid end
+                            date</mat-error>
+
+                        <button mat-icon-button color="primary" (click)="getMostRequestedLinks()">
+                            <mat-icon>refresh</mat-icon>
+                        </button>
+                    </div>
+                    <div>
+                        <canvas baseChart [data]="mostRequestedChartData" [options]="mostRequestedChartOptions"
+                            [type]="'pie'"></canvas>
+                    </div>
                 </mat-card-content>
                 <mat-card-footer>
                     <mat-progress-bar mode="indeterminate" *ngIf="isMostRequestedLinksLoading"></mat-progress-bar>
