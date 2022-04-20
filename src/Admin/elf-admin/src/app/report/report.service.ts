@@ -14,8 +14,12 @@ export class ReportService {
         return this.http.get<RequestTrack[]>(this.url + `/requests?take=${take}&offset=${offset}`);
     }
 
-    mostRequestedLinks(days: number) {
-        return this.http.get<MostRequestedLinkCount[]>(this.url + `/requests/link/${days}`);
+    mostRequestedLinks(startDateUtcStr: string, endDateUtcStr: string) {
+        return this.http.post<MostRequestedLinkCount[]>(this.url + `/requests/link`,
+        {
+            startDateUtc: startDateUtcStr,
+            endDateUtc: endDateUtcStr
+        });
     }
 
     clientType(startDateUtcStr: string, endDateUtcStr: string) {

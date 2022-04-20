@@ -1,4 +1,3 @@
-<mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
 <div class="container-fluid">
     <div class="row g-2">
         <div class="col-sm-6 col-lg-4">
@@ -166,5 +165,9 @@
                 aria-label="Select page of periodic elements">
             </mat-paginator>
         </mat-card-content>
+
+        <mat-card-footer>
+            <mat-progress-bar mode="indeterminate" *ngIf="isRecentRequestsLoading"></mat-progress-bar>
+        </mat-card-footer>
     </mat-card>
 </div>

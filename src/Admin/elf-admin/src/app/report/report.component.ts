@@ -14,78 +14,7 @@ import { FormControl, FormGroup } from '@angular/forms';
     styleUrls: ['./report.component.css']
 })
 export class ReportComponent implements OnInit {
-    isLoading = false;
-
-    trackingCountDateRange = new FormGroup({
-        start: new FormControl(),
-        end: new FormControl(new Date()),
-    });
-
-    clientTypeDateRange = new FormGroup({
-        start: new FormControl(),
-        end: new FormControl(new Date()),
-    });
-
     pipe = new DatePipe('en-US');
-    displayedColumns: string[] = [
-        'fwToken',
-        'note',
-        'userAgent',
-        'ipAddress',
-        'ipCountry',
-        'ipRegion',
-        'ipCity',
-        'ipasn',
-        'ipOrg',
-        'requestTimeUtc'
-    ];
-    dataSource: MatTableDataSource<RequestTrack> = new MatTableDataSource();
-
-    trackingCountChartData: ChartConfiguration['data'] = {
-        datasets: [],
-        labels: []
-    };
-
-    trackingCountChartOptions: ChartConfiguration['options'] = {
-        plugins: {
-            legend: { display: false }
-        },
-        responsive: true,
-        maintainAspectRatio: false
-    };
-
-    clientTypeChartData: ChartConfiguration['data'] = {
-        datasets: [],
-        labels: []
-    };
-
-    clientTypeChartOptions: ChartConfiguration['options'] = {
-        plugins: {
-            legend: {
-                display: true,
-                position: 'right'
-            }
-        },
-        responsive: true,
-        maintainAspectRatio: false
-    };
-
-    mostRequestedChartData: ChartConfiguration['data'] = {
-        datasets: [],
-        labels: []
-    };
-
-    mostRequestedChartOptions: ChartConfiguration['options'] = {
-        plugins: {
-            legend: {
-                display: true,
-                position: 'right'
-            }
-        },
-        responsive: true,
-        maintainAspectRatio: false
-    };
-
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChildren(BaseChartDirective) charts?: QueryList<BaseChartDirective>;
 
@@ -97,6 +26,7 @@ export class ReportComponent implements OnInit {
         date.setDate(date.getDate() - 7);
         this.trackingCountDateRange.controls['start'].setValue(date);
         this.clientTypeDateRange.controls['start'].setValue(date);
+        this.mostRequestedDateRange.controls['start'].setValue(date);
 
         this.getData();
     }
@@ -114,33 +44,83 @@ export class ReportComponent implements OnInit {
         });
     }
 
+    //#region mostRequestedChart
+
+    mostRequestedDateRange = new FormGroup({
+        start: new FormControl(),
+        end: new FormControl(new Date()),
+    });
+
+    mostRequestedChartData: ChartConfiguration['data'] = {
+        datasets: [],
+        labels: []
+    };
+
+    mostRequestedChartOptions: ChartConfiguration['options'] = {
+        plugins: {
+            legend: {
+                display: true,
+                position: 'right'
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+    };
+
     isMostRequestedLinksLoading: boolean;
     getMostRequestedLinksPastMonth() {
         this.isMostRequestedLinksLoading = true;
-        this.service.mostRequestedLinks(30).subscribe((result: MostRequestedLinkCount[]) => {
-            this.isMostRequestedLinksLoading = false;
+        this.service
+            .mostRequestedLinks(this.mostRequestedDateRange.value.start, this.mostRequestedDateRange.value.end)
+            .subscribe((result: MostRequestedLinkCount[]) => {
+                this.isMostRequestedLinksLoading = false;
 
-            const notes = [];
-            const requestCounts: number[] = [];
+                const notes = [];
+                const requestCounts: number[] = [];
 
-            for (let idx in result) {
-                if (result.hasOwnProperty(idx)) {
-                    notes.push(result[idx].note);
-                    requestCounts.push(result[idx].requestCount);
+                for (let idx in result) {
+                    if (result.hasOwnProperty(idx)) {
+                        notes.push(result[idx].note);
+                        requestCounts.push(result[idx].requestCount);
+                    }
                 }
-            }
 
-            this.mostRequestedChartData.datasets = [{
-                data: requestCounts
-            }];
+                this.mostRequestedChartData.datasets = [{
+                    data: requestCounts
+                }];
 
-            this.mostRequestedChartData.labels = notes;
+                this.mostRequestedChartData.labels = notes;
 
-            this.charts?.forEach((child) => {
-                child.update();
-            });
-        })
+                this.charts?.forEach((child) => {
+                    child.update();
+                });
+            })
     }
+
+    //#endregion
+
+    //#region clientTypeChart
+
+    clientTypeDateRange = new FormGroup({
+        start: new FormControl(),
+        end: new FormControl(new Date()),
+    });
+
+    clientTypeChartData: ChartConfiguration['data'] = {
+        datasets: [],
+        labels: []
+    };
+
+    clientTypeChartOptions: ChartConfiguration['options'] = {
+        plugins: {
+            legend: {
+                display: true,
+                position: 'right'
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+    };
 
     isClientTypeLoading: boolean;
     getClientType() {
@@ -148,29 +128,51 @@ export class ReportComponent implements OnInit {
         this.service
             .clientType(this.clientTypeDateRange.value.start, this.clientTypeDateRange.value.end)
             .subscribe((result: ClientTypeCount[]) => {
-            this.isClientTypeLoading = false;
+                this.isClientTypeLoading = false;
 
-            const clientTypes = [];
-            const clientCounts: number[] = [];
+                const clientTypes = [];
+                const clientCounts: number[] = [];
 
-            for (let idx in result) {
-                if (result.hasOwnProperty(idx)) {
-                    clientTypes.push(result[idx].clientTypeName);
-                    clientCounts.push(result[idx].count);
+                for (let idx in result) {
+                    if (result.hasOwnProperty(idx)) {
+                        clientTypes.push(result[idx].clientTypeName);
+                        clientCounts.push(result[idx].count);
+                    }
                 }
-            }
 
-            this.clientTypeChartData.datasets = [{
-                data: clientCounts
-            }];
+                this.clientTypeChartData.datasets = [{
+                    data: clientCounts
+                }];
 
-            this.clientTypeChartData.labels = clientTypes;
+                this.clientTypeChartData.labels = clientTypes;
 
-            this.charts?.forEach((child) => {
-                child.update();
-            });
-        })
+                this.charts?.forEach((child) => {
+                    child.update();
+                });
+            })
     }
+
+    //#endregion
+
+    //#region trackingCountChart
+
+    trackingCountDateRange = new FormGroup({
+        start: new FormControl(),
+        end: new FormControl(new Date()),
+    });
+
+    trackingCountChartData: ChartConfiguration['data'] = {
+        datasets: [],
+        labels: []
+    };
+
+    trackingCountChartOptions: ChartConfiguration['options'] = {
+        plugins: {
+            legend: { display: false }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+    };
 
     isTrackingCountLoading: boolean;
     getTrackingCount() {
@@ -202,13 +204,34 @@ export class ReportComponent implements OnInit {
             })
     }
 
+    //#endregion
+
+    //#region RecentRequests
+
+    displayedColumns: string[] = [
+        'fwToken',
+        'note',
+        'userAgent',
+        'ipAddress',
+        'ipCountry',
+        'ipRegion',
+        'ipCity',
+        'ipasn',
+        'ipOrg',
+        'requestTimeUtc'
+    ];
+    dataSource: MatTableDataSource<RequestTrack> = new MatTableDataSource();
+
+    isRecentRequestsLoading = false;
     getRecentRequests() {
-        this.isLoading = true;
+        this.isRecentRequestsLoading = true;
 
         this.service.recentRequests(128, 0).subscribe((result: RequestTrack[]) => {
-            this.isLoading = false;
+            this.isRecentRequestsLoading = false;
             this.dataSource = new MatTableDataSource(result);
             this.dataSource.paginator = this.paginator;
         })
     }
+
+    //#endregion
 }
