@@ -46,7 +46,7 @@ public class ReportController : ControllerBase
 
     [HttpPost("tracking")]
     [ProducesResponseType(typeof(IReadOnlyList<LinkTrackingDateCount>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> TrackingCount(TrackingCountRequest request)
+    public async Task<IActionResult> TrackingCount(DateRangeRequest request)
     {
         var dateCounts = await _mediator.Send(new GetLinkTrackingDateCountQuery(request));
         return Ok(dateCounts);

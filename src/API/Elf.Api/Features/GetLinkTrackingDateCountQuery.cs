@@ -1,33 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Elf.Api.Data;
+﻿using Elf.Api.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public class TrackingCountRequest : IValidatableObject
-{
-    [Required]
-    public DateTime StartDateUtc { get; set; }
-
-    [Required]
-    public DateTime EndDateUtc { get; set; }
-
-    public TrackingCountRequest()
-    {
-        StartDateUtc = DateTime.UtcNow.Date;
-        EndDateUtc = DateTime.UtcNow.Date;
-    }
-
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    {
-        if (EndDateUtc < StartDateUtc)
-        {
-            yield return new("EndDateUtc must be greater than StartDateUtc", new[] { nameof(StartDateUtc), nameof(EndDateUtc) });
-        }
-    }
-}
-
-public record GetLinkTrackingDateCountQuery(TrackingCountRequest Request) : IRequest<IReadOnlyList<LinkTrackingDateCount>>;
+public record GetLinkTrackingDateCountQuery(DateRangeRequest Request) : IRequest<IReadOnlyList<LinkTrackingDateCount>>;
 
 public class GetLinkTrackingDateCountQueryHandler :
         IRequestHandler<GetLinkTrackingDateCountQuery, IReadOnlyList<LinkTrackingDateCount>>
