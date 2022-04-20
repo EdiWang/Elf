@@ -27,11 +27,11 @@ public class ReportController : ControllerBase
         return Ok(requests);
     }
 
-    [HttpGet("requests/link/{daysFromNow:int}")]
+    [HttpPost("requests/link")]
     [ProducesResponseType(typeof(IReadOnlyList<MostRequestedLinkCount>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> MostRequestedLinks([Range(1, 90)] int daysFromNow)
+    public async Task<IActionResult> MostRequestedLinks(DateRangeRequest request)
     {
-        var linkCounts = await _mediator.Send(new GetMostRequestedLinkCountQuery(daysFromNow));
+        var linkCounts = await _mediator.Send(new GetMostRequestedLinkCountQuery(request));
         return Ok(linkCounts);
     }
 

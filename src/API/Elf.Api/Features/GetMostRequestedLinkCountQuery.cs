@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record GetMostRequestedLinkCountQuery(int DaysFromNow) : IRequest<IReadOnlyList<MostRequestedLinkCount>>;
+public record GetMostRequestedLinkCountQuery(DateRangeRequest Request) : IRequest<IReadOnlyList<MostRequestedLinkCount>>;
 
 public class GetMostRequestedLinkCountQueryHandler :
     IRequestHandler<GetMostRequestedLinkCountQuery, IReadOnlyList<MostRequestedLinkCount>>
@@ -17,7 +17,8 @@ public class GetMostRequestedLinkCountQueryHandler :
         var utc = DateTime.UtcNow;
 
         var data = await _dbContext.LinkTracking
-                        .Where(lt => lt.RequestTimeUtc < utc && lt.RequestTimeUtc > utc.AddDays(-1 * request.DaysFromNow))
+                        .Where(p => p.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
+                                    p.RequestTimeUtc >= request.Request.StartDateUtc.Date)
                         .GroupBy(lt => new { lt.Link.FwToken, lt.Link.Note })
                         .Select(g => new MostRequestedLinkCount
                         {
