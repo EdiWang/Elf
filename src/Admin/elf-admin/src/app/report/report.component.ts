@@ -6,6 +6,7 @@ import { ChartConfiguration } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
 import { ClientTypeCount, LinkTrackingDateCount, MostRequestedLinkCount, ReportService, RequestTrack } from './report.service';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
     selector: 'app-report',
@@ -14,6 +15,11 @@ import { ClientTypeCount, LinkTrackingDateCount, MostRequestedLinkCount, ReportS
 })
 export class ReportComponent implements OnInit {
     isLoading = false;
+
+    trackingCountDateRange = new FormGroup({
+        start: new FormControl(),
+        end: new FormControl(new Date()),
+    });
 
     pipe = new DatePipe('en-US');
     displayedColumns: string[] = [
@@ -76,6 +82,10 @@ export class ReportComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        var date = new Date();
+        date.setDate(date.getDate() - 7);
+        this.trackingCountDateRange.controls['start'].setValue(date);
+
         this.getData();
     }
 
@@ -149,31 +159,30 @@ export class ReportComponent implements OnInit {
     getTrackingCountPastWeek() {
         this.isLoading = true;
 
-        var date = new Date();
-        date.setDate(date.getDate() - 7);
+        this.service
+            .trackingCount(this.trackingCountDateRange.value.start, this.trackingCountDateRange.value.end)
+            .subscribe((result: LinkTrackingDateCount[]) => {
+                this.isLoading = false;
 
-        this.service.trackingCount(date.toISOString(), new Date().toISOString()).subscribe((result: LinkTrackingDateCount[]) => {
-            this.isLoading = false;
-
-            const trackingDates = [];
-            const requestCounts: number[] = [];
-            for (let idx in result) {
-                if (result.hasOwnProperty(idx)) {
-                    trackingDates.push(this.pipe.transform(result[idx].trackingDateUtc, 'MM/dd'));
-                    requestCounts.push(result[idx].requestCount);
+                const trackingDates = [];
+                const requestCounts: number[] = [];
+                for (let idx in result) {
+                    if (result.hasOwnProperty(idx)) {
+                        trackingDates.push(this.pipe.transform(result[idx].trackingDateUtc, 'MM/dd'));
+                        requestCounts.push(result[idx].requestCount);
+                    }
                 }
-            }
 
-            this.pastWeekChartData.datasets = [{
-                data: requestCounts
-            }];
+                this.pastWeekChartData.datasets = [{
+                    data: requestCounts
+                }];
 
-            this.pastWeekChartData.labels = trackingDates;
+                this.pastWeekChartData.labels = trackingDates;
 
-            this.charts?.forEach((child) => {
-                child.update();
-            });
-        })
+                this.charts?.forEach((child) => {
+                    child.update();
+                });
+            })
     }
 
     getRecentRequests() {

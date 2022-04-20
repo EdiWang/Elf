@@ -3,10 +3,29 @@
     <div class="row g-2">
         <div class="col">
             <mat-card class="mt-4 mb-4">
-                <mat-card-title>Requests in past 7 days</mat-card-title>
+                <mat-card-title>Requests</mat-card-title>
                 <mat-card-content>
-                    <canvas baseChart [data]="pastWeekChartData" [options]="pastWeekChartOptions"
-                        [type]="'line'"></canvas>
+                    <div>
+                        <mat-form-field appearance="fill">
+                            <mat-label>Enter a date range</mat-label>
+                            <mat-date-range-input [formGroup]="trackingCountDateRange" [rangePicker]="picker">
+                                <input matStartDate formControlName="start" placeholder="Start date">
+                                <input matEndDate formControlName="end" placeholder="End date">
+                            </mat-date-range-input>
+                            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>
+                            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-date-range-picker #picker></mat-date-range-picker>
+                        </mat-form-field>
+
+                        <mat-error *ngIf="trackingCountDateRange.controls['start'].hasError('matStartDateInvalid')">Invalid start date</mat-error>
+                        <mat-error *ngIf="trackingCountDateRange.controls['end'].hasError('matEndDateInvalid')">Invalid end date</mat-error>
+
+                        <button mat-flat-button color="primary" (click)="getTrackingCountPastWeek()">Apply</button>
+                    </div>
+                    <div>
+                        <canvas baseChart [data]="pastWeekChartData" [options]="pastWeekChartOptions"
+                            [type]="'line'"></canvas>
+                    </div>
                 </mat-card-content>
             </mat-card>
         </div>
@@ -14,7 +33,8 @@
             <mat-card class="mt-4 mb-4">
                 <mat-card-title>Client type in past 30 days</mat-card-title>
                 <mat-card-content style="max-width: 500px;">
-                    <canvas baseChart [data]="clientTypeChartData" [options]="clientTypeChartOptions" [type]="'doughnut'"></canvas>
+                    <canvas baseChart [data]="clientTypeChartData" [options]="clientTypeChartOptions"
+                        [type]="'doughnut'"></canvas>
                 </mat-card-content>
             </mat-card>
         </div>
@@ -22,7 +42,8 @@
             <mat-card class="mt-4 mb-4">
                 <mat-card-title>Most requested in past 30 days</mat-card-title>
                 <mat-card-content style="max-width: 500px;">
-                    <canvas baseChart [data]="mostRequestedChartData" [options]="mostRequestedChartOptions" [type]="'pie'"></canvas>
+                    <canvas baseChart [data]="mostRequestedChartData" [options]="mostRequestedChartOptions"
+                        [type]="'pie'"></canvas>
                 </mat-card-content>
             </mat-card>
         </div>
