@@ -4,7 +4,7 @@ using UAParser;
 
 namespace Elf.Api.Features;
 
-public record GetClientTypeCountsQuery(int DaysFromNow, int TopTypes) : IRequest<IReadOnlyList<ClientTypeCount>>;
+public record GetClientTypeCountsQuery(DateRangeRequest Request, int TopTypes) : IRequest<IReadOnlyList<ClientTypeCount>>;
 
 public class GetClientTypeCountsQueryHandler : IRequestHandler<GetClientTypeCountsQuery, IReadOnlyList<ClientTypeCount>>
 {
@@ -27,8 +27,8 @@ public class GetClientTypeCountsQueryHandler : IRequestHandler<GetClientTypeCoun
         var utc = DateTime.UtcNow;
         var uac = await _dbContext.LinkTracking
                 .Where(p =>
-                    p.RequestTimeUtc < utc &&
-                    p.RequestTimeUtc > utc.AddDays(-1 * request.DaysFromNow))
+                    p.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
+                    p.RequestTimeUtc >= request.Request.StartDateUtc.Date)
                 .GroupBy(p => p.UserAgent)
                 .Select(p => new UserAgentCount
                 {

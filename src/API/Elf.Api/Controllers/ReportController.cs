@@ -35,11 +35,11 @@ public class ReportController : ControllerBase
         return Ok(linkCounts);
     }
 
-    [HttpGet("requests/clienttype/{daysFromNow:int}")]
+    [HttpPost("requests/clienttype")]
     [ProducesResponseType(typeof(IReadOnlyList<ClientTypeCount>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ClientType([Range(1, 90)] int daysFromNow)
+    public async Task<IActionResult> ClientType(DateRangeRequest request)
     {
-        var types = await _mediator.Send(new GetClientTypeCountsQuery(daysFromNow,
+        var types = await _mediator.Send(new GetClientTypeCountsQuery(request,
             _configuration.GetSection("AppSettings:TopClientTypes").Get<int>()));
         return Ok(types);
     }
