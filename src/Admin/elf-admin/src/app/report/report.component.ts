@@ -41,12 +41,12 @@ export class ReportComponent implements OnInit {
     ];
     dataSource: MatTableDataSource<RequestTrack> = new MatTableDataSource();
 
-    pastWeekChartData: ChartConfiguration['data'] = {
+    trackingCountChartData: ChartConfiguration['data'] = {
         datasets: [],
         labels: []
     };
 
-    pastWeekChartOptions: ChartConfiguration['options'] = {
+    trackingCountChartOptions: ChartConfiguration['options'] = {
         plugins: {
             legend: { display: false }
         }
@@ -63,7 +63,8 @@ export class ReportComponent implements OnInit {
                 display: true,
                 position: 'right'
             }
-        }
+        },
+        responsive: true
     };
 
     mostRequestedChartData: ChartConfiguration['data'] = {
@@ -77,7 +78,8 @@ export class ReportComponent implements OnInit {
                 display: true,
                 position: 'right'
             }
-        }
+        },
+        responsive: true
     };
 
     @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -184,11 +186,11 @@ export class ReportComponent implements OnInit {
                     }
                 }
 
-                this.pastWeekChartData.datasets = [{
+                this.trackingCountChartData.datasets = [{
                     data: requestCounts
                 }];
 
-                this.pastWeekChartData.labels = trackingDates;
+                this.trackingCountChartData.labels = trackingDates;
 
                 this.charts?.forEach((child) => {
                     child.update();

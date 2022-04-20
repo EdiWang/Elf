@@ -29,7 +29,7 @@
                         </button>
                     </div>
                     <div>
-                        <canvas baseChart [data]="pastWeekChartData" [options]="pastWeekChartOptions"
+                        <canvas baseChart [data]="trackingCountChartData" [options]="trackingCountChartOptions"
                             [type]="'line'"></canvas>
                     </div>
                 </mat-card-content>
@@ -41,7 +41,7 @@
         <div class="col">
             <mat-card class="mt-4 mb-4">
                 <mat-card-title>Client types</mat-card-title>
-                <mat-card-content style="max-width: 500px;">
+                <mat-card-content>
                     <div>
                         <mat-form-field appearance="standard">
                             <mat-label>Date range</mat-label>
@@ -75,7 +75,7 @@
         <div class="col">
             <mat-card class="mt-4 mb-4">
                 <mat-card-title>Most requested in past 30 days</mat-card-title>
-                <mat-card-content style="max-width: 500px;">
+                <mat-card-content>
                     <canvas baseChart [data]="mostRequestedChartData" [options]="mostRequestedChartOptions"
                         [type]="'pie'"></canvas>
                 </mat-card-content>
