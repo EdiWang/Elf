@@ -21,6 +21,11 @@ export class ReportComponent implements OnInit {
         end: new FormControl(new Date()),
     });
 
+    clientTypeDateRange = new FormGroup({
+        start: new FormControl(),
+        end: new FormControl(new Date()),
+    });
+
     pipe = new DatePipe('en-US');
     displayedColumns: string[] = [
         'fwToken',
@@ -85,6 +90,7 @@ export class ReportComponent implements OnInit {
         var date = new Date();
         date.setDate(date.getDate() - 7);
         this.trackingCountDateRange.controls['start'].setValue(date);
+        this.clientTypeDateRange.controls['start'].setValue(date);
 
         this.getData();
     }
@@ -129,10 +135,13 @@ export class ReportComponent implements OnInit {
         })
     }
 
+    isClientTypeLoading: boolean;
     getClientTypePastMonth() {
-        this.isLoading = true;
-        this.service.clientType(30).subscribe((result: ClientTypeCount[]) => {
-            this.isLoading = false;
+        this.isClientTypeLoading = true;
+        this.service
+            .clientType(this.clientTypeDateRange.value.start, this.clientTypeDateRange.value.end)
+            .subscribe((result: ClientTypeCount[]) => {
+            this.isClientTypeLoading = false;
 
             const clientTypes = [];
             const clientCounts: number[] = [];
@@ -156,13 +165,14 @@ export class ReportComponent implements OnInit {
         })
     }
 
+    isTrackingCountLoading: boolean;
     getTrackingCountPastWeek() {
-        this.isLoading = true;
+        this.isTrackingCountLoading = true;
 
         this.service
             .trackingCount(this.trackingCountDateRange.value.start, this.trackingCountDateRange.value.end)
             .subscribe((result: LinkTrackingDateCount[]) => {
-                this.isLoading = false;
+                this.isTrackingCountLoading = false;
 
                 const trackingDates = [];
                 const requestCounts: number[] = [];

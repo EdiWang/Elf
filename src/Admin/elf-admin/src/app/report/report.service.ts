@@ -18,8 +18,12 @@ export class ReportService {
         return this.http.get<MostRequestedLinkCount[]>(this.url + `/requests/link/${days}`);
     }
 
-    clientType(days: number) {
-        return this.http.get<ClientTypeCount[]>(this.url + `/requests/clienttype/${days}`);
+    clientType(startDateUtcStr: string, endDateUtcStr: string) {
+        return this.http.post<ClientTypeCount[]>(this.url + `/requests/clienttype`,
+        {
+            startDateUtc: startDateUtcStr,
+            endDateUtc: endDateUtcStr
+        });
     }
 
     trackingCount(startDateUtcStr: string, endDateUtcStr: string) {
