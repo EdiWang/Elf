@@ -44,11 +44,11 @@ public class ReportController : ControllerBase
         return Ok(types);
     }
 
-    [HttpGet("tracking/{daysFromNow:int}")]
+    [HttpPost("tracking")]
     [ProducesResponseType(typeof(IReadOnlyList<LinkTrackingDateCount>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> TrackingCount([Range(1, 90)] int daysFromNow)
+    public async Task<IActionResult> TrackingCount(TrackingCountRequest request)
     {
-        var dateCounts = await _mediator.Send(new GetLinkTrackingDateCountQuery(daysFromNow));
+        var dateCounts = await _mediator.Send(new GetLinkTrackingDateCountQuery(request));
         return Ok(dateCounts);
     }
 

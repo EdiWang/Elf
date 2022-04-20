@@ -1,9 +1,33 @@
-﻿using Elf.Api.Data;
+﻿using System.ComponentModel.DataAnnotations;
+using Elf.Api.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record GetLinkTrackingDateCountQuery(int DaysFromNow) : IRequest<IReadOnlyList<LinkTrackingDateCount>>;
+public class TrackingCountRequest : IValidatableObject
+{
+    [Required]
+    public DateTime StartDateUtc { get; set; }
+
+    [Required]
+    public DateTime EndDateUtc { get; set; }
+
+    public TrackingCountRequest()
+    {
+        StartDateUtc = DateTime.UtcNow.Date;
+        EndDateUtc = DateTime.UtcNow.Date;
+    }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (EndDateUtc < StartDateUtc)
+        {
+            yield return new("EndDateUtc must be greater than StartDateUtc", new[] { nameof(StartDateUtc), nameof(EndDateUtc) });
+        }
+    }
+}
+
+public record GetLinkTrackingDateCountQuery(TrackingCountRequest Request) : IRequest<IReadOnlyList<LinkTrackingDateCount>>;
 
 public class GetLinkTrackingDateCountQueryHandler :
         IRequestHandler<GetLinkTrackingDateCountQuery, IReadOnlyList<LinkTrackingDateCount>>
@@ -14,10 +38,9 @@ public class GetLinkTrackingDateCountQueryHandler :
 
     public async Task<IReadOnlyList<LinkTrackingDateCount>> Handle(GetLinkTrackingDateCountQuery request, CancellationToken cancellationToken)
     {
-        var utc = DateTime.UtcNow;
-
         var data = await (from lt in _dbContext.LinkTracking
-                          where lt.RequestTimeUtc < utc && lt.RequestTimeUtc > utc.AddDays(-1 * request.DaysFromNow)
+                          where lt.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
+                                lt.RequestTimeUtc >= request.Request.StartDateUtc.Date
                           group lt by lt.RequestTimeUtc.Date into g
                           select new LinkTrackingDateCount
                           {
