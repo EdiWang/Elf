@@ -34,7 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
       var angularPlugin = new AngularPlugin();
       const appInsights = new ApplicationInsights({
         config: {
-          instrumentationKey: 'YOUR_INSTRUMENTATION_KEY_GOES_HERE',
+          instrumentationKey: environment.applicationInsightKey,
           extensions: [angularPlugin],
           extensionConfig: {
             [angularPlugin.identifier]: { router: this.router }
