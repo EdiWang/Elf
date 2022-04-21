@@ -35,6 +35,8 @@ import { EditLinkDialog } from './links/edit-link-dialog';
 import { ShareDialog } from './links/share-dialog';
 import { ReportComponent } from './report/report.component';
 
+import { ElfApplicationinsightsErrorHandlerService } from './elfErrorHandlerService';
+
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
 //#region BEGIN MSAL
@@ -43,7 +45,6 @@ import { IPublicClientApplication, PublicClientApplication, InteractionType } fr
 import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
-import { ApplicationinsightsAngularpluginErrorService } from '@microsoft/applicationinsights-angularplugin-js';
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication(msalConfig);
@@ -128,10 +129,10 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
       provide: MSAL_INTERCEPTOR_CONFIG,
       useFactory: MSALInterceptorConfigFactory
     },
-    // {
-    //   provide: ErrorHandler,
-    //   useClass: ApplicationinsightsAngularpluginErrorService
-    // },
+    {
+      provide: ErrorHandler,
+      useClass: ElfApplicationinsightsErrorHandlerService
+    },
     MsalService,
     MsalGuard,
     MsalBroadcastService,
