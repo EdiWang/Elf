@@ -4,6 +4,9 @@ import { AccountInfo, AuthenticationResult, InteractionStatus, InteractionType, 
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
+import { AngularPlugin } from '@microsoft/applicationinsights-angularplugin-js';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -23,8 +26,24 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
     private authService: MsalService,
-    private msalBroadcastService: MsalBroadcastService
-  ) { }
+    private msalBroadcastService: MsalBroadcastService,
+    private router: Router
+  ) {
+    if (environment.production) {
+      // https://docs.microsoft.com/en-us/azure/azure-monitor/app/javascript-angular-plugin
+      var angularPlugin = new AngularPlugin();
+      const appInsights = new ApplicationInsights({
+        config: {
+          instrumentationKey: 'YOUR_INSTRUMENTATION_KEY_GOES_HERE',
+          extensions: [angularPlugin],
+          extensionConfig: {
+            [angularPlugin.identifier]: { router: this.router }
+          }
+        }
+      });
+      appInsights.loadAppInsights();
+    }
+  }
 
   setMenu(name: string) {
     this.currentMenu = name;
