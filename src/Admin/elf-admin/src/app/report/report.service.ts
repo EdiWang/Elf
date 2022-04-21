@@ -14,33 +14,26 @@ export class ReportService {
         return this.http.get<RequestTrack[]>(this.url + `/requests?take=${take}&offset=${offset}`);
     }
 
-    mostRequestedLinks(startDateUtcStr: string, endDateUtcStr: string) {
-        return this.http.post<MostRequestedLinkCount[]>(this.url + `/requests/link`,
-        {
-            startDateUtc: startDateUtcStr,
-            endDateUtc: endDateUtcStr
-        });
+    mostRequestedLinks(request: DateRangeRequest) {
+        return this.http.post<MostRequestedLinkCount[]>(this.url + `/requests/link`, request);
     }
 
-    clientType(startDateUtcStr: string, endDateUtcStr: string) {
-        return this.http.post<ClientTypeCount[]>(this.url + `/requests/clienttype`,
-        {
-            startDateUtc: startDateUtcStr,
-            endDateUtc: endDateUtcStr
-        });
+    clientType(request: DateRangeRequest) {
+        return this.http.post<ClientTypeCount[]>(this.url + `/requests/clienttype`, request);
     }
 
-    trackingCount(startDateUtcStr: string, endDateUtcStr: string) {
-        return this.http.post<LinkTrackingDateCount[]>(this.url + `/tracking`,
-            {
-                startDateUtc: startDateUtcStr,
-                endDateUtc: endDateUtcStr
-            });
+    trackingCount(request: DateRangeRequest) {
+        return this.http.post<LinkTrackingDateCount[]>(this.url + `/tracking`, request);
     }
 
     clearTrackingData() {
         return this.http.delete(this.url + '/tracking/clear');
     }
+}
+
+export interface DateRangeRequest {
+    startDateUtc: string;
+    endDateUtc: string;
 }
 
 export interface LinkTrackingDateCount {

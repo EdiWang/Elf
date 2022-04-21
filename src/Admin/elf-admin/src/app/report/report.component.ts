@@ -73,7 +73,10 @@ export class ReportComponent implements OnInit {
     getMostRequestedLinks() {
         this.isMostRequestedLinksLoading = true;
         this.service
-            .mostRequestedLinks(this.mostRequestedDateRange.value.start, this.mostRequestedDateRange.value.end)
+            .mostRequestedLinks({
+                startDateUtc: this.mostRequestedDateRange.value.start,
+                endDateUtc: this.mostRequestedDateRange.value.end
+            })
             .subscribe((result: MostRequestedLinkCount[]) => {
                 this.isMostRequestedLinksLoading = false;
 
@@ -128,7 +131,10 @@ export class ReportComponent implements OnInit {
     getClientType() {
         this.isClientTypeLoading = true;
         this.service
-            .clientType(this.clientTypeDateRange.value.start, this.clientTypeDateRange.value.end)
+            .clientType({
+                startDateUtc: this.clientTypeDateRange.value.start,
+                endDateUtc: this.clientTypeDateRange.value.end
+            })
             .subscribe((result: ClientTypeCount[]) => {
                 this.isClientTypeLoading = false;
 
@@ -181,7 +187,10 @@ export class ReportComponent implements OnInit {
         this.isTrackingCountLoading = true;
 
         this.service
-            .trackingCount(this.trackingCountDateRange.value.start, this.trackingCountDateRange.value.end)
+            .trackingCount({
+                startDateUtc: this.trackingCountDateRange.value.start,
+                endDateUtc: this.trackingCountDateRange.value.end
+            })
             .subscribe((result: LinkTrackingDateCount[]) => {
                 this.isTrackingCountLoading = false;
 
