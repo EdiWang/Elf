@@ -7,6 +7,7 @@ import { BaseChartDirective } from 'ng2-charts';
 
 import { ClientTypeCount, LinkTrackingDateCount, MostRequestedLinkCount, ReportService, RequestTrack } from './report.service';
 import { FormControl, FormGroup } from '@angular/forms';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'app-report',
@@ -14,6 +15,7 @@ import { FormControl, FormGroup } from '@angular/forms';
     styleUrls: ['./report.component.css']
 })
 export class ReportComponent implements OnInit {
+    ENV = environment;
     pipe = new DatePipe('en-US');
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChildren(BaseChartDirective) charts?: QueryList<BaseChartDirective>;

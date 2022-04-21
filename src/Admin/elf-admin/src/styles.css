@@ -13,6 +13,10 @@ body {
   background-color: #F2F2F2;
 }
 
+.flex-spacer {
+  flex-grow: 1;
+}
+
 a {
   text-decoration: none;
 }

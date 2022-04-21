@@ -128,10 +128,10 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
       provide: MSAL_INTERCEPTOR_CONFIG,
       useFactory: MSALInterceptorConfigFactory
     },
-    {
-      provide: ErrorHandler,
-      useClass: ApplicationinsightsAngularpluginErrorService
-    },
+    // {
+    //   provide: ErrorHandler,
+    //   useClass: ApplicationinsightsAngularpluginErrorService
+    // },
     MsalService,
     MsalGuard,
     MsalBroadcastService,
