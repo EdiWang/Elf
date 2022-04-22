@@ -7,18 +7,26 @@
         <mat-form-field>
             <input matInput placeholder="Note" formControlName="note">
         </mat-form-field>
-        <mat-form-field>
-            <input matInput placeholder="Aka" formControlName="akaName">
-        </mat-form-field>
-        <mat-form-field>
-            <input matInput type="number" placeholder="TTL" formControlName="ttl" min="0">
-            <span matSuffix>s</span>
-          </mat-form-field>
+        <div class="row g-2">
+            <div class="col d-flex flex-column">
+                <mat-form-field>
+                    <input matInput placeholder="Aka" formControlName="akaName">
+                </mat-form-field>
+            </div>
+            <div class="col d-flex flex-column">
+                <mat-form-field>
+                    <input matInput type="number" placeholder="TTL" formControlName="ttl" min="0">
+                    <span matSuffix>s</span>
+                </mat-form-field>
+            </div>
+        </div>
+
         <mat-checkbox formControlName="isEnabled">Enable</mat-checkbox>
 
     </mat-dialog-content>
     <mat-dialog-actions align="end">
         <a mat-flat-button mat-dialog-close>Cancel</a>
-        <button type="submit" mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="!editLinkForm.valid">Save</button>
+        <button type="submit" mat-flat-button color="primary" [mat-dialog-close]="true" cdkFocusInitial
+            [disabled]="!editLinkForm.valid">Save</button>
     </mat-dialog-actions>
 </form>

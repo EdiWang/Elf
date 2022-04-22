@@ -9,6 +9,7 @@ import { ShareDialog } from './share-dialog';
 import { ClipboardService } from 'ngx-clipboard';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from 'src/environments/environment';
+import { ConfirmationDialog } from './confirmation-dialog.component';
 @Component({
     selector: 'app-links',
     templateUrl: './links.component.html',
@@ -87,14 +88,28 @@ export class LinksComponent implements OnInit {
 
     checkLink(id: number, isEnabled: boolean): void {
         this.service.setEnable(id, isEnabled).subscribe(() => {
-
+            this.toastr.success('Updated');
         });
     }
 
     deleteLink(id: number): void {
-        this.service.delete(id).subscribe(() => {
-            this.toastr.success('Deleted');
-            this.getLinks();
+        const dialogRef = this.dialog.open(ConfirmationDialog, {
+            data: {
+                message: 'Are you sure want to delete this item?',
+                buttonText: {
+                    ok: 'Yes',
+                    cancel: 'No'
+                }
+            }
+        });
+
+        dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+            if (confirmed) {
+                this.service.delete(id).subscribe(() => {
+                    this.toastr.success('Deleted');
+                    this.getLinks();
+                });
+            }
         });
     }
 
