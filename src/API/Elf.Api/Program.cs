@@ -52,7 +52,7 @@ using (var scope = app.Services.CreateScope())
     if (!canConnect)
     {
         app.MapGet("/", () => Results.Problem(
-            detail: "Database connection test failed, please check your connection string and firewall settings, then RESTART Elf manually.", 
+            detail: "Database connection test failed, please check your connection string and firewall settings, then RESTART Elf manually.",
             statusCode: 500
             ));
         app.Run();

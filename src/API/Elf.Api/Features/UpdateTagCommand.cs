@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Elf.Api.Data;
+﻿using Elf.Api.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Api.Features;
 
