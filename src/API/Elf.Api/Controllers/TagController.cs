@@ -40,4 +40,16 @@ public class TagController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var code = await _mediator.Send(new DeleteTagCommand(id));
+        if (code == -1) return NotFound();
+
+        return NoContent();
+    }
 }
