@@ -28,4 +28,16 @@ public class TagController : ControllerBase
         await _mediator.Send(command);
         return NoContent();
     }
+
+    [HttpPut("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(int id, UpdateTagRequest request)
+    {
+        var code = await _mediator.Send(new UpdateTagCommand(id, request));
+        if (code == -1) return NotFound();
+
+        return NoContent();
+    }
 }
