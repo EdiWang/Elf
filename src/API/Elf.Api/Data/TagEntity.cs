@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Elf.Api.Data;
@@ -14,6 +15,7 @@ public class TagEntity
 
     public string Name { get; set; }
 
+    [JsonIgnore]
     public virtual ICollection<LinkEntity> Links { get; set; }
 }
 
