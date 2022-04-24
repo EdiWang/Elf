@@ -3,7 +3,7 @@ using Elf.Api.Features;
 
 namespace Elf.Api.Controllers;
 
-[Authorize]
+//[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class TagController : ControllerBase
@@ -15,9 +15,9 @@ public class TagController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create([FromBody][Required][MaxLength(32)] string name)
+    public async Task<IActionResult> Create(CreateTagCommand command)
     {
-        await _mediator.Send(new CreateTagCommand(name));
+        await _mediator.Send(command);
         return NoContent();
     }
 }

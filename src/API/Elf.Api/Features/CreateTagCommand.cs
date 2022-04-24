@@ -1,9 +1,10 @@
-﻿using Elf.Api.Data;
+﻿using System.ComponentModel.DataAnnotations;
+using Elf.Api.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record CreateTagCommand(string Name) : IRequest;
+public record CreateTagCommand([Required][MaxLength(32)] string Name) : IRequest;
 
 public class CreateTagCommandHandler : AsyncRequestHandler<CreateTagCommand>
 {
@@ -13,8 +14,7 @@ public class CreateTagCommandHandler : AsyncRequestHandler<CreateTagCommand>
 
     protected override async Task Handle(CreateTagCommand request, CancellationToken cancellationToken)
     {
-        var exists = await _dbContext.Tag.AnyAsync(p => 
-            string.Compare(p.Name, request.Name, StringComparison.OrdinalIgnoreCase) == 0, cancellationToken);
+        var exists = await _dbContext.Tag.AnyAsync(p => p.Name == request.Name, cancellationToken);
         if (exists) return;
 
         var tag = new TagEntity
