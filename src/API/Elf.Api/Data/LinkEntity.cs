@@ -9,6 +9,7 @@ public class LinkEntity
     public LinkEntity()
     {
         LinkTrackings = new HashSet<LinkTrackingEntity>();
+        Tags = new HashSet<TagEntity>();
     }
 
     public int Id { get; set; } // int
@@ -22,6 +23,9 @@ public class LinkEntity
 
     [JsonIgnore]
     public virtual ICollection<LinkTrackingEntity> LinkTrackings { get; set; }
+
+    [JsonIgnore]
+    public virtual ICollection<TagEntity> Tags { get; set; }
 }
 
 internal class LinkEntityConfiguration : IEntityTypeConfiguration<LinkEntity>
