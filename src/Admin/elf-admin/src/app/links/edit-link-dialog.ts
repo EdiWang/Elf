@@ -3,11 +3,11 @@ import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms"
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Link, LinkService } from "./link.service";
 import { ToastrService } from 'ngx-toastr';
-import { Tag, TagService } from "../tag/tag.service";
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { map, Observable, startWith } from "rxjs";
+import { AppCacheService } from "../shared/appcache.service";
 @Component({
     selector: 'edit-link-dialog',
     templateUrl: 'edit-link-dialog.html',
@@ -27,8 +27,8 @@ export class EditLinkDialog {
     constructor(
         private toastr: ToastrService,
         public fb: FormBuilder,
+        private appCache: AppCacheService,
         private linkService: LinkService,
-        private tagService: TagService,
         public dialogRef: MatDialogRef<EditLinkDialog>,
         @Inject(MAT_DIALOG_DATA) public data: Link) {
         this.filteredTags = this.tagCtrl.valueChanges.pipe(
@@ -54,11 +54,7 @@ export class EditLinkDialog {
     }
 
     getAllTagNames() {
-        this.tagService
-            .list()
-            .subscribe(tags => {
-                this.allTags = tags.map(t => t.name)
-            });
+        this.allTags = this.appCache.tags.map(t => t.name)
     }
 
     submitForm() {
