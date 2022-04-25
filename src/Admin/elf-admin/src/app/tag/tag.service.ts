@@ -10,12 +10,16 @@ export class TagService {
 
   constructor(private http: HttpClient) { }
 
-  add(request: CreateLinkRequest) {
+  add(request: EditLinkRequest) {
     return this.http.post(this.url, request);
+  }
+
+  update(id: number, request: EditLinkRequest) {
+    return this.http.post(this.url + `/${id}`, request);
   }
 }
 
-export interface CreateLinkRequest {
+export interface EditLinkRequest {
   name: string;
 }
 

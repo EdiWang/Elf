@@ -32,9 +32,9 @@ export class EditTagDialog {
     submitForm() {
 
         if (this.data) {
-            // this.service.update(this.data.id, this.editTagForm.value).subscribe(() => {
-            //     this.toastr.success('Updated');
-            // });
+            this.service.update(this.data.id, this.editTagForm.value).subscribe(() => {
+                this.toastr.success('Updated');
+            });
         }
         else {
             this.service.add(this.editTagForm.value).subscribe(() => {
