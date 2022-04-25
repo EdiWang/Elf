@@ -38,7 +38,7 @@ export interface EditLinkRequest {
     akaName: string;
     isEnabled: boolean;
     ttl: number;
-    tags: Tag[];
+    tags: string[];
 }
 
 export interface PagedLinkResult {
