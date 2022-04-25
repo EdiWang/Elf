@@ -1,13 +1,13 @@
 import { Component, ElementRef, Inject, ViewChild } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { Link, LinkService } from "./link.service";
+import { Link, LinkService } from "../link.service";
 import { ToastrService } from 'ngx-toastr';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { map, Observable, startWith } from "rxjs";
-import { AppCacheService } from "../shared/appcache.service";
+import { AppCacheService } from "../../shared/appcache.service";
 @Component({
     selector: 'edit-link-dialog',
     templateUrl: 'edit-link-dialog.html',

@@ -2,7 +2,7 @@ import { Component, Inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { ToastrService } from 'ngx-toastr';
-import { Tag, TagService } from "./tag.service";
+import { Tag, TagService } from "./../tag.service";
 
 @Component({
     selector: 'edit-tag-dialog',

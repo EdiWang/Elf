@@ -1,7 +1,7 @@
 import { Component, Inject } from "@angular/core";
 import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { environment } from "src/environments/environment";
-import { Link } from "./link.service";
+import { Link } from "../link.service";
 
 @Component({
     selector: 'share-dialog',

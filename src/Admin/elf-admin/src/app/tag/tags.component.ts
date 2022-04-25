@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { AppCacheService } from '../shared/appcache.service';
 import { ConfirmationDialog } from '../shared/confirmation-dialog';
-import { EditTagDialog } from './edit-tag-dialog';
+import { EditTagDialog } from './edit-tag/edit-tag-dialog';
 import { Tag, TagService } from './tag.service';
 @Component({
   selector: 'app-tags',
