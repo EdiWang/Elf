@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
+import { AppCacheService } from '../shared/appcache.service';
 import { ConfirmationDialog } from '../shared/confirmation-dialog';
 import { EditTagDialog } from './edit-tag-dialog';
 import { Tag, TagService } from './tag.service';
@@ -17,6 +18,7 @@ export class TagsComponent implements OnInit {
   constructor(
     private toastr: ToastrService,
     public dialog: MatDialog,
+    private appCache: AppCacheService,
     private service: TagService) { }
 
   ngOnInit(): void {
@@ -37,6 +39,7 @@ export class TagsComponent implements OnInit {
       .subscribe((result: Tag[]) => {
         this.isLoading = false;
         this.tags = result;
+        this.appCache.tags = result;
       });
   }
 
