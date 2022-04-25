@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Link, LinkService, PagedLinkResult } from './link.service';
-import { MatSort, Sort } from '@angular/material/sort';
+import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
@@ -31,7 +31,7 @@ export class LinksComponent implements OnInit {
         private toastr: ToastrService,
         public dialog: MatDialog,
         private clipboard: Clipboard,
-        private service: LinkService) { }
+        private linkService: LinkService) { }
 
     @ViewChild(MatSort) sort: MatSort;
     @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -70,7 +70,7 @@ export class LinksComponent implements OnInit {
 
         this.isLoading = true;
 
-        this.service.list(this.pageSize, this.currentPage * this.pageSize, this.searchTerm)
+        this.linkService.list(this.pageSize, this.currentPage * this.pageSize, this.searchTerm)
             .subscribe((result: PagedLinkResult) => {
                 this.isLoading = false;
 
@@ -87,7 +87,7 @@ export class LinksComponent implements OnInit {
     }
 
     checkLink(id: number, isEnabled: boolean): void {
-        this.service.setEnable(id, isEnabled).subscribe(() => {
+        this.linkService.setEnable(id, isEnabled).subscribe(() => {
             this.toastr.success('Updated');
         });
     }
@@ -105,7 +105,7 @@ export class LinksComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((confirmed: boolean) => {
             if (confirmed) {
-                this.service.delete(id).subscribe(() => {
+                this.linkService.delete(id).subscribe(() => {
                     this.toastr.success('Deleted');
                     this.getLinks();
                 });
