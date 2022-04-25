@@ -1,4 +1,5 @@
 ﻿using Elf.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
@@ -22,6 +23,25 @@ public class EditLinkCommandHandler : IRequestHandler<EditLinkCommand, string>
         link.AkaName = string.IsNullOrWhiteSpace(payload.AkaName) ? null : payload.AkaName;
         link.IsEnabled = payload.IsEnabled;
         link.TTL = payload.TTL;
+
+        link.Tags.Clear();
+        if (request.Payload.Tags is { Length: > 0 })
+        {
+            foreach (var item in request.Payload.Tags)
+            {
+                var tag = await _dbContext.Tag.FirstOrDefaultAsync(q => q.Name == item, cancellationToken);
+                if (tag == null)
+                {
+                    TagEntity t = new() { Name = item };
+                    await _dbContext.Tag.AddAsync(t, cancellationToken);
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+
+                    tag = t;
+                }
+
+                link.Tags.Add(tag);
+            }
+        }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return link.FwToken;
