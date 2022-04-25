@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
+import { ConfirmationDialog } from '../shared/confirmation-dialog';
 import { EditTagDialog } from './edit-tag-dialog';
 import { Tag, TagService } from './tag.service';
 @Component({
@@ -40,7 +41,24 @@ export class TagsComponent implements OnInit {
   }
 
   remove(tag: Tag): void {
+    const dialogRef = this.dialog.open(ConfirmationDialog, {
+      data: {
+        message: 'Are you sure want to delete this tag?',
+        buttonText: {
+          ok: 'Yes',
+          cancel: 'No'
+        }
+      }
+    });
 
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.service.delete(tag.id).subscribe(() => {
+          this.toastr.success('Deleted');
+          this.getTags();
+        });
+      }
+    });
   }
 
   update(tag: Tag): void {
