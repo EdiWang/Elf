@@ -17,6 +17,8 @@ public class ElfDbContext : DbContext
 
     public virtual DbSet<TagEntity> Tag { get; set; }
 
+    public virtual DbSet<LinkTagEntity> LinkTag { get; set; }
+
     public virtual DbSet<LinkTrackingEntity> LinkTracking { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

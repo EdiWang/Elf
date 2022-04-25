@@ -4,7 +4,7 @@ namespace Elf.Api.Models;
 
 public class PagedLinkResult
 {
-    public IReadOnlyList<LinkEntity> Links { get; set; }
+    public IReadOnlyList<LinkModel> Links { get; set; }
 
     public int TotalRows { get; set; }
 

@@ -27,4 +27,6 @@ public class LinkEditModel
     [Display(Name = "TTL (seconds)")]
     [Range(0, 24 * 60 * 60)]
     public int TTL { get; set; }
+
+    public string[] Tags { get; set; }
 }

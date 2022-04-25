@@ -55,6 +55,24 @@ public class CreateLinkCommandHandler : AsyncRequestHandler<CreateLinkCommand>
             TTL = request.Payload.TTL
         };
 
+        if (request.Payload.Tags is { Length: > 0 })
+        {
+            foreach (var item in request.Payload.Tags)
+            {
+                var tag = await _dbContext.Tag.FirstOrDefaultAsync(q => q.Name == item, cancellationToken);
+                if (tag == null)
+                {
+                    TagEntity t = new() { Name = item };
+                    await _dbContext.Tag.AddAsync(t, cancellationToken);
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+
+                    tag = t;
+                }
+
+                link.Tags.Add(tag);
+            }
+        }
+
         await _dbContext.AddAsync(link, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }

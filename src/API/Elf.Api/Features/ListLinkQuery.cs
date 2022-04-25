@@ -4,15 +4,15 @@ using Microsoft.EntityFrameworkCore;
 namespace Elf.Api.Features;
 
 public record ListLinkQuery(int Offset, int Take, string NoteKeyword = null) :
-    IRequest<(IReadOnlyList<LinkEntity> Links, int TotalRows)>;
+    IRequest<(IReadOnlyList<LinkModel> Links, int TotalRows)>;
 
-public class ListLinkQueryHandler : IRequestHandler<ListLinkQuery, (IReadOnlyList<LinkEntity> Links, int TotalRows)>
+public class ListLinkQueryHandler : IRequestHandler<ListLinkQuery, (IReadOnlyList<LinkModel> Links, int TotalRows)>
 {
     private readonly ElfDbContext _dbContext;
 
     public ListLinkQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<(IReadOnlyList<LinkEntity> Links, int TotalRows)> Handle(ListLinkQuery request, CancellationToken cancellationToken)
+    public async Task<(IReadOnlyList<LinkModel> Links, int TotalRows)> Handle(ListLinkQuery request, CancellationToken cancellationToken)
     {
         var query = from l in _dbContext.Link
                     select l;
@@ -20,7 +20,7 @@ public class ListLinkQueryHandler : IRequestHandler<ListLinkQuery, (IReadOnlyLis
         var (offset, take, noteKeyword) = request;
         if (noteKeyword is not null)
         {
-            query = from l in _dbContext.Link
+            query = from l in _dbContext.Link.Include(l => l.Tags)
                     where l.Note.Contains(noteKeyword) || l.FwToken.Contains(noteKeyword)
                     select l;
         }
@@ -30,6 +30,18 @@ public class ListLinkQueryHandler : IRequestHandler<ListLinkQuery, (IReadOnlyLis
             .Skip(offset)
             .Take(take)
             .AsNoTracking()
+            .Select(p => new LinkModel
+            {
+                Id = p.Id,
+                OriginUrl = p.OriginUrl,
+                Note = p.Note,
+                TTL = p.TTL,
+                UpdateTimeUtc = p.UpdateTimeUtc,
+                AkaName = p.AkaName,
+                FwToken = p.FwToken,
+                IsEnabled = p.IsEnabled,
+                Tags = p.Tags.ToArray()
+            })
             .ToListAsync(cancellationToken);
 
         return (data, totalRows);
