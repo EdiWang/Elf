@@ -6,4 +6,16 @@
     <button mat-icon-button class="me-2" color="primary" (click)="getTags()">
         <mat-icon class="material-icons">refresh</mat-icon>
     </button>
+
+    <span class="toolbar-spacer"></span>
+
 </mat-toolbar>
+
+<div class="tags-container">
+    <mat-divider></mat-divider>
+    <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+
+    <div class="container-fluid mt-3">
+        Tags
+    </div>
+</div>

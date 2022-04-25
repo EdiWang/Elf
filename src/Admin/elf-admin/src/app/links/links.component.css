@@ -13,16 +13,8 @@ table {
   width: 300px;
 }
 
-.toolbar-spacer {
-  flex: 1 1 auto;
-}
-
 .links-table-container {
   margin-top: 64px;
-}
-
-.z-index-999 {
-  z-index: 999;
 }
 
 .copy-icon {

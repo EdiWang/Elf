@@ -17,6 +17,14 @@ body {
   flex-grow: 1;
 }
 
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.z-index-999 {
+  z-index: 999;
+}
+
 a {
   text-decoration: none;
 }
