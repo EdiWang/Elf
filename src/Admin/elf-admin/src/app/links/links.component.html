@@ -29,7 +29,8 @@
             <td mat-cell *matCellDef="let link">
                 <mat-chip-list #chipList>
                     <mat-chip (removed)="copyChip(link)">
-                        <a class="a-chip" href="{{ENV.elfApiBaseUrl}}/fw/{{link.fwToken}}" target="_blank">{{link.fwToken}}</a>
+                        <a class="a-chip" href="{{ENV.elfApiBaseUrl}}/fw/{{link.fwToken}}"
+                            target="_blank">{{link.fwToken}}</a>
 
                         <button matChipRemove>
                             <mat-icon>file_copy</mat-icon>
@@ -63,6 +64,17 @@
                         <mat-icon class="copy-icon">file_copy</mat-icon>
                     </button>
                 </div>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="tags">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Tags </th>
+            <td mat-cell *matCellDef="let link">
+                <mat-chip-list class="tags-chip">
+                    <mat-chip class="tags-box" *ngFor="let tag of link.tags">
+                        {{ tag.name }}
+                    </mat-chip>
+                </mat-chip-list>
             </td>
         </ng-container>
 
