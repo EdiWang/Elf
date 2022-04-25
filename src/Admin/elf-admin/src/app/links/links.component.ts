@@ -10,6 +10,7 @@ import { ToastrService } from 'ngx-toastr';
 import { environment } from 'src/environments/environment';
 import { ConfirmationDialog } from '../shared/confirmation-dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { AppCacheService } from '../shared/appcache.service';
 @Component({
     selector: 'app-links',
     templateUrl: './links.component.html',
@@ -31,6 +32,7 @@ export class LinksComponent implements OnInit {
         private toastr: ToastrService,
         public dialog: MatDialog,
         private clipboard: Clipboard,
+        private appCache: AppCacheService,
         private linkService: LinkService) { }
 
     @ViewChild(MatSort) sort: MatSort;
@@ -43,7 +45,10 @@ export class LinksComponent implements OnInit {
     addNewLink() {
         let diagRef = this.dialog.open(EditLinkDialog);
         diagRef.afterClosed().subscribe(result => {
-            if (result) this.getLinks();
+            if (result) {
+                this.getLinks();
+                this.appCache.fetchCache();
+            }
         });
     }
 
@@ -54,7 +59,10 @@ export class LinksComponent implements OnInit {
     editLink(link: Link) {
         let diagRef = this.dialog.open(EditLinkDialog, { data: link });
         diagRef.afterClosed().subscribe(result => {
-            if (result) this.getLinks();
+            if (result) {
+                this.getLinks();
+                this.appCache.fetchCache();
+            }
         });
     }
 
