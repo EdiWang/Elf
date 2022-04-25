@@ -9,7 +9,7 @@ import { ShareDialog } from './share-dialog';
 import { ClipboardService } from 'ngx-clipboard';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from 'src/environments/environment';
-import { ConfirmationDialog } from './confirmation-dialog.component';
+import { ConfirmationDialog } from './confirmation-dialog';
 @Component({
     selector: 'app-links',
     templateUrl: './links.component.html',

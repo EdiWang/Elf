@@ -27,6 +27,10 @@ export const protectedResources = {
         endpoint: environment.elfApiBaseUrl + "/api/link",
         scopes: [`${environment.applicationIdUri}/access_as_user`]
     },
+    tagApi: {
+        endpoint: environment.elfApiBaseUrl + "/api/tag",
+        scopes: [`${environment.applicationIdUri}/access_as_user`]
+    },
     reportApi: {
         endpoint: environment.elfApiBaseUrl + "/api/report",
         scopes: [`${environment.applicationIdUri}/access_as_user`]
