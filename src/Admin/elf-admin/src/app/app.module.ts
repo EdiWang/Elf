@@ -35,7 +35,7 @@ import { EditLinkDialog } from './links/edit-link-dialog';
 import { EditTagDialog } from './tag/edit-tag-dialog';
 import { ShareDialog } from './links/share-dialog';
 import { ReportComponent } from './report/report.component';
-import { ConfirmationDialog } from './links/confirmation-dialog';
+import { ConfirmationDialog } from './shared/confirmation-dialog';
 import { TagsComponent } from './tag/tags.component';
 
 import { ElfApplicationinsightsErrorHandlerService } from './elfErrorHandlerService';
