@@ -22,6 +22,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 import { QRCodeModule } from 'angularx-qrcode';
 import { ClipboardModule } from 'ngx-clipboard';
@@ -109,6 +110,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     MatChipsModule,
     MatNativeDateModule,
     MatDatepickerModule,
+    MatAutocompleteModule,
     QRCodeModule,
     FormsModule,
     ReactiveFormsModule,
