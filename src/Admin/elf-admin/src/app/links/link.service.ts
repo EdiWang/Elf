@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { protectedResources } from '../auth-config';
+import { Tag } from '../tag/tag.service';
 
 @Injectable({
     providedIn: 'root'
@@ -37,6 +38,7 @@ export interface EditLinkRequest {
     akaName: string;
     isEnabled: boolean;
     ttl: number;
+    tags: Tag[];
 }
 
 export interface PagedLinkResult {
@@ -53,4 +55,5 @@ export interface Link {
     originUrl: string;
     ttl: number;
     updateTimeUtc: Date;
+    tags: Tag[];
 }
