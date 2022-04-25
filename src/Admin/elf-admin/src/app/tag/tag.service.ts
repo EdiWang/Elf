@@ -10,12 +10,16 @@ export class TagService {
 
   constructor(private http: HttpClient) { }
 
+  list() {
+    return this.http.get<Tag[]>(this.url + '/list');
+  }
+
   add(request: EditLinkRequest) {
     return this.http.post(this.url, request);
   }
 
   update(id: number, request: EditLinkRequest) {
-    return this.http.post(this.url + `/${id}`, request);
+    return this.http.put(this.url + `/${id}`, request);
   }
 }
 

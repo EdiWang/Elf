@@ -16,6 +16,13 @@
     <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
 
     <div class="container-fluid mt-3">
-        Tags
+        <mat-chip-list #chipList aria-label="Fruit selection">
+            <mat-chip *ngFor="let tag of tags" (removed)="remove(tag)" (click)="update(tag)">
+                {{tag.name}}
+                <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                </button>
+            </mat-chip>
+        </mat-chip-list>
     </div>
 </div>
