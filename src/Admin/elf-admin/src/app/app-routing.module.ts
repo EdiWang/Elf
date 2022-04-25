@@ -5,11 +5,19 @@ import { MsalGuard } from '@azure/msal-angular';
 import { HomeComponent } from './home/home.component';
 import { LinksComponent } from './links/links.component';
 import { ReportComponent } from './report/report.component';
+import { TagsComponent } from './tag/tags.component';
 
 const routes: Routes = [
   {
     path: 'links',
     component: LinksComponent,
+    canActivate: [
+      MsalGuard
+    ]
+  },
+  {
+    path: 'tags',
+    component: TagsComponent,
     canActivate: [
       MsalGuard
     ]

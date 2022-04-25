@@ -10,6 +10,13 @@
             <mat-icon class="me-2">list</mat-icon>
             Manage Links
         </a>
+
+        <a mat-button [routerLink]="['tags']" [ngClass]="{'active': currentMenu == 'tags'}"
+            (click)="setMenu('tags')">
+            <mat-icon class="me-2">tag</mat-icon>
+            Manage Tags
+        </a>
+
         <a mat-button [routerLink]="['report']" [ngClass]="{'active': currentMenu == 'report'}"
             (click)="setMenu('report')">
             <mat-icon class="me-2">pie_chart</mat-icon>
