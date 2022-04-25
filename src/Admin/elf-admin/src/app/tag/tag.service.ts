@@ -14,11 +14,11 @@ export class TagService {
     return this.http.get<Tag[]>(this.url + '/list');
   }
 
-  add(request: EditLinkRequest) {
+  add(request: EditTagRequest) {
     return this.http.post(this.url, request);
   }
 
-  update(id: number, request: EditLinkRequest) {
+  update(id: number, request: EditTagRequest) {
     return this.http.put(this.url + `/${id}`, request);
   }
 
@@ -27,7 +27,7 @@ export class TagService {
   }
 }
 
-export interface EditLinkRequest {
+export interface EditTagRequest {
   name: string;
 }
 
