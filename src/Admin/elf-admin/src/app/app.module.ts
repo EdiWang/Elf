@@ -35,6 +35,7 @@ import { EditLinkDialog } from './links/edit-link-dialog';
 import { ShareDialog } from './links/share-dialog';
 import { ReportComponent } from './report/report.component';
 import { ConfirmationDialog } from './links/confirmation-dialog.component';
+import { TagsComponent } from './tag/tags.component';
 
 import { ElfApplicationinsightsErrorHandlerService } from './elfErrorHandlerService';
 
@@ -80,7 +81,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     ReportComponent,
     EditLinkDialog,
     ShareDialog,
-    ConfirmationDialog
+    ConfirmationDialog,
+    TagsComponent
   ],
   imports: [
     BrowserModule,
