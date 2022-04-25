@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { IAppInsights } from '@microsoft/applicationinsights-common';
 import { arrForEach, isFunction } from '@microsoft/applicationinsights-core-js';
 import { environment } from 'src/environments/environment';
-import { IElfErrorService } from './IElfErrorService';
+import { ErrorHandler } from '@angular/core';
+
+export interface IElfErrorService extends ErrorHandler {
+    handleError(error: any): void;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -38,13 +42,13 @@ export class ElfApplicationinsightsErrorHandlerService implements IElfErrorServi
     }
 
     handleError(error: any): void {
-        console.log(error);
+        console.error(error);
 
-        if (environment.production) { 
+        if (environment.production) {
             if (this.analyticsPlugin) {
                 this.analyticsPlugin.trackException({ exception: error });
             }
-    
+
             if (this.errorServices && this.errorServices.length > 0) {
                 arrForEach(this.errorServices, errorService => {
                     if (isFunction(errorService.handleError)) {

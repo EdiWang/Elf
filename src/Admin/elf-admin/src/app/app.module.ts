@@ -38,7 +38,7 @@ import { ReportComponent } from './report/report.component';
 import { ConfirmationDialog } from './shared/confirmation-dialog';
 import { TagsComponent } from './tag/tags.component';
 
-import { ElfApplicationinsightsErrorHandlerService } from './elfErrorHandlerService';
+import { ElfApplicationinsightsErrorHandlerService } from './error-handler.service';
 
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
