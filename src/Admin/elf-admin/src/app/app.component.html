@@ -8,13 +8,13 @@
         <a mat-button [routerLink]="['links']" [ngClass]="{'active': currentMenu == 'links'}"
             (click)="setMenu('links')">
             <mat-icon class="me-2">list</mat-icon>
-            Manage Links
+            Links
         </a>
 
         <a mat-button [routerLink]="['tags']" [ngClass]="{'active': currentMenu == 'tags'}"
             (click)="setMenu('tags')">
             <mat-icon class="me-2">tag</mat-icon>
-            Manage Tags
+            Tags
         </a>
 
         <a mat-button [routerLink]="['report']" [ngClass]="{'active': currentMenu == 'report'}"

@@ -1,1 +1,9 @@
-<p>tags works!</p>
+<mat-toolbar class="position-fixed z-index-999">
+    <button mat-flat-button color="primary" matTooltip="New tag" class="me-2" (click)="addNewTag()">
+        <mat-icon class="material-icons">add</mat-icon>
+        New
+    </button>
+    <button mat-icon-button class="me-2" color="primary" (click)="getTags()">
+        <mat-icon class="material-icons">refresh</mat-icon>
+    </button>
+</mat-toolbar>

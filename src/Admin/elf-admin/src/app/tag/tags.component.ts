@@ -12,4 +12,11 @@ export class TagsComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  addNewTag() {
+    
+  }
+  
+  getTags() {
+    
+  }
 }
