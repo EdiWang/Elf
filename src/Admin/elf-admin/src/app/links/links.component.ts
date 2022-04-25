@@ -6,10 +6,10 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { EditLinkDialog } from './edit-link-dialog';
 import { ShareDialog } from './share-dialog';
-import { ClipboardService } from 'ngx-clipboard';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from 'src/environments/environment';
 import { ConfirmationDialog } from '../shared/confirmation-dialog';
+import { Clipboard } from '@angular/cdk/clipboard';
 @Component({
     selector: 'app-links',
     templateUrl: './links.component.html',
@@ -30,7 +30,7 @@ export class LinksComponent implements OnInit {
     constructor(
         private toastr: ToastrService,
         public dialog: MatDialog,
-        private clipboardApi: ClipboardService,
+        private clipboard: Clipboard,
         private service: LinkService) { }
 
     @ViewChild(MatSort) sort: MatSort;
@@ -121,12 +121,12 @@ export class LinksComponent implements OnInit {
     }
 
     copyChip(link: Link) {
-        this.clipboardApi.copyFromContent(environment.elfApiBaseUrl + '/fw/' + link.fwToken);
+        this.clipboard.copy(environment.elfApiBaseUrl + '/fw/' + link.fwToken);
         this.toastr.info('Copied');
     }
 
     copyAka(link: Link) {
-        this.clipboardApi.copyFromContent(environment.elfApiBaseUrl + '/aka/' + link.akaName);
+        this.clipboard.copy(environment.elfApiBaseUrl + '/aka/' + link.akaName);
         this.toastr.info('Aka url copied');
     }
 }

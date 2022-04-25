@@ -25,7 +25,6 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 import { QRCodeModule } from 'angularx-qrcode';
-import { ClipboardModule } from 'ngx-clipboard';
 import { NgChartsModule } from 'ng2-charts';
 import { ToastrModule } from 'ngx-toastr';
 
@@ -114,7 +113,6 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     QRCodeModule,
     FormsModule,
     ReactiveFormsModule,
-    ClipboardModule,
     NgChartsModule,
     ToastrModule.forRoot({
       positionClass: 'toast-bottom-center',
