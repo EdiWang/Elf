@@ -96,7 +96,7 @@ export class EditLinkDialog {
     add(event: MatChipInputEvent): void {
         const value = (event.value || '').trim();
 
-        if (value) {
+        if (value && !(this.tags.includes(value))) {
             this.tags.push(value);
         }
 
@@ -113,7 +113,10 @@ export class EditLinkDialog {
     }
 
     selected(event: MatAutocompleteSelectedEvent): void {
-        this.tags.push(event.option.viewValue);
+        if (!(this.tags.includes(event.option.viewValue))) {
+            this.tags.push(event.option.viewValue);
+        }
+        
         this.tagInput.nativeElement.value = '';
         this.tagCtrl.setValue(null);
     }
