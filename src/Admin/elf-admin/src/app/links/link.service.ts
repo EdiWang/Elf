@@ -12,7 +12,15 @@ export class LinkService {
     constructor(private http: HttpClient) { }
 
     list(take: number, offset: number, term: string) {
-        return this.http.get<PagedLinkResult>(this.url + `/list?take=${take}&offset=${offset}` + (term ? `&term=${term}` : ''))
+        return this.http.get<PagedLinkResult>(this.url + `/list?take=${take}&offset=${offset}` + (term ? `&term=${term}` : ''));
+    }
+
+    listByTags(take: number, offset: number, tagIds: number[]) {
+        return this.http.post<PagedLinkResult>(this.url + '/list/tags', {
+            take: take,
+            offset: offset,
+            tagIds: tagIds
+        });
     }
 
     add(request: EditLinkRequest) {
