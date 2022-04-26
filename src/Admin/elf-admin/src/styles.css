@@ -21,6 +21,10 @@ body {
   flex: 1 1 auto;
 }
 
+.z-index-1 {
+  z-index: 1;
+}
+
 .z-index-999 {
   z-index: 999;
 }
