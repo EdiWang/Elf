@@ -45,8 +45,6 @@ export class AppComponent implements OnInit, OnDestroy {
       });
       appInsights.loadAppInsights();
     }
-
-    this.appCache.fetchCache();
   }
 
   setMenu(name: string) {

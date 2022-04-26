@@ -45,8 +45,6 @@
     <mat-divider></mat-divider>
     <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
 
-    <pre>{{allTags|json}}</pre>
-
     <table mat-table [dataSource]="dataSource" matSort>
         <ng-container matColumnDef="fwToken">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Token </th>

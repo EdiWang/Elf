@@ -8,12 +8,5 @@ export class AppCacheService {
   // TODO: research if this can be refactored into something like C# Dictionary
   public tags: Tag[] = [];
 
-  constructor(private tagService: TagService) { }
-
-  fetchCache() {
-    this.tagService.list()
-      .subscribe((result: Tag[]) => {
-        this.tags = result;
-      });
-  }
+  constructor() { }
 }

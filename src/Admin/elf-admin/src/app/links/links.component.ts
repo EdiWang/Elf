@@ -12,7 +12,7 @@ import { environment } from 'src/environments/environment';
 import { ConfirmationDialog } from '../shared/confirmation-dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { AppCacheService } from '../shared/appcache.service';
-import { Tag } from '../tag/tag.service';
+import { Tag, TagService } from '../tag/tag.service';
 import { FormControl } from '@angular/forms';
 import { map, Observable, startWith } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -47,7 +47,8 @@ export class LinksComponent implements OnInit {
         public dialog: MatDialog,
         private clipboard: Clipboard,
         private appCache: AppCacheService,
-        private linkService: LinkService) {
+        private linkService: LinkService,
+        private tagService: TagService) {
         this.filteredTags = this.tagCtrl.valueChanges.pipe(
             startWith(null),
             map((tag: Tag | null) => tag ? this._filter(tag) : this.allTags.slice()));
@@ -57,12 +58,18 @@ export class LinksComponent implements OnInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
 
     ngOnInit(): void {
-        this.getAllTags();
+        this.updateTagCache();
         this.getLinks();
     }
 
-    getAllTags() {
-        this.allTags = this.appCache.tags;
+    updateTagCache() {
+        this.isLoading = true;
+        this.tagService.list()
+            .subscribe((result: Tag[]) => {
+                this.isLoading = false;
+                this.appCache.tags = result;
+                this.allTags = result;
+            });
     }
 
     addNewLink() {
@@ -70,7 +77,7 @@ export class LinksComponent implements OnInit {
         diagRef.afterClosed().subscribe(result => {
             if (result) {
                 this.getLinks();
-                this.appCache.fetchCache();
+                this.updateTagCache();
             }
         });
     }
@@ -84,7 +91,7 @@ export class LinksComponent implements OnInit {
         diagRef.afterClosed().subscribe(result => {
             if (result) {
                 this.getLinks();
-                this.appCache.fetchCache();
+                this.updateTagCache();
             }
         });
     }
