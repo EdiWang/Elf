@@ -8,6 +8,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { map, Observable, startWith } from "rxjs";
 import { AppCacheService } from "../../shared/appcache.service";
+import { Tag } from "src/app/tag/tag.service";
 @Component({
     selector: 'edit-link-dialog',
     templateUrl: 'edit-link-dialog.html',
@@ -33,7 +34,7 @@ export class EditLinkDialog {
         @Inject(MAT_DIALOG_DATA) public data: Link) {
         this.filteredTags = this.tagCtrl.valueChanges.pipe(
             startWith(null),
-            map((fruit: string | null) => (fruit ? this._filter(fruit) : this.allTags.slice())),
+            map((tag: string | null) => (tag ? this._filter(tag) : this.allTags.slice())),
         );
     }
 
