@@ -96,6 +96,22 @@ public class LinkController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("list/tags")]
+    [ProducesResponseType(typeof(PagedLinkResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListByTags(ListByTagsRequest request)
+    {
+        var (links, totalRows) = await _mediator.Send(new ListByTagsCommand(request));
+
+        var result = new PagedLinkResult
+        {
+            Links = links,
+            TotalRows = totalRows,
+            PageSize = request.Take
+        };
+
+        return Ok(result);
+    }
+
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(LinkEditModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
