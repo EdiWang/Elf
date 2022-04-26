@@ -9,8 +9,29 @@
 
     <span class="toolbar-spacer"></span>
 
-    <mat-form-field class="search-field me-1" appearance="standard">
-        <input matInput type="search" placeholder="Search" [(ngModel)]="searchTerm">
+    <mat-form-field class="queryTags-chip-list search-field-tags" appearance="standard">
+        <mat-chip-list #chipList>
+            <mat-chip *ngFor="let tag of queryTags;let indx=index;" [selectable]="true" [removable]="true"
+                (removed)="remove(tag,indx)">
+                {{tag.name}}
+                <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            <input #tagInput placeholder="Search by tags" [formControl]="tagCtrl" [matAutocomplete]="auto"
+                [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                [matChipInputAddOnBlur]="addOnBlur" (matChipInputTokenEnd)="add($event)">
+        </mat-chip-list>
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+            <mat-option *ngFor="let tag of filteredTags | async" [value]="tag">
+                {{tag.name}}
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+    <button mat-icon-button color="primary" (click)="searchByTags()">
+        <mat-icon class="material-icons">search</mat-icon>
+    </button>
+
+    <mat-form-field class="search-field ms-3" appearance="standard">
+        <input matInput type="search" placeholder="Search by token or note" [(ngModel)]="searchTerm">
         <button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''">
             <mat-icon>close</mat-icon>
         </button>
@@ -23,6 +44,9 @@
 <div class="links-table-container">
     <mat-divider></mat-divider>
     <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+
+    <pre>{{allTags|json}}</pre>
+
     <table mat-table [dataSource]="dataSource" matSort>
         <ng-container matColumnDef="fwToken">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Token </th>
@@ -71,7 +95,7 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Tags </th>
             <td mat-cell *matCellDef="let link">
                 <mat-chip-list class="tags-chip">
-                    <mat-chip class="tags-box" *ngFor="let tag of link.tags">
+                    <mat-chip class="tags-box" *ngFor="let tag of link.tags" (click)="tagClick(tag)">
                         {{ tag.name }}
                     </mat-chip>
                 </mat-chip-list>
