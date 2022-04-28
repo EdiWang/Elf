@@ -110,9 +110,9 @@ To use Redis, follow these steps:
    
 ### Configure API endpoint
 
-Open `./src/Admin/elf-admin/src/environments/environment.ts` or `./src/Admin/elf-admin/src/environments/environment.prod.ts`
+Open `./src/Admin/elf-admin/src/assets/env.js`
 
-Replace `elfApiBaseUrl`, `clientId`, `authority`, `scopes` with your own values.
+Replace `elfApiBaseUrl`, `clientId`, `tenantId`, `applicationIdUri`, `applicationInsightKey` with your own values.
 
 ### Run
 
