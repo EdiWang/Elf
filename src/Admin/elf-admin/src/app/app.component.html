@@ -11,8 +11,7 @@
             Links
         </a>
 
-        <a mat-button [routerLink]="['tags']" [ngClass]="{'active': currentMenu == 'tags'}"
-            (click)="setMenu('tags')">
+        <a mat-button [routerLink]="['tags']" [ngClass]="{'active': currentMenu == 'tags'}" (click)="setMenu('tags')">
             <mat-icon class="me-2">tag</mat-icon>
             Tags
         </a>
@@ -37,7 +36,16 @@
         </div>
 
         <button mat-flat-button *ngIf="!loginDisplay" (click)="login()">Login</button>
-        <button mat-flat-button *ngIf="loginDisplay" (click)="logout()">Logout</button>
+
+        <button mat-icon-button *ngIf="loginDisplay" [matMenuTriggerFor]="menu" aria-label="user menu">
+            <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="logout()">
+                <mat-icon>exit_to_app</mat-icon>
+                <span>Sign out</span>
+            </button>
+        </mat-menu>
     </div>
 </nav>
 <router-outlet *ngIf="!isIframe"></router-outlet>
