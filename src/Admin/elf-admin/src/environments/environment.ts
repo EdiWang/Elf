@@ -4,11 +4,11 @@
 
 export const environment = {
   production: false,
-  elfApiBaseUrl: 'https://go.edi.wang',
-  clientId: 'ecfbb89d-9f5a-4914-939a-bf4800630581',
-  tenantId: '1f4e3112-81fc-4f46-81fd-5c37ac107e26',
-  applicationIdUri: 'api://a439e578-3ff8-4bee-91e5-96141234bc67',
-  applicationInsightKey: '00000000-0000-0000-0000-000000000000'
+  elfApiBaseUrl: window["env"]["elfApiBaseUrl"] || "https://localhost:5001",
+  clientId: window["env"]["clientId"] || '00000000-0000-0000-0000-000000000000',
+  tenantId: window["env"]["tenantId"] || '00000000-0000-0000-0000-000000000000',
+  applicationIdUri: window["env"]["applicationIdUri"] || "api://elf",
+  applicationInsightKey: window["env"]["elfApiBaseUrl"] || '00000000-0000-0000-0000-000000000000'
 };
 
 /*
