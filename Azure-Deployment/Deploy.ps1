@@ -6,17 +6,67 @@
 # To install Azure CLI, please run:
 # Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'
 # Reference: https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest
-
 param(
-    $subscriptionName = "Microsoft MVP", 
     $regionName = "East Asia", 
     [bool] $useLinuxPlanWithDocker = 1
 )
 
+function Get-UrlStatusCode([string] $Url)
+{
+    try
+    {
+        [System.Net.WebRequest]::Create($Url).GetResponse().StatusCode
+    }
+    catch [Net.WebException]
+    {
+        [int]$_.Exception.Response.StatusCode
+    }
+}
+
+[Console]::ResetColor()
+# az login --use-device-code
+$output = az account show -o json | ConvertFrom-Json
+$subscriptionList = az account list -o json | ConvertFrom-Json 
+$subscriptionList | Format-Table name, id, tenantId -AutoSize
+$selectedSubscription = $output.name
+Write-Host "Currently logged in to subscription """$output.name.Trim()""" in tenant " $output.tenantId
+$selectedSubscription = Read-Host "Enter subscription Id ("$output.id")"
+$selectedSubscription = $selectedSubscription.Trim()
+if([string]::IsNullOrWhiteSpace($selectedSubscription)) {
+    $selectedSubscription = $output.id
+} else {
+    # az account set --subscription $selectedSubscription
+    Write-Host "Changed to subscription ("$selectedSubscription")"
+}
+
+while($true) {
+    $webAppName = Read-Host -Prompt "Enter webapp name"
+    $webAppName = $webAppName.Trim()
+    if($webAppName.ToLower() -match "xbox") {
+        Write-Host "Webapp name cannot have keywords xbox,windows,login,microsoft"
+        continue
+    } elseif ($webAppName.ToLower() -match "windows") {
+        Write-Host "Webapp name cannot have keywords xbox,windows,login,microsoft"
+        continue
+    } elseif ($webAppName.ToLower() -match "login") {
+        Write-Host "Webapp name cannot have keywords xbox,windows,login,microsoft"
+        continue
+    } elseif ($webAppName.ToLower() -match "microsoft") {
+        Write-Host "Webapp name cannot have keywords xbox,windows,login,microsoft"
+        continue
+    }
+    # Create the request
+    $HTTP_Status = Get-UrlStatusCode('http://' + $webAppName + '.azurewebsites.net')
+    if($HTTP_Status -eq 0) {
+        break
+    } else {
+        Write-Host "Webapp name taken"
+    }
+}
+
 # Start script
 $rndNumber = Get-Random -Minimum 100 -Maximum 999
 $rsgName = "elfgroup$rndNumber"
-$webAppName = "elfapi$rndNumber"
 $aspName = "elfplan$rndNumber"
 $sqlServerName = "elfsqlsvr$rndNumber"
 $sqlServerUsername = "elf"
@@ -58,7 +108,7 @@ else {
 
 # Confirmation
 Clear-Host
-Write-Host "Your Elf API will be deployed to [$rsgName] in [$regionName] under Azure subscription [$subscriptionName]. Please confirm before continue." -ForegroundColor Green
+Write-Host "Your Elf API will be deployed to [$rsgName] in [$regionName] under Azure subscription [$selectedSubscription]. Please confirm before continue." -ForegroundColor Green
 if ($useLinuxPlanWithDocker) {
     Write-Host "+ Linux App Service Plan with Docker" -ForegroundColor Cyan
 }
@@ -66,8 +116,8 @@ if ($useLinuxPlanWithDocker) {
 Read-Host -Prompt "Press [ENTER] to continue, [CTRL + C] to cancel"
 
 # Select Subscription
-$echo = az account set --subscription $subscriptionName
-Write-Host "Selected Azure Subscription: " $subscriptionName -ForegroundColor Cyan
+$echo = az account set --subscription $selectedSubscription
+Write-Host "Selected Azure Subscription: " $selectedSubscription -ForegroundColor Cyan
 
 # Resource Group
 Write-Host "Preparing Resource Group" -ForegroundColor Green
