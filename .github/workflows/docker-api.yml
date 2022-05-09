@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build ./src/API --tag elf:latest
+      run: docker build ./src/API/Elf.Api --tag elf:latest
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
