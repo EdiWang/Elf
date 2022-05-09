@@ -12,11 +12,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build ./src/API --tag elf:latest
+    # - name: Build the Docker image
+    #   run: docker build ./src/API --tag elf:latest
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: ediwang/elf
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
+        dockerfile: ./src/API/Dockerfile
