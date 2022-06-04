@@ -6,7 +6,7 @@ import { ChartConfiguration } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
 import { ClientTypeCount, LinkTrackingDateCount, MostRequestedLinkCount, ReportService, RequestTrack } from './report.service';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -48,9 +48,9 @@ export class ReportComponent implements OnInit {
 
     //#region mostRequestedChart
 
-    mostRequestedDateRange = new FormGroup({
-        start: new FormControl(),
-        end: new FormControl(new Date()),
+    mostRequestedDateRange = new UntypedFormGroup({
+        start: new UntypedFormControl(),
+        end: new UntypedFormControl(new Date()),
     });
 
     mostRequestedChartData: ChartConfiguration['data'] = {
@@ -106,9 +106,9 @@ export class ReportComponent implements OnInit {
 
     //#region clientTypeChart
 
-    clientTypeDateRange = new FormGroup({
-        start: new FormControl(),
-        end: new FormControl(new Date()),
+    clientTypeDateRange = new UntypedFormGroup({
+        start: new UntypedFormControl(),
+        end: new UntypedFormControl(new Date()),
     });
 
     clientTypeChartData: ChartConfiguration['data'] = {
@@ -164,9 +164,9 @@ export class ReportComponent implements OnInit {
 
     //#region trackingCountChart
 
-    trackingCountDateRange = new FormGroup({
-        start: new FormControl(),
-        end: new FormControl(new Date()),
+    trackingCountDateRange = new UntypedFormGroup({
+        start: new UntypedFormControl(),
+        end: new UntypedFormControl(new Date()),
     });
 
     trackingCountChartData: ChartConfiguration['data'] = {

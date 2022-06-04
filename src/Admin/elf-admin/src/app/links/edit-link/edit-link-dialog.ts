@@ -1,5 +1,5 @@
 import { Component, ElementRef, Inject, ViewChild } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Link, LinkService } from "../link.service";
 import { ToastrService } from 'ngx-toastr';
@@ -17,9 +17,9 @@ import { Tag } from "src/app/tag/tag.service";
 export class EditLinkDialog {
     addOnBlur = true;
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
-    tagCtrl = new FormControl();
+    tagCtrl = new UntypedFormControl();
     filteredTags: Observable<string[]>;
-    editLinkForm: FormGroup;
+    editLinkForm: UntypedFormGroup;
     tags: string[] = [];
     allTags: string[] = [];
 
@@ -27,7 +27,7 @@ export class EditLinkDialog {
 
     constructor(
         private toastr: ToastrService,
-        public fb: FormBuilder,
+        public fb: UntypedFormBuilder,
         private appCache: AppCacheService,
         private linkService: LinkService,
         public dialogRef: MatDialogRef<EditLinkDialog>,
@@ -46,11 +46,11 @@ export class EditLinkDialog {
 
     buildForm() {
         this.editLinkForm = this.fb.group({
-            originUrl: new FormControl(this.data?.originUrl ?? '', [Validators.required]),
-            note: new FormControl(this.data?.note ?? ''),
-            akaName: new FormControl(this.data?.akaName ?? ''),
-            isEnabled: new FormControl(this.data?.isEnabled ?? true),
-            ttl: new FormControl(this.data?.ttl ?? 3600)
+            originUrl: new UntypedFormControl(this.data?.originUrl ?? '', [Validators.required]),
+            note: new UntypedFormControl(this.data?.note ?? ''),
+            akaName: new UntypedFormControl(this.data?.akaName ?? ''),
+            isEnabled: new UntypedFormControl(this.data?.isEnabled ?? true),
+            ttl: new UntypedFormControl(this.data?.ttl ?? 3600)
         })
     }
 

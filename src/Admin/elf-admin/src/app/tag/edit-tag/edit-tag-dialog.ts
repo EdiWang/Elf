@@ -1,5 +1,5 @@
 import { Component, Inject } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { ToastrService } from 'ngx-toastr';
 import { Tag, TagService } from "./../tag.service";
@@ -10,11 +10,11 @@ import { Tag, TagService } from "./../tag.service";
     styleUrls: ['./edit-tag-dialog.css']
 })
 export class EditTagDialog {
-    editTagForm: FormGroup;
+    editTagForm: UntypedFormGroup;
 
     constructor(
         private toastr: ToastrService,
-        public fb: FormBuilder,
+        public fb: UntypedFormBuilder,
         private service: TagService,
         public dialogRef: MatDialogRef<EditTagDialog>,
         @Inject(MAT_DIALOG_DATA) public data: Tag) { }
@@ -25,7 +25,7 @@ export class EditTagDialog {
 
     buildForm() {
         this.editTagForm = this.fb.group({
-            name: new FormControl(this.data?.name ?? '', [Validators.required]),
+            name: new UntypedFormControl(this.data?.name ?? '', [Validators.required]),
         })
     }
 

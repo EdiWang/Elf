@@ -81,5 +81,7 @@
       }
     }
   },
-  "defaultProject": "elf-admin"
+  "cli": {
+    "analytics": false
+  }
 }

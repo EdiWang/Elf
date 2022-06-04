@@ -13,7 +13,7 @@ import { ConfirmationDialog } from '../shared/confirmation-dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { AppCacheService } from '../shared/appcache.service';
 import { Tag, TagService } from '../tag/tag.service';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { map, Observable, startWith } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
@@ -25,7 +25,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
 export class LinksComponent implements OnInit {
     addOnBlur = true;
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
-    tagCtrl = new FormControl();
+    tagCtrl = new UntypedFormControl();
     filteredTags: Observable<Tag[]>;
 
     ENV = environment;
