@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ToastrService } from 'ngx-toastr';
 import { AppCacheService } from '../shared/appcache.service';
 import { ConfirmationDialog } from '../shared/confirmation-dialog';
 import { EditTagDialog } from './edit-tag/edit-tag-dialog';
@@ -16,7 +15,6 @@ export class TagsComponent implements OnInit {
   tags: Tag[];
 
   constructor(
-    private toastr: ToastrService,
     public dialog: MatDialog,
     private appCache: AppCacheService,
     private service: TagService) { }
@@ -28,7 +26,7 @@ export class TagsComponent implements OnInit {
   addNewTag() {
     let diagRef = this.dialog.open(EditTagDialog);
     diagRef.afterClosed().subscribe(result => {
-      if (result) this.getTags();
+      this.getTags();
     });
   }
 
@@ -57,7 +55,6 @@ export class TagsComponent implements OnInit {
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
         this.service.delete(tag.id).subscribe(() => {
-          this.toastr.success('Deleted');
           this.getTags();
         });
       }
