@@ -6,7 +6,7 @@ import { ChartConfiguration } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
 import { ClientTypeCount, LinkTrackingDateCount, MostRequestedLinkCount, ReportService, RequestTrack } from './report.service';
-import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -48,9 +48,9 @@ export class ReportComponent implements OnInit {
 
     //#region mostRequestedChart
 
-    mostRequestedDateRange = new UntypedFormGroup({
-        start: new UntypedFormControl(),
-        end: new UntypedFormControl(new Date()),
+    mostRequestedDateRange = new FormGroup({
+        start: new FormControl(),
+        end: new FormControl(new Date()),
     });
 
     mostRequestedChartData: ChartConfiguration['data'] = {
@@ -75,7 +75,7 @@ export class ReportComponent implements OnInit {
         this.service
             .mostRequestedLinks({
                 startDateUtc: this.mostRequestedDateRange.value.start,
-                endDateUtc: this.mostRequestedDateRange.value.end
+                endDateUtc: this.mostRequestedDateRange.value.end!.toISOString()
             })
             .subscribe((result: MostRequestedLinkCount[]) => {
                 this.isMostRequestedLinksLoading = false;
@@ -106,9 +106,9 @@ export class ReportComponent implements OnInit {
 
     //#region clientTypeChart
 
-    clientTypeDateRange = new UntypedFormGroup({
-        start: new UntypedFormControl(),
-        end: new UntypedFormControl(new Date()),
+    clientTypeDateRange = new FormGroup({
+        start: new FormControl(),
+        end: new FormControl(new Date()),
     });
 
     clientTypeChartData: ChartConfiguration['data'] = {
@@ -133,7 +133,7 @@ export class ReportComponent implements OnInit {
         this.service
             .clientType({
                 startDateUtc: this.clientTypeDateRange.value.start,
-                endDateUtc: this.clientTypeDateRange.value.end
+                endDateUtc: this.clientTypeDateRange.value.end!.toISOString()
             })
             .subscribe((result: ClientTypeCount[]) => {
                 this.isClientTypeLoading = false;
@@ -164,9 +164,9 @@ export class ReportComponent implements OnInit {
 
     //#region trackingCountChart
 
-    trackingCountDateRange = new UntypedFormGroup({
-        start: new UntypedFormControl(),
-        end: new UntypedFormControl(new Date()),
+    trackingCountDateRange = new FormGroup({
+        start: new FormControl(),
+        end: new FormControl(new Date()),
     });
 
     trackingCountChartData: ChartConfiguration['data'] = {
@@ -189,7 +189,7 @@ export class ReportComponent implements OnInit {
         this.service
             .trackingCount({
                 startDateUtc: this.trackingCountDateRange.value.start,
-                endDateUtc: this.trackingCountDateRange.value.end
+                endDateUtc: this.trackingCountDateRange.value.end!.toISOString()
             })
             .subscribe((result: LinkTrackingDateCount[]) => {
                 this.isTrackingCountLoading = false;
