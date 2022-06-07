@@ -1,5 +1,5 @@
 import { Component, ElementRef, Inject, ViewChild } from "@angular/core";
-import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Link, LinkService } from "../link.service";
 import { ToastrService } from 'ngx-toastr';
@@ -8,7 +8,6 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { map, Observable, startWith } from "rxjs";
 import { AppCacheService } from "../../shared/appcache.service";
-import { Tag } from "src/app/tag/tag.service";
 @Component({
     selector: 'edit-link-dialog',
     templateUrl: 'edit-link-dialog.html',
@@ -17,9 +16,9 @@ import { Tag } from "src/app/tag/tag.service";
 export class EditLinkDialog {
     addOnBlur = true;
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
-    tagCtrl = new UntypedFormControl();
+    tagCtrl = new FormControl();
     filteredTags: Observable<string[]>;
-    editLinkForm: UntypedFormGroup;
+    editLinkForm: FormGroup;
     tags: string[] = [];
     allTags: string[] = [];
 
@@ -27,7 +26,7 @@ export class EditLinkDialog {
 
     constructor(
         private toastr: ToastrService,
-        public fb: UntypedFormBuilder,
+        public fb: FormBuilder,
         private appCache: AppCacheService,
         private linkService: LinkService,
         public dialogRef: MatDialogRef<EditLinkDialog>,
@@ -46,11 +45,11 @@ export class EditLinkDialog {
 
     buildForm() {
         this.editLinkForm = this.fb.group({
-            originUrl: new UntypedFormControl(this.data?.originUrl ?? '', [Validators.required]),
-            note: new UntypedFormControl(this.data?.note ?? ''),
-            akaName: new UntypedFormControl(this.data?.akaName ?? ''),
-            isEnabled: new UntypedFormControl(this.data?.isEnabled ?? true),
-            ttl: new UntypedFormControl(this.data?.ttl ?? 3600)
+            originUrl: new FormControl(this.data?.originUrl ?? '', [Validators.required]),
+            note: new FormControl(this.data?.note ?? ''),
+            akaName: new FormControl(this.data?.akaName ?? ''),
+            isEnabled: new FormControl(this.data?.isEnabled ?? true),
+            ttl: new FormControl(this.data?.ttl ?? 3600)
         })
     }
 
