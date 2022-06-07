@@ -51,7 +51,7 @@ export class LinksComponent implements OnInit {
         private tagService: TagService) {
         this.filteredTags = this.tagCtrl.valueChanges.pipe(
             startWith(null),
-            map((tag: Tag | null) => tag ? this._filter(tag) : this.allTags.slice()));
+            map((tag: string | Tag | null) => tag ? this._filter(tag) : this.allTags.slice()));
     }
 
     @ViewChild(MatSort) sort: MatSort;
@@ -200,7 +200,6 @@ export class LinksComponent implements OnInit {
     }
 
     add(event: MatChipInputEvent): void {
-        const input = event.input;
         const value = event.value;
 
         if ((value || '').trim()) {
@@ -211,9 +210,7 @@ export class LinksComponent implements OnInit {
         }
 
         // Reset the input value
-        if (input) {
-            input.value = '';
-        }
+        event.chipInput!.clear();
 
         this.tagCtrl.setValue(null);
     }
@@ -231,8 +228,14 @@ export class LinksComponent implements OnInit {
         this.tagCtrl.setValue(null);
     }
 
-    private _filter(value: Tag): Tag[] {
-        return this.allTags.filter(tag => tag.name.toLowerCase().includes(value.name.toLowerCase()));
+    private _filter(value: string | Tag): Tag[] {
+        var t = typeof (value);
+        if (t == 'string') {
+            return this.allTags.filter(tag => tag.name.toLowerCase().includes((value as string).toLowerCase()));
+        }
+        else {
+            return this.allTags.filter(tag => tag.name.toLowerCase().includes((value as Tag).name.toLowerCase()));
+        }
     }
 
     //#endregion
