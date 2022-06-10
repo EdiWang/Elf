@@ -38,7 +38,10 @@ export class EditLinkDialog {
 
     ngOnInit(): void {
         this.buildForm();
-        this.tags = this.data?.tags.map(t => t.name);
+        if (this.data) {
+            this.tags = this.data?.tags.map(t => t.name);            
+        }
+        
         this.getAllTagNames();
     }
 
@@ -115,6 +118,8 @@ export class EditLinkDialog {
     }
 
     selected(event: MatAutocompleteSelectedEvent): void {
+        console.info(this.tags);
+
         if (!(this.tags.includes(event.option.viewValue))) {
             this.tags.push(event.option.viewValue);
         }
