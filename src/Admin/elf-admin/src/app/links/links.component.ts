@@ -7,7 +7,6 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { EditLinkDialog } from './edit-link/edit-link-dialog';
 import { ShareDialog } from './share/share-dialog';
-import { ToastrService } from 'ngx-toastr';
 import { environment } from 'src/environments/environment';
 import { ConfirmationDialog } from '../shared/confirmation-dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -17,6 +16,7 @@ import { FormControl } from '@angular/forms';
 import { map, Observable, startWith } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
     selector: 'app-links',
     templateUrl: './links.component.html',
@@ -43,7 +43,7 @@ export class LinksComponent implements OnInit {
     @ViewChild('tagInput') tagInput: ElementRef;
 
     constructor(
-        private toastr: ToastrService,
+        private _snackBar: MatSnackBar,
         public dialog: MatDialog,
         private clipboard: Clipboard,
         private appCache: AppCacheService,
@@ -126,7 +126,9 @@ export class LinksComponent implements OnInit {
 
     checkLink(id: number, isEnabled: boolean): void {
         this.linkService.setEnable(id, isEnabled).subscribe(() => {
-            this.toastr.success('Updated');
+            this._snackBar.open('Updated', 'OK', {
+                duration: 3000
+            });
         });
     }
 
@@ -144,7 +146,9 @@ export class LinksComponent implements OnInit {
         dialogRef.afterClosed().subscribe((confirmed: boolean) => {
             if (confirmed) {
                 this.linkService.delete(id).subscribe(() => {
-                    this.toastr.success('Deleted');
+                    this._snackBar.open('Deleted', 'Done', {
+                        duration: 3000
+                    });
                     this.getLinks();
                 });
             }
@@ -152,7 +156,6 @@ export class LinksComponent implements OnInit {
     }
 
     pageChanged(event: PageEvent) {
-        console.log({ event });
         this.pageSize = event.pageSize;
         this.currentPage = event.pageIndex;
         this.getLinks();
@@ -160,12 +163,16 @@ export class LinksComponent implements OnInit {
 
     copyChip(link: Link) {
         this.clipboard.copy(environment.elfApiBaseUrl + '/fw/' + link.fwToken);
-        this.toastr.info('Copied');
+        this._snackBar.open('Copied', 'Done', {
+            duration: 3000
+        });
     }
 
     copyAka(link: Link) {
         this.clipboard.copy(environment.elfApiBaseUrl + '/aka/' + link.akaName);
-        this.toastr.info('Aka url copied');
+        this._snackBar.open('Aka url copied', 'Done', {
+            duration: 3000
+        });
     }
 
     //#region Query by Tags
