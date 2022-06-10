@@ -2,7 +2,6 @@ import { Component, ElementRef, Inject, ViewChild } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Link, LinkService } from "../link.service";
-import { ToastrService } from 'ngx-toastr';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -14,6 +13,7 @@ import { AppCacheService } from "../../shared/appcache.service";
     styleUrls: ['./edit-link-dialog.css']
 })
 export class EditLinkDialog {
+    isBusy = false;
     addOnBlur = true;
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
     tagCtrl = new FormControl();
@@ -25,7 +25,6 @@ export class EditLinkDialog {
     @ViewChild('tagInput') tagInput: ElementRef<HTMLInputElement>;
 
     constructor(
-        private toastr: ToastrService,
         public fb: FormBuilder,
         private appCache: AppCacheService,
         private linkService: LinkService,
@@ -58,6 +57,8 @@ export class EditLinkDialog {
     }
 
     submitForm() {
+        this.isBusy = true;
+
         if (this.data) {
             this.linkService
                 .update(this.data.id, {
@@ -69,7 +70,8 @@ export class EditLinkDialog {
                     tags: this.tags
                 })
                 .subscribe(() => {
-                    this.toastr.success('Updated');
+                    this.isBusy = false;
+                    this.dialogRef.close();
                 });
         }
         else {
@@ -83,7 +85,8 @@ export class EditLinkDialog {
                     tags: this.tags
                 })
                 .subscribe(() => {
-                    this.toastr.success('Added');
+                    this.isBusy = false;
+                    this.dialogRef.close();
                 });
         }
     }
@@ -115,7 +118,7 @@ export class EditLinkDialog {
         if (!(this.tags.includes(event.option.viewValue))) {
             this.tags.push(event.option.viewValue);
         }
-        
+
         this.tagInput.nativeElement.value = '';
         this.tagCtrl.setValue(null);
     }

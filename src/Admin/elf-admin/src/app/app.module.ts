@@ -24,6 +24,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { QRCodeModule } from 'angularx-qrcode';
 import { NgChartsModule } from 'ng2-charts';
@@ -112,6 +113,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     MatDatepickerModule,
     MatAutocompleteModule,
     MatMenuModule,
+    MatSnackBarModule,
     QRCodeModule,
     FormsModule,
     ReactiveFormsModule,
