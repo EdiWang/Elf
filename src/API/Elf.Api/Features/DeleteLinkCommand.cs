@@ -15,6 +15,7 @@ public class DeleteLinkCommandHandler : AsyncRequestHandler<DeleteLinkCommand>
         var link = await _dbContext.Link.FindAsync(request.Id);
         if (link != null)
         {
+            link.Tags.Clear();
             _dbContext.Remove(link);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
