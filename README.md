@@ -1,7 +1,5 @@
 # Elf
 
-![Docker Build and Push](https://github.com/EdiWang/Elf/workflows/Docker%20on%20Linux/badge.svg)
-
 The link forward service used by https://go.edi.wang. It generates static URLs for redirecting third party URLs. It's similar to, but **NOT a URL shorter**. 
 
 - Use a static token to adapt changes to origin url.
