@@ -22,7 +22,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.6" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.6" />
-		<PackageReference Include="Microsoft.Identity.Web" Version="1.25.0" />
+		<PackageReference Include="Microsoft.Identity.Web" Version="1.25.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
 		<PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="6.0.6" />
