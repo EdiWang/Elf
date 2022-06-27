@@ -1,5 +1,6 @@
 using AspNetCoreRateLimit;
 using Elf.Api;
+using Elf.Api.Auth;
 using Elf.Api.Data;
 using Elf.Api.Features;
 using Elf.Api.TokenGenerator;
@@ -96,6 +97,8 @@ void ConfigureServices(IServiceCollection services)
         services.AddDistributedMemoryCache();
     }
 
+    services.Configure<List<ApiKey>>(builder.Configuration.GetSection("ApiKeys"));
+    services.AddScoped<IGetApiKeyQuery, AppSettingsGetApiKeyQuery>();
     services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
     services.AddDistributedRateLimiting();
     services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
@@ -123,6 +126,7 @@ void ConfigureServices(IServiceCollection services)
     // Elf
     services.AddSingleton<CannonService>();
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddApiKeySupport(_ => { })
             .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
     services.AddAuthorization();

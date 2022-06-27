@@ -1,11 +1,12 @@
-﻿using Elf.Api.Features;
+﻿using Elf.Api.Auth;
+using Elf.Api.Features;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.FeatureManagement;
 using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Api.Controllers;
 
-[Authorize]
+[Authorize(AuthenticationSchemes = ElfAuthSchemas.All)]
 [ApiController]
 [Route("api/[controller]")]
 public class LinkController : ControllerBase

@@ -1,6 +1,4 @@
-﻿using Elf.Api.Data;
-
-namespace Elf.Api.Models;
+﻿namespace Elf.Api.Models;
 
 public class PagedLinkResult
 {
