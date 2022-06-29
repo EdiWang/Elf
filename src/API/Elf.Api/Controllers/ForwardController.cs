@@ -141,7 +141,7 @@ public class ForwardController : ControllerBase
             Response.Headers.Add("X-Elf-Tracking-For", ip);
             var ua = UserAgent;
 
-            _cannonService.FireAsync<IMediator>(async mediator =>
+            _cannonService.Fire(async (IMediator mediator) =>
             {
                 IPLocation location;
                 try
