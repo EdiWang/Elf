@@ -1,4 +1,4 @@
-FROM node:16.15-alpine as build
+FROM node:16.16-alpine as build
 WORKDIR /app
 COPY . .
 RUN npm install --legacy-peer-deps
