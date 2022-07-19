@@ -1,0 +1,1 @@
+docker build ./src/API -f ./src/API/Dockerfile -t ediwang/elf:arm64
