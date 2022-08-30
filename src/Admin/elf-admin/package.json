@@ -39,6 +39,6 @@
     "@angular/cli": "^14.2.1",
     "@angular/compiler-cli": "^14.2.0",
     "@types/node": "^16.11.56",
-    "typescript": "^4.7.4"
+    "typescript": "^4.8.2"
   }
 }
