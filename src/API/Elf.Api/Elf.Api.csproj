@@ -19,8 +19,7 @@
 		<PackageReference Include="AspNetCoreRateLimit" Version="4.0.2" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.8" />
-		
-		
+		<PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.17.0" />
 		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.8" />
 		<PackageReference Include="Microsoft.Identity.Web" Version="1.25.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
@@ -28,7 +27,6 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="6.0.8" />
 		<PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="2.5.1" />
 		<PackageReference Include="UAParser" Version="3.1.47" />
-		
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />
 	</ItemGroup>

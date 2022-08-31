@@ -148,6 +148,19 @@ void ConfigureServices(IServiceCollection services)
 
 void ConfigureMiddleware(IApplicationBuilder appBuilder)
 {
+    var policyCollection = new HeaderPolicyCollection()
+    .AddFrameOptionsDeny()
+    .AddContentTypeOptionsNoSniff()
+    .RemoveServerHeader()
+    .AddContentSecurityPolicy(x =>
+    {
+        x.AddObjectSrc().None();
+        x.AddFormAction().Self();
+        x.AddFrameAncestors().None();
+    });
+
+    app.UseSecurityHeaders(policyCollection);
+
     appBuilder.UseForwardedHeaders();
 
     if (app.Environment.IsDevelopment())
