@@ -29,7 +29,7 @@
     "angularx-qrcode": "^14.0.0",
     "bootstrap": "^5.2.1",
     "chart.js": "^3.9.1",
-    "ng2-charts": "^4.0.0",
+    "ng2-charts": "^4.0.1",
     "rxjs": "^7.5.6",
     "tslib": "^2.4.0",
     "zone.js": "^0.11.8"
