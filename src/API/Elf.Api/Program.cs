@@ -8,12 +8,11 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using Polly;
-using System.Data;
 using System.Reflection;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -28,11 +27,9 @@ builder.Host.ConfigureAppConfiguration(config =>
         config.AddAzureAppConfiguration(options =>
         {
             options.Connect(builder.Configuration["ConnectionStrings:AzureAppConfig"])
-                .ConfigureRefresh(refresh =>
-                {
-                    refresh.Register("Elf:Settings:Sentinel", true)
-                           .SetCacheExpiration(TimeSpan.FromSeconds(10));
-                })
+                .ConfigureRefresh(refresh => refresh
+                    .Register("Elf:Settings:Sentinel", true)
+                    .SetCacheExpiration(TimeSpan.FromSeconds(10)))
                 .UseFeatureFlags(o => o.Label = "Elf");
         });
     }
@@ -76,21 +73,16 @@ void ConfigureServices(IServiceCollection services)
     // Fix docker deployments on Azure App Service blows up with Azure AD authentication
     // https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-6.0
     // "Outside of using IIS Integration when hosting out-of-process, Forwarded Headers Middleware isn't enabled by default."
-    services.Configure<ForwardedHeadersOptions>(options =>
-    {
-        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    });
+    services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
 
+    services.AddHealthChecks();
     services.AddOptions();
     services.AddFeatureManagement();
 
     var redisConn = builder.Configuration.GetConnectionString("RedisConnection");
     if (!string.IsNullOrWhiteSpace(redisConn))
     {
-        services.AddStackExchangeRedisCache(options =>
-        {
-            options.Configuration = redisConn;
-        });
+        services.AddStackExchangeRedisCache(options => options.Configuration = redisConn);
     }
     else
     {
@@ -131,19 +123,14 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddAuthorization();
 
-    services.AddScoped<IDbConnection>(_ => new SqlConnection(builder.Configuration.GetConnectionString("ElfDatabase")));
     services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
     services.AddScoped<ILinkVerifier, LinkVerifier>();
 
     services.AddHttpClient<IIPLocationService, IPLocationService>()
             .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(3, retryCount => TimeSpan.FromSeconds(Math.Pow(2, retryCount))));
 
-    services.AddCors(o => o.AddPolicy("local", x =>
-    {
-        x.AllowAnyOrigin()
-         .AllowAnyMethod()
-         .AllowAnyHeader();
-    }));
+    services.AddCors(o => o.AddPolicy("local", x => 
+        x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 }
 
 void ConfigureMiddleware(IApplicationBuilder appBuilder)
@@ -195,18 +182,26 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder)
 
 void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
 {
-    endpoints.MapGet("/", (HttpContext httpContext) =>
+    endpoints.MapHealthChecks("/", new()
     {
-        httpContext.Response.Headers.Add("X-Elf-Version", Utils.AppVersion);
-        var obj = new
-        {
-            ElfVersion = Utils.AppVersion,
-            DotNetVersion = Environment.Version.ToString(),
-            EnvironmentTags = Utils.GetEnvironmentTags()
-        };
-
-        return obj;
+        ResponseWriter = WriteResponse
     });
 
     endpoints.MapControllers();
+}
+
+static Task WriteResponse(HttpContext context, HealthReport result)
+{
+    context.Response.Headers.Add("X-Elf-Version", Utils.AppVersion);
+
+    var obj = new
+    {
+        Utils.AppVersion,
+        DotNetVersion = Environment.Version.ToString(),
+        EnvironmentTags = Utils.GetEnvironmentTags(),
+        GeoMatch = context.Request.Headers["geo-match"],
+        RequestIpAddress = context.Connection.RemoteIpAddress?.ToString()
+    };
+
+    return context.Response.WriteAsJsonAsync(obj);
 }
