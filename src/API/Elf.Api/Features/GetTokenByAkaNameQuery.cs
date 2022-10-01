@@ -11,9 +11,9 @@ public class GetTokenByAkaNameQueryHandler : IRequestHandler<GetTokenByAkaNameQu
 
     public GetTokenByAkaNameQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<string> Handle(GetTokenByAkaNameQuery request, CancellationToken cancellationToken)
+    public async Task<string> Handle(GetTokenByAkaNameQuery request, CancellationToken ct)
     {
-        var link = await _dbContext.Link.FirstOrDefaultAsync(p => p.AkaName == request.AkaName, cancellationToken);
+        var link = await _dbContext.Link.FirstOrDefaultAsync(p => p.AkaName == request.AkaName, ct);
 
         return link?.FwToken;
     }

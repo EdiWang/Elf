@@ -12,7 +12,7 @@ public class ListLinkQueryHandler : IRequestHandler<ListLinkQuery, (IReadOnlyLis
 
     public ListLinkQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<(IReadOnlyList<LinkModel> Links, int TotalRows)> Handle(ListLinkQuery request, CancellationToken cancellationToken)
+    public async Task<(IReadOnlyList<LinkModel> Links, int TotalRows)> Handle(ListLinkQuery request, CancellationToken ct)
     {
         var query = from l in _dbContext.Link
                     select l;
@@ -42,7 +42,7 @@ public class ListLinkQueryHandler : IRequestHandler<ListLinkQuery, (IReadOnlyLis
                 IsEnabled = p.IsEnabled,
                 Tags = p.Tags.ToArray()
             })
-            .ToListAsync(cancellationToken);
+            .ToListAsync(ct);
 
         return (data, totalRows);
     }

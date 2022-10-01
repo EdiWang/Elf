@@ -11,8 +11,8 @@ public class LinkExistsQueryHandler : IRequestHandler<LinkExistsQuery, bool>
 
     public LinkExistsQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public Task<bool> Handle(LinkExistsQuery request, CancellationToken cancellationToken) =>
+    public Task<bool> Handle(LinkExistsQuery request, CancellationToken ct) =>
         string.IsNullOrWhiteSpace(request.Token) ?
             Task.FromResult(false) :
-            _dbContext.Link.AnyAsync(p => p.FwToken == request.Token, cancellationToken);
+            _dbContext.Link.AnyAsync(p => p.FwToken == request.Token, ct);
 }

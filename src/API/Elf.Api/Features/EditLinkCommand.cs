@@ -11,7 +11,7 @@ public class EditLinkCommandHandler : IRequestHandler<EditLinkCommand, string>
 
     public EditLinkCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<string> Handle(EditLinkCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(EditLinkCommand request, CancellationToken ct)
     {
         var (id, payload) = request;
 
@@ -29,12 +29,12 @@ public class EditLinkCommandHandler : IRequestHandler<EditLinkCommand, string>
         {
             foreach (var item in request.Payload.Tags)
             {
-                var tag = await _dbContext.Tag.FirstOrDefaultAsync(q => q.Name == item, cancellationToken);
+                var tag = await _dbContext.Tag.FirstOrDefaultAsync(q => q.Name == item, ct);
                 if (tag == null)
                 {
                     TagEntity t = new() { Name = item };
-                    await _dbContext.Tag.AddAsync(t, cancellationToken);
-                    await _dbContext.SaveChangesAsync(cancellationToken);
+                    await _dbContext.Tag.AddAsync(t, ct);
+                    await _dbContext.SaveChangesAsync(ct);
 
                     tag = t;
                 }
@@ -43,7 +43,7 @@ public class EditLinkCommandHandler : IRequestHandler<EditLinkCommand, string>
             }
         }
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(ct);
         return link.FwToken;
     }
 }

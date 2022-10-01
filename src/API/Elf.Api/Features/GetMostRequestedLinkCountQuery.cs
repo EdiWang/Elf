@@ -12,7 +12,7 @@ public class GetMostRequestedLinkCountQueryHandler :
 
     public GetMostRequestedLinkCountQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<IReadOnlyList<MostRequestedLinkCount>> Handle(GetMostRequestedLinkCountQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<MostRequestedLinkCount>> Handle(GetMostRequestedLinkCountQuery request, CancellationToken ct)
     {
         var utc = DateTime.UtcNow;
 
@@ -25,7 +25,7 @@ public class GetMostRequestedLinkCountQueryHandler :
                             Note = g.Key.Note,
                             FwToken = g.Key.FwToken,
                             RequestCount = g.Count()
-                        }).AsNoTracking().ToListAsync(cancellationToken);
+                        }).AsNoTracking().ToListAsync(ct);
 
         return data;
     }

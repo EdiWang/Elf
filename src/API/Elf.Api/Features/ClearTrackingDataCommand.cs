@@ -10,9 +10,9 @@ public class ClearTrackingDataCommandHandler : AsyncRequestHandler<ClearTracking
 
     public ClearTrackingDataCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    protected override async Task Handle(ClearTrackingDataCommand request, CancellationToken cancellationToken)
+    protected override async Task Handle(ClearTrackingDataCommand request, CancellationToken ct)
     {
         _dbContext.LinkTracking.RemoveRange();
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

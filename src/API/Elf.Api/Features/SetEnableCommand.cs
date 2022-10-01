@@ -10,7 +10,7 @@ public class SetEnableCommandHandler : AsyncRequestHandler<SetEnableCommand>
 
     public SetEnableCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    protected override async Task Handle(SetEnableCommand request, CancellationToken cancellationToken)
+    protected override async Task Handle(SetEnableCommand request, CancellationToken ct)
     {
         var (id, isEnabled) = request;
 
@@ -18,6 +18,6 @@ public class SetEnableCommandHandler : AsyncRequestHandler<SetEnableCommand>
         if (link is null) return;
 
         link.IsEnabled = isEnabled;
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

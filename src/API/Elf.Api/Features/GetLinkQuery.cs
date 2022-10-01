@@ -10,8 +10,5 @@ public class GetLinkQueryHandler : IRequestHandler<GetLinkQuery, LinkEntity>
 
     public GetLinkQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<LinkEntity> Handle(GetLinkQuery request, CancellationToken cancellationToken)
-    {
-        return await _dbContext.Link.FindAsync(request.Id);
-    }
+    public async Task<LinkEntity> Handle(GetLinkQuery request, CancellationToken ct) => await _dbContext.Link.FindAsync(request.Id);
 }

@@ -19,7 +19,7 @@ public class UpdateTagCommandHandler : IRequestHandler<UpdateTagCommand, int>
     public UpdateTagCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
 
-    public async Task<int> Handle(UpdateTagCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(UpdateTagCommand request, CancellationToken ct)
     {
         var (id, payload) = request;
 
@@ -29,7 +29,7 @@ public class UpdateTagCommandHandler : IRequestHandler<UpdateTagCommand, int>
         tag.Name = payload.Name.Trim();
 
         _dbContext.Update(tag);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(ct);
         return 0;
     }
 }

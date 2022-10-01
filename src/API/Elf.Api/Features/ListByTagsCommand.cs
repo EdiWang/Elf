@@ -25,7 +25,7 @@ public class ListByTagsCommandHandler : IRequestHandler<ListByTagsCommand, (IRea
 
     public ListByTagsCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<(IReadOnlyList<LinkModel> Links, int TotalRows)> Handle(ListByTagsCommand request, CancellationToken cancellationToken)
+    public async Task<(IReadOnlyList<LinkModel> Links, int TotalRows)> Handle(ListByTagsCommand request, CancellationToken ct)
     {
         var query = from l in _dbContext.Link.Include(l => l.Tags)
                     where l.Tags.Any(t => request.Payload.TagIds.Contains(t.Id))
@@ -48,7 +48,7 @@ public class ListByTagsCommandHandler : IRequestHandler<ListByTagsCommand, (IRea
                 IsEnabled = p.IsEnabled,
                 Tags = p.Tags.ToArray()
             })
-            .ToListAsync(cancellationToken);
+            .ToListAsync(ct);
 
         return (data, totalRows);
     }

@@ -11,8 +11,5 @@ public class GetTagsQueryHandler : IRequestHandler<GetTagsQuery, List<TagEntity>
 
     public GetTagsQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public Task<List<TagEntity>> Handle(GetTagsQuery request, CancellationToken cancellationToken)
-    {
-        return _dbContext.Tag.ToListAsync(cancellationToken);
-    }
+    public Task<List<TagEntity>> Handle(GetTagsQuery request, CancellationToken ct) => _dbContext.Tag.ToListAsync(ct);
 }

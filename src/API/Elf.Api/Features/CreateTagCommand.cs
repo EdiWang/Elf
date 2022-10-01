@@ -12,9 +12,9 @@ public class CreateTagCommandHandler : AsyncRequestHandler<CreateTagCommand>
 
     public CreateTagCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    protected override async Task Handle(CreateTagCommand request, CancellationToken cancellationToken)
+    protected override async Task Handle(CreateTagCommand request, CancellationToken ct)
     {
-        var exists = await _dbContext.Tag.AnyAsync(p => p.Name == request.Name, cancellationToken);
+        var exists = await _dbContext.Tag.AnyAsync(p => p.Name == request.Name, ct);
         if (exists) return;
 
         var tag = new TagEntity
@@ -22,7 +22,7 @@ public class CreateTagCommandHandler : AsyncRequestHandler<CreateTagCommand>
             Name = request.Name.Trim()
         };
 
-        await _dbContext.AddAsync(tag, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.AddAsync(tag, ct);
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

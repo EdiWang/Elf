@@ -12,7 +12,7 @@ public class TrackSucessRedirectionCommandHandler : AsyncRequestHandler<TrackSuc
 
     public TrackSucessRedirectionCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    protected override async Task Handle(TrackSucessRedirectionCommand request, CancellationToken cancellationToken)
+    protected override async Task Handle(TrackSucessRedirectionCommand request, CancellationToken ct)
     {
         var ((ipAddress, userAgent, linkId), ipLocation) = request;
 
@@ -34,7 +34,7 @@ public class TrackSucessRedirectionCommandHandler : AsyncRequestHandler<TrackSuc
             lt.IPRegion = ipLocation.Region;
         }
 
-        await _dbContext.AddAsync(lt, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.AddAsync(lt, ct);
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

@@ -12,7 +12,7 @@ public class GetClientTypeCountsQueryHandler : IRequestHandler<GetClientTypeCoun
 
     public GetClientTypeCountsQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<IReadOnlyList<ClientTypeCount>> Handle(GetClientTypeCountsQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ClientTypeCount>> Handle(GetClientTypeCountsQuery request, CancellationToken ct)
     {
         var uaParser = Parser.GetDefault();
 
@@ -34,7 +34,7 @@ public class GetClientTypeCountsQueryHandler : IRequestHandler<GetClientTypeCoun
                 {
                     RequestCount = p.Count(),
                     UserAgent = p.Key
-                }).AsNoTracking().ToListAsync(cancellationToken);
+                }).AsNoTracking().ToListAsync(ct);
 
         if (uac.Any())
         {

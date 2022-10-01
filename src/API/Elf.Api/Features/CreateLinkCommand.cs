@@ -20,9 +20,9 @@ public class CreateLinkCommandHandler : AsyncRequestHandler<CreateLinkCommand>
         _logger = logger;
     }
 
-    protected override async Task Handle(CreateLinkCommand request, CancellationToken cancellationToken)
+    protected override async Task Handle(CreateLinkCommand request, CancellationToken ct)
     {
-        var l = await _dbContext.Link.FirstOrDefaultAsync(p => p.OriginUrl == request.Payload.OriginUrl, cancellationToken);
+        var l = await _dbContext.Link.FirstOrDefaultAsync(p => p.OriginUrl == request.Payload.OriginUrl, ct);
         var tempToken = l?.FwToken;
         if (tempToken is not null)
         {
@@ -40,7 +40,7 @@ public class CreateLinkCommandHandler : AsyncRequestHandler<CreateLinkCommand>
         do
         {
             token = _tokenGenerator.GenerateToken();
-        } while (await _dbContext.Link.AnyAsync(p => p.FwToken == token, cancellationToken));
+        } while (await _dbContext.Link.AnyAsync(p => p.FwToken == token, ct));
 
         _logger.LogInformation($"Generated Token '{token}' for url '{request.Payload.OriginUrl}'");
 
@@ -59,12 +59,12 @@ public class CreateLinkCommandHandler : AsyncRequestHandler<CreateLinkCommand>
         {
             foreach (var item in request.Payload.Tags)
             {
-                var tag = await _dbContext.Tag.FirstOrDefaultAsync(q => q.Name == item, cancellationToken);
+                var tag = await _dbContext.Tag.FirstOrDefaultAsync(q => q.Name == item, ct);
                 if (tag == null)
                 {
                     TagEntity t = new() { Name = item };
-                    await _dbContext.Tag.AddAsync(t, cancellationToken);
-                    await _dbContext.SaveChangesAsync(cancellationToken);
+                    await _dbContext.Tag.AddAsync(t, ct);
+                    await _dbContext.SaveChangesAsync(ct);
 
                     tag = t;
                 }
@@ -73,7 +73,7 @@ public class CreateLinkCommandHandler : AsyncRequestHandler<CreateLinkCommand>
             }
         }
 
-        await _dbContext.AddAsync(link, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.AddAsync(link, ct);
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

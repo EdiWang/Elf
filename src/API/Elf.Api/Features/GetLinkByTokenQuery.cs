@@ -11,8 +11,6 @@ public class GetLinkByTokenQueryHandler : IRequestHandler<GetLinkByTokenQuery, L
 
     public GetLinkByTokenQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public Task<LinkEntity> Handle(GetLinkByTokenQuery request, CancellationToken cancellationToken)
-    {
-        return _dbContext.Link.FirstOrDefaultAsync(p => p.FwToken == request.Token, cancellationToken);
-    }
+    public Task<LinkEntity> Handle(GetLinkByTokenQuery request, CancellationToken ct) => 
+        _dbContext.Link.FirstOrDefaultAsync(p => p.FwToken == request.Token, ct);
 }

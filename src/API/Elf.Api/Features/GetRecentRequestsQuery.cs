@@ -11,7 +11,7 @@ public class GetRecentRequestsQueryHandler : IRequestHandler<GetRecentRequestsQu
 
     public GetRecentRequestsQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<IReadOnlyList<RequestTrack>> Handle(GetRecentRequestsQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<RequestTrack>> Handle(GetRecentRequestsQuery request, CancellationToken ct)
     {
         var (offset, take) = request;
 
@@ -33,7 +33,7 @@ public class GetRecentRequestsQueryHandler : IRequestHandler<GetRecentRequestsQu
                     .Skip(offset)
                     .Take(take)
                     .AsNoTracking()
-                    .ToListAsync(cancellationToken);
+                    .ToListAsync(ct);
 
         return result;
     }

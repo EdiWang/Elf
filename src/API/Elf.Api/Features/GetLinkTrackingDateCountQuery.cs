@@ -12,7 +12,7 @@ public class GetLinkTrackingDateCountQueryHandler :
 
     public GetLinkTrackingDateCountQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<IReadOnlyList<LinkTrackingDateCount>> Handle(GetLinkTrackingDateCountQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<LinkTrackingDateCount>> Handle(GetLinkTrackingDateCountQuery request, CancellationToken ct)
     {
         var data = await (from lt in _dbContext.LinkTracking
                           where lt.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
@@ -22,7 +22,7 @@ public class GetLinkTrackingDateCountQueryHandler :
                           {
                               TrackingDateUtc = g.Key,
                               RequestCount = g.Count()
-                          }).AsNoTracking().ToListAsync(cancellationToken);
+                          }).AsNoTracking().ToListAsync(ct);
 
         return data;
     }
