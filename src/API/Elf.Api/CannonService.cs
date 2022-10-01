@@ -13,7 +13,7 @@ public class CannonService
         _serviceProvider = serviceProvider;
     }
 
-    public void Fire(Delegate dg, Action<Exception>? exceptionHandler = null)
+    public void Fire(Delegate dg, Action<Exception> exceptionHandler = null)
     {
         if (dg == null)
         {
