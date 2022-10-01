@@ -14,15 +14,18 @@ public class GetLinkTrackingDateCountQueryHandler :
 
     public async Task<IReadOnlyList<LinkTrackingDateCount>> Handle(GetLinkTrackingDateCountQuery request, CancellationToken ct)
     {
-        var data = await (from lt in _dbContext.LinkTracking
-                          where lt.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
-                                lt.RequestTimeUtc >= request.Request.StartDateUtc.Date
-                          group lt by lt.RequestTimeUtc.Date into g
-                          select new LinkTrackingDateCount
-                          {
-                              TrackingDateUtc = g.Key,
-                              RequestCount = g.Count()
-                          }).AsNoTracking().ToListAsync(ct);
+        var data = await _dbContext.LinkTracking
+            .Where(lt =>
+                lt.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
+                lt.RequestTimeUtc >= request.Request.StartDateUtc.Date)
+            .GroupBy(lt => lt.RequestTimeUtc.Date)
+            .Select(g => new LinkTrackingDateCount
+            {
+                TrackingDateUtc = g.Key, 
+                RequestCount = g.Count()
+            })
+            .AsNoTracking()
+            .ToListAsync(ct);
 
         return data;
     }

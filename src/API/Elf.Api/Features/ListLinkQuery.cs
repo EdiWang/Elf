@@ -20,9 +20,9 @@ public class ListLinkQueryHandler : IRequestHandler<ListLinkQuery, (IReadOnlyLis
         var (offset, take, noteKeyword) = request;
         if (noteKeyword is not null)
         {
-            query = from l in _dbContext.Link.Include(l => l.Tags)
-                    where l.Note.Contains(noteKeyword) || l.FwToken.Contains(noteKeyword)
-                    select l;
+            query = _dbContext.Link
+                .Include(l => l.Tags)
+                .Where(l => l.Note.Contains(noteKeyword) || l.FwToken.Contains(noteKeyword));
         }
 
         var totalRows = query.Count();
