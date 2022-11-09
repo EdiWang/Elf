@@ -20,11 +20,9 @@ Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddAzureWebAppDiagnostics();
 
-builder.Host.ConfigureAppConfiguration(config =>
+if (bool.Parse(builder.Configuration["AppSettings:PreferAzureAppConfiguration"]!))
 {
-    if (bool.Parse(builder.Configuration["AppSettings:PreferAzureAppConfiguration"]))
-    {
-        config.AddAzureAppConfiguration(options =>
+    builder.Configuration.AddAzureAppConfiguration(options =>
         {
             options.Connect(builder.Configuration["ConnectionStrings:AzureAppConfig"])
                 .ConfigureRefresh(refresh => refresh
@@ -32,8 +30,7 @@ builder.Host.ConfigureAppConfiguration(config =>
                     .SetCacheExpiration(TimeSpan.FromSeconds(10)))
                 .UseFeatureFlags(o => o.Label = "Elf");
         });
-    }
-});
+}
 
 ConfigureServices(builder.Services);
 
@@ -109,7 +106,7 @@ void ConfigureServices(IServiceCollection services)
             .EnableDetailedErrors());
 
     // Azure
-    if (bool.Parse(builder.Configuration["AppSettings:PreferAzureAppConfiguration"]))
+    if (bool.Parse(builder.Configuration["AppSettings:PreferAzureAppConfiguration"]!))
     {
         services.AddAzureAppConfiguration();
     }
@@ -129,7 +126,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddHttpClient<IIPLocationService, IPLocationService>()
             .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(3, retryCount => TimeSpan.FromSeconds(Math.Pow(2, retryCount))));
 
-    services.AddCors(o => o.AddPolicy("local", x => 
+    services.AddCors(o => o.AddPolicy("local", x =>
         x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 }
 
@@ -168,7 +165,7 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder)
     appBuilder.UseHsts();
     appBuilder.UseHttpsRedirection();
 
-    if (bool.Parse(app.Configuration["AppSettings:PreferAzureAppConfiguration"]))
+    if (bool.Parse(app.Configuration["AppSettings:PreferAzureAppConfiguration"]!))
     {
         appBuilder.UseAzureAppConfiguration();
     }
