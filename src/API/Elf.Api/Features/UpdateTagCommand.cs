@@ -1,5 +1,6 @@
 ﻿using Elf.Api.Data;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
@@ -18,18 +19,12 @@ public class UpdateTagCommandHandler : IRequestHandler<UpdateTagCommand, int>
 
     public UpdateTagCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-
     public async Task<int> Handle(UpdateTagCommand request, CancellationToken ct)
     {
         var (id, payload) = request;
+        int result = await _dbContext.Tag.Where(p => p.Id == id)
+            .ExecuteUpdateAsync(t => t.SetProperty(x => x.Name, x => payload.Name.Trim()), cancellationToken: ct);
 
-        var tag = await _dbContext.Tag.FindAsync(id);
-        if (null == tag) return -1;
-
-        tag.Name = payload.Name.Trim();
-
-        _dbContext.Update(tag);
-        await _dbContext.SaveChangesAsync(ct);
-        return 0;
+        return result == 0 ? -1 : 0;
     }
 }

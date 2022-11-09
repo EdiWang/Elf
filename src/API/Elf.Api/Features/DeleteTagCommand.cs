@@ -1,4 +1,5 @@
 ﻿using Elf.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
@@ -10,13 +11,6 @@ public class DeleteTagCommandHandler : IRequestHandler<DeleteTagCommand, int>
 
     public DeleteTagCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<int> Handle(DeleteTagCommand request, CancellationToken ct)
-    {
-        var tag = await _dbContext.Tag.FindAsync(request.Id);
-        if (null == tag) return -1;
-
-        _dbContext.Remove(tag);
-        await _dbContext.SaveChangesAsync(ct);
-        return 0;
-    }
+    public async Task<int> Handle(DeleteTagCommand request, CancellationToken ct) =>
+         await _dbContext.Tag.Where(p => p.Id == request.Id).ExecuteDeleteAsync(cancellationToken: ct) == 0 ? -1 : 0;
 }
