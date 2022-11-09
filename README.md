@@ -36,7 +36,7 @@ You can also follow the next section to build and run the project yourself.
 
 Tools | Alternative
 --- | ---
-[.NET 6 SDK](http://dot.net) | N/A
+[.NET 7 SDK](http://dot.net) | N/A
 [Visual Studio 2022](https://visualstudio.microsoft.com/) | [Visual Studio Code](https://code.visualstudio.com/)
 [Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/) | [SQL Server 2019](https://www.microsoft.com/en-us/sql-server/sql-server-2019) / LocalDB (Dev Only)
 
