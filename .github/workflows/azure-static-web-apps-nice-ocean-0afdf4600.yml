@@ -33,6 +33,8 @@ jobs:
           api_location: "" # Api source code path - optional
           output_location: "dist/elf-admin" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
+        env:
+          NPM_CONFIG_LEGACY_PEER_DEPS: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
