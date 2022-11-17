@@ -1,22 +1,22 @@
 <nav class="elf-navbar mat-elevation-z6">
     <div class="elf-navbar-header">
-        <a mat-button [routerLink]="['/']" (click)="setMenu('home')">
+        <a mat-button color="white" [routerLink]="['/']" (click)="setMenu('home')">
             <mat-icon class="me-2">home</mat-icon>
             Elf Admin
         </a>
 
-        <a mat-button [routerLink]="['links']" [ngClass]="{'active': currentMenu == 'links'}"
+        <a mat-button color="white" [routerLink]="['links']" [ngClass]="{'active': currentMenu == 'links'}"
             (click)="setMenu('links')">
             <mat-icon class="me-2">list</mat-icon>
             Links
         </a>
 
-        <a mat-button [routerLink]="['tags']" [ngClass]="{'active': currentMenu == 'tags'}" (click)="setMenu('tags')">
+        <a mat-button color="white" [routerLink]="['tags']" [ngClass]="{'active': currentMenu == 'tags'}" (click)="setMenu('tags')">
             <mat-icon class="me-2">tag</mat-icon>
             Tags
         </a>
 
-        <a mat-button [routerLink]="['report']" [ngClass]="{'active': currentMenu == 'report'}"
+        <a mat-button color="white" [routerLink]="['report']" [ngClass]="{'active': currentMenu == 'report'}"
             (click)="setMenu('report')">
             <mat-icon class="me-2">pie_chart</mat-icon>
             Report
@@ -25,7 +25,7 @@
         <div class="flex-spacer"></div>
 
         <div class="api-info me-3">
-            <a mat-button href="{{ ENV.elfApiBaseUrl }}" target="_blank">
+            <a mat-button color="white" href="{{ ENV.elfApiBaseUrl }}" target="_blank">
                 <mat-icon class="me-2">language</mat-icon>
                 {{ ENV.elfApiBaseUrl }}
             </a>
@@ -37,7 +37,7 @@
 
         <button mat-flat-button *ngIf="!loginDisplay" (click)="login()">Login</button>
 
-        <button mat-button *ngIf="loginDisplay" (click)="logout()">
+        <button mat-flat-button *ngIf="loginDisplay" (click)="logout()">
             <mat-icon>exit_to_app</mat-icon>
             <span>Sign out</span>
         </button>
