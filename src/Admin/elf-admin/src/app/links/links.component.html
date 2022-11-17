@@ -9,17 +9,17 @@
 
     <span class="toolbar-spacer"></span>
 
-    <mat-form-field class="queryTags-chip-list search-field-tags" appearance="standard">
-        <mat-chip-list #chipList>
-            <mat-chip *ngFor="let tag of queryTags;let indx=index;" [selectable]="true" [removable]="true"
+    <mat-form-field class="queryTags-chip-list search-field-tags">
+        <mat-chip-grid #chipList>
+            <mat-chip-row *ngFor="let tag of queryTags;let indx=index;" [removable]="true"
                 (removed)="remove(tag,indx)">
                 {{tag.name}}
                 <mat-icon matChipRemove>cancel</mat-icon>
-            </mat-chip>
+            </mat-chip-row>
             <input #tagInput placeholder="Search by tags" [formControl]="tagCtrl" [matAutocomplete]="auto"
                 [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                 (matChipInputTokenEnd)="add($event)">
-        </mat-chip-list>
+        </mat-chip-grid>
         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
             <mat-option *ngFor="let tag of filteredTags | async" [value]="tag">
                 {{tag.name}}
@@ -30,7 +30,7 @@
         <mat-icon class="material-icons">search</mat-icon>
     </button>
 
-    <mat-form-field class="search-field ms-3" appearance="standard">
+    <mat-form-field class="search-field ms-3">
         <input matInput type="search" placeholder="Search by token or note" [(ngModel)]="searchTerm">
         <button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''">
             <mat-icon>close</mat-icon>
@@ -49,16 +49,17 @@
         <ng-container matColumnDef="fwToken">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Token </th>
             <td mat-cell *matCellDef="let link">
-                <mat-chip-list #chipList>
-                    <mat-chip (removed)="copyChip(link)">
-                        <a class="a-chip" href="{{ENV.elfApiBaseUrl}}/fw/{{link.fwToken}}"
-                            target="_blank">{{link.fwToken}}</a>
-
-                        <button matChipRemove>
-                            <mat-icon>file_copy</mat-icon>
-                        </button>
-                    </mat-chip>
-                </mat-chip-list>
+                <div class="d-flex">
+                    <mat-chip-set #chipList>
+                        <mat-chip>
+                            <a class="a-chip" href="{{ENV.elfApiBaseUrl}}/fw/{{link.fwToken}}"
+                                target="_blank">{{link.fwToken}}</a>
+                        </mat-chip>
+                    </mat-chip-set>
+                    <button mat-icon-button color="primary" (click)="copyChip(link)">
+                        <mat-icon>file_copy</mat-icon>
+                    </button>
+                </div>
             </td>
         </ng-container>
 
@@ -92,11 +93,11 @@
         <ng-container matColumnDef="tags">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Tags </th>
             <td mat-cell *matCellDef="let link">
-                <mat-chip-list class="tags-chip">
-                    <mat-chip class="tags-box" *ngFor="let tag of link.tags" (click)="tagClick(tag)">
+                <mat-chip-listbox class="tags-chip">
+                    <mat-chip-option class="tags-box" *ngFor="let tag of link.tags" (click)="tagClick(tag)">
                         {{ tag.name }}
-                    </mat-chip>
-                </mat-chip-list>
+                    </mat-chip-option>
+                </mat-chip-listbox>
             </td>
         </ng-container>
 

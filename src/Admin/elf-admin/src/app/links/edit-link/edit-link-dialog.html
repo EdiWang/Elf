@@ -23,13 +23,13 @@
 
         <mat-form-field class="tags-chip-list">
             <mat-label>Tags</mat-label>
-            <mat-chip-list #chipList aria-label="Tags selection">
-                <mat-chip *ngFor="let tag of tags" (removed)="remove(tag)">
+            <mat-chip-grid #chipList aria-label="Tags selection">
+                <mat-chip-row *ngFor="let tag of tags" (removed)="remove(tag)">
                     {{tag}}
                     <button matChipRemove>
                         <mat-icon>cancel</mat-icon>
                     </button>
-                </mat-chip>
+                </mat-chip-row>
                 <input 
                 placeholder="New tag..." 
                 #tagInput 
@@ -39,7 +39,7 @@
                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                 [matChipInputAddOnBlur]="addOnBlur"
                 (matChipInputTokenEnd)="add($event)">
-            </mat-chip-list>
+            </mat-chip-grid>
             <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
                 <mat-option *ngFor="let tag of filteredTags | async" [value]="tag">
                     {{tag}}
