@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div class="row g-2">
         <div class="col-sm-6 col-lg-4">
-            <mat-card class="mt-4 mb-4">
+            <mat-card appearance="outlined" class="mt-4 mb-4">
                 <div class="d-flex">
                     <mat-card-title>
                         Requests
@@ -9,7 +9,7 @@
                     <div class="flex-spacer"></div>
 
                     <div>
-                        <mat-form-field appearance="legacy">
+                        <mat-form-field>
                             <mat-date-range-input [formGroup]="trackingCountDateRange"
                                 [rangePicker]="pickerTrackingCount">
                                 <input matStartDate formControlName="start" placeholder="Start date">
@@ -38,13 +38,13 @@
             </mat-card>
         </div>
         <div class="col-sm-6 col-lg-4">
-            <mat-card class="mt-4 mb-4">
+            <mat-card appearance="outlined" class="mt-4 mb-4">
                 <div class="d-flex">
                     <mat-card-title>Client types</mat-card-title>
                     <div class="flex-spacer"></div>
 
                     <div>
-                        <mat-form-field appearance="legacy">
+                        <mat-form-field>
                             <mat-date-range-input [formGroup]="clientTypeDateRange" [rangePicker]="pickerClientType">
                                 <input matStartDate formControlName="start" placeholder="Start date">
                                 <input matEndDate formControlName="end" placeholder="End date">
@@ -76,13 +76,13 @@
             </mat-card>
         </div>
         <div class="col-sm-6 col-lg-4">
-            <mat-card class="mt-4 mb-4">
+            <mat-card appearance="outlined" class="mt-4 mb-4">
                 <div class="d-flex">
                     <mat-card-title>Most requested links</mat-card-title>
                     <div class="flex-spacer"></div>
 
                     <div>
-                        <mat-form-field appearance="legacy">
+                        <mat-form-field>
                             <mat-date-range-input [formGroup]="mostRequestedDateRange"
                                 [rangePicker]="pickerMostRequestedDateRange">
                                 <input matStartDate formControlName="start" placeholder="Start date">
@@ -118,7 +118,7 @@
         </div>
     </div>
 
-    <mat-card class="mb-4">
+    <mat-card appearance="outlined" class="mb-4">
         <div class="d-flex">
             <mat-card-title>Recent Requests</mat-card-title>
 
@@ -136,11 +136,11 @@
                 <ng-container matColumnDef="fwToken">
                     <th mat-header-cell *matHeaderCellDef> Token </th>
                     <td mat-cell *matCellDef="let link">
-                        <mat-chip-list #chipList>
-                            <mat-chip>
+                        <mat-chip-listbox #chipList>
+                            <mat-chip-option>
                                 <a class="a-chip" href="{{ENV.elfApiBaseUrl}}/fw/{{link.fwToken}}" target="_blank">{{link.fwToken}}</a>
-                            </mat-chip>
-                        </mat-chip-list>
+                            </mat-chip-option>
+                        </mat-chip-listbox>
                     </td>
                 </ng-container>
 

@@ -23,14 +23,15 @@
 
         <mat-form-field class="tags-chip-list">
             <mat-label>Tags</mat-label>
-            <mat-chip-list #chipList aria-label="Tags selection">
-                <mat-chip *ngFor="let tag of tags" (removed)="remove(tag)">
+            <mat-chip-grid #chipList aria-label="Tags selection">
+                <mat-chip-row *ngFor="let tag of tags" (removed)="remove(tag)">
                     {{tag}}
                     <button matChipRemove>
                         <mat-icon>cancel</mat-icon>
                     </button>
-                </mat-chip>
-                <input 
+                </mat-chip-row>
+            </mat-chip-grid>
+            <input 
                 placeholder="New tag..." 
                 #tagInput 
                 [formControl]="tagCtrl"
@@ -39,7 +40,6 @@
                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                 [matChipInputAddOnBlur]="addOnBlur"
                 (matChipInputTokenEnd)="add($event)">
-            </mat-chip-list>
             <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
                 <mat-option *ngFor="let tag of filteredTags | async" [value]="tag">
                     {{tag}}
@@ -52,7 +52,7 @@
     </mat-dialog-content>
     <mat-dialog-actions align="end">
         <a mat-flat-button mat-dialog-close>Cancel</a>
-        <button type="submit" mat-flat-button color="primary" cdkFocusInitial
+        <button type="submit" mat-flat-button color="primary"
             [disabled]="!editLinkForm.valid || isBusy">
             {{ isBusy ? 'Saving...' : 'Save'}}
         </button>
