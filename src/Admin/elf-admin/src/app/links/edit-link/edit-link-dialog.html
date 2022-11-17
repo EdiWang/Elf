@@ -30,7 +30,8 @@
                         <mat-icon>cancel</mat-icon>
                     </button>
                 </mat-chip-row>
-                <input 
+            </mat-chip-grid>
+            <input 
                 placeholder="New tag..." 
                 #tagInput 
                 [formControl]="tagCtrl"
@@ -39,7 +40,6 @@
                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                 [matChipInputAddOnBlur]="addOnBlur"
                 (matChipInputTokenEnd)="add($event)">
-            </mat-chip-grid>
             <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
                 <mat-option *ngFor="let tag of filteredTags | async" [value]="tag">
                     {{tag}}
