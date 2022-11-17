@@ -12,16 +12,16 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@angular/animations": "^14.2.10",
+    "@angular/animations": "^15.0.0",
     "@angular/cdk": "^14.2.7",
-    "@angular/common": "^14.2.10",
-    "@angular/compiler": "^14.2.10",
-    "@angular/core": "^14.2.10",
-    "@angular/forms": "^14.2.10",
+    "@angular/common": "^15.0.0",
+    "@angular/compiler": "^15.0.0",
+    "@angular/core": "^15.0.0",
+    "@angular/forms": "^15.0.0",
     "@angular/material": "^14.2.7",
-    "@angular/platform-browser": "^14.2.10",
-    "@angular/platform-browser-dynamic": "^14.2.10",
-    "@angular/router": "^14.2.10",
+    "@angular/platform-browser": "^15.0.0",
+    "@angular/platform-browser-dynamic": "^15.0.0",
+    "@angular/router": "^15.0.0",
     "@azure/msal-angular": "^2.4.6",
     "@azure/msal-browser": "^2.31.0",
     "@microsoft/applicationinsights-angularplugin-js": "^3.0.0",
@@ -35,9 +35,9 @@
     "zone.js": "^0.12.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^14.2.9",
-    "@angular/cli": "^14.2.9",
-    "@angular/compiler-cli": "^14.2.10",
+    "@angular-devkit/build-angular": "^15.0.0",
+    "@angular/cli": "^15.0.0",
+    "@angular/compiler-cli": "^15.0.0",
     "@types/node": "^16.18.3",
     "typescript": "^4.8.4"
   }
