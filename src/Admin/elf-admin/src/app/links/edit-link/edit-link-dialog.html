@@ -52,7 +52,7 @@
     </mat-dialog-content>
     <mat-dialog-actions align="end">
         <a mat-flat-button mat-dialog-close>Cancel</a>
-        <button type="submit" mat-flat-button color="primary" cdkFocusInitial
+        <button type="submit" mat-flat-button color="primary"
             [disabled]="!editLinkForm.valid || isBusy">
             {{ isBusy ? 'Saving...' : 'Save'}}
         </button>
