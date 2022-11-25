@@ -27,7 +27,7 @@
     "@microsoft/applicationinsights-angularplugin-js": "^3.0.0",
     "@microsoft/applicationinsights-web": "^2.8.9",
     "angularx-qrcode": "^14.0.0",
-    "bootstrap": "^5.2.2",
+    "bootstrap": "^5.2.3",
     "chart.js": "^4.0.1",
     "ng2-charts": "^4.0.1",
     "rxjs": "^7.5.7",
