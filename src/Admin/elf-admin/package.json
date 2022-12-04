@@ -29,8 +29,8 @@
     "angularx-qrcode": "^15.0.0",
     "bootstrap": "^5.2.3",
     "chart.js": "^4.0.1",
-    "ng2-charts": "^4.0.2",
-    "rxjs": "^7.5.7",
+    "ng2-charts": "^4.1.0",
+    "rxjs": "^7.6.0",
     "tslib": "^2.4.1",
     "zone.js": "^0.12.0"
   },
@@ -38,7 +38,7 @@
     "@angular-devkit/build-angular": "^15.0.2",
     "@angular/cli": "^15.0.2",
     "@angular/compiler-cli": "^15.0.2",
-    "@types/node": "^18.11.9",
+    "@types/node": "^18.11.10",
     "@types/qrcode": "^1.5.0",
     "typescript": "^4.8.4"
   }
