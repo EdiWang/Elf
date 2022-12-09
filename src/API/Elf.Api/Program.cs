@@ -132,6 +132,8 @@ void ConfigureServices(IServiceCollection services)
 
 void ConfigureMiddleware(IApplicationBuilder appBuilder)
 {
+    appBuilder.UseForwardedHeaders();
+
     var policyCollection = new HeaderPolicyCollection()
     .AddFrameOptionsDeny()
     .AddContentTypeOptionsNoSniff()
@@ -144,8 +146,6 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder)
     });
 
     app.UseSecurityHeaders(policyCollection);
-
-    appBuilder.UseForwardedHeaders();
 
     if (app.Environment.IsDevelopment())
     {
