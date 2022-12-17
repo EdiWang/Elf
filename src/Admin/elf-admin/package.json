@@ -28,7 +28,7 @@
     "@microsoft/applicationinsights-web": "^2.8.9",
     "angularx-qrcode": "^15.0.1",
     "bootstrap": "^5.2.3",
-    "chart.js": "^4.1.0",
+    "chart.js": "^4.0.1",
     "ng2-charts": "^4.1.1",
     "rxjs": "^7.8.0",
     "tslib": "^2.4.1",
