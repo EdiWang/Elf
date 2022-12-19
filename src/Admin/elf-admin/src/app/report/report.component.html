@@ -2,36 +2,31 @@
     <div class="row g-2">
         <div class="col-sm-6 col-lg-4">
             <mat-card appearance="outlined" class="mt-4 mb-4">
-                <div class="d-flex">
+                <mat-card-header>
                     <mat-card-title>
                         Requests
                     </mat-card-title>
-                    <div class="flex-spacer"></div>
-
-                    <div>
-                        <mat-form-field>
-                            <mat-date-range-input [formGroup]="trackingCountDateRange"
-                                [rangePicker]="pickerTrackingCount">
-                                <input matStartDate formControlName="start" placeholder="Start date">
-                                <input matEndDate formControlName="end" placeholder="End date">
-                            </mat-date-range-input>
-                            <mat-datepicker-toggle matSuffix [for]="pickerTrackingCount"></mat-datepicker-toggle>
-                            <mat-date-range-picker #pickerTrackingCount></mat-date-range-picker>
-                        </mat-form-field>
-                        <button mat-icon-button color="primary" (click)="getTrackingCount()">
-                            <mat-icon>refresh</mat-icon>
-                        </button>
-                    </div>
-                </div>
+                </mat-card-header>
 
                 <mat-card-content>
                     <div class="chart">
-                        <canvas baseChart height="300"
-                        [data]="trackingCountChartData" 
-                        [options]="trackingCountChartOptions"
-                        [type]="'line'"></canvas>
+                        <canvas baseChart height="300" [data]="trackingCountChartData"
+                            [options]="trackingCountChartOptions" [type]="'line'"></canvas>
                     </div>
                 </mat-card-content>
+                <mat-card-actions>
+                    <mat-form-field>
+                        <mat-date-range-input [formGroup]="trackingCountDateRange" [rangePicker]="pickerTrackingCount">
+                            <input matStartDate formControlName="start" placeholder="Start date">
+                            <input matEndDate formControlName="end" placeholder="End date">
+                        </mat-date-range-input>
+                        <mat-datepicker-toggle matSuffix [for]="pickerTrackingCount"></mat-datepicker-toggle>
+                        <mat-date-range-picker #pickerTrackingCount></mat-date-range-picker>
+                    </mat-form-field>
+                    <button mat-icon-button color="primary" (click)="getTrackingCount()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </mat-card-actions>
                 <mat-card-footer>
                     <mat-progress-bar mode="indeterminate" *ngIf="isTrackingCountLoading"></mat-progress-bar>
                 </mat-card-footer>
@@ -39,37 +34,34 @@
         </div>
         <div class="col-sm-6 col-lg-4">
             <mat-card appearance="outlined" class="mt-4 mb-4">
-                <div class="d-flex">
+                <mat-card-header>
                     <mat-card-title>Client types</mat-card-title>
-                    <div class="flex-spacer"></div>
-
-                    <div>
-                        <mat-form-field>
-                            <mat-date-range-input [formGroup]="clientTypeDateRange" [rangePicker]="pickerClientType">
-                                <input matStartDate formControlName="start" placeholder="Start date">
-                                <input matEndDate formControlName="end" placeholder="End date">
-                            </mat-date-range-input>
-                            <mat-datepicker-toggle matSuffix [for]="pickerClientType"></mat-datepicker-toggle>
-                            <mat-date-range-picker #pickerClientType></mat-date-range-picker>
-                        </mat-form-field>
-
-                        <mat-error *ngIf="clientTypeDateRange.controls['start'].hasError('matStartDateInvalid')">Invalid
-                            start date</mat-error>
-                        <mat-error *ngIf="clientTypeDateRange.controls['end'].hasError('matEndDateInvalid')">Invalid end
-                            date</mat-error>
-
-                        <button mat-icon-button color="primary" (click)="getClientType()">
-                            <mat-icon>refresh</mat-icon>
-                        </button>
-                    </div>
-                </div>
-
+                </mat-card-header>
                 <mat-card-content>
                     <div class="chart">
                         <canvas baseChart [data]="clientTypeChartData" [options]="clientTypeChartOptions"
                             [type]="'doughnut'"></canvas>
                     </div>
                 </mat-card-content>
+                <mat-card-actions>
+                    <mat-form-field>
+                        <mat-date-range-input [formGroup]="clientTypeDateRange" [rangePicker]="pickerClientType">
+                            <input matStartDate formControlName="start" placeholder="Start date">
+                            <input matEndDate formControlName="end" placeholder="End date">
+                        </mat-date-range-input>
+                        <mat-datepicker-toggle matSuffix [for]="pickerClientType"></mat-datepicker-toggle>
+                        <mat-date-range-picker #pickerClientType></mat-date-range-picker>
+                    </mat-form-field>
+
+                    <mat-error *ngIf="clientTypeDateRange.controls['start'].hasError('matStartDateInvalid')">Invalid
+                        start date</mat-error>
+                    <mat-error *ngIf="clientTypeDateRange.controls['end'].hasError('matEndDateInvalid')">Invalid end
+                        date</mat-error>
+
+                    <button mat-icon-button color="primary" (click)="getClientType()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </mat-card-actions>
                 <mat-card-footer>
                     <mat-progress-bar mode="indeterminate" *ngIf="isClientTypeLoading"></mat-progress-bar>
                 </mat-card-footer>
@@ -77,40 +69,41 @@
         </div>
         <div class="col-sm-6 col-lg-4">
             <mat-card appearance="outlined" class="mt-4 mb-4">
-                <div class="d-flex">
+                <mat-card-header>
                     <mat-card-title>Most requested links</mat-card-title>
-                    <div class="flex-spacer"></div>
+                </mat-card-header>
 
-                    <div>
-                        <mat-form-field>
-                            <mat-date-range-input [formGroup]="mostRequestedDateRange"
-                                [rangePicker]="pickerMostRequestedDateRange">
-                                <input matStartDate formControlName="start" placeholder="Start date">
-                                <input matEndDate formControlName="end" placeholder="End date">
-                            </mat-date-range-input>
-                            <mat-datepicker-toggle matSuffix [for]="pickerMostRequestedDateRange">
-                            </mat-datepicker-toggle>
-                            <mat-date-range-picker #pickerMostRequestedDateRange></mat-date-range-picker>
-                        </mat-form-field>
-
-                        <mat-error *ngIf="mostRequestedDateRange.controls['start'].hasError('matStartDateInvalid')">
-                            Invalid
-                            start date</mat-error>
-                        <mat-error *ngIf="mostRequestedDateRange.controls['end'].hasError('matEndDateInvalid')">Invalid
-                            end
-                            date</mat-error>
-
-                        <button mat-icon-button color="primary" (click)="getMostRequestedLinks()">
-                            <mat-icon>refresh</mat-icon>
-                        </button>
-                    </div>
-                </div>
                 <mat-card-content>
                     <div class="chart">
                         <canvas baseChart [data]="mostRequestedChartData" [options]="mostRequestedChartOptions"
                             [type]="'pie'"></canvas>
                     </div>
                 </mat-card-content>
+
+                <mat-card-actions>
+                    <mat-form-field>
+                        <mat-date-range-input [formGroup]="mostRequestedDateRange"
+                            [rangePicker]="pickerMostRequestedDateRange">
+                            <input matStartDate formControlName="start" placeholder="Start date">
+                            <input matEndDate formControlName="end" placeholder="End date">
+                        </mat-date-range-input>
+                        <mat-datepicker-toggle matSuffix [for]="pickerMostRequestedDateRange">
+                        </mat-datepicker-toggle>
+                        <mat-date-range-picker #pickerMostRequestedDateRange></mat-date-range-picker>
+                    </mat-form-field>
+
+                    <mat-error *ngIf="mostRequestedDateRange.controls['start'].hasError('matStartDateInvalid')">
+                        Invalid
+                        start date</mat-error>
+                    <mat-error *ngIf="mostRequestedDateRange.controls['end'].hasError('matEndDateInvalid')">Invalid
+                        end
+                        date</mat-error>
+
+                    <button mat-icon-button color="primary" (click)="getMostRequestedLinks()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </mat-card-actions>
+
                 <mat-card-footer>
                     <mat-progress-bar mode="indeterminate" *ngIf="isMostRequestedLinksLoading"></mat-progress-bar>
                 </mat-card-footer>
@@ -119,17 +112,9 @@
     </div>
 
     <mat-card appearance="outlined" class="mb-4">
-        <div class="d-flex">
+        <mat-card-header>
             <mat-card-title>Recent Requests</mat-card-title>
-
-            <button mat-icon-button color="primary" (click)="getRecentRequests()">
-                <mat-icon class="material-icons">refresh</mat-icon>
-            </button>
-
-            <button mat-icon-button color="accent" (click)="clearTrackingData()">
-                <mat-icon class="material-icons">delete</mat-icon>
-            </button>
-        </div>
+        </mat-card-header>
 
         <mat-card-content>
             <table mat-table [dataSource]="dataSource">
@@ -138,7 +123,8 @@
                     <td mat-cell *matCellDef="let link">
                         <mat-chip-listbox #chipList>
                             <mat-chip-option>
-                                <a class="a-chip" href="{{ENV.elfApiBaseUrl}}/fw/{{link.fwToken}}" target="_blank">{{link.fwToken}}</a>
+                                <a class="a-chip" href="{{ENV.elfApiBaseUrl}}/fw/{{link.fwToken}}"
+                                    target="_blank">{{link.fwToken}}</a>
                             </mat-chip-option>
                         </mat-chip-listbox>
                     </td>
@@ -197,6 +183,16 @@
                 aria-label="Select page of periodic elements">
             </mat-paginator>
         </mat-card-content>
+
+        <mat-card-actions>
+            <button mat-icon-button color="primary" (click)="getRecentRequests()">
+                <mat-icon class="material-icons">refresh</mat-icon>
+            </button>
+
+            <button mat-icon-button color="accent" (click)="clearTrackingData()">
+                <mat-icon class="material-icons">delete</mat-icon>
+            </button>
+        </mat-card-actions>
 
         <mat-card-footer>
             <mat-progress-bar mode="indeterminate" *ngIf="isRecentRequestsLoading"></mat-progress-bar>

@@ -1,9 +1,5 @@
 <div class="container mt-4">
-    <mat-card appearance="outlined" class="login-warning" *ngIf="!loginDisplay">
-        Please Sign-in with Azure AD
-    </mat-card>
-
-    <div class="text-center" *ngIf="loginDisplay">
+    <div class="text-center">
         <div class="mb-3">
             <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
                 xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="64.02px" height="64.013px"
@@ -56,6 +52,10 @@
         </h3>
         <div>
             The .NET 6 link forward service runs on Microsoft Azure
+        </div>
+
+        <div class="login-warning" *ngIf="!loginDisplay">
+            Please Sign-in with Azure AD to use
         </div>
 
         <mat-divider class="mt-4 mb-4"></mat-divider>
