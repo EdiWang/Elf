@@ -20,21 +20,27 @@ export class ReportComponent implements OnInit {
     @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChildren(BaseChartDirective) charts?: QueryList<BaseChartDirective>;
 
+    chartDateRange = new FormGroup({
+        start: new FormControl(),
+        end: new FormControl(new Date())
+    });
+
     constructor(private service: ReportService) {
     }
 
     ngOnInit(): void {
         var date = new Date();
         date.setDate(date.getDate() - 7);
-        this.trackingCountDateRange.controls['start'].setValue(date);
-        this.clientTypeDateRange.controls['start'].setValue(date);
-        this.mostRequestedDateRange.controls['start'].setValue(date);
-
+        this.chartDateRange.controls['start'].setValue(date);
         this.getData();
     }
 
     getData() {
         this.getRecentRequests();
+        this.getChartData();
+    }
+
+    getChartData() {
         this.getTrackingCount();
         this.getClientType();
         this.getMostRequestedLinks();
@@ -47,11 +53,6 @@ export class ReportComponent implements OnInit {
     }
 
     //#region mostRequestedChart
-
-    mostRequestedDateRange = new FormGroup({
-        start: new FormControl(),
-        end: new FormControl(new Date()),
-    });
 
     mostRequestedChartData: ChartConfiguration['data'] = {
         datasets: [],
@@ -74,8 +75,8 @@ export class ReportComponent implements OnInit {
         this.isMostRequestedLinksLoading = true;
         this.service
             .mostRequestedLinks({
-                startDateUtc: this.mostRequestedDateRange.value.start,
-                endDateUtc: this.mostRequestedDateRange.value.end!.toISOString()
+                startDateUtc: this.chartDateRange.value.start,
+                endDateUtc: this.chartDateRange.value.end!.toISOString()
             })
             .subscribe((result: MostRequestedLinkCount[]) => {
                 this.isMostRequestedLinksLoading = false;
@@ -106,11 +107,6 @@ export class ReportComponent implements OnInit {
 
     //#region clientTypeChart
 
-    clientTypeDateRange = new FormGroup({
-        start: new FormControl(),
-        end: new FormControl(new Date()),
-    });
-
     clientTypeChartData: ChartConfiguration['data'] = {
         datasets: [],
         labels: []
@@ -132,8 +128,8 @@ export class ReportComponent implements OnInit {
         this.isClientTypeLoading = true;
         this.service
             .clientType({
-                startDateUtc: this.clientTypeDateRange.value.start,
-                endDateUtc: this.clientTypeDateRange.value.end!.toISOString()
+                startDateUtc: this.chartDateRange.value.start,
+                endDateUtc: this.chartDateRange.value.end!.toISOString()
             })
             .subscribe((result: ClientTypeCount[]) => {
                 this.isClientTypeLoading = false;
@@ -164,11 +160,6 @@ export class ReportComponent implements OnInit {
 
     //#region trackingCountChart
 
-    trackingCountDateRange = new FormGroup({
-        start: new FormControl(),
-        end: new FormControl(new Date()),
-    });
-
     trackingCountChartData: ChartConfiguration['data'] = {
         datasets: [],
         labels: []
@@ -188,8 +179,8 @@ export class ReportComponent implements OnInit {
 
         this.service
             .trackingCount({
-                startDateUtc: this.trackingCountDateRange.value.start,
-                endDateUtc: this.trackingCountDateRange.value.end!.toISOString()
+                startDateUtc: this.chartDateRange.value.start,
+                endDateUtc: this.chartDateRange.value.end!.toISOString()
             })
             .subscribe((result: LinkTrackingDateCount[]) => {
                 this.isTrackingCountLoading = false;
