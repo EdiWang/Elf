@@ -38,7 +38,7 @@
     "@angular-devkit/build-angular": "^15.0.4",
     "@angular/cli": "^15.0.4",
     "@angular/compiler-cli": "^15.0.4",
-    "@types/node": "^18.11.17",
+    "@types/node": "^18.11.18",
     "@types/qrcode": "^1.5.0",
     "typescript": "^4.8.4"
   }
