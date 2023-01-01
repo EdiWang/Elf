@@ -5,10 +5,12 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Primitives;
 using Microsoft.FeatureManagement;
 using System.Text.Json;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Elf.Api.Controllers;
 
 [ApiController]
+[EnableRateLimiting("fixed-ip")]
 public class ForwardController : ControllerBase
 {
     private readonly ILogger<ForwardController> _logger;

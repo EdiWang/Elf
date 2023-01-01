@@ -1,4 +1,3 @@
-using AspNetCoreRateLimit;
 using Elf.Api;
 using Elf.Api.Auth;
 using Elf.Api.Data;
@@ -13,8 +12,11 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
 using Microsoft.Identity.Web;
 using Polly;
+using System.Globalization;
 using System.Net;
 using System.Reflection;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -59,8 +61,8 @@ using (var scope = app.Services.CreateScope())
 
 #endregion
 
-ConfigureMiddleware(app);
-ConfigureEndpoints(app);
+ConfigureMiddleware();
+ConfigureEndpoints();
 
 app.Run();
 
@@ -86,6 +88,45 @@ void ConfigureServices(IServiceCollection services)
         }
     });
 
+    var rateLimitOptions = new RateLimitOptions();
+    builder.Configuration.GetSection(RateLimitOptions.RateLimit).Bind(rateLimitOptions);
+
+    builder.Services.AddRateLimiter(limiterOptions =>
+    {
+        limiterOptions.OnRejected = (context, _) =>
+        {
+            if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+            {
+                context.HttpContext.Response.Headers.RetryAfter =
+                    ((int)retryAfter.TotalSeconds).ToString(NumberFormatInfo.InvariantInfo);
+            }
+
+            context.HttpContext.Response.Headers["x-ratelimit-limit"] = rateLimitOptions.PermitLimit.ToString();
+
+            context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+            return new();
+        };
+
+        limiterOptions.AddPolicy("fixed-ip", context =>
+        {
+            var remoteIpAddress = context.Connection.RemoteIpAddress;
+            if (remoteIpAddress != null && !IPAddress.IsLoopback(remoteIpAddress))
+            {
+                return RateLimitPartition.GetFixedWindowLimiter
+                    (remoteIpAddress!, _ =>
+                        new()
+                        {
+                            AutoReplenishment = rateLimitOptions.AutoReplenishment,
+                            PermitLimit = rateLimitOptions.PermitLimit,
+                            Window = TimeSpan.FromSeconds(rateLimitOptions.WindowSeconds),
+                            QueueLimit = rateLimitOptions.QueueLimit
+                        });
+            }
+
+            return RateLimitPartition.GetNoLimiter(IPAddress.Loopback);
+        });
+    });
+
     services.AddHealthChecks();
     services.AddOptions();
     services.AddFeatureManagement();
@@ -102,9 +143,6 @@ void ConfigureServices(IServiceCollection services)
 
     services.Configure<List<ApiKey>>(builder.Configuration.GetSection("ApiKeys"));
     services.AddScoped<IGetApiKeyQuery, AppSettingsGetApiKeyQuery>();
-    services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
-    services.AddDistributedRateLimiting();
-    services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
     services.AddControllers();
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen();
@@ -144,9 +182,9 @@ void ConfigureServices(IServiceCollection services)
         x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 }
 
-void ConfigureMiddleware(IApplicationBuilder appBuilder)
+void ConfigureMiddleware()
 {
-    appBuilder.UseForwardedHeaders();
+    app.UseForwardedHeaders();
 
     var policyCollection = new HeaderPolicyCollection()
     .AddFrameOptionsDeny()
@@ -169,36 +207,37 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder)
         var tc = app.Services.GetRequiredService<TelemetryConfiguration>();
         tc.DisableTelemetry = true;
         TelemetryDebugWriter.IsTracingDisabled = true;
-        appBuilder.UseDeveloperExceptionPage();
+        app.UseDeveloperExceptionPage();
     }
     else
     {
-        appBuilder.UseStatusCodePages();
+        app.UseStatusCodePages();
     }
 
-    appBuilder.UseHsts();
-    appBuilder.UseHttpsRedirection();
+    app.UseHsts();
+    app.UseHttpsRedirection();
 
     if (bool.Parse(app.Configuration["AppSettings:PreferAzureAppConfiguration"]!))
     {
-        appBuilder.UseAzureAppConfiguration();
+        app.UseAzureAppConfiguration();
     }
 
-    appBuilder.UseStaticFiles();
-    appBuilder.UseIpRateLimiting();
-    appBuilder.UseRouting();
-    appBuilder.UseAuthentication();
-    appBuilder.UseAuthorization();
+    app.UseStaticFiles();
+    app.UseRouting();
+    app.UseRateLimiter();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
 }
 
-void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
+void ConfigureEndpoints()
 {
-    endpoints.MapHealthChecks("/", new()
+    app.MapHealthChecks("/", new()
     {
         ResponseWriter = WriteResponse
     });
 
-    endpoints.MapControllers();
+    app.MapControllers();
 }
 
 static Task WriteResponse(HttpContext context, HealthReport result)
