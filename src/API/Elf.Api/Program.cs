@@ -16,7 +16,6 @@ using System.Globalization;
 using System.Net;
 using System.Reflection;
 using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.RateLimiting;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 

@@ -1,6 +1,6 @@
 ﻿using Elf.Api.Data;
-using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Api.Features;
 

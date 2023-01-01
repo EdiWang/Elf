@@ -38,11 +38,11 @@ public class GetClientTypeCountsQueryHandler : IRequestHandler<GetClientTypeCoun
 
         if (uac.Any())
         {
-            var q = 
+            var q =
                  uac.GroupBy(d => GetClientTypeName(d.UserAgent))
                     .Select(g => new ClientTypeCount
                     {
-                        ClientTypeName = g.Key, 
+                        ClientTypeName = g.Key,
                         Count = g.Sum(gp => gp.RequestCount)
                     });
 

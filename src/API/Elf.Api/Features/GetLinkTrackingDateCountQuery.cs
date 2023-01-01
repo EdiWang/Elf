@@ -21,7 +21,7 @@ public class GetLinkTrackingDateCountQueryHandler :
             .GroupBy(lt => lt.RequestTimeUtc.Date)
             .Select(g => new LinkTrackingDateCount
             {
-                TrackingDateUtc = g.Key, 
+                TrackingDateUtc = g.Key,
                 RequestCount = g.Count()
             })
             .AsNoTracking()
