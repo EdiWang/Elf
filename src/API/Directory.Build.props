@@ -1,10 +1,5 @@
 <Project>
   <PropertyGroup>
-    <Authors>Edi Wang</Authors>
-    <Company>edi.wang</Company>
-    <Copyright>(C) 2022 edi.wang@outlook.com</Copyright>
-    <AssemblyVersion>6.3.0</AssemblyVersion>
-    <FileVersion>6.3.0</FileVersion>
-    <Version>6.3.0</Version>
+    
   </PropertyGroup>
 </Project>
