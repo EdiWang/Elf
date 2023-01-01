@@ -92,7 +92,7 @@ void ConfigureServices(IServiceCollection services)
 
     builder.Services.AddRateLimiter(limiterOptions =>
     {
-        limiterOptions.OnRejected = (context, _) =>
+        limiterOptions.OnRejected = async (context, ct) =>
         {
             if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
             {
@@ -103,7 +103,7 @@ void ConfigureServices(IServiceCollection services)
             context.HttpContext.Response.Headers["x-ratelimit-limit"] = rateLimitOptions.PermitLimit.ToString();
 
             context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-            return new();
+            await context.HttpContext.Response.WriteAsync("Too Many Requests", ct);
         };
 
         limiterOptions.AddPolicy("fixed-ip", context =>
