@@ -20,7 +20,7 @@ export class ReportComponent implements OnInit {
         inputFormat: "MM/dd/yyyy",
     };
     public range = { start: null, end: new Date() };
-    
+
     constructor(private service: ReportService) {
     }
 
@@ -53,7 +53,7 @@ export class ReportComponent implements OnInit {
     public labelContentMostRequestedLinkCount(args: LegendLabelsContentArgs): string {
         return `${args.dataItem.note} - ${args.dataItem.requestCount}`;
     }
-    
+
     mostRequestedLinkCount: MostRequestedLinkCount[];
     isMostRequestedLinksLoading: boolean;
     getMostRequestedLinks() {
@@ -108,6 +108,12 @@ export class ReportComponent implements OnInit {
             })
             .subscribe((result: LinkTrackingDateCount[]) => {
                 this.isTrackingCountLoading = false;
+
+                result.map((p: LinkTrackingDateCount) => {
+                    p.date = new Date(p.trackingDateUtc);
+                    return p;
+                });
+
                 this.linkTrackingDateCount = result;
             })
     }
