@@ -27,7 +27,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { QRCodeModule } from 'angularx-qrcode';
-import { NgChartsModule } from 'ng2-charts';
 
 import { HomeComponent } from './home/home.component';
 import { LinkService } from './links/link.service';
@@ -128,7 +127,6 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     QRCodeModule,
     FormsModule,
     ReactiveFormsModule,
-    NgChartsModule,
     InputsModule,
     GridModule,
     ButtonsModule,

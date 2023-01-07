@@ -50,9 +50,7 @@
     "angularx-qrcode": "^15.0.1",
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",
-    "chart.js": "^4.1.1",
     "hammerjs": "^2.0.0",
-    "ng2-charts": "^4.1.1",
     "rxjs": "^7.8.0",
     "tslib": "^2.4.1",
     "zone.js": "^0.12.0"
