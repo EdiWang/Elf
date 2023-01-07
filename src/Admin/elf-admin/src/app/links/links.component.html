@@ -1,8 +1,9 @@
 <mat-toolbar class="position-fixed z-index-1">
-    <button mat-flat-button color="primary" matTooltip="New link" class="me-2" (click)="addNewLink()">
-        <mat-icon class="material-icons">add</mat-icon>
+    <button kendoButton class="me-2" (click)="addNewLink()">
+        <i class="bi-plus"></i>
         New
     </button>
+
     <button mat-icon-button class="me-2" color="primary" (click)="getLinks(true)">
         <mat-icon class="material-icons">refresh</mat-icon>
     </button>
