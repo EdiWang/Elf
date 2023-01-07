@@ -51,6 +51,12 @@ import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfig
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 import { InputsModule } from '@progress/kendo-angular-inputs';
 import { GridModule } from '@progress/kendo-angular-grid';
+import { ButtonsModule } from '@progress/kendo-angular-buttons';
+import { ChartsModule } from '@progress/kendo-angular-charts';
+import 'hammerjs';
+
+
+
 
 
 
@@ -122,7 +128,9 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     ReactiveFormsModule,
     NgChartsModule,
     InputsModule,
-    GridModule
+    GridModule,
+    ButtonsModule,
+    ChartsModule
   ],
   providers: [
     {

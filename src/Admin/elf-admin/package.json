@@ -28,6 +28,7 @@
     "@microsoft/applicationinsights-angularplugin-js": "^3.0.0",
     "@microsoft/applicationinsights-web": "^2.8.9",
     "@progress/kendo-angular-buttons": "^8.0.0",
+    "@progress/kendo-angular-charts": "^7.3.2",
     "@progress/kendo-angular-common": "^3.0.0",
     "@progress/kendo-angular-dateinputs": "^7.0.0",
     "@progress/kendo-angular-dialog": "^7.0.0",
@@ -42,8 +43,8 @@
     "@progress/kendo-angular-popup": "^5.0.0",
     "@progress/kendo-angular-treeview": "^7.0.0",
     "@progress/kendo-data-query": "^1.0.0",
-    "@progress/kendo-drawing": "^1.0.0",
-    "@progress/kendo-licensing": "^1.3.0",
+    "@progress/kendo-drawing": "^1.1.2",
+    "@progress/kendo-licensing": "^1.0.2",
     "@progress/kendo-theme-default": "^5.12.0",
     "angularx-qrcode": "^15.0.1",
     "bootstrap": "^5.2.3",
@@ -52,7 +53,8 @@
     "ng2-charts": "^4.1.1",
     "rxjs": "^7.8.0",
     "tslib": "^2.4.1",
-    "zone.js": "^0.12.0"
+    "zone.js": "^0.12.0",
+    "hammerjs": "^2.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.0.4",
