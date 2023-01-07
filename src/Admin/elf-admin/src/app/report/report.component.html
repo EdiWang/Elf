@@ -75,91 +75,51 @@
         </div>
     </div>
 
-    <mat-card appearance="outlined" class="mb-4">
-        <mat-card-header>
-            <mat-card-title>Recent Requests</mat-card-title>
-        </mat-card-header>
+    <kendo-grid [kendoGridBinding]="gridView" kendoGridSelectBy="fwToken" [sortable]="true">
 
-        <mat-card-content>
-            <table mat-table [dataSource]="dataSource">
-                <ng-container matColumnDef="fwToken">
-                    <th mat-header-cell *matHeaderCellDef> Token </th>
-                    <td mat-cell *matCellDef="let link">
-                        <mat-chip-listbox #chipList>
-                            <mat-chip-option>
-                                <a class="a-chip" href="{{ENV.elfApiBaseUrl}}/fw/{{link.fwToken}}"
-                                    target="_blank">{{link.fwToken}}</a>
-                            </mat-chip-option>
-                        </mat-chip-listbox>
-                    </td>
-                </ng-container>
+        <ng-template kendoGridToolbarTemplate>
+            <label>Recent Requests</label>
+            <kendo-grid-spacer></kendo-grid-spacer>
+            <button kendoButton (click)="getRecentRequests()"><i class="bi-arrow-clockwise"></i> Refresh</button>
+            <button kendoButton (click)="clearTrackingData()"><i class="bi-arrow-clockwise"></i> Clear</button>
+        </ng-template>
 
-                <ng-container matColumnDef="note">
-                    <th mat-header-cell *matHeaderCellDef> Note </th>
-                    <td mat-cell *matCellDef="let link"> {{link.note}} </td>
-                </ng-container>
+        <kendo-grid-column field="fwToken" title="Token" [width]="100">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <a href="{{ENV.elfApiBaseUrl}}/fw/{{dataItem.fwToken}}" target="_blank">{{dataItem.fwToken}}</a>
+            </ng-template>
+        </kendo-grid-column>
 
-                <ng-container matColumnDef="userAgent">
-                    <th mat-header-cell *matHeaderCellDef> User Agent </th>
-                    <td mat-cell *matCellDef="let link"> {{link.userAgent}} </td>
-                </ng-container>
+        <kendo-grid-column field="note" title="Note" [width]="400">
+        </kendo-grid-column>
 
-                <ng-container matColumnDef="ipAddress">
-                    <th mat-header-cell *matHeaderCellDef> IP Address </th>
-                    <td mat-cell *matCellDef="let link"> {{link.ipAddress}} </td>
-                </ng-container>
+        <kendo-grid-column field="userAgent" title="User Agent" [width]="400">
+        </kendo-grid-column>
 
-                <ng-container matColumnDef="ipCountry">
-                    <th mat-header-cell *matHeaderCellDef> Country </th>
-                    <td mat-cell *matCellDef="let link"> {{link.ipCountry}} </td>
-                </ng-container>
+        <kendo-grid-column field="ipAddress" title="IP Address" [width]="300">
+        </kendo-grid-column>
 
-                <ng-container matColumnDef="ipRegion">
-                    <th mat-header-cell *matHeaderCellDef> Region </th>
-                    <td mat-cell *matCellDef="let link"> {{link.ipRegion}} </td>
-                </ng-container>
+        <kendo-grid-column field="ipCountry" title="Country" [width]="300">
+        </kendo-grid-column>
 
-                <ng-container matColumnDef="ipCity">
-                    <th mat-header-cell *matHeaderCellDef> City </th>
-                    <td mat-cell *matCellDef="let link"> {{link.ipCity}} </td>
-                </ng-container>
+        <kendo-grid-column field="ipRegion" title="Region" [width]="300">
+        </kendo-grid-column>
 
-                <ng-container matColumnDef="ipasn">
-                    <th mat-header-cell *matHeaderCellDef> ASN </th>
-                    <td mat-cell *matCellDef="let link"> {{link.ipasn}} </td>
-                </ng-container>
+        <kendo-grid-column field="ipCity" title="City" [width]="300">
+        </kendo-grid-column>
 
-                <ng-container matColumnDef="ipOrg">
-                    <th mat-header-cell *matHeaderCellDef> Org </th>
-                    <td mat-cell *matCellDef="let link"> {{link.ipOrg}} </td>
-                </ng-container>
+        <kendo-grid-column field="ipasn" title="ASN" [width]="300">
+        </kendo-grid-column>
 
-                <ng-container matColumnDef="requestTimeUtc">
-                    <th mat-header-cell *matHeaderCellDef> Request Time (UTC) </th>
-                    <td mat-cell *matCellDef="let link"> {{link.requestTimeUtc | date:'yyyy-MM-dd HH:mm'}} </td>
-                </ng-container>
+        <kendo-grid-column field="ipOrg" title="Org" [width]="300">
+        </kendo-grid-column>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
+        <kendo-grid-column field="requestTimeUtc" title="Request Time (UTC)" [width]="300">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                {{dataItem?.requestTimeUtc | date:'yyyy-MM-dd HH:mm'}}
+            </ng-template>
+        </kendo-grid-column>
+    </kendo-grid>
 
-            <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
-                aria-label="Select page of periodic elements">
-            </mat-paginator>
-        </mat-card-content>
-
-        <mat-card-actions>
-            <button mat-icon-button color="primary" (click)="getRecentRequests()">
-                <mat-icon class="material-icons">refresh</mat-icon>
-            </button>
-
-            <button mat-icon-button color="accent" (click)="clearTrackingData()">
-                <mat-icon class="material-icons">delete</mat-icon>
-            </button>
-        </mat-card-actions>
-
-        <mat-card-footer>
-            <mat-progress-bar mode="indeterminate" *ngIf="isRecentRequestsLoading"></mat-progress-bar>
-        </mat-card-footer>
-    </mat-card>
+    <mat-progress-bar mode="indeterminate" *ngIf="isRecentRequestsLoading"></mat-progress-bar>
 </div>

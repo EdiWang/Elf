@@ -1,7 +1,5 @@
 import { Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
 import { ChartConfiguration } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
@@ -17,8 +15,9 @@ import { environment } from 'src/environments/environment';
 export class ReportComponent implements OnInit {
     ENV = environment;
     pipe = new DatePipe('en-US');
-    @ViewChild(MatPaginator) paginator: MatPaginator;
     @ViewChildren(BaseChartDirective) charts?: QueryList<BaseChartDirective>;
+    public gridView: any[];
+    public requestTrack: RequestTrack[] = [];
 
     chartDateRange = new FormGroup({
         start: new FormControl(),
@@ -210,28 +209,14 @@ export class ReportComponent implements OnInit {
 
     //#region RecentRequests
 
-    displayedColumns: string[] = [
-        'fwToken',
-        'note',
-        'userAgent',
-        'ipAddress',
-        'ipCountry',
-        'ipRegion',
-        'ipCity',
-        'ipasn',
-        'ipOrg',
-        'requestTimeUtc'
-    ];
-    dataSource: MatTableDataSource<RequestTrack> = new MatTableDataSource();
-
     isRecentRequestsLoading = false;
     getRecentRequests() {
         this.isRecentRequestsLoading = true;
 
-        this.service.recentRequests(128, 0).subscribe((result: RequestTrack[]) => {
+        this.service.recentRequests(100, 0).subscribe((result: RequestTrack[]) => {
             this.isRecentRequestsLoading = false;
-            this.dataSource = new MatTableDataSource(result);
-            this.dataSource.paginator = this.paginator;
+            this.requestTrack = result;
+            this.gridView = this.requestTrack;
         })
     }
 
