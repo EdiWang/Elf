@@ -1,14 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AppCacheService } from '../shared/appcache.service';
-import { ConfirmationDialog } from '../shared/confirmation-dialog';
-import { EditTagDialog } from './edit-tag/edit-tag-dialog';
 import { Tag, TagService } from './tag.service';
-import {
-  DialogService,
-  DialogRef,
-  DialogCloseResult,
-} from "@progress/kendo-angular-dialog";
-
 @Component({
   selector: 'app-tags',
   templateUrl: './tags.component.html',
@@ -16,24 +8,18 @@ import {
 })
 export class TagsComponent implements OnInit {
   isLoading: boolean = false;
-  public deleteTagDialogOpened: boolean = false;
   tagId: number;
   tags: Tag[];
+  isNewTag: boolean = false;
+  public deleteTagDialogOpened: boolean = false;
+  public tagDataItem: any;
 
   constructor(
     private appCache: AppCacheService,
-    private service: TagService,
-    private dialogService: DialogService) { }
+    private service: TagService) { }
 
   ngOnInit(): void {
     this.getTags();
-  }
-
-  addNewTag() {
-    // let diagRef = this.dialog.open(EditTagDialog);
-    // diagRef.afterClosed().subscribe(result => {
-    //   this.getTags();
-    // });
   }
 
   getTags() {
@@ -46,6 +32,8 @@ export class TagsComponent implements OnInit {
         this.appCache.tags = result;
       });
   }
+
+  //#region Delete
 
   deleteTagDialogClose() {
     this.tagId = null;
@@ -65,10 +53,38 @@ export class TagsComponent implements OnInit {
     this.deleteTagDialogOpened = true;
   }
 
-  update(tag: Tag): void {
-    // let diagRef = this.dialog.open(EditTagDialog, { data: tag });
-    // diagRef.afterClosed().subscribe(result => {
-    //   if (result) this.getTags();
-    // });
+  //#endregion
+
+  //#region Add or Update
+
+  onCancelTagUpdate() {
+    this.tagDataItem = undefined;
   }
+
+  onTagUpdate(val: Tag) {
+    if (this.isNewTag) {
+      this.service.add({ name: val.name }).subscribe(() => {
+        this.tagDataItem = undefined;
+        this.getTags();
+      });
+    }
+    else {
+      this.service.update(val.id, { name: val.name }).subscribe(() => {
+        this.tagDataItem = undefined;
+        this.getTags();
+      });
+    }
+  }
+
+  addNewTag() {
+    this.isNewTag = true;
+    this.tagDataItem = {};
+  }
+
+  update(tag: Tag): void {
+    this.isNewTag = false;
+    this.tagDataItem = tag;
+  }
+
+  //#endregion
 }

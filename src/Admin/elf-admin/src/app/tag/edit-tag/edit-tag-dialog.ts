@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ValidationErrorMessage } from "src/app/shared/global";
 import { Tag, TagService } from "./../tag.service";
@@ -31,22 +31,10 @@ export class EditTagDialog {
 
     buildForm() {
         this.editTagForm = this.fb.group({
+            id: [''],
             name: new FormControl('', [Validators.required])
         })
     }
-
-    // submitForm() {
-    //     if (this.data) {
-    //         this.service.update(this.data.id, this.editTagForm.value).subscribe(() => {
-    //             this.dialogRef.close();
-    //         });
-    //     }
-    //     else {
-    //         this.service.add(this.editTagForm.value).subscribe(() => {
-    //             this.dialogRef.close();
-    //         });
-    //     }
-    // }
 
     public onSave(e) {
         e.preventDefault();

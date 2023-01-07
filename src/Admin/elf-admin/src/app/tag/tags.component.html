@@ -22,6 +22,9 @@
     </div>
 </div>
 
+<edit-tag-dialog [model]="tagDataItem" (save)="onTagUpdate($event)" (cancel)="onCancelTagUpdate()">
+</edit-tag-dialog>
+
 <kendo-dialog title="Deletion confirm" *ngIf="deleteTagDialogOpened" (close)="deleteTagDialogClose()" [width]="350">
     <p class="text-center m-3">
         Are you sure want to delete this tag?
@@ -36,5 +39,3 @@
         </button>
     </kendo-dialog-actions>
 </kendo-dialog>
-
-<div kendoDialogContainer></div>
