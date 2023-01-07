@@ -54,6 +54,8 @@ import { GridModule } from '@progress/kendo-angular-grid';
 import { ButtonsModule } from '@progress/kendo-angular-buttons';
 import { ChartsModule } from '@progress/kendo-angular-charts';
 import 'hammerjs';
+import { IndicatorsModule } from '@progress/kendo-angular-indicators';
+
 
 
 
@@ -130,7 +132,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     InputsModule,
     GridModule,
     ButtonsModule,
-    ChartsModule
+    ChartsModule,
+    IndicatorsModule
   ],
   providers: [
     {

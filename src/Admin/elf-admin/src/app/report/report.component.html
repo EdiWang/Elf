@@ -21,67 +21,60 @@
 
     <div class="row g-2">
         <div class="col-sm-6 col-lg-4">
-            <mat-card appearance="outlined" class="mb-4">
-                <mat-card-header>
-                    <mat-card-title>
-                        Requests
-                    </mat-card-title>
-                </mat-card-header>
-
-                <mat-card-content>
-                    <div class="chart">
-                        <canvas baseChart height="300" [data]="trackingCountChartData"
-                            [options]="trackingCountChartOptions" [type]="'line'"></canvas>
-                    </div>
-                </mat-card-content>
-                <mat-card-footer>
-                    <mat-progress-bar mode="indeterminate" *ngIf="isTrackingCountLoading"></mat-progress-bar>
-                </mat-card-footer>
-            </mat-card>
+            <div class="card mb-4">
+                <div class="card-header">
+                    Requests
+                    <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isTrackingCountLoading">
+                    </kendo-loader>
+                </div>
+                <div class="card-body">
+                    <canvas baseChart height="300" [data]="trackingCountChartData" [options]="trackingCountChartOptions"
+                        [type]="'line'"></canvas>
+                </div>
+            </div>
         </div>
         <div class="col-sm-6 col-lg-4">
-            <mat-card appearance="outlined" class="mb-4">
-                <mat-card-header>
-                    <mat-card-title>Client types</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                    <div class="chart">
-                        <canvas baseChart [data]="clientTypeChartData" [options]="clientTypeChartOptions"
-                            [type]="'doughnut'"></canvas>
-                    </div>
-                </mat-card-content>
-                <mat-card-footer>
-                    <mat-progress-bar mode="indeterminate" *ngIf="isClientTypeLoading"></mat-progress-bar>
-                </mat-card-footer>
-            </mat-card>
+            <div class="card mb-4">
+                <div class="card-header">
+                    Client types
+                    <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isClientTypeLoading">
+                    </kendo-loader>
+                </div>
+                <div class="card-body">
+                    <canvas baseChart [data]="clientTypeChartData" [options]="clientTypeChartOptions"
+                        [type]="'doughnut'"></canvas>
+                </div>
+            </div>
         </div>
         <div class="col-sm-6 col-lg-4">
             <div class="card mb-4">
                 <div class="card-header">
                     Most requested links
+                    <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isMostRequestedLinksLoading">
+                    </kendo-loader>
                 </div>
                 <div class="card-body">
-                    <kendo-chart style="height:380px">
+                    <kendo-chart style="height:300px">
                         <kendo-chart-legend [visible]="false"></kendo-chart-legend>
                         <kendo-chart-series>
-                            <kendo-chart-series-item type="pie" [data]="mostRequestedLinkCount" field="requestCount" categoryField="note"
+                            <kendo-chart-series-item type="pie" [data]="mostRequestedLinkCount" field="requestCount"
+                                categoryField="note"
                                 [labels]="{ visible: true, content: labelContentMostRequestedLinkCount }">
                             </kendo-chart-series-item>
                         </kendo-chart-series>
                     </kendo-chart>
                 </div>
-                <div class="card-footer">
-                    <mat-progress-bar mode="indeterminate" *ngIf="isMostRequestedLinksLoading"></mat-progress-bar>
-                </div>
             </div>
         </div>
     </div>
 
-    <kendo-grid [kendoGridBinding]="gridView" kendoGridSelectBy="fwToken" [reorderable]="true" [resizable]="true" [sortable]="true" [pageable]="true"
-        [pageSize]="5">
+    <kendo-grid [kendoGridBinding]="gridView" kendoGridSelectBy="fwToken" [reorderable]="true" [resizable]="true"
+        [sortable]="true" [pageable]="true" [pageSize]="5">
 
         <ng-template kendoGridToolbarTemplate>
             <label>Recent Requests</label>
+            <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isRecentRequestsLoading">
+            </kendo-loader>
             <kendo-grid-spacer></kendo-grid-spacer>
             <button kendoButton (click)="getRecentRequests()"><i class="bi-arrow-clockwise"></i> Refresh</button>
             <button kendoButton (click)="clearTrackingData()"><i class="bi-arrow-clockwise"></i> Clear</button>
@@ -132,6 +125,4 @@
             </ng-template>
         </kendo-grid-column>
     </kendo-grid>
-
-    <mat-progress-bar mode="indeterminate" *ngIf="isRecentRequestsLoading"></mat-progress-bar>
 </div>
