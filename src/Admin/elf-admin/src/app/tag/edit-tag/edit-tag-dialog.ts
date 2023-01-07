@@ -1,6 +1,6 @@
-import { Component, Inject } from "@angular/core";
+import { Component, EventEmitter, Inject, Input, Output } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
-import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { ValidationErrorMessage } from "src/app/shared/global";
 import { Tag, TagService } from "./../tag.service";
 
 @Component({
@@ -9,13 +9,21 @@ import { Tag, TagService } from "./../tag.service";
     styleUrls: ['./edit-tag-dialog.css']
 })
 export class EditTagDialog {
+    public active = false;
     editTagForm: FormGroup;
+
+    @Input() public set model(data: Tag) {
+        this.editTagForm?.reset(data);
+        this.active = data !== undefined;
+    }
+
+    @Output() cancel: EventEmitter<any> = new EventEmitter();
+    @Output() save: EventEmitter<any> = new EventEmitter();
+    public validationErrorMessage = ValidationErrorMessage;
 
     constructor(
         public fb: FormBuilder,
-        private service: TagService,
-        public dialogRef: MatDialogRef<EditTagDialog>,
-        @Inject(MAT_DIALOG_DATA) public data: Tag) { }
+        private service: TagService) { }
 
     ngOnInit(): void {
         this.buildForm();
@@ -23,25 +31,36 @@ export class EditTagDialog {
 
     buildForm() {
         this.editTagForm = this.fb.group({
-            name: new FormControl(this.data?.name ?? '', [Validators.required]),
+            name: new FormControl('', [Validators.required])
         })
     }
 
-    submitForm() {
+    // submitForm() {
+    //     if (this.data) {
+    //         this.service.update(this.data.id, this.editTagForm.value).subscribe(() => {
+    //             this.dialogRef.close();
+    //         });
+    //     }
+    //     else {
+    //         this.service.add(this.editTagForm.value).subscribe(() => {
+    //             this.dialogRef.close();
+    //         });
+    //     }
+    // }
 
-        if (this.data) {
-            this.service.update(this.data.id, this.editTagForm.value).subscribe(() => {
-                this.dialogRef.close();
-            });
-        }
-        else {
-            this.service.add(this.editTagForm.value).subscribe(() => {
-                this.dialogRef.close();
-            });
-        }
+    public onSave(e) {
+        e.preventDefault();
+        this.save.emit(this.editTagForm.value);
+        this.active = false;
     }
 
-    closeDialog() {
-        this.dialogRef.close();
+    public onCancel(e) {
+        e.preventDefault();
+        this.closeForm();
+    }
+
+    private closeForm() {
+        this.active = false;
+        this.cancel.emit();
     }
 }

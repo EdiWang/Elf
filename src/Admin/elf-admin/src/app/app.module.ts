@@ -55,6 +55,10 @@ import { ChartsModule } from '@progress/kendo-angular-charts';
 import 'hammerjs';
 import { IndicatorsModule } from '@progress/kendo-angular-indicators';
 import { DateInputsModule } from '@progress/kendo-angular-dateinputs';
+import { DialogsModule } from '@progress/kendo-angular-dialog';
+import { LabelModule } from '@progress/kendo-angular-label';
+
+
 
 
 
@@ -134,7 +138,9 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     ButtonsModule,
     ChartsModule,
     IndicatorsModule,
-    DateInputsModule
+    DateInputsModule,
+    DialogsModule,
+    LabelModule
   ],
   providers: [
     {

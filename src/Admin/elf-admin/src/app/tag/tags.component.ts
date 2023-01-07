@@ -1,9 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { AppCacheService } from '../shared/appcache.service';
 import { ConfirmationDialog } from '../shared/confirmation-dialog';
 import { EditTagDialog } from './edit-tag/edit-tag-dialog';
 import { Tag, TagService } from './tag.service';
+import {
+  DialogService,
+  DialogRef,
+  DialogCloseResult,
+} from "@progress/kendo-angular-dialog";
+
 @Component({
   selector: 'app-tags',
   templateUrl: './tags.component.html',
@@ -11,23 +16,24 @@ import { Tag, TagService } from './tag.service';
 })
 export class TagsComponent implements OnInit {
   isLoading: boolean = false;
-
+  public deleteTagDialogOpened: boolean = false;
+  tagId: number;
   tags: Tag[];
 
   constructor(
-    public dialog: MatDialog,
     private appCache: AppCacheService,
-    private service: TagService) { }
+    private service: TagService,
+    private dialogService: DialogService) { }
 
   ngOnInit(): void {
     this.getTags();
   }
 
   addNewTag() {
-    let diagRef = this.dialog.open(EditTagDialog);
-    diagRef.afterClosed().subscribe(result => {
-      this.getTags();
-    });
+    // let diagRef = this.dialog.open(EditTagDialog);
+    // diagRef.afterClosed().subscribe(result => {
+    //   this.getTags();
+    // });
   }
 
   getTags() {
@@ -41,30 +47,28 @@ export class TagsComponent implements OnInit {
       });
   }
 
-  remove(tag: Tag): void {
-    const dialogRef = this.dialog.open(ConfirmationDialog, {
-      data: {
-        message: 'Are you sure want to delete this tag?',
-        buttonText: {
-          ok: 'Yes',
-          cancel: 'No'
-        }
-      }
-    });
+  deleteTagDialogClose() {
+    this.tagId = null;
+    this.deleteTagDialogOpened = false;
+  }
 
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (confirmed) {
-        this.service.delete(tag.id).subscribe(() => {
-          this.getTags();
-        });
-      }
+  deleteTag() {
+    this.service.delete(this.tagId).subscribe(() => {
+      this.deleteTagDialogOpened = false;
+      this.getTags();
+      this.tagId = null;
     });
   }
 
+  remove(tag: Tag): void {
+    this.tagId = tag?.id;
+    this.deleteTagDialogOpened = true;
+  }
+
   update(tag: Tag): void {
-    let diagRef = this.dialog.open(EditTagDialog, { data: tag });
-    diagRef.afterClosed().subscribe(result => {
-      if (result) this.getTags();
-    });
+    // let diagRef = this.dialog.open(EditTagDialog, { data: tag });
+    // diagRef.afterClosed().subscribe(result => {
+    //   if (result) this.getTags();
+    // });
   }
 }

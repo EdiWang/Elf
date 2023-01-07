@@ -1,13 +1,20 @@
-<h2 mat-dialog-title>Tag</h2>
-<form [formGroup]="editTagForm" (ngSubmit)="submitForm()" novalidate>
-    <mat-dialog-content class="edit-tag-dialog-content d-flex flex-column">
-        <mat-form-field>
-            <input matInput placeholder="Name" formControlName="name">
-        </mat-form-field>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-        <a mat-flat-button mat-dialog-close>Cancel</a>
-        <button type="submit" mat-flat-button color="primary" cdkFocusInitial
-            [disabled]="!editTagForm.valid">Save</button>
-    </mat-dialog-actions>
-</form>
+<kendo-dialog *ngIf="active" [width]="600" [height]="400" (close)="onCancel($event)">
+    <kendo-dialog-titlebar>
+        Tag
+    </kendo-dialog-titlebar>
+
+    <form novalidate class="k-form" [formGroup]="editTagForm" spellcheck="false">
+        <kendo-formfield>
+            <kendo-label [for]="name" text="Name"></kendo-label>
+            <input formControlName="name" kendoTextBox #name />
+            <kendo-formerror>{{validationErrorMessage?.required}}</kendo-formerror>
+        </kendo-formfield>
+
+        <kendo-dialog-actions layout="normal">
+            <button kendoButton (click)="onCancel($event)" class="ms-auto px-5">Cancel</button>
+            <button kendoButton [primary]="true" [disabled]="!editTagForm.valid" (click)="onSave($event)" class="px-5">
+                Save
+            </button>
+        </kendo-dialog-actions>
+    </form>
+</kendo-dialog>
