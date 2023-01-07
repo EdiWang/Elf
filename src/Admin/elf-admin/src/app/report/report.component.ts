@@ -6,6 +6,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ClientTypeCount, LinkTrackingDateCount, MostRequestedLinkCount, ReportService, RequestTrack } from './report.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { environment } from 'src/environments/environment';
+import { LegendLabelsContentArgs } from '@progress/kendo-angular-charts';
 
 @Component({
     selector: 'app-report',
@@ -53,22 +54,11 @@ export class ReportComponent implements OnInit {
 
     //#region mostRequestedChart
 
-    mostRequestedChartData: ChartConfiguration['data'] = {
-        datasets: [],
-        labels: []
-    };
-
-    mostRequestedChartOptions: ChartConfiguration['options'] = {
-        plugins: {
-            legend: {
-                display: true,
-                position: 'right'
-            }
-        },
-        responsive: true,
-        maintainAspectRatio: false
-    };
-
+    public labelContentMostRequestedLinkCount(args: LegendLabelsContentArgs): string {
+        return `${args.dataItem.note} - ${args.dataItem.requestCount}`;
+    }
+    
+    mostRequestedLinkCount: MostRequestedLinkCount[];
     isMostRequestedLinksLoading: boolean;
     getMostRequestedLinks() {
         this.isMostRequestedLinksLoading = true;
@@ -79,26 +69,7 @@ export class ReportComponent implements OnInit {
             })
             .subscribe((result: MostRequestedLinkCount[]) => {
                 this.isMostRequestedLinksLoading = false;
-
-                const notes = [];
-                const requestCounts: number[] = [];
-
-                for (let idx in result) {
-                    if (result.hasOwnProperty(idx)) {
-                        notes.push(result[idx].note);
-                        requestCounts.push(result[idx].requestCount);
-                    }
-                }
-
-                this.mostRequestedChartData.datasets = [{
-                    data: requestCounts
-                }];
-
-                this.mostRequestedChartData.labels = notes;
-
-                this.charts?.forEach((child) => {
-                    child.update();
-                });
+                this.mostRequestedLinkCount = result;
             })
     }
 
