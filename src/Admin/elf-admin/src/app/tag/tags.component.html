@@ -10,21 +10,14 @@
     </div>
 </div>
 
-<div class="container-fluid">
-    <div class="tags-container">
-        <hr />
-        <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isLoading">
-        </kendo-loader>
+<div class="tags-container">
+    <hr />
+    <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isLoading">
+    </kendo-loader>
 
-        <div class="container-fluid mt-3">
-            <mat-chip-listbox #chipList aria-label="Fruit selection">
-                <mat-chip-option *ngFor="let tag of tags" (removed)="remove(tag)" (click)="update(tag)">
-                    {{tag.name}}
-                    <button matChipRemove>
-                        <mat-icon>cancel</mat-icon>
-                    </button>
-                </mat-chip-option>
-            </mat-chip-listbox>
-        </div>
+    <div class="container-fluid mt-3">
+        <kendo-chip *ngFor="let tag of tags" [label]="tag.name" [removable]="true" (contentClick)="update(tag)"
+            (remove)="remove(tag)">
+        </kendo-chip>
     </div>
 </div>
