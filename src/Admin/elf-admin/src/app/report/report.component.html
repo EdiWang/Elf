@@ -75,7 +75,7 @@
         </div>
     </div>
 
-    <kendo-grid [kendoGridBinding]="gridView" kendoGridSelectBy="fwToken" [sortable]="true" [pageable]="true"
+    <kendo-grid [kendoGridBinding]="gridView" kendoGridSelectBy="fwToken" [reorderable]="true" [resizable]="true" [sortable]="true" [pageable]="true"
         [pageSize]="10">
 
         <ng-template kendoGridToolbarTemplate>
@@ -95,6 +95,9 @@
         </kendo-grid-column>
 
         <kendo-grid-column field="userAgent" title="User Agent">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <div class="crop">{{ dataItem.userAgent }}</div>
+            </ng-template>
         </kendo-grid-column>
 
         <kendo-grid-column field="ipAddress" title="IP Address" [width]="150">
@@ -103,7 +106,10 @@
         <kendo-grid-column field="ipCountry" title="Country" [width]="150">
         </kendo-grid-column>
 
-        <kendo-grid-column field="ipRegion" title="Region" [width]="100">
+        <kendo-grid-column field="ipRegion" title="Region" [width]="150">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <div class="crop">{{ dataItem.ipRegion }}</div>
+            </ng-template>
         </kendo-grid-column>
 
         <kendo-grid-column field="ipCity" title="City" [width]="100">
@@ -113,6 +119,9 @@
         </kendo-grid-column>
 
         <kendo-grid-column field="ipOrg" title="Org" [width]="150">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <div class="crop">{{ dataItem.ipOrg }}</div>
+            </ng-template>
         </kendo-grid-column>
 
         <kendo-grid-column field="requestTimeUtc" title="Request Time (UTC)" [width]="180">

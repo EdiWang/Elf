@@ -33,3 +33,9 @@ body {
 a {
   text-decoration: none;
 }
+
+.crop {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
