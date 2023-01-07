@@ -75,7 +75,8 @@
         </div>
     </div>
 
-    <kendo-grid [kendoGridBinding]="gridView" kendoGridSelectBy="fwToken" [sortable]="true">
+    <kendo-grid [kendoGridBinding]="gridView" kendoGridSelectBy="fwToken" [sortable]="true" [pageable]="true"
+        [pageSize]="10">
 
         <ng-template kendoGridToolbarTemplate>
             <label>Recent Requests</label>
@@ -93,28 +94,28 @@
         <kendo-grid-column field="note" title="Note" [width]="400">
         </kendo-grid-column>
 
-        <kendo-grid-column field="userAgent" title="User Agent" [width]="400">
+        <kendo-grid-column field="userAgent" title="User Agent">
         </kendo-grid-column>
 
-        <kendo-grid-column field="ipAddress" title="IP Address" [width]="300">
+        <kendo-grid-column field="ipAddress" title="IP Address" [width]="150">
         </kendo-grid-column>
 
-        <kendo-grid-column field="ipCountry" title="Country" [width]="300">
+        <kendo-grid-column field="ipCountry" title="Country" [width]="150">
         </kendo-grid-column>
 
-        <kendo-grid-column field="ipRegion" title="Region" [width]="300">
+        <kendo-grid-column field="ipRegion" title="Region" [width]="100">
         </kendo-grid-column>
 
-        <kendo-grid-column field="ipCity" title="City" [width]="300">
+        <kendo-grid-column field="ipCity" title="City" [width]="100">
         </kendo-grid-column>
 
-        <kendo-grid-column field="ipasn" title="ASN" [width]="300">
+        <kendo-grid-column field="ipasn" title="ASN" [width]="100">
         </kendo-grid-column>
 
-        <kendo-grid-column field="ipOrg" title="Org" [width]="300">
+        <kendo-grid-column field="ipOrg" title="Org" [width]="150">
         </kendo-grid-column>
 
-        <kendo-grid-column field="requestTimeUtc" title="Request Time (UTC)" [width]="300">
+        <kendo-grid-column field="requestTimeUtc" title="Request Time (UTC)" [width]="180">
             <ng-template kendoGridCellTemplate let-dataItem>
                 {{dataItem?.requestTimeUtc | date:'yyyy-MM-dd HH:mm'}}
             </ng-template>
