@@ -13,7 +13,8 @@
 <div class="container-fluid">
     <div class="tags-container">
         <hr />
-        <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+        <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isLoading">
+        </kendo-loader>
 
         <div class="container-fluid mt-3">
             <mat-chip-listbox #chipList aria-label="Fruit selection">
