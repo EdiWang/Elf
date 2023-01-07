@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ClientTypeCount, LinkTrackingDateCount, MostRequestedLinkCount, ReportService, RequestTrack } from './report.service';
-import { FormControl, FormGroup } from '@angular/forms';
 import { environment } from 'src/environments/environment';
 import { LegendLabelsContentArgs, SeriesLabelsContentArgs } from '@progress/kendo-angular-charts';
+import { FormatSettings } from '@progress/kendo-angular-dateinputs';
 
 @Component({
     selector: 'app-report',
@@ -15,19 +15,19 @@ export class ReportComponent implements OnInit {
     pipe = new DatePipe('en-US');
     public gridView: any[];
     public requestTrack: RequestTrack[] = [];
-
-    chartDateRange = new FormGroup({
-        start: new FormControl(),
-        end: new FormControl(new Date())
-    });
-
+    public dateFormat: FormatSettings = {
+        displayFormat: "MM/dd/yyyy",
+        inputFormat: "MM/dd/yyyy",
+    };
+    public range = { start: null, end: new Date() };
+    
     constructor(private service: ReportService) {
     }
 
     ngOnInit(): void {
         var date = new Date();
         date.setDate(date.getDate() - 7);
-        this.chartDateRange.controls['start'].setValue(date);
+        this.range.start = date;
         this.getData();
     }
 
@@ -60,8 +60,8 @@ export class ReportComponent implements OnInit {
         this.isMostRequestedLinksLoading = true;
         this.service
             .mostRequestedLinks({
-                startDateUtc: this.chartDateRange.value.start,
-                endDateUtc: this.chartDateRange.value.end!.toISOString()
+                startDateUtc: this.range.start,
+                endDateUtc: this.range.end!.toISOString()
             })
             .subscribe((result: MostRequestedLinkCount[]) => {
                 this.isMostRequestedLinksLoading = false;
@@ -83,8 +83,8 @@ export class ReportComponent implements OnInit {
         this.isClientTypeLoading = true;
         this.service
             .clientType({
-                startDateUtc: this.chartDateRange.value.start,
-                endDateUtc: this.chartDateRange.value.end!.toISOString()
+                startDateUtc: this.range.start,
+                endDateUtc: this.range.end!.toISOString()
             })
             .subscribe((result: ClientTypeCount[]) => {
                 this.isClientTypeLoading = false;
@@ -103,8 +103,8 @@ export class ReportComponent implements OnInit {
 
         this.service
             .trackingCount({
-                startDateUtc: this.chartDateRange.value.start,
-                endDateUtc: this.chartDateRange.value.end!.toISOString()
+                startDateUtc: this.range.start,
+                endDateUtc: this.range.end!.toISOString()
             })
             .subscribe((result: LinkTrackingDateCount[]) => {
                 this.isTrackingCountLoading = false;

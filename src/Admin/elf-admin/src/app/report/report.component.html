@@ -1,22 +1,20 @@
 <div class="container-fluid">
-
-    <div>
-        <mat-form-field>
-            <mat-date-range-input [formGroup]="chartDateRange" [rangePicker]="pickerTrackingCount">
-                <input matStartDate formControlName="start" placeholder="Start date">
-                <input matEndDate formControlName="end" placeholder="End date">
-            </mat-date-range-input>
-            <mat-datepicker-toggle matSuffix [for]="pickerTrackingCount"></mat-datepicker-toggle>
-            <mat-date-range-picker #pickerTrackingCount></mat-date-range-picker>
-
-            <mat-error *ngIf="chartDateRange.controls['start'].hasError('matStartDateInvalid')">Invalid
-                start date</mat-error>
-            <mat-error *ngIf="chartDateRange.controls['end'].hasError('matEndDateInvalid')">Invalid end
-                date</mat-error>
-        </mat-form-field>
-        <button mat-icon-button color="primary" (click)="getChartData()">
-            <mat-icon>refresh</mat-icon>
-        </button>
+    <div class="row mt-3 mb-3 g-1">
+        <div class="col-auto">
+            <kendo-daterange>
+                <kendo-dateinput kendoDateRangeStartInput [format]="dateFormat" placeholder="MM/DD/YYYY"
+                    [(value)]="range.start"></kendo-dateinput>
+                <kendo-dateinput kendoDateRangeEndInput [format]="dateFormat" placeholder="MM/DD/YYYY"
+                    [(value)]="range.end"></kendo-dateinput>
+                <kendo-daterange-popup [animate]="false">
+                </kendo-daterange-popup>
+            </kendo-daterange>
+        </div>
+        <div class="col-auto">
+            <button kendoButton (click)="getChartData()">
+                <i class="bi-arrow-clockwise"></i>
+            </button>
+        </div>
     </div>
 
     <div class="row g-2">
@@ -28,7 +26,7 @@
                     </kendo-loader>
                 </div>
                 <div class="card-body">
-                    <kendo-chart style="height:300px" [pannable]="true" [zoomable]="true">
+                    <kendo-chart style="height:300px">
                         <kendo-chart-series>
                             <kendo-chart-series-item type="line" [data]="linkTrackingDateCount" field="requestCount"
                                 categoryField="trackingDateUtc"></kendo-chart-series-item>
