@@ -6,7 +6,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ClientTypeCount, LinkTrackingDateCount, MostRequestedLinkCount, ReportService, RequestTrack } from './report.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { environment } from 'src/environments/environment';
-import { LegendLabelsContentArgs } from '@progress/kendo-angular-charts';
+import { LegendLabelsContentArgs, SeriesLabelsContentArgs } from '@progress/kendo-angular-charts';
 
 @Component({
     selector: 'app-report',
@@ -77,22 +77,11 @@ export class ReportComponent implements OnInit {
 
     //#region clientTypeChart
 
-    clientTypeChartData: ChartConfiguration['data'] = {
-        datasets: [],
-        labels: []
-    };
+    public labelContentClientTypeCount(e: SeriesLabelsContentArgs): string {
+        return `${e.category} - ${e.value}, ${(e.percentage * 100).toFixed(0)}%`;
+    }
 
-    clientTypeChartOptions: ChartConfiguration['options'] = {
-        plugins: {
-            legend: {
-                display: true,
-                position: 'right'
-            }
-        },
-        responsive: true,
-        maintainAspectRatio: false
-    };
-
+    clientTypeCount: ClientTypeCount[];
     isClientTypeLoading: boolean;
     getClientType() {
         this.isClientTypeLoading = true;
@@ -103,26 +92,7 @@ export class ReportComponent implements OnInit {
             })
             .subscribe((result: ClientTypeCount[]) => {
                 this.isClientTypeLoading = false;
-
-                const clientTypes = [];
-                const clientCounts: number[] = [];
-
-                for (let idx in result) {
-                    if (result.hasOwnProperty(idx)) {
-                        clientTypes.push(result[idx].clientTypeName);
-                        clientCounts.push(result[idx].count);
-                    }
-                }
-
-                this.clientTypeChartData.datasets = [{
-                    data: clientCounts
-                }];
-
-                this.clientTypeChartData.labels = clientTypes;
-
-                this.charts?.forEach((child) => {
-                    child.update();
-                });
+                this.clientTypeCount = result;
             })
     }
 

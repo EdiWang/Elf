@@ -41,8 +41,17 @@
                     </kendo-loader>
                 </div>
                 <div class="card-body">
-                    <canvas baseChart [data]="clientTypeChartData" [options]="clientTypeChartOptions"
-                        [type]="'doughnut'"></canvas>
+                    <kendo-chart style="height:300px">
+                        <kendo-chart-legend [visible]="false"></kendo-chart-legend>
+                        <kendo-chart-series>
+                            <kendo-chart-series-item type="donut" [data]="clientTypeCount" field="count"
+                                categoryField="clientTypeName">
+                                <kendo-chart-series-item-labels [content]="labelContentClientTypeCount"
+                                    position="outsideEnd" color="#333">
+                                </kendo-chart-series-item-labels>
+                            </kendo-chart-series-item>
+                        </kendo-chart-series>
+                    </kendo-chart>
                 </div>
             </div>
         </div>
