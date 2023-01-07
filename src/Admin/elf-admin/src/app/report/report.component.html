@@ -91,7 +91,7 @@
             <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isRecentRequestsLoading">
             </kendo-loader>
             <kendo-grid-spacer></kendo-grid-spacer>
-            <button kendoButton (click)="getRecentRequests()"><i class="bi-arrow-clockwise"></i> Refresh</button>
+            <button kendoButton iconClass="bi-arrow-clockwise" (click)="getRecentRequests()"></button>
             <button kendoButton (click)="clearTrackingData()"><i class="bi-trash"></i> Clear</button>
         </ng-template>
 
