@@ -1,8 +1,5 @@
-import { Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ChartConfiguration } from 'chart.js';
-import { BaseChartDirective } from 'ng2-charts';
-
 import { ClientTypeCount, LinkTrackingDateCount, MostRequestedLinkCount, ReportService, RequestTrack } from './report.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { environment } from 'src/environments/environment';
@@ -16,7 +13,6 @@ import { LegendLabelsContentArgs, SeriesLabelsContentArgs } from '@progress/kend
 export class ReportComponent implements OnInit {
     ENV = environment;
     pipe = new DatePipe('en-US');
-    @ViewChildren(BaseChartDirective) charts?: QueryList<BaseChartDirective>;
     public gridView: any[];
     public requestTrack: RequestTrack[] = [];
 
@@ -100,19 +96,7 @@ export class ReportComponent implements OnInit {
 
     //#region trackingCountChart
 
-    trackingCountChartData: ChartConfiguration['data'] = {
-        datasets: [],
-        labels: []
-    };
-
-    trackingCountChartOptions: ChartConfiguration['options'] = {
-        plugins: {
-            legend: { display: false }
-        },
-        responsive: true,
-        maintainAspectRatio: false
-    };
-
+    linkTrackingDateCount: LinkTrackingDateCount[];
     isTrackingCountLoading: boolean;
     getTrackingCount() {
         this.isTrackingCountLoading = true;
@@ -124,25 +108,7 @@ export class ReportComponent implements OnInit {
             })
             .subscribe((result: LinkTrackingDateCount[]) => {
                 this.isTrackingCountLoading = false;
-
-                const trackingDates = [];
-                const requestCounts: number[] = [];
-                for (let idx in result) {
-                    if (result.hasOwnProperty(idx)) {
-                        trackingDates.push(this.pipe.transform(result[idx].trackingDateUtc, 'MM/dd'));
-                        requestCounts.push(result[idx].requestCount);
-                    }
-                }
-
-                this.trackingCountChartData.datasets = [{
-                    data: requestCounts
-                }];
-
-                this.trackingCountChartData.labels = trackingDates;
-
-                this.charts?.forEach((child) => {
-                    child.update();
-                });
+                this.linkTrackingDateCount = result;
             })
     }
 

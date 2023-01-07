@@ -28,8 +28,12 @@
                     </kendo-loader>
                 </div>
                 <div class="card-body">
-                    <canvas baseChart height="300" [data]="trackingCountChartData" [options]="trackingCountChartOptions"
-                        [type]="'line'"></canvas>
+                    <kendo-chart style="height:300px" [pannable]="true" [zoomable]="true">
+                        <kendo-chart-series>
+                            <kendo-chart-series-item type="line" [data]="linkTrackingDateCount" field="requestCount"
+                                categoryField="trackingDateUtc"></kendo-chart-series-item>
+                        </kendo-chart-series>
+                    </kendo-chart>
                 </div>
             </div>
         </div>
