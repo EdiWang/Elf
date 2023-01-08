@@ -192,12 +192,6 @@ export class LinksComponent implements OnInit {
             });
     }
 
-    tagClick(tag: Tag) {
-        if (!this.queryTags.includes(tag)) {
-            this.queryTags.push(tag);
-        }
-    }
-
     add(event: MatChipInputEvent): void {
         const value = event.value;
 

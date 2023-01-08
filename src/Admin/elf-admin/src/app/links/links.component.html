@@ -71,17 +71,15 @@
 
         <kendo-grid-column field="tags" title="Tags" [width]="100">
             <ng-template kendoGridCellTemplate let-dataItem>
-                <mat-chip-listbox class="tags-chip">
-                    <mat-chip-option class="tags-box" *ngFor="let tag of dataItem.tags" (click)="tagClick(tag)">
-                        {{ tag.name }}
-                    </mat-chip-option>
-                </mat-chip-listbox>
+                <kendo-chip *ngFor="let tag of dataItem.tags" [label]="tag.name">
+                </kendo-chip>
             </ng-template>
         </kendo-grid-column>
 
         <kendo-grid-column field="isEnabled" title="Enabled" [width]="80">
             <ng-template kendoGridCellTemplate let-dataItem>
-                <input type="checkbox" [(ngModel)]="dataItem.isEnabled" kendoCheckBox (change)="checkLink(dataItem.id, dataItem.isEnabled)"/>
+                <input type="checkbox" [(ngModel)]="dataItem.isEnabled" kendoCheckBox
+                    (change)="checkLink(dataItem.id, dataItem.isEnabled)" />
             </ng-template>
         </kendo-grid-column>
 
