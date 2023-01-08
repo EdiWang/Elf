@@ -27,7 +27,7 @@ export class LinksComponent implements OnInit {
 
     ENV = environment;
     isLoading = false;
-    pageSize = 10;
+    pageSize = 15;
     skip = 0;
     searchTerm: string = null;
     queryTags: Tag[] = [];
@@ -101,10 +101,6 @@ export class LinksComponent implements OnInit {
                 this.updateTagCache();
             }
         });
-    }
-
-    search() {
-        this.getLinks(true);
     }
 
     getLinks(reset: boolean = false): void {
