@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Link, LinkService, PagedLinkResult } from './link.service';
 import { environment } from 'src/environments/environment';
-import { Clipboard } from '@angular/cdk/clipboard';
 import { AppCacheService } from '../shared/appcache.service';
 import { Tag, TagService } from '../tag/tag.service';
 import { GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { ClipboardService } from 'ngx-clipboard';
 @Component({
     selector: 'app-links',
     templateUrl: './links.component.html',
@@ -28,7 +28,7 @@ export class LinksComponent implements OnInit {
 
     constructor(
         private notificationService: NotificationService,
-        private clipboard: Clipboard,
+        private clipboardService: ClipboardService,
         private appCache: AppCacheService,
         private linkService: LinkService,
         private tagService: TagService) {
@@ -188,7 +188,7 @@ export class LinksComponent implements OnInit {
     }
 
     copyUrl(link: Link) {
-        this.clipboard.copy(environment.elfApiBaseUrl + '/fw/' + link.fwToken);
+        this.clipboardService.copy(environment.elfApiBaseUrl + '/fw/' + link.fwToken);
 
         this.notificationService.show({
             content: "Url copied",
@@ -201,7 +201,7 @@ export class LinksComponent implements OnInit {
     }
 
     copyAka(link: Link) {
-        this.clipboard.copy(environment.elfApiBaseUrl + '/aka/' + link.akaName);
+        this.clipboardService.copy(environment.elfApiBaseUrl + '/aka/' + link.akaName);
 
         this.notificationService.show({
             content: "Aka url copied",

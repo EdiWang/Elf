@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
+import { ClipboardModule } from 'ngx-clipboard';
 import { HomeComponent } from './home/home.component';
 import { LinkService } from './links/link.service';
 import { LinksComponent } from './links/links.component';
@@ -83,6 +83,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    ClipboardModule,
     MsalModule,
     FormsModule,
     ReactiveFormsModule,
