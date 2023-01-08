@@ -88,6 +88,7 @@ To use Redis, follow these steps:
 
 - Node.js 16.x LTS
 - VSCode or any editor you like
+- A valid Kendo UI license
 
 ### Configure Azure AD
 
