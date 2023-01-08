@@ -59,11 +59,12 @@
         <kendo-grid-column field="note" title="Note">
         </kendo-grid-column>
 
-        <kendo-grid-column field="akaName" title="Aka" [width]="100">
+        <kendo-grid-column field="akaName" title="Aka" [width]="150">
             <ng-template kendoGridCellTemplate let-dataItem>
                 <div class="d-flex align-items-center">
                     {{dataItem.akaName ?? '/' }}
-                    <button kendoButton iconClass="clipboard" *ngIf="dataItem.akaName" (click)="copyAka(dataItem)">
+                    <span class="toolbar-spacer"></span>
+                    <button kendoButton iconClass="bi-clipboard" *ngIf="dataItem.akaName" (click)="copyAka(dataItem)">
                     </button>
                 </div>
             </ng-template>
