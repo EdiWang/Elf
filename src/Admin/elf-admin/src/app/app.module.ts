@@ -6,18 +6,12 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon'
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field'
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatMenuModule } from '@angular/material/menu';
 
 import { HomeComponent } from './home/home.component';
 import { LinkService } from './links/link.service';
@@ -25,7 +19,6 @@ import { LinksComponent } from './links/links.component';
 import { EditLinkDialog } from './links/edit-link/edit-link-dialog';
 import { EditTagDialog } from './tag/edit-tag/edit-tag-dialog';
 import { ReportComponent } from './report/report.component';
-import { ConfirmationDialog } from './shared/confirmation-dialog';
 import { TagsComponent } from './tag/tags.component';
 
 import { ElfApplicationinsightsErrorHandlerService } from './error-handler.service';
@@ -90,7 +83,6 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     RecentRequestsComponent,
     EditLinkDialog,
     EditTagDialog,
-    ConfirmationDialog,
     TagsComponent
   ],
   imports: [
@@ -99,18 +91,12 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     BrowserAnimationsModule,
     HttpClientModule,
     MsalModule,
-    MatButtonModule,
-    MatCheckboxModule,
     MatInputModule,
     MatIconModule,
     MatFormFieldModule,
-    MatProgressBarModule,
-    MatDialogModule,
     MatChipsModule,
     MatNativeDateModule,
-    MatDatepickerModule,
     MatAutocompleteModule,
-    MatMenuModule,
     FormsModule,
     ReactiveFormsModule,
     InputsModule,
