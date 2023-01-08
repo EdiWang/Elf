@@ -1,14 +1,9 @@
-/* You can add global styles to this file, and also import other style files */
 @import "~bootstrap/dist/css/bootstrap.css";
 @import "@progress/kendo-theme-default/dist/all.css";
 
 html,
 body {
   height: 100%;
-}
-
-body {
-  background-color: #F2F2F2;
 }
 
 .flex-spacer {
