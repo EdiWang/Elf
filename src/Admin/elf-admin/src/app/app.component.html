@@ -1,7 +1,6 @@
 <nav class="elf-navbar navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" [routerLink]="['/']">
-            <span class="bi-house me-2"></span>
             Elf Admin
         </a>
         <div class="collapse navbar-collapse" id="navbarText">
@@ -26,13 +25,13 @@
                 </li>
             </ul>
 
-            <div class="api-info me-3 text-light">
+            <div class="api-info small me-3 text-light">
                 <a class="nav-link" href="{{ ENV.elfApiBaseUrl }}" target="_blank">
                     <span class="bi-globe me-2"></span>
                     {{ ENV.elfApiBaseUrl }}
                 </a>
             </div>
-            <div class="user-info d-flex me-3 text-light" *ngIf="loginDisplay">
+            <div class="user-info small d-flex me-3 text-light" *ngIf="loginDisplay">
                 <span class="bi-person me-2"></span>
                 {{ accountInfo.name }} ({{ accountInfo.username }})
             </div>
