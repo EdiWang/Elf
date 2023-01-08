@@ -7,7 +7,6 @@ import { environment } from 'src/environments/environment';
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 import { AngularPlugin } from '@microsoft/applicationinsights-angularplugin-js';
 import { Router } from '@angular/router';
-import { AppCacheService } from './shared/appcache.service';
 
 @Component({
   selector: 'app-root',
@@ -28,8 +27,7 @@ export class AppComponent implements OnInit, OnDestroy {
     @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
     private authService: MsalService,
     private msalBroadcastService: MsalBroadcastService,
-    private router: Router,
-    private appCache: AppCacheService
+    private router: Router
   ) {
     if (environment.production) {
       // https://docs.microsoft.com/en-us/azure/azure-monitor/app/javascript-angular-plugin

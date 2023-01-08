@@ -1,46 +1,50 @@
-<nav class="elf-navbar mat-elevation-z6">
-    <div class="elf-navbar-header">
-        <a mat-button color="white" [routerLink]="['/']" (click)="setMenu('home')">
+<nav class="elf-navbar navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" [routerLink]="['/']">
             <span class="bi-house me-2"></span>
             Elf Admin
         </a>
+        <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" [routerLink]="['links']" [ngClass]="{'active': currentMenu == 'links'}"
+                        aria-current="page">
+                        <span class="bi-list me-2"></span>
+                        Links
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" [routerLink]="['tags']" [ngClass]="{'active': currentMenu == 'tags'}"
+                        aria-current="page">
+                        <span class="bi-tag me-2"></span>
+                        Tags
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" [routerLink]="['report']" [ngClass]="{'active': currentMenu == 'report'}"
+                        aria-current="page">
+                        <span class="bi-pie-chart me-2"></span>
+                        Report
+                    </a>
+                </li>
+            </ul>
 
-        <a mat-button color="white" [routerLink]="['links']" [ngClass]="{'active': currentMenu == 'links'}"
-            (click)="setMenu('links')">
-            <span class="bi-list me-2"></span>
-            Links
-        </a>
+            <div class="api-info me-3 text-light">
+                <a class="nav-link" href="{{ ENV.elfApiBaseUrl }}" target="_blank">
+                    <span class="bi-globe me-2"></span>
+                    {{ ENV.elfApiBaseUrl }}
+                </a>
+            </div>
+            <div class="user-info d-flex me-3 text-light" *ngIf="loginDisplay">
+                <span class="bi-person me-2"></span>
+                {{ accountInfo.name }} ({{ accountInfo.username }})
+            </div>
 
-        <a mat-button color="white" [routerLink]="['tags']" [ngClass]="{'active': currentMenu == 'tags'}"
-            (click)="setMenu('tags')">
-            <span class="bi-tag me-2"></span>
-            Tags
-        </a>
-
-        <a mat-button color="white" [routerLink]="['report']" [ngClass]="{'active': currentMenu == 'report'}"
-            (click)="setMenu('report')">
-            <span class="bi-pie-chart me-2"></span>
-            Report
-        </a>
-
-        <div class="flex-spacer"></div>
-
-        <div class="api-info me-3">
-            <a mat-button color="white" href="{{ ENV.elfApiBaseUrl }}" target="_blank">
-                <span class="bi-globe me-2"></span>
-                {{ ENV.elfApiBaseUrl }}
-            </a>
+            <button kendoButton *ngIf="!loginDisplay" (click)="login()">Login</button>
+            <button kendoButton *ngIf="loginDisplay" (click)="logout()">
+                <span>Sign out</span>
+            </button>
         </div>
-        <div class="user-info d-flex me-3" *ngIf="loginDisplay">
-            <span class="bi-person me-2"></span>
-            {{ accountInfo.name }} ({{ accountInfo.username }})
-        </div>
-
-        <button mat-flat-button *ngIf="!loginDisplay" (click)="login()">Login</button>
-
-        <button kendoButton *ngIf="loginDisplay" (click)="logout()">
-            <span>Sign out</span>
-        </button>
     </div>
 </nav>
 <router-outlet *ngIf="!isIframe"></router-outlet>
