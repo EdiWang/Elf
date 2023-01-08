@@ -30,25 +30,7 @@
             </div>
         </div>
 
-        <mat-form-field class="tags-chip-list">
-            <mat-label>Tags</mat-label>
-            <mat-chip-grid #chipList aria-label="Tags selection">
-                <mat-chip-row *ngFor="let tag of tags" (removed)="remove(tag)">
-                    {{tag}}
-                    <button matChipRemove>
-                        x
-                    </button>
-                </mat-chip-row>
-            </mat-chip-grid>
-            <input placeholder="New tag..." #tagInput [formControl]="tagCtrl" [matAutocomplete]="auto"
-                [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                [matChipInputAddOnBlur]="addOnBlur" (matChipInputTokenEnd)="add($event)">
-            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-                <mat-option *ngFor="let tag of filteredTags | async" [value]="tag">
-                    {{tag}}
-                </mat-option>
-            </mat-autocomplete>
-        </mat-form-field>
+        <!--TODO: Tags-->
 
         <div>
             <input type="checkbox" kendoCheckBox formControlName="isEnabled" #isEnabled />
