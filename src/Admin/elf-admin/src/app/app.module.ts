@@ -24,9 +24,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-
-import { QRCodeModule } from 'angularx-qrcode';
 
 import { HomeComponent } from './home/home.component';
 import { LinkService } from './links/link.service';
@@ -58,6 +55,8 @@ import { DialogsModule } from '@progress/kendo-angular-dialog';
 import { LabelModule } from '@progress/kendo-angular-label';
 import { RecentRequestsComponent } from './report/recent-requests/recent-requests.component';
 import { NotificationModule } from '@progress/kendo-angular-notification';
+import { BarcodesModule } from '@progress/kendo-angular-barcodes';
+
 
 
 export function MSALInstanceFactory(): IPublicClientApplication {
@@ -122,8 +121,6 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     MatDatepickerModule,
     MatAutocompleteModule,
     MatMenuModule,
-    MatSnackBarModule,
-    QRCodeModule,
     FormsModule,
     ReactiveFormsModule,
     InputsModule,
@@ -134,7 +131,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     DateInputsModule,
     DialogsModule,
     LabelModule,
-    NotificationModule
+    NotificationModule,
+    BarcodesModule
   ],
   providers: [
     {

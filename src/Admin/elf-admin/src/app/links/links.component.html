@@ -31,7 +31,8 @@
             </button>
             <button kendoButton iconClass="bi-arrow-clockwise" (click)="getLinks(true)"></button>
 
-            <kendo-textbox class="search-box-token-note" placeholder="Search token or note" [clearButton]="true" [(ngModel)]="searchTerm">
+            <kendo-textbox class="search-box-token-note" placeholder="Search token or note" [clearButton]="true"
+                [(ngModel)]="searchTerm">
                 <ng-template kendoTextBoxSuffixTemplate>
                     <kendo-textbox-separator></kendo-textbox-separator>
                     <button kendoButton fillMode="clear" class="send-button" iconClass="bi-search"
@@ -128,10 +129,10 @@
 </kendo-dialog>
 
 <kendo-dialog title="Share" *ngIf="shareLinkDialogOpened" (close)="shareLinkDialogClose()" [width]="350">
-
-    <qrcode [qrdata]="qrUrl" [allowEmptyString]="true" [cssClass]="'center'" [colorDark]="'#000000ff'"
-        [colorLight]="'#ffffffff'" [elementType]="'canvas'" [errorCorrectionLevel]="'M'" [margin]="4" [scale]="1"
-        [width]="300"></qrcode>
+    <div class="text-center">
+        <kendo-qrcode [value]="qrUrl" class="qr-code" errorCorrection="M" [size]="250">
+        </kendo-qrcode>
+    </div>
 
     <div class="text-center">
         <code>{{ENV.elfApiBaseUrl}}/fw/{{ currentShareLink.fwToken }}</code> <br />
