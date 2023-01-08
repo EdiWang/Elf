@@ -1,4 +1,4 @@
-<div>
+<div class="container-fluid">
 
     <mat-form-field class="queryTags-chip-list search-field-tags">
         <mat-chip-grid #chipList>
@@ -29,87 +29,89 @@
     </button>
 </div>
 
-<kendo-grid [data]="gridView" kendoGridSelectBy="id" [reorderable]="true" [resizable]="true" [pageSize]="pageSize"
-    [skip]="skip" [pageable]="true" (pageChange)="pageChange($event)" (edit)="editLinkHandler($event)"
-    (remove)="removeLinkHandler($event)">
-    <ng-template kendoGridToolbarTemplate>
-        <button kendoButton (click)="addNewLink()">
-            <i class="bi-plus"></i>
-            New
-        </button>
-        <button kendoButton iconClass="bi-arrow-clockwise" (click)="getLinks(true)"></button>
-        <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isLoading">
-        </kendo-loader>
-        <kendo-grid-spacer></kendo-grid-spacer>
-    </ng-template>
-
-    <kendo-grid-column field="fwToken" title="Token" [width]="100">
-        <ng-template kendoGridCellTemplate let-dataItem>
-            <a href="{{ENV.elfApiBaseUrl}}/fw/{{dataItem.fwToken}}" target="_blank">{{dataItem.fwToken}}</a>
+<div class="container-fluid">
+    <kendo-grid [data]="gridView" kendoGridSelectBy="id" [reorderable]="true" [resizable]="true" [pageSize]="pageSize"
+        [skip]="skip" [pageable]="true" (pageChange)="pageChange($event)" (edit)="editLinkHandler($event)"
+        (remove)="removeLinkHandler($event)">
+        <ng-template kendoGridToolbarTemplate>
+            <button kendoButton (click)="addNewLink()">
+                <i class="bi-plus"></i>
+                New
+            </button>
+            <button kendoButton iconClass="bi-arrow-clockwise" (click)="getLinks(true)"></button>
+            <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isLoading">
+            </kendo-loader>
+            <kendo-grid-spacer></kendo-grid-spacer>
         </ng-template>
-    </kendo-grid-column>
 
-    <kendo-grid-column field="originUrl" title="Origin Url" [width]="300">
-        <ng-template kendoGridCellTemplate let-dataItem>
-            <a href="{{dataItem.originUrl}}" class="crop" target="_blank">{{dataItem.originUrl}}</a>
-        </ng-template>
-    </kendo-grid-column>
+        <kendo-grid-column field="fwToken" title="Token" [width]="100">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <a href="{{ENV.elfApiBaseUrl}}/fw/{{dataItem.fwToken}}" target="_blank">{{dataItem.fwToken}}</a>
+            </ng-template>
+        </kendo-grid-column>
 
-    <kendo-grid-column field="note" title="Note">
-    </kendo-grid-column>
+        <kendo-grid-column field="originUrl" title="Origin Url" [width]="300">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <a href="{{dataItem.originUrl}}" class="crop" target="_blank">{{dataItem.originUrl}}</a>
+            </ng-template>
+        </kendo-grid-column>
 
-    <kendo-grid-column field="akaName" title="Aka" [width]="100">
-        <ng-template kendoGridCellTemplate let-dataItem>
-            <div class="d-flex align-items-center">
-                {{dataItem.akaName ?? '/' }}
-                <button kendoButton iconClass="clipboard" *ngIf="dataItem.akaName" (click)="copyAka(dataItem)">
+        <kendo-grid-column field="note" title="Note">
+        </kendo-grid-column>
+
+        <kendo-grid-column field="akaName" title="Aka" [width]="100">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <div class="d-flex align-items-center">
+                    {{dataItem.akaName ?? '/' }}
+                    <button kendoButton iconClass="clipboard" *ngIf="dataItem.akaName" (click)="copyAka(dataItem)">
+                    </button>
+                </div>
+            </ng-template>
+        </kendo-grid-column>
+
+        <kendo-grid-column field="tags" title="Tags" [width]="100">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <mat-chip-listbox class="tags-chip">
+                    <mat-chip-option class="tags-box" *ngFor="let tag of dataItem.tags" (click)="tagClick(tag)">
+                        {{ tag.name }}
+                    </mat-chip-option>
+                </mat-chip-listbox>
+            </ng-template>
+        </kendo-grid-column>
+
+        <kendo-grid-column field="isEnabled" title="Enabled" [width]="80">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <input type="checkbox" [(ngModel)]="dataItem.isEnabled" kendoCheckBox (change)="checkLink(dataItem.id, dataItem.isEnabled)"/>
+            </ng-template>
+        </kendo-grid-column>
+
+        <kendo-grid-column field="ttl" title="TTL" [width]="100">
+        </kendo-grid-column>
+
+        <kendo-grid-column field="updateTimeUtc" title="Update Time (UTC)" [width]="180">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                {{dataItem?.updateTimeUtc | date:'yyyy-MM-dd HH:mm'}}
+            </ng-template>
+        </kendo-grid-column>
+
+        <kendo-grid-command-column title="Action" [width]="200">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <button kendoButton iconClass="bi-clipboard" (click)="copyUrl(dataItem)">
                 </button>
-            </div>
-        </ng-template>
-    </kendo-grid-column>
 
-    <kendo-grid-column field="tags" title="Tags" [width]="100">
-        <ng-template kendoGridCellTemplate let-dataItem>
-            <mat-chip-listbox class="tags-chip">
-                <mat-chip-option class="tags-box" *ngFor="let tag of dataItem.tags" (click)="tagClick(tag)">
-                    {{ tag.name }}
-                </mat-chip-option>
-            </mat-chip-listbox>
-        </ng-template>
-    </kendo-grid-column>
+                <button kendoButton (click)="shareLink(dataItem)" iconClass="bi-share">
+                </button>
 
-    <kendo-grid-column field="isEnabled" title="Enabled" [width]="80">
-        <ng-template kendoGridCellTemplate let-dataItem>
-            <mat-checkbox [(ngModel)]="dataItem.isEnabled"
-                (change)="checkLink(dataItem.id, dataItem.isEnabled)"></mat-checkbox>
-        </ng-template>
-    </kendo-grid-column>
+                <button kendoGridEditCommand iconClass="bi-pencil">
+                </button>
 
-    <kendo-grid-column field="ttl" title="TTL" [width]="100">
-    </kendo-grid-column>
+                <button kendoGridRemoveCommand iconClass="bi-trash">
+                </button>
+            </ng-template>
+        </kendo-grid-command-column>
+    </kendo-grid>
+</div>
 
-    <kendo-grid-column field="updateTimeUtc" title="Update Time (UTC)" [width]="180">
-        <ng-template kendoGridCellTemplate let-dataItem>
-            {{dataItem?.updateTimeUtc | date:'yyyy-MM-dd HH:mm'}}
-        </ng-template>
-    </kendo-grid-column>
-
-    <kendo-grid-command-column title="Action" [width]="200">
-        <ng-template kendoGridCellTemplate let-dataItem>
-            <button kendoButton iconClass="bi-clipboard" (click)="copyUrl(dataItem)">
-            </button>
-
-            <button kendoButton (click)="shareLink(dataItem)" iconClass="bi-share">
-            </button>
-
-            <button kendoGridEditCommand iconClass="bi-pencil">
-            </button>
-
-            <button kendoGridRemoveCommand iconClass="bi-trash">
-            </button>
-        </ng-template>
-    </kendo-grid-command-column>
-</kendo-grid>
 
 <kendo-dialog title="Deletion confirm" *ngIf="deleteLinkDialogOpened" (close)="deleteLinkDialogClose()" [width]="350">
     <p class="text-center m-3">
