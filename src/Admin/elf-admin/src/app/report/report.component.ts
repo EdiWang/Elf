@@ -25,10 +25,6 @@ export class ReportComponent implements OnInit {
         var date = new Date();
         date.setDate(date.getDate() - 7);
         this.range.start = date;
-        this.getData();
-    }
-
-    getData() {
         this.getChartData();
     }
 
@@ -36,12 +32,6 @@ export class ReportComponent implements OnInit {
         this.getTrackingCount();
         this.getClientType();
         this.getMostRequestedLinks();
-    }
-
-    clearTrackingData() {
-        this.service.clearTrackingData().subscribe(() => {
-            this.getData();
-        });
     }
 
     //#region mostRequestedChart
