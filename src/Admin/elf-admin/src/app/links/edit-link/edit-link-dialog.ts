@@ -45,6 +45,7 @@ export class EditLinkDialog {
 
     buildForm() {
         this.editLinkForm = this.fb.group({
+            id: new FormControl(''),
             originUrl: new FormControl('', [Validators.required]),
             note: new FormControl(''),
             akaName: new FormControl(''),
@@ -53,22 +54,6 @@ export class EditLinkDialog {
             tags: ['']
         })
     }
-
-
-    //     if (this.data) {
-    //         this.linkService
-    //             .update(this.data.id, {
-    //                 originUrl: this.editLinkForm.value.originUrl.trim(),
-    //                 note: this.editLinkForm.value.note,
-    //                 akaName: this.editLinkForm.value.akaName,
-    //                 isEnabled: this.editLinkForm.value.isEnabled,
-    //                 ttl: this.editLinkForm.value.ttl,
-    //                 tags: this.tags
-    //             })
-    //             .subscribe(() => {
-    //                 this.isBusy = false;
-    //             });
-    //     }
 
     public onSave(e) {
         e.preventDefault();

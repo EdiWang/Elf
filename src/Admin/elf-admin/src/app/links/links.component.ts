@@ -57,12 +57,21 @@ export class LinksComponent implements OnInit {
             });
     }
 
-    addNewLink() {
-        this.isNewLink = true;
-        this.linkDataItem = {
-            isEnabled: true,
-            ttl: 3600
-        };
+    getLinks(reset: boolean = false): void {
+        if (reset) {
+            this.skip = 0;
+        }
+
+        this.isLoading = true;
+
+        this.linkService.list(this.pageSize, this.skip, this.searchTerm)
+            .subscribe((result: PagedLinkResult) => {
+                this.isLoading = false;
+                this.gridView = {
+                    data: result.links,
+                    total: result.totalRows
+                };
+            });
     }
 
     //#region Share
@@ -85,6 +94,15 @@ export class LinksComponent implements OnInit {
     //#endregion
 
     public linkDataItem: any;
+
+    addNewLink() {
+        this.isNewLink = true;
+        this.linkDataItem = {
+            isEnabled: true,
+            ttl: 3600
+        };
+    }
+
     onCancelLinkUpdate() {
         this.linkDataItem = undefined;
     }
@@ -100,7 +118,7 @@ export class LinksComponent implements OnInit {
                     akaName: val.akaName,
                     isEnabled: val.isEnabled,
                     ttl: val.ttl,
-                    tags: [] // TODO
+                    tags: val.tags.map(t => t.name)
                 })
                 .subscribe(() => {
                     this.linkDataItem = undefined;
@@ -109,25 +127,21 @@ export class LinksComponent implements OnInit {
                 });
         }
         else {
-
+            this.linkService
+                .update(val.id, {
+                    originUrl: val.originUrl.trim(),
+                    note: val.note,
+                    akaName: val.akaName,
+                    isEnabled: val.isEnabled,
+                    ttl: val.ttl,
+                    tags: val.tags.map(t => t.name)
+                })
+                .subscribe(() => {
+                    this.linkDataItem = undefined;
+                    this.getLinks();
+                    this.updateTagCache();
+                });
         }
-    }
-
-    getLinks(reset: boolean = false): void {
-        if (reset) {
-            this.skip = 0;
-        }
-
-        this.isLoading = true;
-
-        this.linkService.list(this.pageSize, this.skip, this.searchTerm)
-            .subscribe((result: PagedLinkResult) => {
-                this.isLoading = false;
-                this.gridView = {
-                    data: result.links,
-                    total: result.totalRows
-                };
-            });
     }
 
     //#region Delete
