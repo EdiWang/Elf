@@ -127,7 +127,7 @@
                 <a mat-icon-button color="primary" class="me-1" (click)="editLink(link)">
                     <mat-icon class="material-icons">edit</mat-icon>
                 </a>
-                <a mat-icon-button color="warn" (click)="deleteLink(link.id)">
+                <a mat-icon-button color="warn" (click)="showDeleteLink(link)">
                     <mat-icon class="material-icons">delete</mat-icon>
                 </a>
             </td>
@@ -137,3 +137,18 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
 </div>
+
+<kendo-dialog title="Deletion confirm" *ngIf="deleteLinkDialogOpened" (close)="deleteLinkDialogClose()" [width]="350">
+    <p class="text-center m-3">
+        Are you sure want to delete this link?
+    </p>
+
+    <kendo-dialog-actions>
+        <button kendoButton (click)="deleteLinkDialogClose()">
+            Cancel
+        </button>
+        <button kendoButton (click)="deleteLink()" [primary]="true">
+            Confirm
+        </button>
+    </kendo-dialog-actions>
+</kendo-dialog>

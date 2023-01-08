@@ -11,7 +11,6 @@ export class TagsComponent implements OnInit {
   tagId: number;
   tags: Tag[];
   isNewTag: boolean = false;
-  public deleteTagDialogOpened: boolean = false;
   public tagDataItem: any;
 
   constructor(
@@ -34,6 +33,8 @@ export class TagsComponent implements OnInit {
   }
 
   //#region Delete
+
+  public deleteTagDialogOpened: boolean = false;
 
   deleteTagDialogClose() {
     this.tagId = null;

@@ -25,6 +25,7 @@ export class LinksComponent implements OnInit {
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
     tagCtrl = new FormControl();
     filteredTags: Observable<Tag[]>;
+    linkId: number;
 
     ENV = environment;
     isLoading = false;
@@ -117,28 +118,27 @@ export class LinksComponent implements OnInit {
         });
     }
 
-    deleteLink(id: number): void {
-        const dialogRef = this.dialog.open(ConfirmationDialog, {
-            data: {
-                message: 'Are you sure want to delete this item?',
-                buttonText: {
-                    ok: 'Yes',
-                    cancel: 'No'
-                }
-            }
-        });
+    //#region Delete
 
-        dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-            if (confirmed) {
-                this.linkService.delete(id).subscribe(() => {
-                    this._snackBar.open('Deleted', 'Done', {
-                        duration: 3000
-                    });
-                    this.getLinks();
-                });
-            }
+    public deleteLinkDialogOpened: boolean = false;
+
+    deleteLinkDialogClose() {
+        this.linkId = null;
+        this.deleteLinkDialogOpened = false;
+    }
+
+    showDeleteLink(link: Link): void {
+        this.linkId = link?.id;
+        this.deleteLinkDialogOpened = true;
+    }
+
+    deleteLink(): void {
+        this.linkService.delete(this.linkId).subscribe(() => {
+            this.getLinks();
         });
     }
+
+    //#endregion
 
     copyChip(link: Link) {
         this.clipboard.copy(environment.elfApiBaseUrl + '/fw/' + link.fwToken);
