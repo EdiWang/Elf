@@ -50,6 +50,8 @@ import { LabelModule } from '@progress/kendo-angular-label';
 import { RecentRequestsComponent } from './report/recent-requests/recent-requests.component';
 import { NotificationModule } from '@progress/kendo-angular-notification';
 import { BarcodesModule } from '@progress/kendo-angular-barcodes';
+import { DropDownsModule } from '@progress/kendo-angular-dropdowns';
+
 
 
 
@@ -120,7 +122,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     DialogsModule,
     LabelModule,
     NotificationModule,
-    BarcodesModule
+    BarcodesModule,
+    DropDownsModule
   ],
   providers: [
     {

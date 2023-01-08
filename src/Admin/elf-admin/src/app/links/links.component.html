@@ -1,26 +1,14 @@
 <div class="container-fluid">
+    <div>
+        <kendo-multiselecttree placeholder="Search by tags" kendoMultiSelectTreeExpandable
+            [kendoMultiSelectTreeHierarchyBinding]="tagTreeItems" [textField]="'name'" [valueField]="'id'"
+            [childrenField]="'items'" [expandedKeys]="['0']" [(value)]="tagsComplexArrayValue">
+        </kendo-multiselecttree>
 
-    <mat-form-field class="queryTags-chip-list search-field-tags">
-        <mat-chip-grid #chipList>
-            <mat-chip-row *ngFor="let tag of queryTags;let indx=index;" [removable]="true" (removed)="remove(tag,indx)">
-                {{tag.name}}
-                <mat-icon matChipRemove>cancel</mat-icon>
-            </mat-chip-row>
-            <input #tagInput placeholder="Search by tags" [formControl]="tagCtrl" [matAutocomplete]="auto"
-                [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                (matChipInputTokenEnd)="add($event)">
-        </mat-chip-grid>
-        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-            <mat-option *ngFor="let tag of filteredTags | async" [value]="tag">
-                {{tag.name}}
-            </mat-option>
-        </mat-autocomplete>
-    </mat-form-field>
-    <button kendoButton iconClass="bi-search" (click)="searchByTags()">
-    </button>
-</div>
+        <button kendoButton iconClass="bi-search" (click)="searchByTags()">
+        </button>
+    </div>
 
-<div class="container-fluid">
     <kendo-grid [data]="gridView" kendoGridSelectBy="id" [reorderable]="true" [resizable]="true" [pageSize]="pageSize"
         [skip]="skip" [pageable]="true" (pageChange)="pageChange($event)" (edit)="editLinkHandler($event)"
         (remove)="removeLinkHandler($event)">

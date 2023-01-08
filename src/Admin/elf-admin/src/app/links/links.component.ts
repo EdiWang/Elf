@@ -1,15 +1,10 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { Component, OnInit } from '@angular/core';
 import { Link, LinkService, PagedLinkResult } from './link.service';
 import { MatDialog } from '@angular/material/dialog';
 import { environment } from 'src/environments/environment';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { AppCacheService } from '../shared/appcache.service';
 import { Tag, TagService } from '../tag/tag.service';
-import { FormControl } from '@angular/forms';
-import { map, Observable, startWith } from 'rxjs';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { MatChipInputEvent } from '@angular/material/chips';
 import { GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
 import { NotificationService } from '@progress/kendo-angular-notification';
 @Component({
@@ -18,24 +13,19 @@ import { NotificationService } from '@progress/kendo-angular-notification';
     styleUrls: ['./links.component.css']
 })
 export class LinksComponent implements OnInit {
-    addOnBlur = true;
-    readonly separatorKeysCodes = [ENTER, COMMA] as const;
-    tagCtrl = new FormControl();
-    filteredTags: Observable<Tag[]>;
     linkId: number;
     isNewLink: boolean = false;
+    public tagTreeItems: any[];
+    public tagsComplexArrayValue: Tag[];
 
     ENV = environment;
     isLoading = false;
     pageSize = 15;
     skip = 0;
     searchTerm: string = null;
-    queryTags: Tag[] = [];
     allTags: Tag[] = [];
 
-    displayedColumns: string[] = ['manage'];
     public gridView: GridDataResult;
-    @ViewChild('tagInput') tagInput: ElementRef;
 
     constructor(
         private notificationService: NotificationService,
@@ -44,9 +34,6 @@ export class LinksComponent implements OnInit {
         private appCache: AppCacheService,
         private linkService: LinkService,
         private tagService: TagService) {
-        this.filteredTags = this.tagCtrl.valueChanges.pipe(
-            startWith(null),
-            map((tag: string | Tag | null) => tag ? this._filter(tag) : this.allTags.slice()));
     }
 
     ngOnInit(): void {
@@ -61,6 +48,14 @@ export class LinksComponent implements OnInit {
                 this.isLoading = false;
                 this.appCache.tags = result;
                 this.allTags = result;
+
+                this.tagTreeItems = [
+                    {
+                        name: 'Tags',
+                        id: 0,
+                        items: result,
+                    },
+                ];
             });
     }
 
@@ -215,13 +210,13 @@ export class LinksComponent implements OnInit {
     //#region Query by Tags
 
     searchByTags() {
-        if (this.queryTags.length == 0) {
+        if (this.tagsComplexArrayValue.length == 0) {
             this.getLinks();
             return;
         }
 
         this.isLoading = true;
-        this.linkService.listByTags(this.pageSize, this.skip, this.queryTags.map(t => t.id))
+        this.linkService.listByTags(this.pageSize, this.skip, this.tagsComplexArrayValue.map(t => t.id))
             .subscribe((result: PagedLinkResult) => {
                 this.isLoading = false;
                 this.gridView = {
@@ -229,45 +224,6 @@ export class LinksComponent implements OnInit {
                     total: result.totalRows
                 };
             });
-    }
-
-    add(event: MatChipInputEvent): void {
-        const value = event.value;
-
-        if ((value || '').trim()) {
-            var found = this.allTags.find(t => t.name.toLowerCase() == value);
-            if (found && !this.queryTags.includes(found)) {
-                this.queryTags.push(found);
-            }
-        }
-
-        // Reset the input value
-        event.chipInput!.clear();
-
-        this.tagCtrl.setValue(null);
-    }
-
-    remove(tag: Tag, indx: number): void {
-        this.queryTags.splice(indx, 1);
-    }
-
-    selected(event: MatAutocompleteSelectedEvent): void {
-        if (!this.queryTags.includes(event.option.value)) {
-            this.queryTags.push(event.option.value);
-        }
-
-        if (this.tagInput) this.tagInput.nativeElement.value = '';
-        this.tagCtrl.setValue(null);
-    }
-
-    private _filter(value: string | Tag): Tag[] {
-        var t = typeof (value);
-        if (t == 'string') {
-            return this.allTags.filter(tag => tag.name.toLowerCase().includes((value as string).toLowerCase()));
-        }
-        else {
-            return this.allTags.filter(tag => tag.name.toLowerCase().includes((value as Tag).name.toLowerCase()));
-        }
     }
 
     //#endregion
