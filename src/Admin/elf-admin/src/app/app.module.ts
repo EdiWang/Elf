@@ -6,11 +6,9 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MatIconModule } from '@angular/material/icon'
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatChipsModule } from '@angular/material/chips';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 import { HomeComponent } from './home/home.component';
@@ -92,10 +90,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     HttpClientModule,
     MsalModule,
     MatInputModule,
-    MatIconModule,
     MatFormFieldModule,
     MatChipsModule,
-    MatNativeDateModule,
     MatAutocompleteModule,
     FormsModule,
     ReactiveFormsModule,
