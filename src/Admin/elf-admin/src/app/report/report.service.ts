@@ -39,6 +39,7 @@ export interface DateRangeRequest {
 export interface LinkTrackingDateCount {
     requestCount: number;
     trackingDateUtc: string;
+    date?: Date;
 }
 
 export interface ClientTypeCount {

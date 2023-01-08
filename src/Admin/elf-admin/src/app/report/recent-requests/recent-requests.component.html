@@ -1,0 +1,57 @@
+<kendo-grid [kendoGridBinding]="gridView" kendoGridSelectBy="fwToken" [reorderable]="true" [resizable]="true"
+    [sortable]="true" [pageable]="true" [pageSize]="5">
+
+    <ng-template kendoGridToolbarTemplate>
+        <label>Recent Requests</label>
+        <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isRecentRequestsLoading">
+        </kendo-loader>
+        <kendo-grid-spacer></kendo-grid-spacer>
+        <button kendoButton iconClass="bi-arrow-clockwise" (click)="getData()"></button>
+        <button kendoButton (click)="clearTrackingData()"><i class="bi-trash"></i> Clear</button>
+    </ng-template>
+
+    <kendo-grid-column field="fwToken" title="Token" [width]="100">
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <a href="{{ENV.elfApiBaseUrl}}/fw/{{dataItem.fwToken}}" target="_blank">{{dataItem.fwToken}}</a>
+        </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="note" title="Note" [width]="400">
+    </kendo-grid-column>
+
+    <kendo-grid-column field="userAgent" title="User Agent">
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <div class="crop">{{ dataItem.userAgent }}</div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="ipAddress" title="IP Address" [width]="150">
+    </kendo-grid-column>
+
+    <kendo-grid-column field="ipCountry" title="Country" [width]="150">
+    </kendo-grid-column>
+
+    <kendo-grid-column field="ipRegion" title="Region" [width]="150">
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <div class="crop">{{ dataItem.ipRegion }}</div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="ipCity" title="City" [width]="100">
+    </kendo-grid-column>
+
+    <kendo-grid-column field="ipasn" title="ASN" [width]="100">
+    </kendo-grid-column>
+
+    <kendo-grid-column field="ipOrg" title="Org" [width]="150">
+        <ng-template kendoGridCellTemplate let-dataItem>
+            <div class="crop">{{ dataItem.ipOrg }}</div>
+        </ng-template>
+    </kendo-grid-column>
+
+    <kendo-grid-column field="requestTimeUtc" title="Request Time (UTC)" [width]="180">
+        <ng-template kendoGridCellTemplate let-dataItem>
+            {{dataItem?.requestTimeUtc | date:'yyyy-MM-dd HH:mm'}}
+        </ng-template>
+    </kendo-grid-column>
+</kendo-grid>

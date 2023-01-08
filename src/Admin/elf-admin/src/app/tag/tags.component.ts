@@ -1,8 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { AppCacheService } from '../shared/appcache.service';
-import { ConfirmationDialog } from '../shared/confirmation-dialog';
-import { EditTagDialog } from './edit-tag/edit-tag-dialog';
 import { Tag, TagService } from './tag.service';
 @Component({
   selector: 'app-tags',
@@ -11,23 +8,17 @@ import { Tag, TagService } from './tag.service';
 })
 export class TagsComponent implements OnInit {
   isLoading: boolean = false;
-
+  tagId: number;
   tags: Tag[];
+  isNewTag: boolean = false;
+  public tagDataItem: any;
 
   constructor(
-    public dialog: MatDialog,
     private appCache: AppCacheService,
     private service: TagService) { }
 
   ngOnInit(): void {
     this.getTags();
-  }
-
-  addNewTag() {
-    let diagRef = this.dialog.open(EditTagDialog);
-    diagRef.afterClosed().subscribe(result => {
-      this.getTags();
-    });
   }
 
   getTags() {
@@ -41,30 +32,60 @@ export class TagsComponent implements OnInit {
       });
   }
 
-  remove(tag: Tag): void {
-    const dialogRef = this.dialog.open(ConfirmationDialog, {
-      data: {
-        message: 'Are you sure want to delete this tag?',
-        buttonText: {
-          ok: 'Yes',
-          cancel: 'No'
-        }
-      }
-    });
+  //#region Delete
 
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (confirmed) {
-        this.service.delete(tag.id).subscribe(() => {
-          this.getTags();
-        });
-      }
+  public deleteTagDialogOpened: boolean = false;
+
+  deleteTagDialogClose() {
+    this.tagId = null;
+    this.deleteTagDialogOpened = false;
+  }
+
+  deleteTag() {
+    this.service.delete(this.tagId).subscribe(() => {
+      this.deleteTagDialogOpened = false;
+      this.getTags();
+      this.tagId = null;
     });
+  }
+
+  remove(tag: Tag): void {
+    this.tagId = tag?.id;
+    this.deleteTagDialogOpened = true;
+  }
+
+  //#endregion
+
+  //#region Add or Update
+
+  onCancelTagUpdate() {
+    this.tagDataItem = undefined;
+  }
+
+  onTagUpdate(val: Tag) {
+    if (this.isNewTag) {
+      this.service.add({ name: val.name }).subscribe(() => {
+        this.tagDataItem = undefined;
+        this.getTags();
+      });
+    }
+    else {
+      this.service.update(val.id, { name: val.name }).subscribe(() => {
+        this.tagDataItem = undefined;
+        this.getTags();
+      });
+    }
+  }
+
+  addNewTag() {
+    this.isNewTag = true;
+    this.tagDataItem = {};
   }
 
   update(tag: Tag): void {
-    let diagRef = this.dialog.open(EditTagDialog, { data: tag });
-    diagRef.afterClosed().subscribe(result => {
-      if (result) this.getTags();
-    });
+    this.isNewTag = false;
+    this.tagDataItem = tag;
   }
+
+  //#endregion
 }

@@ -1,16 +1,9 @@
-/* You can add global styles to this file, and also import other style files */
-@import "~bootstrap/dist/css/bootstrap-reboot.css";
-@import "~bootstrap/dist/css/bootstrap-grid.css";
-@import "~bootstrap/dist/css/bootstrap-utilities.css";
+@import "~bootstrap/dist/css/bootstrap.css";
+@import "@progress/kendo-theme-default/dist/all.css";
 
 html,
 body {
   height: 100%;
-}
-
-body {
-  padding-top: 52px;
-  background-color: #F2F2F2;
 }
 
 .flex-spacer {
@@ -31,4 +24,10 @@ body {
 
 a {
   text-decoration: none;
+}
+
+.crop {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

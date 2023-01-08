@@ -88,6 +88,7 @@ To use Redis, follow these steps:
 
 - Node.js 16.x LTS
 - VSCode or any editor you like
+- A valid Kendo UI license
 
 ### Configure Azure AD
 
@@ -111,6 +112,11 @@ To use Redis, follow these steps:
 Open `./src/Admin/elf-admin/src/assets/env.js`
 
 Replace `elfApiBaseUrl`, `clientId`, `tenantId`, `applicationIdUri`, `applicationInsightKey` with your own values.
+
+### Setup Kendo UI license
+
+- Buy [Kendo UI for Angular](https://www.telerik.com/kendo-angular-ui)
+- Refer to https://www.telerik.com/kendo-angular-ui/components/my-license/ to setup your license
 
 ### Run
 

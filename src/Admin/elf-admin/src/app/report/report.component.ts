@@ -1,29 +1,22 @@
-import { Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
-import { ChartConfiguration } from 'chart.js';
-import { BaseChartDirective } from 'ng2-charts';
-
 import { ClientTypeCount, LinkTrackingDateCount, MostRequestedLinkCount, ReportService, RequestTrack } from './report.service';
-import { FormControl, FormGroup } from '@angular/forms';
 import { environment } from 'src/environments/environment';
+import { LegendLabelsContentArgs, SeriesLabelsContentArgs } from '@progress/kendo-angular-charts';
+import { FormatSettings } from '@progress/kendo-angular-dateinputs';
 
 @Component({
     selector: 'app-report',
-    templateUrl: './report.component.html',
-    styleUrls: ['./report.component.css']
+    templateUrl: './report.component.html'
 })
 export class ReportComponent implements OnInit {
     ENV = environment;
     pipe = new DatePipe('en-US');
-    @ViewChild(MatPaginator) paginator: MatPaginator;
-    @ViewChildren(BaseChartDirective) charts?: QueryList<BaseChartDirective>;
-
-    chartDateRange = new FormGroup({
-        start: new FormControl(),
-        end: new FormControl(new Date())
-    });
+    public dateFormat: FormatSettings = {
+        displayFormat: "MM/dd/yyyy",
+        inputFormat: "MM/dd/yyyy",
+    };
+    public range = { start: null, end: new Date() };
 
     constructor(private service: ReportService) {
     }
@@ -31,12 +24,7 @@ export class ReportComponent implements OnInit {
     ngOnInit(): void {
         var date = new Date();
         date.setDate(date.getDate() - 7);
-        this.chartDateRange.controls['start'].setValue(date);
-        this.getData();
-    }
-
-    getData() {
-        this.getRecentRequests();
+        this.range.start = date;
         this.getChartData();
     }
 
@@ -46,60 +34,24 @@ export class ReportComponent implements OnInit {
         this.getMostRequestedLinks();
     }
 
-    clearTrackingData() {
-        this.service.clearTrackingData().subscribe(() => {
-            this.getData();
-        });
-    }
-
     //#region mostRequestedChart
 
-    mostRequestedChartData: ChartConfiguration['data'] = {
-        datasets: [],
-        labels: []
-    };
+    public labelContentMostRequestedLinkCount(args: LegendLabelsContentArgs): string {
+        return `${args.dataItem.note} - ${args.dataItem.requestCount}`;
+    }
 
-    mostRequestedChartOptions: ChartConfiguration['options'] = {
-        plugins: {
-            legend: {
-                display: true,
-                position: 'right'
-            }
-        },
-        responsive: true,
-        maintainAspectRatio: false
-    };
-
+    mostRequestedLinkCount: MostRequestedLinkCount[];
     isMostRequestedLinksLoading: boolean;
     getMostRequestedLinks() {
         this.isMostRequestedLinksLoading = true;
         this.service
             .mostRequestedLinks({
-                startDateUtc: this.chartDateRange.value.start,
-                endDateUtc: this.chartDateRange.value.end!.toISOString()
+                startDateUtc: this.range.start,
+                endDateUtc: this.range.end!.toISOString()
             })
             .subscribe((result: MostRequestedLinkCount[]) => {
                 this.isMostRequestedLinksLoading = false;
-
-                const notes = [];
-                const requestCounts: number[] = [];
-
-                for (let idx in result) {
-                    if (result.hasOwnProperty(idx)) {
-                        notes.push(result[idx].note);
-                        requestCounts.push(result[idx].requestCount);
-                    }
-                }
-
-                this.mostRequestedChartData.datasets = [{
-                    data: requestCounts
-                }];
-
-                this.mostRequestedChartData.labels = notes;
-
-                this.charts?.forEach((child) => {
-                    child.update();
-                });
+                this.mostRequestedLinkCount = result;
             })
     }
 
@@ -107,52 +59,22 @@ export class ReportComponent implements OnInit {
 
     //#region clientTypeChart
 
-    clientTypeChartData: ChartConfiguration['data'] = {
-        datasets: [],
-        labels: []
-    };
+    public labelContentClientTypeCount(e: SeriesLabelsContentArgs): string {
+        return `${e.category} - ${e.value}, ${(e.percentage * 100).toFixed(0)}%`;
+    }
 
-    clientTypeChartOptions: ChartConfiguration['options'] = {
-        plugins: {
-            legend: {
-                display: true,
-                position: 'right'
-            }
-        },
-        responsive: true,
-        maintainAspectRatio: false
-    };
-
+    clientTypeCount: ClientTypeCount[];
     isClientTypeLoading: boolean;
     getClientType() {
         this.isClientTypeLoading = true;
         this.service
             .clientType({
-                startDateUtc: this.chartDateRange.value.start,
-                endDateUtc: this.chartDateRange.value.end!.toISOString()
+                startDateUtc: this.range.start,
+                endDateUtc: this.range.end!.toISOString()
             })
             .subscribe((result: ClientTypeCount[]) => {
                 this.isClientTypeLoading = false;
-
-                const clientTypes = [];
-                const clientCounts: number[] = [];
-
-                for (let idx in result) {
-                    if (result.hasOwnProperty(idx)) {
-                        clientTypes.push(result[idx].clientTypeName);
-                        clientCounts.push(result[idx].count);
-                    }
-                }
-
-                this.clientTypeChartData.datasets = [{
-                    data: clientCounts
-                }];
-
-                this.clientTypeChartData.labels = clientTypes;
-
-                this.charts?.forEach((child) => {
-                    child.update();
-                });
+                this.clientTypeCount = result;
             })
     }
 
@@ -160,79 +82,26 @@ export class ReportComponent implements OnInit {
 
     //#region trackingCountChart
 
-    trackingCountChartData: ChartConfiguration['data'] = {
-        datasets: [],
-        labels: []
-    };
-
-    trackingCountChartOptions: ChartConfiguration['options'] = {
-        plugins: {
-            legend: { display: false }
-        },
-        responsive: true,
-        maintainAspectRatio: false
-    };
-
+    linkTrackingDateCount: LinkTrackingDateCount[];
     isTrackingCountLoading: boolean;
     getTrackingCount() {
         this.isTrackingCountLoading = true;
 
         this.service
             .trackingCount({
-                startDateUtc: this.chartDateRange.value.start,
-                endDateUtc: this.chartDateRange.value.end!.toISOString()
+                startDateUtc: this.range.start,
+                endDateUtc: this.range.end!.toISOString()
             })
             .subscribe((result: LinkTrackingDateCount[]) => {
                 this.isTrackingCountLoading = false;
 
-                const trackingDates = [];
-                const requestCounts: number[] = [];
-                for (let idx in result) {
-                    if (result.hasOwnProperty(idx)) {
-                        trackingDates.push(this.pipe.transform(result[idx].trackingDateUtc, 'MM/dd'));
-                        requestCounts.push(result[idx].requestCount);
-                    }
-                }
-
-                this.trackingCountChartData.datasets = [{
-                    data: requestCounts
-                }];
-
-                this.trackingCountChartData.labels = trackingDates;
-
-                this.charts?.forEach((child) => {
-                    child.update();
+                result.map((p: LinkTrackingDateCount) => {
+                    p.date = new Date(p.trackingDateUtc);
+                    return p;
                 });
+
+                this.linkTrackingDateCount = result;
             })
-    }
-
-    //#endregion
-
-    //#region RecentRequests
-
-    displayedColumns: string[] = [
-        'fwToken',
-        'note',
-        'userAgent',
-        'ipAddress',
-        'ipCountry',
-        'ipRegion',
-        'ipCity',
-        'ipasn',
-        'ipOrg',
-        'requestTimeUtc'
-    ];
-    dataSource: MatTableDataSource<RequestTrack> = new MatTableDataSource();
-
-    isRecentRequestsLoading = false;
-    getRecentRequests() {
-        this.isRecentRequestsLoading = true;
-
-        this.service.recentRequests(128, 0).subscribe((result: RequestTrack[]) => {
-            this.isRecentRequestsLoading = false;
-            this.dataSource = new MatTableDataSource(result);
-            this.dataSource.paginator = this.paginator;
-        })
     }
 
     //#endregion

@@ -1,149 +1,138 @@
-<mat-toolbar class="position-fixed z-index-1">
-    <button mat-flat-button color="primary" matTooltip="New link" class="me-2" (click)="addNewLink()">
-        <mat-icon class="material-icons">add</mat-icon>
-        New
-    </button>
-    <button mat-icon-button class="me-2" color="primary" (click)="getLinks(true)">
-        <mat-icon class="material-icons">refresh</mat-icon>
-    </button>
+<div class="container-fluid mt-3">
+    
+    <kendo-grid [data]="gridView" kendoGridSelectBy="id" [reorderable]="true" [resizable]="true" [pageSize]="pageSize"
+        [skip]="skip" [pageable]="true" (pageChange)="pageChange($event)" (edit)="editLinkHandler($event)"
+        (remove)="removeLinkHandler($event)">
+        <ng-template kendoGridToolbarTemplate>
+            <button kendoButton (click)="addNewLink()">
+                <i class="bi-plus"></i>
+                New
+            </button>
+            <button kendoButton iconClass="bi-arrow-clockwise" (click)="getLinks(true)"></button>
 
-    <span class="toolbar-spacer"></span>
+            <div>
+                <kendo-multiselecttree class="search-box-tags" placeholder="Search by tags" kendoMultiSelectTreeExpandable
+                    [kendoMultiSelectTreeHierarchyBinding]="tagTreeItems" [textField]="'name'" [valueField]="'id'"
+                    [childrenField]="'items'" [expandedKeys]="['0']" [(value)]="tagsComplexArrayValue">
+                </kendo-multiselecttree>
+        
+                <button kendoButton iconClass="bi-search" (click)="searchByTags()">
+                </button>
+            </div>
 
-    <mat-form-field class="queryTags-chip-list search-field-tags">
-        <mat-chip-grid #chipList>
-            <mat-chip-row *ngFor="let tag of queryTags;let indx=index;" [removable]="true"
-                (removed)="remove(tag,indx)">
-                {{tag.name}}
-                <mat-icon matChipRemove>cancel</mat-icon>
-            </mat-chip-row>
-            <input #tagInput placeholder="Search by tags" [formControl]="tagCtrl" [matAutocomplete]="auto"
-                [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                (matChipInputTokenEnd)="add($event)">
-        </mat-chip-grid>
-        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-            <mat-option *ngFor="let tag of filteredTags | async" [value]="tag">
-                {{tag.name}}
-            </mat-option>
-        </mat-autocomplete>
-    </mat-form-field>
-    <button mat-icon-button color="primary" (click)="searchByTags()">
-        <mat-icon class="material-icons">search</mat-icon>
-    </button>
+            <kendo-textbox class="search-box-token-note" placeholder="Search token or note" [clearButton]="true"
+                [(ngModel)]="searchTerm">
+                <ng-template kendoTextBoxSuffixTemplate>
+                    <kendo-textbox-separator></kendo-textbox-separator>
+                    <button kendoButton fillMode="clear" class="send-button" iconClass="bi-search"
+                        (click)="getLinks(true)"></button>
+                </ng-template>
+            </kendo-textbox>
 
-    <mat-form-field class="search-field ms-3">
-        <input matInput type="search" placeholder="Search by token or note" [(ngModel)]="searchTerm">
-        <button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''">
-            <mat-icon>close</mat-icon>
-        </button>
-    </mat-form-field>
-    <button mat-icon-button color="primary" (click)="search()">
-        <mat-icon class="material-icons">search</mat-icon>
-    </button>
-</mat-toolbar>
+            <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isLoading">
+            </kendo-loader>
+            <kendo-grid-spacer></kendo-grid-spacer>
+        </ng-template>
 
-<div class="links-table-container">
-    <mat-divider></mat-divider>
-    <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+        <kendo-grid-column field="fwToken" title="Token" [width]="100">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <a href="{{ENV.elfApiBaseUrl}}/fw/{{dataItem.fwToken}}" target="_blank">{{dataItem.fwToken}}</a>
+            </ng-template>
+        </kendo-grid-column>
 
-    <table mat-table [dataSource]="dataSource" matSort>
-        <ng-container matColumnDef="fwToken">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Token </th>
-            <td mat-cell *matCellDef="let link">
-                <div class="d-flex">
-                    <mat-chip-set #chipList>
-                        <mat-chip>
-                            <a class="a-chip" href="{{ENV.elfApiBaseUrl}}/fw/{{link.fwToken}}"
-                                target="_blank">{{link.fwToken}}</a>
-                        </mat-chip>
-                    </mat-chip-set>
-                    <button mat-icon-button color="primary" (click)="copyChip(link)">
-                        <mat-icon>file_copy</mat-icon>
-                    </button>
-                </div>
-            </td>
-        </ng-container>
+        <kendo-grid-column field="originUrl" title="Origin Url" [width]="300">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <a href="{{dataItem.originUrl}}" class="crop" target="_blank">{{dataItem.originUrl}}</a>
+            </ng-template>
+        </kendo-grid-column>
 
-        <ng-container matColumnDef="originUrl">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Origin Url </th>
-            <td mat-cell *matCellDef="let link">
-                <a href="{{link.originUrl}}" target="_blank">{{link.originUrl}}</a>
-            </td>
-        </ng-container>
+        <kendo-grid-column field="note" title="Note">
+        </kendo-grid-column>
 
-        <ng-container matColumnDef="note">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Note </th>
-            <td mat-cell *matCellDef="let link"> {{link.note}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="akaName">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Aka </th>
-            <td mat-cell *matCellDef="let link">
+        <kendo-grid-column field="akaName" title="Aka" [width]="150">
+            <ng-template kendoGridCellTemplate let-dataItem>
                 <div class="d-flex align-items-center">
-                    {{link.akaName ?? '/' }}
-
+                    {{dataItem.akaName ?? '/' }}
                     <span class="toolbar-spacer"></span>
-
-                    <button mat-icon-button color="primary" class="me-3" *ngIf="link.akaName" (click)="copyAka(link)">
-                        <mat-icon class="copy-icon">file_copy</mat-icon>
+                    <button kendoButton iconClass="bi-clipboard" *ngIf="dataItem.akaName" (click)="copyAka(dataItem)">
                     </button>
                 </div>
-            </td>
-        </ng-container>
+            </ng-template>
+        </kendo-grid-column>
 
-        <ng-container matColumnDef="tags">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Tags </th>
-            <td mat-cell *matCellDef="let link">
-                <mat-chip-listbox class="tags-chip">
-                    <mat-chip-option class="tags-box" *ngFor="let tag of link.tags" (click)="tagClick(tag)">
-                        {{ tag.name }}
-                    </mat-chip-option>
-                </mat-chip-listbox>
-            </td>
-        </ng-container>
+        <kendo-grid-column field="tags" title="Tags" [width]="100">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <kendo-chip *ngFor="let tag of dataItem.tags" [label]="tag.name">
+                </kendo-chip>
+            </ng-template>
+        </kendo-grid-column>
 
-        <ng-container matColumnDef="isEnabled">
-            <th mat-header-cell *matHeaderCellDef> Enabled </th>
-            <td mat-cell *matCellDef="let link">
-                <mat-checkbox [(ngModel)]="link.isEnabled" (change)="checkLink(link.id, link.isEnabled)"></mat-checkbox>
-            </td>
-        </ng-container>
+        <kendo-grid-column field="isEnabled" title="Enabled" [width]="80">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <input type="checkbox" [(ngModel)]="dataItem.isEnabled" kendoCheckBox
+                    (change)="checkLink(dataItem.id, dataItem.isEnabled)" />
+            </ng-template>
+        </kendo-grid-column>
 
-        <ng-container matColumnDef="ttl">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> TTL </th>
-            <td mat-cell *matCellDef="let link"> {{link.ttl}} </td>
-        </ng-container>
+        <kendo-grid-column field="ttl" title="TTL" [width]="100">
+        </kendo-grid-column>
 
-        <ng-container matColumnDef="updateTimeUtc">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Update Time (UTC) </th>
-            <td mat-cell *matCellDef="let link"> {{link.updateTimeUtc | date:'yyyy-MM-dd HH:mm'}} </td>
-        </ng-container>
+        <kendo-grid-column field="updateTimeUtc" title="Update Time (UTC)" [width]="180">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                {{dataItem?.updateTimeUtc | date:'yyyy-MM-dd HH:mm'}}
+            </ng-template>
+        </kendo-grid-column>
 
-        <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef> Action </th>
-            <td mat-cell *matCellDef="let link">
-                <a mat-icon-button color="primary" (click)="shareLink(link)">
-                    <mat-icon class="material-icons">share</mat-icon>
-                </a>
-            </td>
-        </ng-container>
+        <kendo-grid-command-column title="Action" [width]="200">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <button kendoButton iconClass="bi-clipboard" (click)="copyUrl(dataItem)">
+                </button>
 
-        <ng-container matColumnDef="manage">
-            <th mat-header-cell *matHeaderCellDef> Manage </th>
-            <td mat-cell *matCellDef="let link">
-                <a mat-icon-button color="primary" class="me-1" (click)="editLink(link)">
-                    <mat-icon class="material-icons">edit</mat-icon>
-                </a>
-                <a mat-icon-button color="warn" (click)="deleteLink(link.id)">
-                    <mat-icon class="material-icons">delete</mat-icon>
-                </a>
-            </td>
-        </ng-container>
+                <button kendoButton (click)="shareLink(dataItem)" iconClass="bi-share">
+                </button>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+                <button kendoGridEditCommand iconClass="bi-pencil">
+                </button>
 
-    <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize"
-        [pageSizeOptions]="pageSizeOptions" (page)="pageChanged($event)" aria-label="Select page">
-    </mat-paginator>
+                <button kendoGridRemoveCommand iconClass="bi-trash">
+                </button>
+            </ng-template>
+        </kendo-grid-command-column>
+    </kendo-grid>
 </div>
+
+<edit-link-dialog [model]="linkDataItem" (save)="onLinkUpdate($event)" (cancel)="onCancelLinkUpdate()">
+</edit-link-dialog>
+
+<kendo-dialog title="Deletion confirm" *ngIf="deleteLinkDialogOpened" (close)="deleteLinkDialogClose()" [width]="350">
+    <p class="text-center m-3">
+        Are you sure want to delete this link?
+    </p>
+
+    <kendo-dialog-actions>
+        <button kendoButton (click)="deleteLinkDialogClose()">
+            Cancel
+        </button>
+        <button kendoButton (click)="deleteLink()" [primary]="true">
+            Confirm
+        </button>
+    </kendo-dialog-actions>
+</kendo-dialog>
+
+<kendo-dialog title="Share" *ngIf="shareLinkDialogOpened" (close)="shareLinkDialogClose()" [width]="350">
+    <div class="text-center">
+        <kendo-qrcode [value]="qrUrl" class="qr-code" errorCorrection="M" [size]="250">
+        </kendo-qrcode>
+    </div>
+
+    <div class="text-center">
+        <code>{{ENV.elfApiBaseUrl}}/fw/{{ currentShareLink.fwToken }}</code> <br />
+        <code *ngIf="currentShareLink.akaName">{{ENV.elfApiBaseUrl}}/aka/{{ currentShareLink.akaName }}</code>
+    </div>
+
+    <kendo-dialog-actions>
+        <button kendoButton (click)="shareLinkDialogClose()" [primary]="true">
+            Close
+        </button>
+    </kendo-dialog-actions>
+</kendo-dialog>

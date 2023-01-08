@@ -1,135 +1,73 @@
-import { Component, ElementRef, Inject, ViewChild } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
-import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { Link, LinkService } from "../link.service";
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipInputEvent } from '@angular/material/chips';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { map, Observable, startWith } from "rxjs";
+import { Link } from "../link.service";
 import { AppCacheService } from "../../shared/appcache.service";
+import { ValidationErrorMessage } from "src/app/shared/global";
+import { Tag } from "src/app/tag/tag.service";
 @Component({
     selector: 'edit-link-dialog',
     templateUrl: 'edit-link-dialog.html',
     styleUrls: ['./edit-link-dialog.css']
 })
 export class EditLinkDialog {
-    isBusy = false;
-    addOnBlur = true;
-    readonly separatorKeysCodes = [ENTER, COMMA] as const;
-    tagCtrl = new FormControl();
-    filteredTags: Observable<string[]>;
     editLinkForm: FormGroup;
-    tags: string[] = [];
-    allTags: string[] = [];
+    allTags: Tag[] = [];
+    public tagTreeItems: any[];
+    public tagsComplexArrayValue: Tag[];
+    public active = false;
+    public validationErrorMessage = ValidationErrorMessage;
 
-    @ViewChild('tagInput') tagInput: ElementRef<HTMLInputElement>;
+    @Output() cancel: EventEmitter<any> = new EventEmitter();
+    @Output() save: EventEmitter<any> = new EventEmitter();
 
     constructor(
         public fb: FormBuilder,
-        private appCache: AppCacheService,
-        private linkService: LinkService,
-        public dialogRef: MatDialogRef<EditLinkDialog>,
-        @Inject(MAT_DIALOG_DATA) public data: Link) {
-        this.filteredTags = this.tagCtrl.valueChanges.pipe(
-            startWith(null),
-            map((tag: string | null) => (tag ? this._filter(tag) : this.allTags.slice())),
-        );
+        private appCache: AppCacheService) {
+    }
+
+    @Input() public set model(data: Link) {
+        this.editLinkForm?.reset(data);
+        this.active = data !== undefined;
+
+        this.allTags = this.appCache.tags;
+        this.tagTreeItems = [
+            {
+                name: 'Tags',
+                id: 0,
+                items: this.allTags,
+            }
+        ];
     }
 
     ngOnInit(): void {
         this.buildForm();
-        if (this.data) {
-            this.tags = this.data?.tags.map(t => t.name);            
-        }
-        
-        this.getAllTagNames();
     }
 
     buildForm() {
         this.editLinkForm = this.fb.group({
-            originUrl: new FormControl(this.data?.originUrl ?? '', [Validators.required]),
-            note: new FormControl(this.data?.note ?? ''),
-            akaName: new FormControl(this.data?.akaName ?? ''),
-            isEnabled: new FormControl(this.data?.isEnabled ?? true),
-            ttl: new FormControl(this.data?.ttl ?? 3600)
+            id: new FormControl(''),
+            originUrl: new FormControl('', [Validators.required]),
+            note: new FormControl(''),
+            akaName: new FormControl(''),
+            isEnabled: new FormControl(true),
+            ttl: new FormControl(3600),
+            tags: ['']
         })
     }
 
-    getAllTagNames() {
-        this.allTags = this.appCache.tags.map(t => t.name)
+    public onSave(e) {
+        e.preventDefault();
+        this.save.emit(this.editLinkForm.value);
+        this.active = false;
     }
 
-    submitForm() {
-        this.isBusy = true;
-
-        if (this.data) {
-            this.linkService
-                .update(this.data.id, {
-                    originUrl: this.editLinkForm.value.originUrl.trim(),
-                    note: this.editLinkForm.value.note,
-                    akaName: this.editLinkForm.value.akaName,
-                    isEnabled: this.editLinkForm.value.isEnabled,
-                    ttl: this.editLinkForm.value.ttl,
-                    tags: this.tags
-                })
-                .subscribe(() => {
-                    this.isBusy = false;
-                    this.dialogRef.close();
-                });
-        }
-        else {
-            this.linkService
-                .add({
-                    originUrl: this.editLinkForm.value.originUrl.trim(),
-                    note: this.editLinkForm.value.note,
-                    akaName: this.editLinkForm.value.akaName,
-                    isEnabled: this.editLinkForm.value.isEnabled,
-                    ttl: this.editLinkForm.value.ttl,
-                    tags: this.tags
-                })
-                .subscribe(() => {
-                    this.isBusy = false;
-                    this.dialogRef.close();
-                });
-        }
+    public onCancel(e) {
+        e.preventDefault();
+        this.closeForm();
     }
 
-    closeDialog() {
-        this.dialogRef.close();
-    }
-
-    add(event: MatChipInputEvent): void {
-        const value = (event.value || '').trim();
-
-        if (value && !(this.tags.includes(value))) {
-            this.tags.push(value);
-        }
-
-        event.chipInput!.clear();
-        this.tagCtrl.setValue(null);
-    }
-
-    remove(tag: string): void {
-        const index = this.tags.indexOf(tag);
-
-        if (index >= 0) {
-            this.tags.splice(index, 1);
-        }
-    }
-
-    selected(event: MatAutocompleteSelectedEvent): void {
-        console.info(this.tags);
-
-        if (!(this.tags.includes(event.option.viewValue))) {
-            this.tags.push(event.option.viewValue);
-        }
-
-        this.tagInput.nativeElement.value = '';
-        this.tagCtrl.setValue(null);
-    }
-
-    private _filter(value: string): string[] {
-        const filterValue = value.toLowerCase();
-        return this.allTags.filter(tag => tag.toLowerCase().includes(filterValue));
+    private closeForm() {
+        this.active = false;
+        this.cancel.emit();
     }
 }

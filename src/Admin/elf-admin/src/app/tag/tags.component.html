@@ -1,28 +1,41 @@
-<mat-toolbar class="position-fixed">
-    <button mat-flat-button color="primary" matTooltip="New tag" class="me-2" (click)="addNewTag()">
-        <mat-icon class="material-icons">add</mat-icon>
-        New
-    </button>
-    <button mat-icon-button class="me-2" color="primary" (click)="getTags()">
-        <mat-icon class="material-icons">refresh</mat-icon>
-    </button>
-
-    <span class="toolbar-spacer"></span>
-
-</mat-toolbar>
-
-<div class="tags-container">
-    <mat-divider></mat-divider>
-    <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
-
-    <div class="container-fluid mt-3">
-        <mat-chip-listbox #chipList aria-label="Fruit selection">
-            <mat-chip-option *ngFor="let tag of tags" (removed)="remove(tag)" (click)="update(tag)">
-                {{tag.name}}
-                <button matChipRemove>
-                    <mat-icon>cancel</mat-icon>
-                </button>
-            </mat-chip-option>
-        </mat-chip-listbox>
+<div class="position-fixed">
+    <div class="container-fluid mt-3 mb-3">
+        <button kendoButton class="me-2" (click)="addNewTag()">
+            <i class="bi-plus"></i>
+            New
+        </button>
+        <button kendoButton (click)="getTags()">
+            <i class="bi-arrow-clockwise"></i>
+        </button>
     </div>
 </div>
+
+<div class="tags-container">
+    <hr />
+    <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isLoading">
+    </kendo-loader>
+
+    <div class="container-fluid mt-3">
+        <kendo-chip *ngFor="let tag of tags" [label]="tag.name" [removable]="true" (contentClick)="update(tag)"
+            (remove)="remove(tag)">
+        </kendo-chip>
+    </div>
+</div>
+
+<edit-tag-dialog [model]="tagDataItem" (save)="onTagUpdate($event)" (cancel)="onCancelTagUpdate()">
+</edit-tag-dialog>
+
+<kendo-dialog title="Deletion confirm" *ngIf="deleteTagDialogOpened" (close)="deleteTagDialogClose()" [width]="350">
+    <p class="text-center m-3">
+        Are you sure want to delete this tag?
+    </p>
+
+    <kendo-dialog-actions>
+        <button kendoButton (click)="deleteTagDialogClose()">
+            Cancel
+        </button>
+        <button kendoButton (click)="deleteTag()">
+            Confirm
+        </button>
+    </kendo-dialog-actions>
+</kendo-dialog>

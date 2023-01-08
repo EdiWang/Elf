@@ -52,6 +52,7 @@ export interface EditLinkRequest {
 export interface PagedLinkResult {
     links: Link[];
     totalRows: number;
+    pageSize: number;
 }
 
 export interface Link {
