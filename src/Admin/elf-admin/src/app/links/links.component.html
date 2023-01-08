@@ -18,15 +18,6 @@
     </mat-form-field>
     <button kendoButton iconClass="bi-search" (click)="searchByTags()">
     </button>
-
-    <mat-form-field class="search-field ms-3">
-        <input matInput type="search" placeholder="Search by token or note" [(ngModel)]="searchTerm">
-        <button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="Clear" (click)="searchTerm=''">
-            <mat-icon>close</mat-icon>
-        </button>
-    </mat-form-field>
-    <button kendoButton iconClass="bi-search" (click)="search()">
-    </button>
 </div>
 
 <div class="container-fluid">
@@ -39,6 +30,15 @@
                 New
             </button>
             <button kendoButton iconClass="bi-arrow-clockwise" (click)="getLinks(true)"></button>
+
+            <kendo-textbox class="search-box-token-note" placeholder="Search token or note" [clearButton]="true" [(ngModel)]="searchTerm">
+                <ng-template kendoTextBoxSuffixTemplate>
+                    <kendo-textbox-separator></kendo-textbox-separator>
+                    <button kendoButton fillMode="clear" class="send-button" iconClass="bi-search"
+                        (click)="search()"></button>
+                </ng-template>
+            </kendo-textbox>
+
             <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isLoading">
             </kendo-loader>
             <kendo-grid-spacer></kendo-grid-spacer>

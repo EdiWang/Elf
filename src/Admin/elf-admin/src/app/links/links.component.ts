@@ -29,7 +29,7 @@ export class LinksComponent implements OnInit {
     isLoading = false;
     pageSize = 10;
     skip = 0;
-    searchTerm: string;
+    searchTerm: string = null;
     queryTags: Tag[] = [];
     allTags: Tag[] = [];
 
