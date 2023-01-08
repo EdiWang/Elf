@@ -1,14 +1,5 @@
-<div class="container-fluid">
-    <div>
-        <kendo-multiselecttree placeholder="Search by tags" kendoMultiSelectTreeExpandable
-            [kendoMultiSelectTreeHierarchyBinding]="tagTreeItems" [textField]="'name'" [valueField]="'id'"
-            [childrenField]="'items'" [expandedKeys]="['0']" [(value)]="tagsComplexArrayValue">
-        </kendo-multiselecttree>
-
-        <button kendoButton iconClass="bi-search" (click)="searchByTags()">
-        </button>
-    </div>
-
+<div class="container-fluid mt-3">
+    
     <kendo-grid [data]="gridView" kendoGridSelectBy="id" [reorderable]="true" [resizable]="true" [pageSize]="pageSize"
         [skip]="skip" [pageable]="true" (pageChange)="pageChange($event)" (edit)="editLinkHandler($event)"
         (remove)="removeLinkHandler($event)">
@@ -18,6 +9,16 @@
                 New
             </button>
             <button kendoButton iconClass="bi-arrow-clockwise" (click)="getLinks(true)"></button>
+
+            <div>
+                <kendo-multiselecttree class="search-box-tags" placeholder="Search by tags" kendoMultiSelectTreeExpandable
+                    [kendoMultiSelectTreeHierarchyBinding]="tagTreeItems" [textField]="'name'" [valueField]="'id'"
+                    [childrenField]="'items'" [expandedKeys]="['0']" [(value)]="tagsComplexArrayValue">
+                </kendo-multiselecttree>
+        
+                <button kendoButton iconClass="bi-search" (click)="searchByTags()">
+                </button>
+            </div>
 
             <kendo-textbox class="search-box-token-note" placeholder="Search token or note" [clearButton]="true"
                 [(ngModel)]="searchTerm">

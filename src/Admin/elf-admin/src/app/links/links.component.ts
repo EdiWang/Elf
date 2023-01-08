@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Link, LinkService, PagedLinkResult } from './link.service';
-import { MatDialog } from '@angular/material/dialog';
 import { environment } from 'src/environments/environment';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { AppCacheService } from '../shared/appcache.service';
@@ -29,7 +28,6 @@ export class LinksComponent implements OnInit {
 
     constructor(
         private notificationService: NotificationService,
-        public dialog: MatDialog,
         private clipboard: Clipboard,
         private appCache: AppCacheService,
         private linkService: LinkService,
