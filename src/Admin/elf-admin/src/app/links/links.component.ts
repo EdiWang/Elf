@@ -155,6 +155,7 @@ export class LinksComponent implements OnInit {
 
     deleteLink(): void {
         this.linkService.delete(this.linkId).subscribe(() => {
+            this.deleteLinkDialogOpened = false;
             this.getLinks();
         });
     }
