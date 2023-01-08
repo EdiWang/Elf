@@ -32,8 +32,8 @@ jobs:
         file: ./src/Admin/elf-admin/Dockerfile
         push: true
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/elf-admin:latest
-        build-args: |
-          "KENDO_UI_LICENSE=${{ secrets.KENDO_UI_LICENSE }}"
+        # build-args: |
+        #   "KENDO_UI_LICENSE=${{ secrets.KENDO_UI_LICENSE }}"
 
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
