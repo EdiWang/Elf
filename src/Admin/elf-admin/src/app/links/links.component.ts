@@ -1,9 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Link, LinkService, PagedLinkResult } from './link.service';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { EditLinkDialog } from './edit-link/edit-link-dialog';
 import { ShareDialog } from './share/share-dialog';
@@ -34,7 +32,6 @@ export class LinksComponent implements OnInit {
     pageSize = 10;
     currentPage = 0;
     searchTerm: string;
-    pageSizeOptions: number[] = [10, 15, 20, 50, 100];
     queryTags: Tag[] = [];
     allTags: Tag[] = [];
 
@@ -53,9 +50,6 @@ export class LinksComponent implements OnInit {
             startWith(null),
             map((tag: string | Tag | null) => tag ? this._filter(tag) : this.allTags.slice()));
     }
-
-    @ViewChild(MatSort) sort: MatSort;
-    @ViewChild(MatPaginator) paginator!: MatPaginator;
 
     ngOnInit(): void {
         this.updateTagCache();
@@ -111,16 +105,7 @@ export class LinksComponent implements OnInit {
         this.linkService.list(this.pageSize, this.currentPage * this.pageSize, this.searchTerm)
             .subscribe((result: PagedLinkResult) => {
                 this.isLoading = false;
-
                 this.dataSource = new MatTableDataSource(result.links);
-
-                this.dataSource.sort = this.sort;
-                this.dataSource.paginator = this.paginator;
-
-                setTimeout(() => {
-                    this.paginator.pageIndex = this.currentPage;
-                    this.paginator.length = result.totalRows;
-                });
             });
     }
 
@@ -155,12 +140,6 @@ export class LinksComponent implements OnInit {
         });
     }
 
-    pageChanged(event: PageEvent) {
-        this.pageSize = event.pageSize;
-        this.currentPage = event.pageIndex;
-        this.getLinks();
-    }
-
     copyChip(link: Link) {
         this.clipboard.copy(environment.elfApiBaseUrl + '/fw/' + link.fwToken);
         this._snackBar.open('Copied', 'Done', {
@@ -187,16 +166,7 @@ export class LinksComponent implements OnInit {
         this.linkService.listByTags(this.pageSize, this.currentPage * this.pageSize, this.queryTags.map(t => t.id))
             .subscribe((result: PagedLinkResult) => {
                 this.isLoading = false;
-
                 this.dataSource = new MatTableDataSource(result.links);
-
-                this.dataSource.sort = this.sort;
-                this.dataSource.paginator = this.paginator;
-
-                setTimeout(() => {
-                    this.paginator.pageIndex = this.currentPage;
-                    this.paginator.length = result.totalRows;
-                });
             });
     }
 

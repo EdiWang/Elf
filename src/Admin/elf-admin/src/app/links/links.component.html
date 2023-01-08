@@ -1,4 +1,4 @@
-<mat-toolbar class="position-fixed z-index-1">
+<div>
     <button kendoButton class="me-2" (click)="addNewLink()">
         <i class="bi-plus"></i>
         New
@@ -7,12 +7,9 @@
     <button kendoButton iconClass="bi-arrow-clockwise" class="me-2" color="primary" (click)="getLinks(true)">
     </button>
 
-    <span class="toolbar-spacer"></span>
-
     <mat-form-field class="queryTags-chip-list search-field-tags">
         <mat-chip-grid #chipList>
-            <mat-chip-row *ngFor="let tag of queryTags;let indx=index;" [removable]="true"
-                (removed)="remove(tag,indx)">
+            <mat-chip-row *ngFor="let tag of queryTags;let indx=index;" [removable]="true" (removed)="remove(tag,indx)">
                 {{tag.name}}
                 <mat-icon matChipRemove>cancel</mat-icon>
             </mat-chip-row>
@@ -37,10 +34,9 @@
     </mat-form-field>
     <button kendoButton iconClass="bi-search" (click)="search()">
     </button>
-</mat-toolbar>
+</div>
 
 <div class="links-table-container">
-    <mat-divider></mat-divider>
     <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
 
     <table mat-table [dataSource]="dataSource" matSort>
@@ -140,8 +136,4 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-
-    <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize"
-        [pageSizeOptions]="pageSizeOptions" (page)="pageChanged($event)" aria-label="Select page">
-    </mat-paginator>
 </div>
