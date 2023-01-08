@@ -1,7 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Link, LinkService, PagedLinkResult } from './link.service';
-import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { EditLinkDialog } from './edit-link/edit-link-dialog';
 import { environment } from 'src/environments/environment';
@@ -34,8 +33,8 @@ export class LinksComponent implements OnInit {
     queryTags: Tag[] = [];
     allTags: Tag[] = [];
 
-    displayedColumns: string[] = ['fwToken', 'originUrl', 'note', 'akaName', 'tags', 'isEnabled', 'ttl', 'updateTimeUtc', 'action', 'manage'];
-    dataSource: MatTableDataSource<Link> = new MatTableDataSource();
+    displayedColumns: string[] = ['manage'];
+    public gridView: any[];
     @ViewChild('tagInput') tagInput: ElementRef;
 
     constructor(
@@ -94,8 +93,8 @@ export class LinksComponent implements OnInit {
 
     //#endregion
 
-    editLink(link: Link) {
-        let diagRef = this.dialog.open(EditLinkDialog, { data: link });
+    editLinkHandler({ dataItem }) {
+        let diagRef = this.dialog.open(EditLinkDialog, { data: dataItem });
         diagRef.afterClosed().subscribe(result => {
             if (result) {
                 this.getLinks();
@@ -119,7 +118,7 @@ export class LinksComponent implements OnInit {
         this.linkService.list(this.pageSize, this.currentPage * this.pageSize, this.searchTerm)
             .subscribe((result: PagedLinkResult) => {
                 this.isLoading = false;
-                this.dataSource = new MatTableDataSource(result.links);
+                this.gridView = result.links;
             });
     }
 
@@ -140,20 +139,20 @@ export class LinksComponent implements OnInit {
         this.deleteLinkDialogOpened = false;
     }
 
-    showDeleteLink(link: Link): void {
-        this.linkId = link?.id;
-        this.deleteLinkDialogOpened = true;
-    }
-
     deleteLink(): void {
         this.linkService.delete(this.linkId).subscribe(() => {
             this.getLinks();
         });
     }
 
+    removeLinkHandler({ dataItem }) {
+        this.linkId = dataItem?.id;
+        this.deleteLinkDialogOpened = true;
+    }
+
     //#endregion
 
-    copyChip(link: Link) {
+    copyUrl(link: Link) {
         this.clipboard.copy(environment.elfApiBaseUrl + '/fw/' + link.fwToken);
         this._snackBar.open('Copied', 'Done', {
             duration: 3000
@@ -179,7 +178,7 @@ export class LinksComponent implements OnInit {
         this.linkService.listByTags(this.pageSize, this.currentPage * this.pageSize, this.queryTags.map(t => t.id))
             .subscribe((result: PagedLinkResult) => {
                 this.isLoading = false;
-                this.dataSource = new MatTableDataSource(result.links);
+                this.gridView = result.links;
             });
     }
 
