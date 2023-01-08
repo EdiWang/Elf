@@ -112,6 +112,8 @@
     </kendo-grid>
 </div>
 
+<edit-link-dialog [model]="linkDataItem" (save)="onLinkUpdate($event)" (cancel)="onCancelLinkUpdate()">
+</edit-link-dialog>
 
 <kendo-dialog title="Deletion confirm" *ngIf="deleteLinkDialogOpened" (close)="deleteLinkDialogClose()" [width]="350">
     <p class="text-center m-3">

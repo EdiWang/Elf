@@ -2,7 +2,6 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Link, LinkService, PagedLinkResult } from './link.service';
 import { MatDialog } from '@angular/material/dialog';
-import { EditLinkDialog } from './edit-link/edit-link-dialog';
 import { environment } from 'src/environments/environment';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { AppCacheService } from '../shared/appcache.service';
@@ -24,6 +23,7 @@ export class LinksComponent implements OnInit {
     tagCtrl = new FormControl();
     filteredTags: Observable<Tag[]>;
     linkId: number;
+    isNewLink: boolean = false;
 
     ENV = environment;
     isLoading = false;
@@ -65,13 +65,11 @@ export class LinksComponent implements OnInit {
     }
 
     addNewLink() {
-        let diagRef = this.dialog.open(EditLinkDialog);
-        diagRef.afterClosed().subscribe(result => {
-            if (result) {
-                this.getLinks();
-                this.updateTagCache();
-            }
-        });
+        this.isNewLink = true;
+        this.linkDataItem = {
+            isEnabled: true,
+            ttl: 3600
+        };
     }
 
     //#region Share
@@ -93,14 +91,33 @@ export class LinksComponent implements OnInit {
 
     //#endregion
 
-    editLinkHandler({ dataItem }) {
-        let diagRef = this.dialog.open(EditLinkDialog, { data: dataItem });
-        diagRef.afterClosed().subscribe(result => {
-            if (result) {
-                this.getLinks();
-                this.updateTagCache();
-            }
-        });
+    public linkDataItem: any;
+    onCancelLinkUpdate() {
+        this.linkDataItem = undefined;
+    }
+
+    onLinkUpdate(val: Link) {
+        console.info(val);
+
+        if (this.isNewLink) {
+            this.linkService
+                .add({
+                    originUrl: val.originUrl.trim(),
+                    note: val.note,
+                    akaName: val.akaName,
+                    isEnabled: val.isEnabled,
+                    ttl: val.ttl,
+                    tags: [] // TODO
+                })
+                .subscribe(() => {
+                    this.linkDataItem = undefined;
+                    this.getLinks();
+                    this.updateTagCache();
+                });
+        }
+        else {
+
+        }
     }
 
     getLinks(reset: boolean = false): void {
@@ -118,24 +135,6 @@ export class LinksComponent implements OnInit {
                     total: result.totalRows
                 };
             });
-    }
-
-    public pageChange(event: PageChangeEvent): void {
-        this.skip = event.skip;
-        this.getLinks();
-    }
-
-    checkLink(id: number, isEnabled: boolean): void {
-        this.linkService.setEnable(id, isEnabled).subscribe(() => {
-            this.notificationService.show({
-                content: "Updated",
-                cssClass: "button-notification",
-                animation: { type: "slide", duration: 400 },
-                position: { horizontal: "center", vertical: "bottom" },
-                type: { style: "success", icon: true },
-                hideAfter: 2000
-            });
-        });
     }
 
     //#region Delete
@@ -160,9 +159,29 @@ export class LinksComponent implements OnInit {
 
     //#endregion
 
+    //#region Grid actions
+
+    editLinkHandler({ dataItem }) {
+        this.isNewLink = false;
+        this.linkDataItem = dataItem;
+    }
+
+    checkLink(id: number, isEnabled: boolean): void {
+        this.linkService.setEnable(id, isEnabled).subscribe(() => {
+            this.notificationService.show({
+                content: "Updated",
+                cssClass: "button-notification",
+                animation: { type: "slide", duration: 400 },
+                position: { horizontal: "center", vertical: "bottom" },
+                type: { style: "success", icon: true },
+                hideAfter: 2000
+            });
+        });
+    }
+
     copyUrl(link: Link) {
         this.clipboard.copy(environment.elfApiBaseUrl + '/fw/' + link.fwToken);
-        
+
         this.notificationService.show({
             content: "Url copied",
             cssClass: "button-notification",
@@ -185,6 +204,13 @@ export class LinksComponent implements OnInit {
             hideAfter: 2000
         });
     }
+
+    public pageChange(event: PageChangeEvent): void {
+        this.skip = event.skip;
+        this.getLinks();
+    }
+
+    //#endregion
 
     //#region Query by Tags
 
