@@ -7,14 +7,11 @@ import { FormatSettings } from '@progress/kendo-angular-dateinputs';
 
 @Component({
     selector: 'app-report',
-    templateUrl: './report.component.html',
-    styleUrls: ['./report.component.css']
+    templateUrl: './report.component.html'
 })
 export class ReportComponent implements OnInit {
     ENV = environment;
     pipe = new DatePipe('en-US');
-    public gridView: any[];
-    public requestTrack: RequestTrack[] = [];
     public dateFormat: FormatSettings = {
         displayFormat: "MM/dd/yyyy",
         inputFormat: "MM/dd/yyyy",
@@ -32,7 +29,6 @@ export class ReportComponent implements OnInit {
     }
 
     getData() {
-        this.getRecentRequests();
         this.getChartData();
     }
 
@@ -116,21 +112,6 @@ export class ReportComponent implements OnInit {
 
                 this.linkTrackingDateCount = result;
             })
-    }
-
-    //#endregion
-
-    //#region RecentRequests
-
-    isRecentRequestsLoading = false;
-    getRecentRequests() {
-        this.isRecentRequestsLoading = true;
-
-        this.service.recentRequests(100, 0).subscribe((result: RequestTrack[]) => {
-            this.isRecentRequestsLoading = false;
-            this.requestTrack = result;
-            this.gridView = this.requestTrack;
-        })
     }
 
     //#endregion
