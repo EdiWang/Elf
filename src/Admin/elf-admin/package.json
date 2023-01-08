@@ -40,6 +40,7 @@
     "@progress/kendo-angular-intl": "^4.0.0",
     "@progress/kendo-angular-l10n": "^4.0.0",
     "@progress/kendo-angular-label": "^4.0.0",
+    "@progress/kendo-angular-notification": "^4.0.1",
     "@progress/kendo-angular-pdf-export": "^4.0.0",
     "@progress/kendo-angular-popup": "^5.0.0",
     "@progress/kendo-angular-treeview": "^7.0.0",

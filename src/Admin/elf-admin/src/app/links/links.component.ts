@@ -11,8 +11,8 @@ import { FormControl } from '@angular/forms';
 import { map, Observable, startWith } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
+import { NotificationService } from '@progress/kendo-angular-notification';
 @Component({
     selector: 'app-links',
     templateUrl: './links.component.html',
@@ -38,7 +38,7 @@ export class LinksComponent implements OnInit {
     @ViewChild('tagInput') tagInput: ElementRef;
 
     constructor(
-        private _snackBar: MatSnackBar,
+        private notificationService: NotificationService,
         public dialog: MatDialog,
         private clipboard: Clipboard,
         private appCache: AppCacheService,
@@ -127,8 +127,13 @@ export class LinksComponent implements OnInit {
 
     checkLink(id: number, isEnabled: boolean): void {
         this.linkService.setEnable(id, isEnabled).subscribe(() => {
-            this._snackBar.open('Updated', 'OK', {
-                duration: 3000
+            this.notificationService.show({
+                content: "Updated",
+                cssClass: "button-notification",
+                animation: { type: "slide", duration: 400 },
+                position: { horizontal: "center", vertical: "bottom" },
+                type: { style: "success", icon: true },
+                hideAfter: 2000
             });
         });
     }
@@ -157,15 +162,27 @@ export class LinksComponent implements OnInit {
 
     copyUrl(link: Link) {
         this.clipboard.copy(environment.elfApiBaseUrl + '/fw/' + link.fwToken);
-        this._snackBar.open('Copied', 'Done', {
-            duration: 3000
+        
+        this.notificationService.show({
+            content: "Url copied",
+            cssClass: "button-notification",
+            animation: { type: "slide", duration: 400 },
+            position: { horizontal: "center", vertical: "bottom" },
+            type: { style: "success", icon: true },
+            hideAfter: 2000
         });
     }
 
     copyAka(link: Link) {
         this.clipboard.copy(environment.elfApiBaseUrl + '/aka/' + link.akaName);
-        this._snackBar.open('Aka url copied', 'Done', {
-            duration: 3000
+
+        this.notificationService.show({
+            content: "Aka url copied",
+            cssClass: "button-notification",
+            animation: { type: "slide", duration: 400 },
+            position: { horizontal: "center", vertical: "bottom" },
+            type: { style: "success", icon: true },
+            hideAfter: 2000
         });
     }
 

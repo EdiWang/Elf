@@ -57,6 +57,8 @@ import { DateInputsModule } from '@progress/kendo-angular-dateinputs';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
 import { LabelModule } from '@progress/kendo-angular-label';
 import { RecentRequestsComponent } from './report/recent-requests/recent-requests.component';
+import { NotificationModule } from '@progress/kendo-angular-notification';
+
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication(msalConfig);
@@ -131,7 +133,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     IndicatorsModule,
     DateInputsModule,
     DialogsModule,
-    LabelModule
+    LabelModule,
+    NotificationModule
   ],
   providers: [
     {
