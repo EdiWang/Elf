@@ -29,8 +29,9 @@
     </button>
 </div>
 
-<kendo-grid [kendoGridBinding]="gridView" kendoGridSelectBy="id" [reorderable]="true" [resizable]="true"
-    (edit)="editLinkHandler($event)" (remove)="removeLinkHandler($event)">
+<kendo-grid [data]="gridView" kendoGridSelectBy="id" [reorderable]="true" [resizable]="true" [pageSize]="pageSize"
+    [skip]="skip" [pageable]="true" (pageChange)="pageChange($event)" (edit)="editLinkHandler($event)"
+    (remove)="removeLinkHandler($event)">
     <ng-template kendoGridToolbarTemplate>
         <button kendoButton (click)="addNewLink()">
             <i class="bi-plus"></i>

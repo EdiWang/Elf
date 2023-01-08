@@ -12,6 +12,7 @@ import { map, Observable, startWith } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
 @Component({
     selector: 'app-links',
     templateUrl: './links.component.html',
@@ -26,15 +27,14 @@ export class LinksComponent implements OnInit {
 
     ENV = environment;
     isLoading = false;
-    totalRows = 0;
     pageSize = 10;
-    currentPage = 0;
+    skip = 0;
     searchTerm: string;
     queryTags: Tag[] = [];
     allTags: Tag[] = [];
 
     displayedColumns: string[] = ['manage'];
-    public gridView: any[];
+    public gridView: GridDataResult;
     @ViewChild('tagInput') tagInput: ElementRef;
 
     constructor(
@@ -109,17 +109,24 @@ export class LinksComponent implements OnInit {
 
     getLinks(reset: boolean = false): void {
         if (reset) {
-            this.totalRows = 0;
-            this.currentPage = 0;
+            this.skip = 0;
         }
 
         this.isLoading = true;
 
-        this.linkService.list(this.pageSize, this.currentPage * this.pageSize, this.searchTerm)
+        this.linkService.list(this.pageSize, this.skip, this.searchTerm)
             .subscribe((result: PagedLinkResult) => {
                 this.isLoading = false;
-                this.gridView = result.links;
+                this.gridView = {
+                    data: result.links,
+                    total: result.totalRows
+                };
             });
+    }
+
+    public pageChange(event: PageChangeEvent): void {
+        this.skip = event.skip;
+        this.getLinks();
     }
 
     checkLink(id: number, isEnabled: boolean): void {
@@ -175,10 +182,13 @@ export class LinksComponent implements OnInit {
         }
 
         this.isLoading = true;
-        this.linkService.listByTags(this.pageSize, this.currentPage * this.pageSize, this.queryTags.map(t => t.id))
+        this.linkService.listByTags(this.pageSize, this.skip, this.queryTags.map(t => t.id))
             .subscribe((result: PagedLinkResult) => {
                 this.isLoading = false;
-                this.gridView = result.links;
+                this.gridView = {
+                    data: result.links,
+                    total: result.totalRows
+                };
             });
     }
 
