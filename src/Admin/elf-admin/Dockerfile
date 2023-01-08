@@ -1,7 +1,8 @@
-FROM node:18.12-alpine as build
+FROM node:18.13-alpine as build
 WORKDIR /app
 COPY . .
 RUN npm install --legacy-peer-deps
+RUN npx kendo-ui-license activate
 RUN npm run build
 
 FROM nginx:stable-alpine
