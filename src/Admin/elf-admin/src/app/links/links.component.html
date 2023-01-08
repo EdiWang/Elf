@@ -152,3 +152,21 @@
         </button>
     </kendo-dialog-actions>
 </kendo-dialog>
+
+<kendo-dialog title="Share" *ngIf="shareLinkDialogOpened" (close)="shareLinkDialogClose()" [width]="350">
+
+    <qrcode [qrdata]="qrUrl" [allowEmptyString]="true" [cssClass]="'center'" [colorDark]="'#000000ff'"
+        [colorLight]="'#ffffffff'" [elementType]="'canvas'" [errorCorrectionLevel]="'M'" [margin]="4" [scale]="1"
+        [width]="300"></qrcode>
+
+    <div class="text-center">
+        <code>{{ENV.elfApiBaseUrl}}/fw/{{ currentShareLink.fwToken }}</code> <br />
+        <code *ngIf="currentShareLink.akaName">{{ENV.elfApiBaseUrl}}/aka/{{ currentShareLink.akaName }}</code>
+    </div>
+
+    <kendo-dialog-actions>
+        <button kendoButton (click)="shareLinkDialogClose()" [primary]="true">
+            Close
+        </button>
+    </kendo-dialog-actions>
+</kendo-dialog>

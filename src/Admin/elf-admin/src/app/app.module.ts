@@ -33,7 +33,6 @@ import { LinkService } from './links/link.service';
 import { LinksComponent } from './links/links.component';
 import { EditLinkDialog } from './links/edit-link/edit-link-dialog';
 import { EditTagDialog } from './tag/edit-tag/edit-tag-dialog';
-import { ShareDialog } from './links/share/share-dialog';
 import { ReportComponent } from './report/report.component';
 import { ConfirmationDialog } from './shared/confirmation-dialog';
 import { TagsComponent } from './tag/tags.component';
@@ -57,15 +56,6 @@ import { IndicatorsModule } from '@progress/kendo-angular-indicators';
 import { DateInputsModule } from '@progress/kendo-angular-dateinputs';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
 import { LabelModule } from '@progress/kendo-angular-label';
-
-
-
-
-
-
-
-
-
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication(msalConfig);
@@ -101,7 +91,6 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     ReportComponent,
     EditLinkDialog,
     EditTagDialog,
-    ShareDialog,
     ConfirmationDialog,
     TagsComponent
   ],

@@ -4,9 +4,7 @@ import { Link, LinkService, PagedLinkResult } from './link.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { EditLinkDialog } from './edit-link/edit-link-dialog';
-import { ShareDialog } from './share/share-dialog';
 import { environment } from 'src/environments/environment';
-import { ConfirmationDialog } from '../shared/confirmation-dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { AppCacheService } from '../shared/appcache.service';
 import { Tag, TagService } from '../tag/tag.service';
@@ -77,9 +75,24 @@ export class LinksComponent implements OnInit {
         });
     }
 
+    //#region Share
+
+    currentShareLink: Link;
+    shareLinkDialogOpened: boolean = false;
+    qrUrl: string;
     shareLink(link: Link) {
-        this.dialog.open(ShareDialog, { data: link });
+        this.currentShareLink = link;
+        this.qrUrl = environment.elfApiBaseUrl + '/fw/' + this.currentShareLink.fwToken;
+        this.shareLinkDialogOpened = true;
     }
+
+    shareLinkDialogClose() {
+        this.currentShareLink = null;
+        this.qrUrl = null;
+        this.shareLinkDialogOpened = false;
+    }
+
+    //#endregion
 
     editLink(link: Link) {
         let diagRef = this.dialog.open(EditLinkDialog, { data: link });
