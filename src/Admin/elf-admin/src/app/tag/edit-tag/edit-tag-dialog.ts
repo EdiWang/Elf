@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ValidationErrorMessage } from "src/app/shared/global";
-import { Tag, TagService } from "./../tag.service";
+import { Tag } from "./../tag.service";
 
 @Component({
     selector: 'edit-tag-dialog',
@@ -21,9 +21,7 @@ export class EditTagDialog {
     @Output() save: EventEmitter<any> = new EventEmitter();
     public validationErrorMessage = ValidationErrorMessage;
 
-    constructor(
-        public fb: FormBuilder,
-        private service: TagService) { }
+    constructor(public fb: FormBuilder) { }
 
     ngOnInit(): void {
         this.buildForm();
