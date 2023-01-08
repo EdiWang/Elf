@@ -3,6 +3,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms"
 import { Link } from "../link.service";
 import { AppCacheService } from "../../shared/appcache.service";
 import { ValidationErrorMessage } from "src/app/shared/global";
+import { Tag } from "src/app/tag/tag.service";
 @Component({
     selector: 'edit-link-dialog',
     templateUrl: 'edit-link-dialog.html',
@@ -12,7 +13,9 @@ export class EditLinkDialog {
     isBusy = false;
     addOnBlur = true;
     editLinkForm: FormGroup;
-    allTags: string[] = [];
+    allTags: Tag[] = [];
+    public tagTreeItems: any[];
+    public tagsComplexArrayValue: Tag[];
     public active = false;
     @Output() cancel: EventEmitter<any> = new EventEmitter();
     @Output() save: EventEmitter<any> = new EventEmitter();
@@ -26,11 +29,19 @@ export class EditLinkDialog {
     @Input() public set model(data: Link) {
         this.editLinkForm?.reset(data);
         this.active = data !== undefined;
+
+        this.allTags = this.appCache.tags;
+        this.tagTreeItems = [
+            {
+                name: 'Tags',
+                id: 0,
+                items: this.allTags,
+            }
+        ];
     }
 
     ngOnInit(): void {
         this.buildForm();
-        this.getAllTagNames();
     }
 
     buildForm() {
@@ -39,13 +50,11 @@ export class EditLinkDialog {
             note: new FormControl(''),
             akaName: new FormControl(''),
             isEnabled: new FormControl(true),
-            ttl: new FormControl(3600)
+            ttl: new FormControl(3600),
+            tags: ['']
         })
     }
 
-    getAllTagNames() {
-        this.allTags = this.appCache.tags.map(t => t.name)
-    }
 
     //     if (this.data) {
     //         this.linkService

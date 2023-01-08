@@ -30,7 +30,13 @@
             </div>
         </div>
 
-        <!--TODO: Tags-->
+        <kendo-formfield>
+            <kendo-label [for]="tags" text="Tags"></kendo-label>
+            <kendo-multiselecttree kendoMultiSelectTreeExpandable
+                [kendoMultiSelectTreeHierarchyBinding]="tagTreeItems" [textField]="'name'" [valueField]="'id'"
+                [childrenField]="'items'" [expandedKeys]="['0']" [(value)]="tagsComplexArrayValue" formControlName="tags" #tags>
+            </kendo-multiselecttree>
+        </kendo-formfield>
 
         <div>
             <input type="checkbox" kendoCheckBox formControlName="isEnabled" #isEnabled />
