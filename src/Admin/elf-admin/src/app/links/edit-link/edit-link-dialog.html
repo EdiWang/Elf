@@ -46,9 +46,9 @@
 
     <kendo-dialog-actions layout="normal">
         <button kendoButton (click)="onCancel($event)" class="ms-auto px-5">Cancel</button>
-        <button kendoButton [primary]="true" [disabled]="!editLinkForm.valid || isBusy" (click)="onSave($event)"
+        <button kendoButton [primary]="true" [disabled]="!editLinkForm.valid" (click)="onSave($event)"
             class="px-5">
-            {{ isBusy ? 'Saving...' : 'Save'}}
+            Save
         </button>
     </kendo-dialog-actions>
 </kendo-dialog>

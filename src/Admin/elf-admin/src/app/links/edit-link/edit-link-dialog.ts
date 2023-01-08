@@ -10,16 +10,15 @@ import { Tag } from "src/app/tag/tag.service";
     styleUrls: ['./edit-link-dialog.css']
 })
 export class EditLinkDialog {
-    isBusy = false;
-    addOnBlur = true;
     editLinkForm: FormGroup;
     allTags: Tag[] = [];
     public tagTreeItems: any[];
     public tagsComplexArrayValue: Tag[];
     public active = false;
+    public validationErrorMessage = ValidationErrorMessage;
+
     @Output() cancel: EventEmitter<any> = new EventEmitter();
     @Output() save: EventEmitter<any> = new EventEmitter();
-    public validationErrorMessage = ValidationErrorMessage;
 
     constructor(
         public fb: FormBuilder,
