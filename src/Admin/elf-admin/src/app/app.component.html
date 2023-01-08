@@ -7,22 +7,19 @@
         <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" [routerLink]="['links']" [ngClass]="{'active': currentMenu == 'links'}"
-                        aria-current="page">
+                    <a class="nav-link" [routerLink]="['links']" routerLinkActive="active" aria-current="page">
                         <span class="bi-list me-2"></span>
                         Links
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" [routerLink]="['tags']" [ngClass]="{'active': currentMenu == 'tags'}"
-                        aria-current="page">
+                    <a class="nav-link" [routerLink]="['tags']" routerLinkActive="active" aria-current="page">
                         <span class="bi-tag me-2"></span>
                         Tags
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" [routerLink]="['report']" [ngClass]="{'active': currentMenu == 'report'}"
-                        aria-current="page">
+                    <a class="nav-link" [routerLink]="['report']" routerLinkActive="active" aria-current="page">
                         <span class="bi-pie-chart me-2"></span>
                         Report
                     </a>

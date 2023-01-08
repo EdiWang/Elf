@@ -19,7 +19,6 @@ export class AppComponent implements OnInit, OnDestroy {
   isIframe = false;
   loginDisplay = false;
   accountInfo: AccountInfo;
-  currentMenu: string;
 
   private readonly _destroying$ = new Subject<void>();
 
@@ -43,10 +42,6 @@ export class AppComponent implements OnInit, OnDestroy {
       });
       appInsights.loadAppInsights();
     }
-  }
-
-  setMenu(name: string) {
-    this.currentMenu = name;
   }
 
   ngOnInit(): void {
