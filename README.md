@@ -18,7 +18,7 @@ will be translate to `https://yourdomain/fw/token` or `https://yourdomain/aka/na
 
 Forward Link, Create/Manage/Share Link, View Report.
 
-![list](https://user-images.githubusercontent.com/3304703/165056093-ca7231b5-16d2-4089-902f-8361cbe8b270.png)
+![list](https://user-images.githubusercontent.com/3304703/211265875-6b106ab4-656f-4b2d-b215-61d8dee82f34.png)
 ![report](https://user-images.githubusercontent.com/3304703/164459162-74c9ad15-85a6-4015-a0f7-55f6ef8c4dcd.png)
 ![share](https://user-images.githubusercontent.com/3304703/164199595-4b746a3c-0cd2-412e-bfb5-7cb86acc95df.png)
 
