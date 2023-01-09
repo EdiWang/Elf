@@ -19,13 +19,13 @@
 
     <div class="row g-2">
         <div class="col-sm-6 col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header">
+            <kendo-card class="mb-4 w-100">
+                <kendo-card-header>
                     Requests
                     <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isTrackingCountLoading">
                     </kendo-loader>
-                </div>
-                <div class="card-body">
+                </kendo-card-header>
+                <kendo-card-body>
                     <kendo-chart style="height:300px">
                         <kendo-chart-series>
                             <kendo-chart-series-item type="line" [data]="linkTrackingDateCount" field="requestCount"
@@ -36,17 +36,17 @@
                             <kendo-chart-category-axis-item> </kendo-chart-category-axis-item>
                         </kendo-chart-category-axis>
                     </kendo-chart>
-                </div>
-            </div>
+                </kendo-card-body>
+            </kendo-card>
         </div>
         <div class="col-sm-6 col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header">
+            <kendo-card class="mb-4 w-100">
+                <kendo-card-header>
                     Client types
                     <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isClientTypeLoading">
                     </kendo-loader>
-                </div>
-                <div class="card-body">
+                </kendo-card-header>
+                <kendo-card-body>
                     <kendo-chart style="height:300px">
                         <kendo-chart-legend [visible]="false"></kendo-chart-legend>
                         <kendo-chart-series>
@@ -58,17 +58,17 @@
                             </kendo-chart-series-item>
                         </kendo-chart-series>
                     </kendo-chart>
-                </div>
-            </div>
+                </kendo-card-body>
+            </kendo-card>
         </div>
         <div class="col-sm-6 col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header">
+            <kendo-card class="mb-4 w-100">
+                <kendo-card-header>
                     Most requested links
                     <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isMostRequestedLinksLoading">
                     </kendo-loader>
-                </div>
-                <div class="card-body">
+                </kendo-card-header>
+                <kendo-card-body>
                     <kendo-chart style="height:300px">
                         <kendo-chart-legend [visible]="false"></kendo-chart-legend>
                         <kendo-chart-series>
@@ -78,8 +78,8 @@
                             </kendo-chart-series-item>
                         </kendo-chart-series>
                     </kendo-chart>
-                </div>
-            </div>
+                </kendo-card-body>
+            </kendo-card>
         </div>
     </div>
 
