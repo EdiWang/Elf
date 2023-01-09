@@ -120,8 +120,9 @@ export class LinksComponent implements OnInit {
                     ttl: val.ttl,
                     tags: val.tags.map(t => t.name)
                 })
-                .subscribe(() => {
-                    this.onLinkUpdateSuccess();
+                .subscribe({
+                    next: () => this.onLinkUpdateSuccess(),
+                    error: (ex) => this.onLinkUpdateFail(ex)
                 });
         }
         else {
@@ -134,16 +135,38 @@ export class LinksComponent implements OnInit {
                     ttl: val.ttl,
                     tags: val.tags.map(t => t.name)
                 })
-                .subscribe(() => {
-                    this.onLinkUpdateSuccess();
+                .subscribe({
+                    next: () => this.onLinkUpdateSuccess(),
+                    error: (ex) => this.onLinkUpdateFail(ex)
                 });
         }
     }
 
     onLinkUpdateSuccess() {
         this.linkDataItem = undefined;
+
+        this.notificationService.show({
+            content: "Updated",
+            cssClass: "button-notification",
+            animation: { type: "slide", duration: 400 },
+            position: { horizontal: "center", vertical: "bottom" },
+            type: { style: "success", icon: true },
+            hideAfter: 2000
+        });
+
         this.getLinks();
         this.updateTagCache();
+    }
+
+    onLinkUpdateFail(ex) {
+        this.notificationService.show({
+            content: ex.statusText,
+            cssClass: "button-notification",
+            animation: { type: "slide", duration: 400 },
+            position: { horizontal: "center", vertical: "bottom" },
+            type: { style: "error", icon: true },
+            hideAfter: 2000
+        });
     }
 
     //#region Delete
