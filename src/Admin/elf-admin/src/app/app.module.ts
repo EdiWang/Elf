@@ -41,6 +41,8 @@ import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfig
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 import { LayoutModule } from '@progress/kendo-angular-layout';
+import { ToolBarModule } from '@progress/kendo-angular-toolbar';
+
 
 
 export function MSALInstanceFactory(): IPublicClientApplication {
@@ -100,7 +102,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     NotificationModule,
     BarcodesModule,
     DropDownsModule,
-    LayoutModule
+    LayoutModule,
+    ToolBarModule
   ],
   providers: [
     {

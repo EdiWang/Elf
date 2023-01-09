@@ -1,17 +1,11 @@
-<div class="position-fixed">
-    <div class="container-fluid mt-3 mb-3">
-        <button kendoButton class="me-2" (click)="addNewTag()">
-            <i class="bi-plus"></i>
-            New
-        </button>
-        <button kendoButton (click)="getTags()">
-            <i class="bi-arrow-clockwise"></i>
-        </button>
-    </div>
-</div>
+<kendo-toolbar>
+    <kendo-toolbar-button icon="plus" text="New" (click)="addNewTag()">
+    </kendo-toolbar-button>
+    <kendo-toolbar-button icon="refresh" (click)="getTags()">
+    </kendo-toolbar-button>
+</kendo-toolbar>
 
 <div class="tags-container">
-    <hr />
     <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isLoading">
     </kendo-loader>
 
