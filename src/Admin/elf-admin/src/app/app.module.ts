@@ -42,6 +42,8 @@ import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfig
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 import { LayoutModule } from '@progress/kendo-angular-layout';
 import { ToolBarModule } from '@progress/kendo-angular-toolbar';
+import { NavigationModule } from '@progress/kendo-angular-navigation';
+
 
 
 
@@ -103,7 +105,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     BarcodesModule,
     DropDownsModule,
     LayoutModule,
-    ToolBarModule
+    ToolBarModule,
+    NavigationModule
   ],
   providers: [
     {

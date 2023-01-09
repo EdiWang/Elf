@@ -1,46 +1,40 @@
-<nav class="elf-navbar navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" [routerLink]="['/']">
-            Elf Admin
-        </a>
-        <div class="collapse navbar-collapse" id="navbarText">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" [routerLink]="['links']" routerLinkActive="active" aria-current="page">
-                        <span class="bi-list me-2"></span>
-                        Links
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" [routerLink]="['tags']" routerLinkActive="active" aria-current="page">
-                        <span class="bi-tag me-2"></span>
-                        Tags
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" [routerLink]="['report']" routerLinkActive="active" aria-current="page">
-                        <span class="bi-pie-chart me-2"></span>
-                        Report
-                    </a>
-                </li>
-            </ul>
-
-            <div class="api-info small me-3 text-light">
-                <a class="nav-link" href="{{ ENV.elfApiBaseUrl }}" target="_blank">
-                    <span class="bi-globe me-2"></span>
-                    {{ ENV.elfApiBaseUrl }}
-                </a>
-            </div>
-            <div class="user-info small d-flex me-3 text-light" *ngIf="loginDisplay">
-                <span class="bi-person me-2"></span>
-                {{ accountInfo.name }} ({{ accountInfo.username }})
-            </div>
-
-            <button kendoButton *ngIf="!loginDisplay" (click)="login()">Login</button>
-            <button kendoButton *ngIf="loginDisplay" (click)="logout()">
-                <span>Sign out</span>
-            </button>
+<kendo-appbar position="top" [themeColor]="'dark'">
+    <kendo-appbar-section>
+        <a class="title" [routerLink]="['/']">Elf Admin</a>
+    </kendo-appbar-section>
+    <kendo-appbar-spacer width="10px"></kendo-appbar-spacer>
+    <kendo-appbar-section>
+        <button kendoButton iconClass="bi-list" fillMode="flat" [routerLink]="['links']" routerLinkActive="active">
+            Links
+        </button>
+        <button kendoButton iconClass="bi-tag" fillMode="flat" [routerLink]="['tags']" routerLinkActive="active">
+            Tags
+        </button>
+        <button kendoButton iconClass="bi-pie-chart" fillMode="flat" [routerLink]="['report']"
+            routerLinkActive="active">
+            Report
+        </button>
+    </kendo-appbar-section>
+    <kendo-appbar-spacer></kendo-appbar-spacer>
+    <kendo-appbar-section>
+        <div class="api-info me-3">
+            <a href="{{ ENV.elfApiBaseUrl }}" target="_blank">
+                <span class="bi-globe me-2"></span>
+                {{ ENV.elfApiBaseUrl }}
+            </a>
         </div>
-    </div>
-</nav>
+        <div class="user-info d-flex me-3 text-light" *ngIf="loginDisplay">
+            <span class="bi-person me-2"></span>
+            {{ accountInfo.name }} ({{ accountInfo.username }})
+        </div>
+    </kendo-appbar-section>
+    <span class="k-appbar-separator"></span>
+    <kendo-appbar-section>
+        <button kendoButton fillMode="flat" *ngIf="!loginDisplay" (click)="login()">Login</button>
+        <button kendoButton fillMode="flat" *ngIf="loginDisplay" (click)="logout()">
+            <span>Sign out</span>
+        </button>
+    </kendo-appbar-section>
+</kendo-appbar>
+
 <router-outlet *ngIf="!isIframe"></router-outlet>
