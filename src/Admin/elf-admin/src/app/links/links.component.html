@@ -1,21 +1,23 @@
+<kendo-toolbar>
+    <kendo-toolbar-button icon="plus" text="New" (click)="addNewLink()">
+    </kendo-toolbar-button>
+    <kendo-toolbar-button icon="refresh" (click)="getLinks(true)">
+    </kendo-toolbar-button>
+    <kendo-toolbar-spacer></kendo-toolbar-spacer>
+</kendo-toolbar>
+
 <div class="container-fluid mt-3">
-    
     <kendo-grid [data]="gridView" kendoGridSelectBy="id" [reorderable]="true" [resizable]="true" [pageSize]="pageSize"
         [skip]="skip" [pageable]="true" (pageChange)="pageChange($event)" (edit)="editLinkHandler($event)"
         (remove)="removeLinkHandler($event)">
         <ng-template kendoGridToolbarTemplate>
-            <button kendoButton (click)="addNewLink()">
-                <i class="bi-plus"></i>
-                New
-            </button>
-            <button kendoButton iconClass="bi-arrow-clockwise" (click)="getLinks(true)"></button>
-
             <div>
-                <kendo-multiselecttree class="search-box-tags" placeholder="Search by tags" kendoMultiSelectTreeExpandable
-                    [kendoMultiSelectTreeHierarchyBinding]="tagTreeItems" [textField]="'name'" [valueField]="'id'"
-                    [childrenField]="'items'" [expandedKeys]="['0']" [(value)]="tagsComplexArrayValue">
+                <kendo-multiselecttree class="search-box-tags" placeholder="Search by tags"
+                    kendoMultiSelectTreeExpandable [kendoMultiSelectTreeHierarchyBinding]="tagTreeItems"
+                    [textField]="'name'" [valueField]="'id'" [childrenField]="'items'" [expandedKeys]="['0']"
+                    [(value)]="tagsComplexArrayValue">
                 </kendo-multiselecttree>
-        
+
                 <button kendoButton iconClass="bi-search" (click)="searchByTags()">
                 </button>
             </div>
@@ -36,7 +38,8 @@
 
         <kendo-grid-column field="fwToken" title="Token" [width]="100">
             <ng-template kendoGridCellTemplate let-dataItem>
-                <a href="{{ENV.elfApiBaseUrl}}/fw/{{dataItem.fwToken}}" target="_blank">{{dataItem.fwToken}}</a>
+                <a class="fwtoken-cell-item" href="{{ENV.elfApiBaseUrl}}/fw/{{dataItem.fwToken}}"
+                    target="_blank">{{dataItem.fwToken}}</a>
             </ng-template>
         </kendo-grid-column>
 

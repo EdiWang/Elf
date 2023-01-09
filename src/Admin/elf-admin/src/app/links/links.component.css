@@ -5,3 +5,7 @@
 .search-box-token-note {
   width: 200px;
 }
+
+.fwtoken-cell-item {
+  font-family: 'Cascadia Code', 'Consolas', 'Courier New', Courier, monospace;
+}
