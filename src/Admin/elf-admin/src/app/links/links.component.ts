@@ -121,9 +121,7 @@ export class LinksComponent implements OnInit {
                     tags: val.tags.map(t => t.name)
                 })
                 .subscribe(() => {
-                    this.linkDataItem = undefined;
-                    this.getLinks();
-                    this.updateTagCache();
+                    this.onLinkUpdateSuccess();
                 });
         }
         else {
@@ -137,11 +135,15 @@ export class LinksComponent implements OnInit {
                     tags: val.tags.map(t => t.name)
                 })
                 .subscribe(() => {
-                    this.linkDataItem = undefined;
-                    this.getLinks();
-                    this.updateTagCache();
+                    this.onLinkUpdateSuccess();
                 });
         }
+    }
+
+    onLinkUpdateSuccess() {
+        this.linkDataItem = undefined;
+        this.getLinks();
+        this.updateTagCache();
     }
 
     //#region Delete

@@ -65,16 +65,19 @@ export class TagsComponent implements OnInit {
   onTagUpdate(val: Tag) {
     if (this.isNewTag) {
       this.service.add({ name: val.name }).subscribe(() => {
-        this.tagDataItem = undefined;
-        this.getTags();
+        this.onTagUpdateSuccess();
       });
     }
     else {
       this.service.update(val.id, { name: val.name }).subscribe(() => {
-        this.tagDataItem = undefined;
-        this.getTags();
+        this.onTagUpdateSuccess();
       });
     }
+  }
+
+  onTagUpdateSuccess() {
+    this.tagDataItem = undefined;
+    this.getTags();
   }
 
   addNewTag() {
