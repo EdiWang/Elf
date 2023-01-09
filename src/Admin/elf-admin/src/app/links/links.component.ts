@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Link, LinkService, PagedLinkResult } from './link.service';
+import { EditLinkRequest, Link, LinkService, PagedLinkResult } from './link.service';
 import { environment } from 'src/environments/environment';
 import { AppCacheService } from '../shared/appcache.service';
 import { Tag, TagService } from '../tag/tag.service';
-import { GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
+import { EditCommandDirective, GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClipboardService } from 'ngx-clipboard';
 @Component({
@@ -108,18 +108,18 @@ export class LinksComponent implements OnInit {
     }
 
     onLinkUpdate(val: Link) {
-        console.info(val);
+        let elr: EditLinkRequest = {
+            originUrl: val.originUrl.trim(),
+            note: val.note,
+            akaName: val.akaName,
+            isEnabled: val.isEnabled,
+            ttl: val.ttl,
+            tags: val.tags.map(t => t.name)
+        };
 
         if (this.isNewLink) {
             this.linkService
-                .add({
-                    originUrl: val.originUrl.trim(),
-                    note: val.note,
-                    akaName: val.akaName,
-                    isEnabled: val.isEnabled,
-                    ttl: val.ttl,
-                    tags: val.tags.map(t => t.name)
-                })
+                .add(elr)
                 .subscribe({
                     next: () => this.onLinkUpdateSuccess(),
                     error: (ex) => this.onLinkUpdateFail(ex)
@@ -127,14 +127,7 @@ export class LinksComponent implements OnInit {
         }
         else {
             this.linkService
-                .update(val.id, {
-                    originUrl: val.originUrl.trim(),
-                    note: val.note,
-                    akaName: val.akaName,
-                    isEnabled: val.isEnabled,
-                    ttl: val.ttl,
-                    tags: val.tags.map(t => t.name)
-                })
+                .update(val.id, elr)
                 .subscribe({
                     next: () => this.onLinkUpdateSuccess(),
                     error: (ex) => this.onLinkUpdateFail(ex)
