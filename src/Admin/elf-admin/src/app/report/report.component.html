@@ -1,25 +1,22 @@
-<div class="container-fluid">
-    <div class="row mt-3 mb-3 g-1">
-        <div class="col-auto">
-            <kendo-daterange>
-                <kendo-dateinput kendoDateRangeStartInput [format]="dateFormat" placeholder="MM/DD/YYYY"
-                    [(value)]="range.start"></kendo-dateinput>
-                <kendo-dateinput kendoDateRangeEndInput [format]="dateFormat" placeholder="MM/DD/YYYY"
-                    [(value)]="range.end"></kendo-dateinput>
-                <kendo-daterange-popup [animate]="false">
-                </kendo-daterange-popup>
-            </kendo-daterange>
-        </div>
-        <div class="col-auto">
-            <button kendoButton (click)="getChartData()">
-                <i class="bi-arrow-clockwise"></i>
-            </button>
-        </div>
-    </div>
-
-    <div class="row g-2">
-        <div class="col-sm-6 col-lg-4">
-            <kendo-card class="mb-4 w-100">
+<div class="container-fluid mt-3 mb-3">
+    <kendo-gridlayout [gap]="{ rows: 2, cols: 3 }">
+        <kendo-gridlayout-item [row]="1" [col]="1" [colSpan]="3">
+            <div class="d-inline-flex">
+                <kendo-daterange>
+                    <kendo-dateinput kendoDateRangeStartInput [format]="dateFormat" placeholder="MM/DD/YYYY"
+                        [(value)]="range.start"></kendo-dateinput>
+                    <kendo-dateinput kendoDateRangeEndInput [format]="dateFormat" placeholder="MM/DD/YYYY"
+                        [(value)]="range.end"></kendo-dateinput>
+                    <kendo-daterange-popup [animate]="false">
+                    </kendo-daterange-popup>
+                </kendo-daterange>
+                <button kendoButton (click)="getChartData()">
+                    <i class="bi-arrow-clockwise"></i>
+                </button>
+            </div>
+        </kendo-gridlayout-item>
+        <kendo-gridlayout-item [row]="2" [col]="1">
+            <kendo-card width="auto">
                 <kendo-card-header>
                     Requests
                     <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isTrackingCountLoading">
@@ -38,9 +35,9 @@
                     </kendo-chart>
                 </kendo-card-body>
             </kendo-card>
-        </div>
-        <div class="col-sm-6 col-lg-4">
-            <kendo-card class="mb-4 w-100">
+        </kendo-gridlayout-item>
+        <kendo-gridlayout-item [row]="2" [col]="2">
+            <kendo-card width="auto">
                 <kendo-card-header>
                     Client types
                     <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isClientTypeLoading">
@@ -60,9 +57,9 @@
                     </kendo-chart>
                 </kendo-card-body>
             </kendo-card>
-        </div>
-        <div class="col-sm-6 col-lg-4">
-            <kendo-card class="mb-4 w-100">
+        </kendo-gridlayout-item>
+        <kendo-gridlayout-item [row]="2" [col]="3">
+            <kendo-card width="auto">
                 <kendo-card-header>
                     Most requested links
                     <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isMostRequestedLinksLoading">
@@ -80,8 +77,10 @@
                     </kendo-chart>
                 </kendo-card-body>
             </kendo-card>
-        </div>
-    </div>
+        </kendo-gridlayout-item>
+    </kendo-gridlayout>
+</div>
 
+<div class="container-fluid">
     <app-recent-requests></app-recent-requests>
 </div>
