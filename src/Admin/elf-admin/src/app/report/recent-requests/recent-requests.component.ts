@@ -6,10 +6,10 @@ import { ReportService, RequestTrack } from "../report.service";
     selector: 'app-recent-requests',
     templateUrl: './recent-requests.component.html'
 })
-export class RecentRequestsComponent implements OnInit { 
+export class RecentRequestsComponent implements OnInit {
     ENV = environment;
-    public gridView: any[];
-    public requestTrack: RequestTrack[] = [];
+    gridView: any[];
+    requestTrack: RequestTrack[] = [];
     isLoading: boolean = false;
 
     constructor(private service: ReportService) {
