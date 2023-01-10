@@ -12,11 +12,11 @@
         (remove)="removeLinkHandler($event)">
         <ng-template kendoGridToolbarTemplate>
             <div>
-                <kendo-multiselecttree class="search-box-tags" placeholder="Search by tags"
-                    kendoMultiSelectTreeExpandable [kendoMultiSelectTreeHierarchyBinding]="tagTreeItems"
-                    [textField]="'name'" [valueField]="'id'" [childrenField]="'items'" [expandedKeys]="['0']"
-                    [(value)]="tagsComplexArrayValue">
-                </kendo-multiselecttree>
+                <kendo-multiselect class="search-box-tags" placeholder="Search by tags" [checkboxes]="true"
+                    [autoClose]="false" 
+                    [data]="allTags" [textField]="'name'" [valueField]="'id'"
+                    [(ngModel)]="selectedTags">
+                </kendo-multiselect>
 
                 <button kendoButton iconClass="bi-search" (click)="searchByTags()">
                 </button>

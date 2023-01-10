@@ -3,7 +3,7 @@ import { EditLinkRequest, Link, LinkService, PagedLinkResult } from './link.serv
 import { environment } from 'src/environments/environment';
 import { AppCacheService } from '../shared/appcache.service';
 import { Tag, TagService } from '../tag/tag.service';
-import { EditCommandDirective, GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
+import { GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClipboardService } from 'ngx-clipboard';
 @Component({
@@ -14,8 +14,6 @@ import { ClipboardService } from 'ngx-clipboard';
 export class LinksComponent implements OnInit {
     linkId: number;
     isNewLink: boolean = false;
-    public tagTreeItems: any[];
-    public tagsComplexArrayValue: Tag[];
 
     ENV = environment;
     isLoading = false;
@@ -23,6 +21,7 @@ export class LinksComponent implements OnInit {
     skip = 0;
     searchTerm: string = null;
     allTags: Tag[] = [];
+    selectedTags: Tag[];
 
     public gridView: GridDataResult;
 
@@ -46,14 +45,6 @@ export class LinksComponent implements OnInit {
                 this.isLoading = false;
                 this.appCache.tags = result;
                 this.allTags = result;
-
-                this.tagTreeItems = [
-                    {
-                        name: 'Tags',
-                        id: 0,
-                        items: result,
-                    },
-                ];
             });
     }
 
@@ -195,7 +186,7 @@ export class LinksComponent implements OnInit {
     checkLink(id: number, isEnabled: boolean): void {
         this.linkService.setEnable(id, isEnabled).subscribe(() => {
             this.notificationService.show({
-                content: "Updated",
+                content: isEnabled ? "Enabled" : "Disabled",
                 cssClass: "button-notification",
                 animation: { type: "slide", duration: 400 },
                 position: { horizontal: "center", vertical: "bottom" },
@@ -241,13 +232,13 @@ export class LinksComponent implements OnInit {
     //#region Query by Tags
 
     searchByTags() {
-        if (this.tagsComplexArrayValue.length == 0) {
+        if (this.selectedTags.length == 0) {
             this.getLinks();
             return;
         }
 
         this.isLoading = true;
-        this.linkService.listByTags(this.pageSize, this.skip, this.tagsComplexArrayValue.map(t => t.id))
+        this.linkService.listByTags(this.pageSize, this.skip, this.selectedTags.map(t => t.id))
             .subscribe((result: PagedLinkResult) => {
                 this.isLoading = false;
                 this.gridView = {
