@@ -1,4 +1,4 @@
-<kendo-dialog *ngIf="active" [width]="600" [height]="400" (close)="onCancel($event)">
+<kendo-dialog *ngIf="active" [width]="600" [height]="450" (close)="onCancel($event)">
     <kendo-dialog-titlebar>
         Link
     </kendo-dialog-titlebar>
@@ -6,7 +6,8 @@
     <form novalidate class="k-form" [formGroup]="editLinkForm" spellcheck="false">
         <kendo-formfield>
             <kendo-label [for]="originUrl" text="Origin Url"></kendo-label>
-            <input type="url" formControlName="originUrl" kendoTextBox #originUrl />
+            <kendo-textarea type="url" formControlName="originUrl" #originUrl>
+            </kendo-textarea>
             <kendo-formerror>{{validationErrorMessage?.required}}</kendo-formerror>
         </kendo-formfield>
 
@@ -38,7 +39,7 @@
             </kendo-multiselect>
         </kendo-formfield>
 
-        <div>
+        <div class="d-flex mt-2">
             <input type="checkbox" kendoCheckBox formControlName="isEnabled" #isEnabled />
             <kendo-label class="k-checkbox-label" [for]="isEnabled" text="Enabled"></kendo-label>
         </div>
