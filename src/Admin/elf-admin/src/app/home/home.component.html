@@ -58,7 +58,7 @@
             Please Sign-in with Azure AD to use
         </div>
 
-        <div class="api-info text-muted" *ngIf="isPostLogin && pingResult">
+        <div class="api-info text-muted mt-2" *ngIf="isPostLogin && pingResult">
             appVersion: {{ pingResult.appVersion }},
             dotNetVersion: {{ pingResult.dotNetVersion }},
             requestIpAddress: {{ pingResult.requestIpAddress }}
