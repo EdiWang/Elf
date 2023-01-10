@@ -13,8 +13,7 @@
         <ng-template kendoGridToolbarTemplate>
             <div>
                 <kendo-multiselect class="search-box-tags" placeholder="Search by tags" [checkboxes]="true"
-                    [autoClose]="false" 
-                    [data]="allTags" [textField]="'name'" [valueField]="'id'"
+                    [autoClose]="false" [data]="allTags" [textField]="'name'" [valueField]="'id'"
                     [(ngModel)]="selectedTags">
                 </kendo-multiselect>
 
@@ -43,13 +42,16 @@
             </ng-template>
         </kendo-grid-column>
 
-        <kendo-grid-column field="originUrl" title="Origin Url" [width]="300">
+        <kendo-grid-column field="originUrl" title="Origin Url" [width]="360">
             <ng-template kendoGridCellTemplate let-dataItem>
                 <a href="{{dataItem.originUrl}}" class="crop" target="_blank">{{dataItem.originUrl}}</a>
             </ng-template>
         </kendo-grid-column>
 
         <kendo-grid-column field="note" title="Note">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <span class="crop">{{dataItem.note}}</span>
+            </ng-template>
         </kendo-grid-column>
 
         <kendo-grid-column field="akaName" title="Aka" [width]="150">
