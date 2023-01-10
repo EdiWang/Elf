@@ -230,16 +230,18 @@ export class LinksComponent implements OnInit {
     }
 
     copyAka(link: Link) {
-        this.clipboardService.copy(environment.elfApiBaseUrl + '/aka/' + link.akaName);
+        if (link.akaName) {
+            this.clipboardService.copy(environment.elfApiBaseUrl + '/aka/' + link.akaName);
 
-        this.notificationService.show({
-            content: "Aka url copied",
-            cssClass: "button-notification",
-            animation: { type: "slide", duration: 400 },
-            position: { horizontal: "center", vertical: "bottom" },
-            type: { style: "success", icon: true },
-            hideAfter: 2000
-        });
+            this.notificationService.show({
+                content: "Aka url copied",
+                cssClass: "button-notification",
+                animation: { type: "slide", duration: 400 },
+                position: { horizontal: "center", vertical: "bottom" },
+                type: { style: "success", icon: true },
+                hideAfter: 2000
+            });
+        }
     }
 
     public pageChange(event: PageChangeEvent): void {

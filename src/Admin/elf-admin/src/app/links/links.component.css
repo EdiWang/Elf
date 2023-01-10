@@ -9,3 +9,11 @@
 .fwtoken-cell-item {
   font-family: 'Cascadia Code', 'Consolas', 'Courier New', Courier, monospace;
 }
+
+.link-cursor {
+  cursor: pointer;
+}
+
+.text-disabled {
+  color: #AAA;
+}
