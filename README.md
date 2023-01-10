@@ -18,9 +18,9 @@ will be translate to `https://yourdomain/fw/token` or `https://yourdomain/aka/na
 
 Forward Link, Create/Manage/Share Link, View Report.
 
-![list](https://user-images.githubusercontent.com/3304703/211265875-6b106ab4-656f-4b2d-b215-61d8dee82f34.png)
-![report](https://user-images.githubusercontent.com/3304703/211266133-1102708f-7d45-48b1-b983-f290f3734c4c.png)
-![share](https://user-images.githubusercontent.com/3304703/211266197-3c485c33-03a8-44e8-a0e9-cfe0f12cb735.png)
+![list](https://user-images.githubusercontent.com/3304703/211445954-3a0973e5-18c0-430c-89c3-7030488cc9f7.png)
+![report](https://user-images.githubusercontent.com/3304703/211445980-433079c2-1b28-41b5-a202-39863a34ef2c.png)
+![share](https://user-images.githubusercontent.com/3304703/211446039-b4dee937-8860-4e96-865f-36c0bdfb18c0.png)
 
 ## Forward Logic
 
