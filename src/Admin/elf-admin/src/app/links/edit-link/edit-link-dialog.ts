@@ -12,8 +12,6 @@ import { Tag } from "src/app/tag/tag.service";
 export class EditLinkDialog {
     editLinkForm: FormGroup;
     allTags: Tag[] = [];
-    public tagTreeItems: any[];
-    public tagsComplexArrayValue: Tag[];
     public active = false;
     public validationErrorMessage = ValidationErrorMessage;
 
@@ -28,15 +26,7 @@ export class EditLinkDialog {
     @Input() public set model(data: Link) {
         this.editLinkForm?.reset(data);
         this.active = data !== undefined;
-
         this.allTags = this.appCache.tags;
-        this.tagTreeItems = [
-            {
-                name: 'Tags',
-                id: 0,
-                items: this.allTags,
-            }
-        ];
     }
 
     ngOnInit(): void {

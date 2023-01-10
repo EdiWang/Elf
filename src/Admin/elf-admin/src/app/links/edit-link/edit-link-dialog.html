@@ -32,10 +32,10 @@
 
         <kendo-formfield>
             <kendo-label [for]="tags" text="Tags"></kendo-label>
-            <kendo-multiselecttree kendoMultiSelectTreeExpandable
-                [kendoMultiSelectTreeHierarchyBinding]="tagTreeItems" [textField]="'name'" [valueField]="'id'"
-                [childrenField]="'items'" [expandedKeys]="['0']" [(value)]="tagsComplexArrayValue" formControlName="tags" #tags>
-            </kendo-multiselecttree>
+            <kendo-multiselect class="search-box-tags" [checkboxes]="true"
+                [autoClose]="false" [data]="allTags" [textField]="'name'" [valueField]="'id'" formControlName="tags"
+                #tags>
+            </kendo-multiselect>
         </kendo-formfield>
 
         <div>
@@ -46,8 +46,7 @@
 
     <kendo-dialog-actions layout="normal">
         <button kendoButton (click)="onCancel($event)" class="ms-auto px-5">Cancel</button>
-        <button kendoButton [primary]="true" [disabled]="!editLinkForm.valid" (click)="onSave($event)"
-            class="px-5">
+        <button kendoButton [primary]="true" [disabled]="!editLinkForm.valid" (click)="onSave($event)" class="px-5">
             Save
         </button>
     </kendo-dialog-actions>
