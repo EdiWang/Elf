@@ -8,11 +8,9 @@ import { ReportService, RequestTrack } from "../report.service";
 })
 export class RecentRequestsComponent implements OnInit { 
     ENV = environment;
-
     public gridView: any[];
     public requestTrack: RequestTrack[] = [];
-
-    isRecentRequestsLoading = false;
+    isLoading: boolean = false;
 
     constructor(private service: ReportService) {
     }
@@ -22,10 +20,10 @@ export class RecentRequestsComponent implements OnInit {
     }
 
     getData() {
-        this.isRecentRequestsLoading = true;
+        this.isLoading = true;
 
         this.service.recentRequests(100, 0).subscribe((result: RequestTrack[]) => {
-            this.isRecentRequestsLoading = false;
+            this.isLoading = false;
             this.requestTrack = result;
             this.gridView = this.requestTrack;
         })

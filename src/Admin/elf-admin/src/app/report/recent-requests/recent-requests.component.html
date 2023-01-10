@@ -3,7 +3,7 @@
 
     <ng-template kendoGridToolbarTemplate>
         <label>Recent Requests</label>
-        <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isRecentRequestsLoading">
+        <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isLoading">
         </kendo-loader>
         <kendo-grid-spacer></kendo-grid-spacer>
         <button kendoButton iconClass="bi-arrow-clockwise" (click)="getData()"></button>
