@@ -6,6 +6,7 @@ import { Tag, TagService } from '../tag/tag.service';
 import { GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClipboardService } from 'ngx-clipboard';
+import { HttpErrorResponse } from '@angular/common/http';
 @Component({
     selector: 'app-links',
     templateUrl: './links.component.html',
@@ -49,9 +50,7 @@ export class LinksComponent implements OnInit {
     }
 
     getLinks(reset: boolean = false): void {
-        if (reset) {
-            this.skip = 0;
-        }
+        if (reset) this.skip = 0;
 
         this.isLoading = true;
 
@@ -142,9 +141,9 @@ export class LinksComponent implements OnInit {
         this.updateTagCache();
     }
 
-    onLinkUpdateFail(ex) {
+    onLinkUpdateFail(ex: HttpErrorResponse) {
         this.notificationService.show({
-            content: ex.statusText,
+            content: `${ex.statusText}:${ex.message}`,
             cssClass: "button-notification",
             animation: { type: "slide", duration: 400 },
             position: { horizontal: "center", vertical: "bottom" },
@@ -163,9 +162,14 @@ export class LinksComponent implements OnInit {
     }
 
     deleteLink(): void {
-        this.linkService.delete(this.linkId).subscribe(() => {
-            this.deleteLinkDialogOpened = false;
-            this.getLinks();
+        this.linkService.delete(this.linkId).subscribe({
+            next: () => {
+                this.deleteLinkDialogOpened = false;
+                this.getLinks();
+            },
+            error: (ex) => {
+                this.onLinkUpdateFail(ex);
+            }
         });
     }
 
@@ -184,15 +188,20 @@ export class LinksComponent implements OnInit {
     }
 
     checkLink(id: number, isEnabled: boolean): void {
-        this.linkService.setEnable(id, isEnabled).subscribe(() => {
-            this.notificationService.show({
-                content: isEnabled ? "Enabled" : "Disabled",
-                cssClass: "button-notification",
-                animation: { type: "slide", duration: 400 },
-                position: { horizontal: "center", vertical: "bottom" },
-                type: { style: "success", icon: true },
-                hideAfter: 2000
-            });
+        this.linkService.setEnable(id, isEnabled).subscribe({
+            next: () => {
+                this.notificationService.show({
+                    content: isEnabled ? "Enabled" : "Disabled",
+                    cssClass: "button-notification",
+                    animation: { type: "slide", duration: 400 },
+                    position: { horizontal: "center", vertical: "bottom" },
+                    type: { style: "success", icon: true },
+                    hideAfter: 2000
+                });
+            },
+            error: (ex) => {
+                this.onLinkUpdateFail(ex);
+            }
         });
     }
 
