@@ -57,22 +57,23 @@ export class LinksComponent implements OnInit {
             this.linkService.list(this.pageSize, this.skip, this.searchTerm)
                 .subscribe((result: PagedLinkResult) => {
                     this.isLoading = false;
-                    this.gridView = {
-                        data: result.links,
-                        total: result.totalRows
-                    };
+                    this.setGridData(result);
                 });
         }
         else {
             this.linkService.listByTags(this.pageSize, this.skip, this.selectedTags.map(t => t.id))
                 .subscribe((result: PagedLinkResult) => {
                     this.isLoading = false;
-                    this.gridView = {
-                        data: result.links,
-                        total: result.totalRows
-                    };
+                    this.setGridData(result);
                 });
         }
+    }
+
+    setGridData(result: PagedLinkResult) {
+        this.gridView = {
+            data: result.links,
+            total: result.totalRows
+        };
     }
 
     //#region Share
@@ -138,18 +139,8 @@ export class LinksComponent implements OnInit {
 
     onLinkUpdateSuccess() {
         this.linkDataItem = undefined;
-
-        this.notificationService.show({
-            content: "Updated",
-            cssClass: "button-notification",
-            animation: { type: "slide", duration: 400 },
-            position: { horizontal: "center", vertical: "bottom" },
-            type: { style: "success", icon: true },
-            hideAfter: 2000
-        });
-
+        this.notifySuccess("Updated");
         this.getLinks();
-        this.updateTagCache();
     }
 
     onLinkUpdateFail(ex: HttpErrorResponse) {
@@ -201,14 +192,7 @@ export class LinksComponent implements OnInit {
     checkLink(id: number, isEnabled: boolean): void {
         this.linkService.setEnable(id, isEnabled).subscribe({
             next: () => {
-                this.notificationService.show({
-                    content: isEnabled ? "Enabled" : "Disabled",
-                    cssClass: "button-notification",
-                    animation: { type: "slide", duration: 400 },
-                    position: { horizontal: "center", vertical: "bottom" },
-                    type: { style: "success", icon: true },
-                    hideAfter: 2000
-                });
+                this.notifySuccess(isEnabled ? "Enabled" : "Disabled");
             },
             error: (ex) => {
                 this.onLinkUpdateFail(ex);
@@ -218,29 +202,13 @@ export class LinksComponent implements OnInit {
 
     copyUrl(link: Link) {
         this.clipboardService.copy(environment.elfApiBaseUrl + '/fw/' + link.fwToken);
-
-        this.notificationService.show({
-            content: "Url copied",
-            cssClass: "button-notification",
-            animation: { type: "slide", duration: 400 },
-            position: { horizontal: "center", vertical: "bottom" },
-            type: { style: "success", icon: true },
-            hideAfter: 2000
-        });
+        this.notifySuccess("Url copied");
     }
 
     copyAka(link: Link) {
         if (link.akaName) {
             this.clipboardService.copy(environment.elfApiBaseUrl + '/aka/' + link.akaName);
-
-            this.notificationService.show({
-                content: "Aka url copied",
-                cssClass: "button-notification",
-                animation: { type: "slide", duration: 400 },
-                position: { horizontal: "center", vertical: "bottom" },
-                type: { style: "success", icon: true },
-                hideAfter: 2000
-            });
+            this.notifySuccess("Aka url copied");
         }
     }
 
@@ -250,4 +218,15 @@ export class LinksComponent implements OnInit {
     }
 
     //#endregion
+
+    notifySuccess(message: string) {
+        this.notificationService.show({
+            content: message,
+            cssClass: "button-notification",
+            animation: { type: "slide", duration: 400 },
+            position: { horizontal: "center", vertical: "bottom" },
+            type: { style: "success", icon: true },
+            hideAfter: 2000
+        });
+    }
 }
