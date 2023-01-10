@@ -14,7 +14,7 @@ export class ReportComponent implements OnInit {
     pipe = new DatePipe('en-US');
     public dateFormat: FormatSettings = {
         displayFormat: "MM/dd/yyyy",
-        inputFormat: "MM/dd/yyyy",
+        inputFormat: "MM/dd/yyyy"
     };
     public range = { start: null, end: new Date() };
 
