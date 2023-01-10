@@ -1,7 +1,8 @@
 @import "~bootstrap/dist/css/bootstrap-reboot.css";
 @import "~bootstrap/dist/css/bootstrap-grid.css";
 @import "~bootstrap/dist/css/bootstrap-utilities.css";
-@import "@progress/kendo-theme-default/dist/all.css";
+/* @import "@progress/kendo-theme-default/dist/all.css"; */
+@import "elf.css";
 
 html,
 body {
@@ -32,4 +33,8 @@ a {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.k-chart {
+  border-style: none;
 }

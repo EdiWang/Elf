@@ -18,7 +18,7 @@ export class LinksComponent implements OnInit {
 
     ENV = environment;
     isLoading = false;
-    pageSize = 15;
+    pageSize = 10;
     skip = 0;
     searchTerm: string = null;
     allTags: Tag[] = [];

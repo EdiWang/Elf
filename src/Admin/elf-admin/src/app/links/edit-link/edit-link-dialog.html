@@ -1,4 +1,4 @@
-<kendo-dialog *ngIf="active" [width]="600" [height]="450" (close)="onCancel($event)">
+<kendo-dialog *ngIf="active" [width]="720" [height]="570" (close)="onCancel($event)">
     <kendo-dialog-titlebar>
         Link
     </kendo-dialog-titlebar>
@@ -6,7 +6,7 @@
     <form novalidate class="k-form" [formGroup]="editLinkForm" spellcheck="false">
         <kendo-formfield>
             <kendo-label [for]="originUrl" text="Origin Url"></kendo-label>
-            <kendo-textarea type="url" formControlName="originUrl" #originUrl>
+            <kendo-textarea [rows]="4" type="url" formControlName="originUrl" #originUrl>
             </kendo-textarea>
             <kendo-formerror>{{validationErrorMessage?.required}}</kendo-formerror>
         </kendo-formfield>
