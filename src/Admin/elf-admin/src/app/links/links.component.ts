@@ -22,7 +22,7 @@ export class LinksComponent implements OnInit {
     skip = 0;
     searchTerm: string = null;
     allTags: Tag[] = [];
-    selectedTags: Tag[];
+    selectedTags: Tag[] = [];
 
     public gridView: GridDataResult;
 
@@ -51,17 +51,28 @@ export class LinksComponent implements OnInit {
 
     getLinks(reset: boolean = false): void {
         if (reset) this.skip = 0;
-
         this.isLoading = true;
 
-        this.linkService.list(this.pageSize, this.skip, this.searchTerm)
-            .subscribe((result: PagedLinkResult) => {
-                this.isLoading = false;
-                this.gridView = {
-                    data: result.links,
-                    total: result.totalRows
-                };
-            });
+        if (this.selectedTags.length == 0) {
+            this.linkService.list(this.pageSize, this.skip, this.searchTerm)
+                .subscribe((result: PagedLinkResult) => {
+                    this.isLoading = false;
+                    this.gridView = {
+                        data: result.links,
+                        total: result.totalRows
+                    };
+                });
+        }
+        else {
+            this.linkService.listByTags(this.pageSize, this.skip, this.selectedTags.map(t => t.id))
+                .subscribe((result: PagedLinkResult) => {
+                    this.isLoading = false;
+                    this.gridView = {
+                        data: result.links,
+                        total: result.totalRows
+                    };
+                });
+        }
     }
 
     //#region Share
@@ -234,27 +245,6 @@ export class LinksComponent implements OnInit {
     public pageChange(event: PageChangeEvent): void {
         this.skip = event.skip;
         this.getLinks();
-    }
-
-    //#endregion
-
-    //#region Query by Tags
-
-    searchByTags() {
-        if (this.selectedTags.length == 0) {
-            this.getLinks();
-            return;
-        }
-
-        this.isLoading = true;
-        this.linkService.listByTags(this.pageSize, this.skip, this.selectedTags.map(t => t.id))
-            .subscribe((result: PagedLinkResult) => {
-                this.isLoading = false;
-                this.gridView = {
-                    data: result.links,
-                    total: result.totalRows
-                };
-            });
     }
 
     //#endregion
