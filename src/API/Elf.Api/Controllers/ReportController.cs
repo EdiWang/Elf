@@ -18,13 +18,21 @@ public class ReportController : ControllerBase
     }
 
     [HttpGet("requests")]
-    [ProducesResponseType(typeof(IReadOnlyList<RequestTrack>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedRequestTrack), StatusCodes.Status200OK)]
     public async Task<IActionResult> Requests(
         [Range(1, int.MaxValue)] int take,
         [Range(0, int.MaxValue)] int offset)
     {
-        var requests = await _mediator.Send(new GetRecentRequestsQuery(offset, take));
-        return Ok(requests);
+        var (requests, totalRows) = await _mediator.Send(new GetRecentRequestsQuery(offset, take));
+
+        var result = new PagedRequestTrack
+        {
+            RequestTracks = requests,
+            TotalRows = totalRows,
+            PageSize = take
+        };
+
+        return Ok(result);
     }
 
     [HttpPost("requests/link")]

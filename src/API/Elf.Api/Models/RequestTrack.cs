@@ -22,3 +22,8 @@ public class RequestTrack
 
     public string IPOrg { get; set; }
 }
+
+public class PagedRequestTrack : PagedResult
+{
+    public IReadOnlyList<RequestTrack> RequestTracks { get; set; }
+}
