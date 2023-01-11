@@ -11,7 +11,7 @@ export class ReportService {
     constructor(private http: HttpClient) { }
 
     recentRequests(take: number, offset: number) {
-        return this.http.get<RequestTrack[]>(this.url + `/requests?take=${take}&offset=${offset}`);
+        return this.http.get<PagedRequestTrack>(this.url + `/requests?take=${take}&offset=${offset}`);
     }
 
     mostRequestedLinks(request: DateRangeRequest) {
@@ -62,4 +62,10 @@ export interface RequestTrack {
     ipCity: string;
     ipasn: string;
     ipOrg: string;
+}
+
+export interface PagedRequestTrack {
+    requestTracks: RequestTrack[];
+    totalRows: number;
+    pageSize: number;
 }

@@ -1,5 +1,5 @@
-<kendo-grid [kendoGridBinding]="gridView" kendoGridSelectBy="fwToken" [reorderable]="true" [resizable]="true"
-    [sortable]="true" [pageable]="true" [pageSize]="5">
+<kendo-grid [data]="gridView" kendoGridSelectBy="fwToken" [reorderable]="true" [resizable]="true"
+    [sortable]="true" [pageSize]="pageSize" [skip]="skip" [pageable]="true" (pageChange)="pageChange($event)">
 
     <ng-template kendoGridToolbarTemplate>
         <label>Recent Requests</label>

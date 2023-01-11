@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
+import { GridDataResult, PageChangeEvent } from "@progress/kendo-angular-grid";
 import { environment } from "src/environments/environment";
-import { ReportService, RequestTrack } from "../report.service";
+import { PagedRequestTrack, ReportService } from "../report.service";
 
 @Component({
     selector: 'app-recent-requests',
@@ -8,8 +9,9 @@ import { ReportService, RequestTrack } from "../report.service";
 })
 export class RecentRequestsComponent implements OnInit {
     ENV = environment;
-    gridView: any[];
-    requestTrack: RequestTrack[] = [];
+    gridView: GridDataResult;
+    pageSize = 5;
+    skip = 0;
     isLoading: boolean = false;
 
     constructor(private service: ReportService) {
@@ -22,11 +24,18 @@ export class RecentRequestsComponent implements OnInit {
     getData() {
         this.isLoading = true;
 
-        this.service.recentRequests(100, 0).subscribe((result: RequestTrack[]) => {
+        this.service.recentRequests(this.pageSize, this.skip).subscribe((result: PagedRequestTrack) => {
             this.isLoading = false;
-            this.requestTrack = result;
-            this.gridView = this.requestTrack;
+            this.gridView = {
+                data: result.requestTracks,
+                total: result.totalRows
+            };
         })
+    }
+
+    public pageChange(event: PageChangeEvent): void {
+        this.skip = event.skip;
+        this.getData();
     }
 
     clearTrackingData() {
@@ -34,5 +43,4 @@ export class RecentRequestsComponent implements OnInit {
             this.getData();
         });
     }
-
 }
