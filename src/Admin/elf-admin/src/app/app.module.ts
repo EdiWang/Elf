@@ -1,11 +1,14 @@
 import { ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+
 import { ClipboardModule } from 'ngx-clipboard';
+
+import { ElfApplicationinsightsErrorHandlerService } from './error-handler.service';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { LinkService } from './links/link.service';
 import { LinksComponent } from './links/links.component';
@@ -28,24 +31,29 @@ import { RecentRequestsComponent } from './report/recent-requests/recent-request
 import { NotificationModule } from '@progress/kendo-angular-notification';
 import { BarcodesModule } from '@progress/kendo-angular-barcodes';
 import { DropDownsModule } from '@progress/kendo-angular-dropdowns';
+import { LayoutModule } from '@progress/kendo-angular-layout';
+import { ToolBarModule } from '@progress/kendo-angular-toolbar';
+import { NavigationModule } from '@progress/kendo-angular-navigation';
 //#endregion
-
-import { ElfApplicationinsightsErrorHandlerService } from './error-handler.service';
-
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
 //#region MSAL
 
 import { IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
-import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
+import {
+  MsalGuard,
+  MsalInterceptor,
+  MsalBroadcastService,
+  MsalInterceptorConfiguration,
+  MsalModule,
+  MsalService,
+  MSAL_GUARD_CONFIG,
+  MSAL_INSTANCE,
+  MSAL_INTERCEPTOR_CONFIG,
+  MsalGuardConfiguration,
+  MsalRedirectComponent
+} from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
-import { LayoutModule } from '@progress/kendo-angular-layout';
-import { ToolBarModule } from '@progress/kendo-angular-toolbar';
-import { NavigationModule } from '@progress/kendo-angular-navigation';
-
-
-
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication(msalConfig);
