@@ -133,11 +133,6 @@ public class ForwardController : ControllerBase
 
         linkEntry ??= await _cache.GetLink(token);
 
-        // Check if browser sends "Do Not Track"
-        var dntFlag = Request.Headers["DNT"];
-        var dnt = !string.IsNullOrWhiteSpace(dntFlag) && dntFlag == "1";
-        if (dnt) return Redirect(linkEntry.OriginUrl);
-
         if (await _featureManager.IsEnabledAsync(nameof(FeatureFlags.EnableTracking)))
         {
             Response.Headers.Add("X-Elf-Tracking-For", ip);
