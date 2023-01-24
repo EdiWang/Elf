@@ -65,7 +65,7 @@
             </ng-template>
         </kendo-grid-column>
 
-        <kendo-grid-column field="tags" title="Tags" [width]="100">
+        <kendo-grid-column field="tags" title="Tags" [width]="110">
             <ng-template kendoGridCellTemplate let-dataItem>
                 <kendo-chip *ngFor="let tag of dataItem.tags" [label]="tag.name">
                 </kendo-chip>
@@ -86,6 +86,9 @@
             <ng-template kendoGridCellTemplate let-dataItem>
                 {{dataItem?.updateTimeUtc | date:'yyyy-MM-dd HH:mm'}}
             </ng-template>
+        </kendo-grid-column>
+
+        <kendo-grid-column field="hits" title="Hits" [width]="100">
         </kendo-grid-column>
 
         <kendo-grid-command-column title="Action" [width]="200">

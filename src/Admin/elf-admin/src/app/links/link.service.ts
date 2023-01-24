@@ -65,4 +65,5 @@ export interface Link {
     ttl: number;
     updateTimeUtc: Date;
     tags: Tag[];
+    hits: number;
 }
