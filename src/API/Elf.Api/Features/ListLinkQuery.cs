@@ -14,7 +14,7 @@ public class ListLinkQueryHandler : IRequestHandler<ListLinkQuery, (IReadOnlyLis
 
     public async Task<(IReadOnlyList<LinkModel> Links, int TotalRows)> Handle(ListLinkQuery request, CancellationToken ct)
     {
-        var query = from l in _dbContext.Link
+        var query = from l in _dbContext.Link.Include(l => l.LinkTrackings)
                     select l;
 
         var (offset, take, noteKeyword) = request;
@@ -40,7 +40,8 @@ public class ListLinkQueryHandler : IRequestHandler<ListLinkQuery, (IReadOnlyLis
                 AkaName = p.AkaName,
                 FwToken = p.FwToken,
                 IsEnabled = p.IsEnabled,
-                Tags = p.Tags.ToArray()
+                Tags = p.Tags.ToArray(),
+                Hits = p.LinkTrackings.Count
             })
             .ToListAsync(ct);
 

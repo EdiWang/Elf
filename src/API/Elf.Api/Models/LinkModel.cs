@@ -13,4 +13,5 @@ public class LinkModel
     public string AkaName { get; set; }
     public int? TTL { get; set; }
     public TagEntity[] Tags { get; set; }
+    public int Hits { get; set; }
 }
