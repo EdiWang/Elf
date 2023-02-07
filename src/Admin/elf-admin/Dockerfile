@@ -1,4 +1,4 @@
-FROM node:18.13-alpine as build
+FROM node:18.14-alpine as build
 WORKDIR /app
 COPY . .
 RUN npm install -g npm@9.4.0
