@@ -1,6 +1,6 @@
 {
   "name": "elf-admin",
-  "version": "6.5.1",
+  "version": "6.5.2",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
