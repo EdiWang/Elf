@@ -66,7 +66,7 @@ app.Run();
 
 void ConfigureServices(IServiceCollection services)
 {
-    builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+    builder.Services.AddMediatR(options => options.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 
     // Fix docker deployments on Azure App Service blows up with Azure AD authentication
     // https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-6.0

@@ -6,13 +6,13 @@ public record LinkTrackingRequest(string IpAddress, string UserAgent, int LinkId
 
 public record TrackSucessRedirectionCommand(LinkTrackingRequest Request, IPLocation Location) : IRequest;
 
-public class TrackSucessRedirectionCommandHandler : AsyncRequestHandler<TrackSucessRedirectionCommand>
+public class TrackSucessRedirectionCommandHandler : IRequestHandler<TrackSucessRedirectionCommand>
 {
     private readonly ElfDbContext _dbContext;
 
     public TrackSucessRedirectionCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    protected override async Task Handle(TrackSucessRedirectionCommand request, CancellationToken ct)
+    public async Task Handle(TrackSucessRedirectionCommand request, CancellationToken ct)
     {
         var ((ipAddress, userAgent, linkId), ipLocation) = request;
 

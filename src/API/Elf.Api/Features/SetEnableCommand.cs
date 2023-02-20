@@ -4,13 +4,13 @@ namespace Elf.Api.Features;
 
 public record SetEnableCommand(int Id, bool IsEnabled) : IRequest;
 
-public class SetEnableCommandHandler : AsyncRequestHandler<SetEnableCommand>
+public class SetEnableCommandHandler : IRequestHandler<SetEnableCommand>
 {
     private readonly ElfDbContext _dbContext;
 
     public SetEnableCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    protected override async Task Handle(SetEnableCommand request, CancellationToken ct)
+    public async Task Handle(SetEnableCommand request, CancellationToken ct)
     {
         var (id, isEnabled) = request;
 

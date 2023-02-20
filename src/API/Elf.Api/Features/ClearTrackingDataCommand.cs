@@ -4,13 +4,13 @@ namespace Elf.Api.Features;
 
 public record ClearTrackingDataCommand : IRequest;
 
-public class ClearTrackingDataCommandHandler : AsyncRequestHandler<ClearTrackingDataCommand>
+public class ClearTrackingDataCommandHandler : IRequestHandler<ClearTrackingDataCommand>
 {
     private readonly ElfDbContext _dbContext;
 
     public ClearTrackingDataCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
 
-    protected override async Task Handle(ClearTrackingDataCommand request, CancellationToken ct)
+    public async Task Handle(ClearTrackingDataCommand request, CancellationToken ct)
     {
         _dbContext.LinkTracking.RemoveRange();
         await _dbContext.SaveChangesAsync(ct);

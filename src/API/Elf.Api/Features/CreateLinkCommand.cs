@@ -6,7 +6,7 @@ namespace Elf.Api.Features;
 
 public record CreateLinkCommand(LinkEditModel Payload) : IRequest;
 
-public class CreateLinkCommandHandler : AsyncRequestHandler<CreateLinkCommand>
+public class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand>
 {
     private readonly ElfDbContext _dbContext;
     private readonly ITokenGenerator _tokenGenerator;
@@ -20,7 +20,7 @@ public class CreateLinkCommandHandler : AsyncRequestHandler<CreateLinkCommand>
         _logger = logger;
     }
 
-    protected override async Task Handle(CreateLinkCommand request, CancellationToken ct)
+    public async Task Handle(CreateLinkCommand request, CancellationToken ct)
     {
         var l = await _dbContext.Link.FirstOrDefaultAsync(p => p.OriginUrl == request.Payload.OriginUrl, ct);
         var tempToken = l?.FwToken;
