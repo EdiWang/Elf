@@ -74,14 +74,23 @@ void ConfigureServices(IServiceCollection services)
     var knownProxies = builder.Configuration.GetSection("KnownProxies").Get<string[]>();
     builder.Services.Configure<ForwardedHeadersOptions>(options =>
     {
-        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-        options.ForwardLimit = null;
-        options.KnownProxies.Clear();
-        if (knownProxies != null)
+        if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
         {
-            foreach (var ip in knownProxies)
+            // Adding KnownProxies will make Azure App Service boom boom with Azure AD redirect URL
+            // Result in `https` incorrectly written into `http`.
+            Console.WriteLine("Running in Docker, skip adding 'KnownProxies'.");
+        }
+        else
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.ForwardLimit = null;
+            options.KnownProxies.Clear();
+            if (knownProxies != null)
             {
-                options.KnownProxies.Add(IPAddress.Parse(ip));
+                foreach (var ip in knownProxies)
+                {
+                    options.KnownProxies.Add(IPAddress.Parse(ip));
+                }
             }
         }
     });
