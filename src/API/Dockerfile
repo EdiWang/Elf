@@ -1,5 +1,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 LABEL maintainer="edi.wang@outlook.com"
+LABEL repo="https://github.com/EdiWang/Elf"
 
 WORKDIR /app
 EXPOSE 80
