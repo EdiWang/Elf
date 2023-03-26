@@ -51,7 +51,7 @@
     "@progress/kendo-data-query": "^1.0.0",
     "@progress/kendo-drawing": "^1.17.4",
     "@progress/kendo-licensing": "^1.0.2",
-    "@progress/kendo-svg-icons": "^1.4.1",
+    "@progress/kendo-svg-icons": "^1.4.2",
     "@progress/kendo-theme-fluent": "^6.2.0",
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",
