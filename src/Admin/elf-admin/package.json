@@ -54,7 +54,7 @@
     "@progress/kendo-svg-icons": "^1.4.2",
     "@progress/kendo-theme-fluent": "^6.2.0",
     "bootstrap": "^5.2.3",
-    "bootstrap-icons": "^1.10.3",
+    "bootstrap-icons": "^1.10.4",
     "hammerjs": "^2.0.0",
     "ngx-clipboard": "^16.0.0",
     "rxjs": "^7.8.0",
