@@ -24,7 +24,7 @@
     "@azure/msal-angular": "^2.5.5",
     "@azure/msal-browser": "^2.35.0",
     "@microsoft/applicationinsights-angularplugin-js": "^3.0.1",
-    "@microsoft/applicationinsights-web": "^2.8.11",
+    "@microsoft/applicationinsights-web": "^2.8.12",
     "@progress/kendo-angular-barcodes": "^11.4.0",
     "@progress/kendo-angular-buttons": "^11.4.0",
     "@progress/kendo-angular-charts": "^11.4.0",
