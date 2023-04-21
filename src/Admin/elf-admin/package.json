@@ -22,7 +22,7 @@
     "@angular/platform-browser-dynamic": "^15.2.8",
     "@angular/router": "^15.2.8",
     "@azure/msal-angular": "^2.5.5",
-    "@azure/msal-browser": "^2.35.0",
+    "@azure/msal-browser": "^2.36.0",
     "@microsoft/applicationinsights-angularplugin-js": "^3.0.1",
     "@microsoft/applicationinsights-web": "^2.8.12",
     "@progress/kendo-angular-barcodes": "^11.6.0",
