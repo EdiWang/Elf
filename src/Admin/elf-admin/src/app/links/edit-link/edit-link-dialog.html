@@ -45,7 +45,7 @@
         </div>
     </form>
 
-    <kendo-dialog-actions layout="normal">
+    <kendo-dialog-actions layout="end">
         <button kendoButton (click)="onCancel($event)" class="ms-auto px-5">Cancel</button>
         <button kendoButton [primary]="true" [disabled]="!editLinkForm.valid" (click)="onSave($event)" class="px-5">
             Save
