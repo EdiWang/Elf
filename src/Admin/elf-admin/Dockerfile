@@ -1,7 +1,7 @@
 FROM node:18.16-alpine as build
 WORKDIR /app
 COPY . .
-RUN npm install -g npm@9.6.6
+RUN npm install -g npm@9.7.1
 RUN npm install --legacy-peer-deps
 #RUN npx kendo-ui-license activate
 RUN npm run build
