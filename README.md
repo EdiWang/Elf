@@ -23,13 +23,12 @@ will be translate to `https://yourdomain/fw/token` or `https://yourdomain/aka/na
 
 Forward Link, Create/Manage/Share Link, View Report.
 
-![list](https://user-images.githubusercontent.com/3304703/211445954-3a0973e5-18c0-430c-89c3-7030488cc9f7.png)
-![report](https://user-images.githubusercontent.com/3304703/211445980-433079c2-1b28-41b5-a202-39863a34ef2c.png)
-![share](https://user-images.githubusercontent.com/3304703/211446039-b4dee937-8860-4e96-865f-36c0bdfb18c0.png)
+![list](![image](https://github.com/EdiWang/Elf/assets/3304703/2366ac0f-0d48-457e-9709-745d9e06ec19))
+![report](![image](https://github.com/EdiWang/Elf/assets/3304703/4b37f4c9-8b5d-44a1-94b0-b0053ef6ba80))
 
 ## Forward Logic
 
-![image](https://ediwang.cdn.moonglade.blog/web-assets/lf/LinkForwarder-FW.png)
+![image](https://cdn-blog.edi.wang/web-assets/lf/LinkForwarder-FW.png)
 
 ## Docker Deployment
 
