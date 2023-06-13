@@ -7,7 +7,16 @@ import { GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClipboardService } from 'ngx-clipboard';
 import { HttpErrorResponse } from '@angular/common/http';
-import { SVGIcon, plusIcon, arrowRotateCwIcon } from '@progress/kendo-svg-icons';
+import {
+    SVGIcon,
+    plusIcon,
+    arrowRotateCwIcon,
+    shareIcon,
+    trashIcon,
+    pencilIcon,
+    copyIcon,
+    searchIcon
+} from '@progress/kendo-svg-icons';
 @Component({
     selector: 'app-links',
     templateUrl: './links.component.html',
@@ -16,6 +25,11 @@ import { SVGIcon, plusIcon, arrowRotateCwIcon } from '@progress/kendo-svg-icons'
 export class LinksComponent implements OnInit {
     public plusIcon: SVGIcon = plusIcon;
     public arrowRotateCwIcon: SVGIcon = arrowRotateCwIcon;
+    public shareIcon: SVGIcon = shareIcon;
+    public trashIcon: SVGIcon = trashIcon;
+    public pencilIcon: SVGIcon = pencilIcon;
+    public copyIcon: SVGIcon = copyIcon;
+    public searchIcon: SVGIcon = searchIcon;
 
     linkId: number;
     isNewLink: boolean = false;

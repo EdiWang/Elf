@@ -17,7 +17,7 @@
                     [(ngModel)]="selectedTags">
                 </kendo-multiselect>
 
-                <button kendoButton iconClass="bi-search" (click)="getLinks()">
+                <button kendoButton [svgIcon]="searchIcon" (click)="getLinks()">
                 </button>
             </div>
 
@@ -25,7 +25,7 @@
                 [(ngModel)]="searchTerm">
                 <ng-template kendoTextBoxSuffixTemplate>
                     <kendo-textbox-separator></kendo-textbox-separator>
-                    <button kendoButton fillMode="clear" class="send-button" iconClass="bi-search"
+                    <button kendoButton fillMode="clear" class="send-button" [svgIcon]="searchIcon"
                         (click)="getLinks(true)"></button>
                 </ng-template>
             </kendo-textbox>
@@ -93,16 +93,16 @@
 
         <kendo-grid-command-column title="Action" [width]="200">
             <ng-template kendoGridCellTemplate let-dataItem>
-                <button kendoButton iconClass="bi-clipboard" (click)="copyUrl(dataItem)">
+                <button kendoButton (click)="copyUrl(dataItem)" [svgIcon]="copyIcon">
                 </button>
 
-                <button kendoButton (click)="shareLink(dataItem)" iconClass="bi-share">
+                <button kendoButton (click)="shareLink(dataItem)" [svgIcon]="shareIcon">
                 </button>
 
-                <button kendoGridEditCommand iconClass="bi-pencil">
+                <button kendoGridEditCommand [svgIcon]="pencilIcon">
                 </button>
 
-                <button kendoGridRemoveCommand iconClass="bi-trash">
+                <button kendoGridRemoveCommand [svgIcon]="trashIcon">
                 </button>
             </ng-template>
         </kendo-grid-command-column>
