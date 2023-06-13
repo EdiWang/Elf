@@ -1,5 +1,13 @@
 # Elf
 
+[![API Build and Deploy](https://github.com/EdiWang/Elf/actions/workflows/azwebapp.yml/badge.svg)](https://github.com/EdiWang/Elf/actions/workflows/azwebapp.yml)
+
+[![Admin Build and Deploy](https://github.com/EdiWang/Elf/actions/workflows/azure-static-web-apps-nice-ocean-0afdf4600.yml/badge.svg)](https://github.com/EdiWang/Elf/actions/workflows/azure-static-web-apps-nice-ocean-0afdf4600.yml)
+
+[![Docker for API](https://github.com/EdiWang/Elf/actions/workflows/docker-api.yml/badge.svg)](https://github.com/EdiWang/Elf/actions/workflows/docker-api.yml)
+
+[![Docker for Admin](https://github.com/EdiWang/Elf/actions/workflows/docker-admin.yml/badge.svg)](https://github.com/EdiWang/Elf/actions/workflows/docker-admin.yml)
+
 The link forward service used by https://go.edi.wang. It generates static URLs for redirecting third party URLs. It's similar to, but **NOT a URL shorter**. 
 
 - Use a static token to adapt changes to origin url.
