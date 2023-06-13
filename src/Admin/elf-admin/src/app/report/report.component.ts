@@ -4,12 +4,15 @@ import { ClientTypeCount, LinkTrackingDateCount, MostRequestedLinkCount, ReportS
 import { environment } from 'src/environments/environment';
 import { LegendLabelsContentArgs, SeriesLabelsContentArgs } from '@progress/kendo-angular-charts';
 import { FormatSettings } from '@progress/kendo-angular-dateinputs';
+import { SVGIcon, arrowRotateCwIcon } from '@progress/kendo-svg-icons';
 
 @Component({
     selector: 'app-report',
     templateUrl: './report.component.html'
 })
 export class ReportComponent implements OnInit {
+    public arrowRotateCwIcon: SVGIcon = arrowRotateCwIcon;
+
     ENV = environment;
     pipe = new DatePipe('en-US');
     public dateFormat: FormatSettings = {

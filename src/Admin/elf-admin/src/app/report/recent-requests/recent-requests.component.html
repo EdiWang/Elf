@@ -6,8 +6,8 @@
         <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isLoading">
         </kendo-loader>
         <kendo-grid-spacer></kendo-grid-spacer>
-        <button kendoButton iconClass="bi-arrow-clockwise" (click)="getData()"></button>
-        <button kendoButton (click)="clearTrackingData()"><i class="bi-trash"></i> Clear</button>
+        <button kendoButton [svgIcon]="arrowRotateCwIcon" (click)="getData()"></button>
+        <button kendoButton [svgIcon]="trashIcon" (click)="clearTrackingData()">Clear</button>
     </ng-template>
 
     <kendo-grid-column field="fwToken" title="Token" [width]="100">
