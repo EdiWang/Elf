@@ -28,8 +28,7 @@
             ],
             "styles": [
               "src/styles.css",
-              "node_modules/@progress/kendo-theme-fluent/dist/all.css",
-              "node_modules/bootstrap-icons/font/bootstrap-icons.css"
+              "node_modules/@progress/kendo-theme-fluent/dist/all.css"
             ],
             "scripts": []
           },
