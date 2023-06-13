@@ -3,12 +3,16 @@ import { Component, OnInit } from '@angular/core';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { AppCacheService } from '../shared/appcache.service';
 import { Tag, TagService } from './tag.service';
+import { SVGIcon, plusIcon, arrowRotateCwIcon } from '@progress/kendo-svg-icons';
 @Component({
   selector: 'app-tags',
   templateUrl: './tags.component.html',
   styleUrls: ['./tags.component.css']
 })
 export class TagsComponent implements OnInit {
+  public plusIcon: SVGIcon = plusIcon;
+  public arrowRotateCwIcon: SVGIcon = arrowRotateCwIcon;
+
   isLoading: boolean = false;
   tagId: number;
   tags: Tag[];
