@@ -7,6 +7,9 @@ import { environment } from 'src/environments/environment';
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 import { AngularPlugin } from '@microsoft/applicationinsights-angularplugin-js';
 import { Router } from '@angular/router';
+import {
+  SVGIcon, chartPieIcon, listUnorderedIcon, linkIcon, userIcon, logoutIcon, mapMarkerIcon
+} from '@progress/kendo-svg-icons';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +17,13 @@ import { Router } from '@angular/router';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
+  public chartPieIcon: SVGIcon = chartPieIcon;
+  public listUnorderedIcon: SVGIcon = listUnorderedIcon;
+  public linkIcon: SVGIcon = linkIcon;
+  public userIcon: SVGIcon = userIcon;
+  public logoutIcon: SVGIcon = logoutIcon;
+  public mapMarkerIcon: SVGIcon = mapMarkerIcon;
+
   ENV = environment;
   title = 'elf-admin';
   isIframe = false;

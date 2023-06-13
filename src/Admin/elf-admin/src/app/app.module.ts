@@ -34,6 +34,7 @@ import { DropDownsModule } from '@progress/kendo-angular-dropdowns';
 import { LayoutModule } from '@progress/kendo-angular-layout';
 import { ToolBarModule } from '@progress/kendo-angular-toolbar';
 import { NavigationModule } from '@progress/kendo-angular-navigation';
+import { IconsModule  } from '@progress/kendo-angular-icons';
 //#endregion
 
 //#region MSAL
@@ -114,6 +115,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     DropDownsModule,
     LayoutModule,
     ToolBarModule,
+    IconsModule,
     NavigationModule
   ],
   providers: [

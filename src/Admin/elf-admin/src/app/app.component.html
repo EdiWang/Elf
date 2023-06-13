@@ -8,13 +8,13 @@
     </kendo-appbar-section>
     <kendo-appbar-spacer width="2px"></kendo-appbar-spacer>
     <kendo-appbar-section>
-        <button kendoButton iconClass="bi-list" fillMode="flat" [routerLink]="['links']" routerLinkActive="active">
+        <button kendoButton [svgIcon]="listUnorderedIcon" fillMode="flat" [routerLink]="['links']" routerLinkActive="active">
             Links
         </button>
-        <button kendoButton iconClass="bi-tag" fillMode="flat" [routerLink]="['tags']" routerLinkActive="active">
+        <button kendoButton [svgIcon]="mapMarkerIcon" fillMode="flat" [routerLink]="['tags']" routerLinkActive="active">
             Tags
         </button>
-        <button kendoButton iconClass="bi-pie-chart" fillMode="flat" [routerLink]="['report']"
+        <button kendoButton [svgIcon]="chartPieIcon" fillMode="flat" [routerLink]="['report']"
             routerLinkActive="active">
             Report
         </button>
@@ -23,19 +23,19 @@
     <kendo-appbar-section>
         <div class="api-info me-3">
             <a href="{{ ENV.elfApiBaseUrl }}" target="_blank">
-                <span class="bi-globe me-2"></span>
+                <kendo-svg-icon [icon]="linkIcon" class="me-1"></kendo-svg-icon>
                 {{ ENV.elfApiBaseUrl }}
             </a>
         </div>
         <div class="user-info d-flex me-3 text-light" *ngIf="loginDisplay">
-            <span class="bi-person me-2"></span>
+            <kendo-svg-icon [icon]="userIcon" class="me-1"></kendo-svg-icon>
             {{ accountInfo.name }} ({{ accountInfo.username }})
         </div>
     </kendo-appbar-section>
     <span class="k-appbar-separator"></span>
     <kendo-appbar-section>
         <button kendoButton fillMode="flat" *ngIf="!loginDisplay" (click)="login()">Login</button>
-        <button kendoButton fillMode="flat" *ngIf="loginDisplay" (click)="logout()">
+        <button kendoButton fillMode="flat" *ngIf="loginDisplay" (click)="logout()" [svgIcon]="logoutIcon">
             <span>Sign out</span>
         </button>
     </kendo-appbar-section>
