@@ -23,8 +23,8 @@ will be translate to `https://yourdomain/fw/token` or `https://yourdomain/aka/na
 
 Forward Link, Create/Manage/Share Link, View Report.
 
-![list](![image](https://github.com/EdiWang/Elf/assets/3304703/2366ac0f-0d48-457e-9709-745d9e06ec19))
-![report](![image](https://github.com/EdiWang/Elf/assets/3304703/4b37f4c9-8b5d-44a1-94b0-b0053ef6ba80))
+![list](https://github.com/EdiWang/Elf/assets/3304703/2366ac0f-0d48-457e-9709-745d9e06ec19)
+![report](https://github.com/EdiWang/Elf/assets/3304703/4b37f4c9-8b5d-44a1-94b0-b0053ef6ba80)
 
 ## Forward Logic
 
