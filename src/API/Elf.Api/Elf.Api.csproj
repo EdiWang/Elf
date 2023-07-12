@@ -6,9 +6,9 @@
 		<Authors>Edi Wang</Authors>
 		<Company>edi.wang</Company>
 		<Copyright>(C) 2023 edi.wang@outlook.com</Copyright>
-		<AssemblyVersion>6.5.8</AssemblyVersion>
-		<FileVersion>6.5.8</FileVersion>
-		<Version>6.5.8</Version>
+		<AssemblyVersion>6.5.9</AssemblyVersion>
+		<FileVersion>6.5.9</FileVersion>
+		<Version>6.5.9</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
