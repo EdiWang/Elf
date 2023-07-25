@@ -1,4 +1,4 @@
-FROM node:18.16-alpine as build
+FROM node:18.17-alpine as build
 WORKDIR /app
 COPY . .
 RUN npm install -g npm@9.7.2
