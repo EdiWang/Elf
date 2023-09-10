@@ -12,15 +12,15 @@
     "node": ">=18.16.0"
   },
   "dependencies": {
-    "@angular/animations": "^16.2.3",
-    "@angular/common": "^16.2.3",
-    "@angular/compiler": "^16.2.3",
-    "@angular/core": "^16.2.3",
-    "@angular/forms": "^16.2.3",
-    "@angular/localize": "^16.2.3",
-    "@angular/platform-browser": "^16.2.3",
-    "@angular/platform-browser-dynamic": "^16.2.3",
-    "@angular/router": "^16.2.3",
+    "@angular/animations": "^16.2.4",
+    "@angular/common": "^16.2.4",
+    "@angular/compiler": "^16.2.4",
+    "@angular/core": "^16.2.4",
+    "@angular/forms": "^16.2.4",
+    "@angular/localize": "^16.2.4",
+    "@angular/platform-browser": "^16.2.4",
+    "@angular/platform-browser-dynamic": "^16.2.4",
+    "@angular/router": "^16.2.4",
     "@azure/msal-angular": "^3.0.2",
     "@azure/msal-browser": "^3.0.2",
     "@microsoft/applicationinsights-angularplugin-js": "^3.0.3",
@@ -64,7 +64,7 @@
   "devDependencies": {
     "@angular-devkit/build-angular": "^16.2.1",
     "@angular/cli": "^16.2.1",
-    "@angular/compiler-cli": "^16.2.3",
+    "@angular/compiler-cli": "^16.2.4",
     "@types/node": "^18.17.14",
     "@types/qrcode": "^1.5.2",
     "typescript": "^5.1.6"
