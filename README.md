@@ -60,7 +60,7 @@ Build and run `./src/API/Elf.sln`
 
 ### Authentication
 
-Register an App in **[Azure Active Directory]((https://azure.microsoft.com/en-us/services/active-directory/))**
+Register an App in **[Microsoft Entra ID (Azure Active Directory)]((https://azure.microsoft.com/en-us/services/active-directory/))**
 - Set an **Application ID URI** as unique for this app
 - Expose an API with name `access_as_user` and with **Admins and users** type
 - Change `accessTokenAcceptedVersion` to `2` in Manifest blade
@@ -91,22 +91,22 @@ To use Redis, follow these steps:
 - VSCode or any editor you like
 - A valid Kendo UI license
 
-### Configure Azure AD
+### Configure Microsoft Entra ID
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Microsoft Entra ID** service.
 2. Select **New registration**.
-3. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `elf-admin`.
+3. In the **Register an application page**, enter your application's information:
+   - In the **Name** section, for example `elf-admin`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI (optional)** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200/` for local debug and whatever URL you use in production.
+   - In the **Redirect URI (optional)** section, select **Single-page application** and enter redirect URI: `http://localhost:4200/` for local debug and whatever URL you use in production.
 4. Select **Register** to create the application.
-5. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-6. In the app's registration screen, click on the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
+5. In the app's registration screen, find and note the **Application (client) ID**. 
+6. In the app's registration screen, click on the **API permissions** blade.
    - Click the **Add a permission** button and then,
    - Ensure that the **My APIs** tab is selected.
    - In the list of APIs, select the API you created.
-   - In the **Delegated permissions** section, select the **access_as_user** in the list. Use the search box if necessary.
-   - Click on the **Add permissions** button at the bottom.
+   - In the **Delegated permissions** section, select the **access_as_user** in the list.
+   - Click on the **Add permissions**.
    
 ### Configure API endpoint
 
