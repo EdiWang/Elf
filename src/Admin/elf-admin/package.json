@@ -65,7 +65,7 @@
     "@angular-devkit/build-angular": "^16.2.4",
     "@angular/cli": "^16.2.4",
     "@angular/compiler-cli": "^16.2.7",
-    "@types/node": "^18.17.19",
+    "@types/node": "^18.18.1",
     "@types/qrcode": "^1.5.2",
     "typescript": "^5.1.6"
   }
