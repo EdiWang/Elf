@@ -175,7 +175,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddSingleton<CannonService>();
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddApiKeySupport(_ => { })
-            .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+            .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("EntraID"));
 
     services.AddAuthorization();
 

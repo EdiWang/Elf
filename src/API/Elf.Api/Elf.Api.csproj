@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
@@ -6,9 +6,9 @@
 		<Authors>Edi Wang</Authors>
 		<Company>edi.wang</Company>
 		<Copyright>(C) 2023 edi.wang@outlook.com</Copyright>
-		<AssemblyVersion>6.5.15</AssemblyVersion>
-		<FileVersion>6.5.15</FileVersion>
-		<Version>6.5.15</Version>
+		<AssemblyVersion>6.6.0</AssemblyVersion>
+		<FileVersion>6.6.0</FileVersion>
+		<Version>6.6.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

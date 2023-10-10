@@ -64,10 +64,10 @@ Register an App in **[Microsoft Entra ID (Azure Active Directory)]((https://azur
 - Set an **Application ID URI** as unique for this app
 - Expose an API with name `access_as_user` and with **Admins and users** type
 - Change `accessTokenAcceptedVersion` to `2` in Manifest blade
-- Copy "**appId**" to set as **AzureAd:ClientId** in **appsettings.json** file
+- Copy "**appId**" to set as **EntraID:ClientId** in **appsettings.json** file
 
 ```json
-"AzureAd": {
+"EntraID": {
   "Domain": "{YOUR-VALUE}",
   "TenantId": "{YOUR-VALUE}",
   "ClientId": "{YOUR-VALUE}",
