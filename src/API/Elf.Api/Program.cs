@@ -249,7 +249,7 @@ void ConfigureEndpoints()
 
 static Task WriteResponse(HttpContext context, HealthReport result)
 {
-    context.Response.Headers.Add("X-Elf-Version", Utils.AppVersion);
+    context.Response.Headers.Append("X-Elf-Version", Utils.AppVersion);
 
     var obj = new
     {
