@@ -19,9 +19,8 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         IOptionsMonitor<ApiKeyAuthenticationOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
-        ISystemClock clock,
         IGetApiKeyQuery getApiKeyQuery,
-        IConfiguration configuration) : base(options, logger, encoder, clock)
+        IConfiguration configuration) : base(options, logger, encoder)
     {
         _isEnabled = bool.Parse(configuration["EnableApiKeyAuthentication"]);
         _getApiKeyQuery = getApiKeyQuery ?? throw new ArgumentNullException(nameof(getApiKeyQuery));

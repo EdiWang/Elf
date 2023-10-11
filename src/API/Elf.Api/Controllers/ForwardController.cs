@@ -135,7 +135,7 @@ public class ForwardController : ControllerBase
 
         if (await _featureManager.IsEnabledAsync(nameof(FeatureFlags.EnableTracking)))
         {
-            Response.Headers.Add("X-Elf-Tracking-For", ip);
+            Response.Headers.Append("X-Elf-Tracking-For", ip);
             var ua = UserAgent;
 
             _cannonService.Fire(async (IMediator mediator) =>
