@@ -5,15 +5,11 @@ namespace Elf.Api.Features;
 
 public record GetTokenByAkaNameQuery(string AkaName) : IRequest<string>;
 
-public class GetTokenByAkaNameQueryHandler : IRequestHandler<GetTokenByAkaNameQuery, string>
+public class GetTokenByAkaNameQueryHandler(ElfDbContext dbContext) : IRequestHandler<GetTokenByAkaNameQuery, string>
 {
-    private readonly ElfDbContext _dbContext;
-
-    public GetTokenByAkaNameQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
-
     public async Task<string> Handle(GetTokenByAkaNameQuery request, CancellationToken ct)
     {
-        var link = await _dbContext.Link.FirstOrDefaultAsync(p => p.AkaName == request.AkaName, ct);
+        var link = await dbContext.Link.FirstOrDefaultAsync(p => p.AkaName == request.AkaName, ct);
 
         return link?.FwToken;
     }

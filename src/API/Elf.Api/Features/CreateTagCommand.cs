@@ -6,15 +6,11 @@ namespace Elf.Api.Features;
 
 public record CreateTagCommand([Required][MaxLength(32)] string Name) : IRequest;
 
-public class CreateTagCommandHandler : IRequestHandler<CreateTagCommand>
+public class CreateTagCommandHandler(ElfDbContext dbContext) : IRequestHandler<CreateTagCommand>
 {
-    private readonly ElfDbContext _dbContext;
-
-    public CreateTagCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
-
     public async Task Handle(CreateTagCommand request, CancellationToken ct)
     {
-        var exists = await _dbContext.Tag.AnyAsync(p => p.Name == request.Name, ct);
+        var exists = await dbContext.Tag.AnyAsync(p => p.Name == request.Name, ct);
         if (exists) return;
 
         var tag = new TagEntity
@@ -22,7 +18,7 @@ public class CreateTagCommandHandler : IRequestHandler<CreateTagCommand>
             Name = request.Name.Trim()
         };
 
-        await _dbContext.AddAsync(tag, ct);
-        await _dbContext.SaveChangesAsync(ct);
+        await dbContext.AddAsync(tag, ct);
+        await dbContext.SaveChangesAsync(ct);
     }
 }

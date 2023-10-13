@@ -5,18 +5,14 @@ namespace Elf.Api.Features;
 
 public record GetMostRequestedLinkCountQuery(DateRangeRequest Request) : IRequest<IReadOnlyList<MostRequestedLinkCount>>;
 
-public class GetMostRequestedLinkCountQueryHandler :
+public class GetMostRequestedLinkCountQueryHandler(ElfDbContext dbContext) :
     IRequestHandler<GetMostRequestedLinkCountQuery, IReadOnlyList<MostRequestedLinkCount>>
 {
-    private readonly ElfDbContext _dbContext;
-
-    public GetMostRequestedLinkCountQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
-
     public async Task<IReadOnlyList<MostRequestedLinkCount>> Handle(GetMostRequestedLinkCountQuery request, CancellationToken ct)
     {
         var utc = DateTime.UtcNow;
 
-        var data = await _dbContext.LinkTracking
+        var data = await dbContext.LinkTracking
                         .Where(p => p.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
                                     p.RequestTimeUtc >= request.Request.StartDateUtc.Date)
                         .GroupBy(lt => new { lt.Link.FwToken, lt.Link.Note })

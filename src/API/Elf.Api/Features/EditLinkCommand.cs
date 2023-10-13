@@ -5,17 +5,13 @@ namespace Elf.Api.Features;
 
 public record EditLinkCommand(int Id, LinkEditModel Payload) : IRequest<string>;
 
-public class EditLinkCommandHandler : IRequestHandler<EditLinkCommand, string>
+public class EditLinkCommandHandler(ElfDbContext dbContext) : IRequestHandler<EditLinkCommand, string>
 {
-    private readonly ElfDbContext _dbContext;
-
-    public EditLinkCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
-
     public async Task<string> Handle(EditLinkCommand request, CancellationToken ct)
     {
         var (id, payload) = request;
 
-        var link = await _dbContext.Link.FindAsync(id);
+        var link = await dbContext.Link.FindAsync(id);
         if (link is null) return null;
 
         link.OriginUrl = payload.OriginUrl;
@@ -29,12 +25,12 @@ public class EditLinkCommandHandler : IRequestHandler<EditLinkCommand, string>
         {
             foreach (var item in request.Payload.Tags)
             {
-                var tag = await _dbContext.Tag.FirstOrDefaultAsync(q => q.Name == item, ct);
+                var tag = await dbContext.Tag.FirstOrDefaultAsync(q => q.Name == item, ct);
                 if (tag == null)
                 {
                     TagEntity t = new() { Name = item };
-                    await _dbContext.Tag.AddAsync(t, ct);
-                    await _dbContext.SaveChangesAsync(ct);
+                    await dbContext.Tag.AddAsync(t, ct);
+                    await dbContext.SaveChangesAsync(ct);
 
                     tag = t;
                 }
@@ -43,7 +39,7 @@ public class EditLinkCommandHandler : IRequestHandler<EditLinkCommand, string>
             }
         }
 
-        await _dbContext.SaveChangesAsync(ct);
+        await dbContext.SaveChangesAsync(ct);
         return link.FwToken;
     }
 }

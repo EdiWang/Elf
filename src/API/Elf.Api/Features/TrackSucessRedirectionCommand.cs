@@ -6,12 +6,8 @@ public record LinkTrackingRequest(string IpAddress, string UserAgent, int LinkId
 
 public record TrackSucessRedirectionCommand(LinkTrackingRequest Request, IPLocation Location) : IRequest;
 
-public class TrackSucessRedirectionCommandHandler : IRequestHandler<TrackSucessRedirectionCommand>
+public class TrackSucessRedirectionCommandHandler(ElfDbContext dbContext) : IRequestHandler<TrackSucessRedirectionCommand>
 {
-    private readonly ElfDbContext _dbContext;
-
-    public TrackSucessRedirectionCommandHandler(ElfDbContext dbContext) => _dbContext = dbContext;
-
     public async Task Handle(TrackSucessRedirectionCommand request, CancellationToken ct)
     {
         var ((ipAddress, userAgent, linkId), ipLocation) = request;
@@ -34,7 +30,7 @@ public class TrackSucessRedirectionCommandHandler : IRequestHandler<TrackSucessR
             lt.IPRegion = ipLocation.Region;
         }
 
-        await _dbContext.AddAsync(lt, ct);
-        await _dbContext.SaveChangesAsync(ct);
+        await dbContext.AddAsync(lt, ct);
+        await dbContext.SaveChangesAsync(ct);
     }
 }

@@ -6,43 +6,34 @@ namespace Elf.Api.Features;
 
 public record CreateLinkCommand(LinkEditModel Payload) : IRequest;
 
-public class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand>
+public class CreateLinkCommandHandler(
+    ElfDbContext dbContext, 
+    ITokenGenerator tokenGenerator, 
+    ILogger<CreateLinkCommandHandler> logger) : IRequestHandler<CreateLinkCommand>
 {
-    private readonly ElfDbContext _dbContext;
-    private readonly ITokenGenerator _tokenGenerator;
-    private readonly ILogger<CreateLinkCommandHandler> _logger;
-
-    public CreateLinkCommandHandler(
-        ElfDbContext dbContext, ITokenGenerator tokenGenerator, ILogger<CreateLinkCommandHandler> logger)
-    {
-        _dbContext = dbContext;
-        _tokenGenerator = tokenGenerator;
-        _logger = logger;
-    }
-
     public async Task Handle(CreateLinkCommand request, CancellationToken ct)
     {
-        var l = await _dbContext.Link.FirstOrDefaultAsync(p => p.OriginUrl == request.Payload.OriginUrl, ct);
+        var l = await dbContext.Link.FirstOrDefaultAsync(p => p.OriginUrl == request.Payload.OriginUrl, ct);
         var tempToken = l?.FwToken;
         if (tempToken is not null)
         {
-            if (_tokenGenerator.TryParseToken(tempToken, out var tk))
+            if (tokenGenerator.TryParseToken(tempToken, out var tk))
             {
-                _logger.LogInformation($"Link already exists for token '{tk}'");
+                logger.LogInformation($"Link already exists for token '{tk}'");
                 return;
             }
 
             var message = $"Invalid token '{tempToken}' found for existing url '{request.Payload.OriginUrl}'";
-            _logger.LogError(message);
+            logger.LogError(message);
         }
 
         string token;
         do
         {
-            token = _tokenGenerator.GenerateToken();
-        } while (await _dbContext.Link.AnyAsync(p => p.FwToken == token, ct));
+            token = tokenGenerator.GenerateToken();
+        } while (await dbContext.Link.AnyAsync(p => p.FwToken == token, ct));
 
-        _logger.LogInformation($"Generated Token '{token}' for url '{request.Payload.OriginUrl}'");
+        logger.LogInformation($"Generated Token '{token}' for url '{request.Payload.OriginUrl}'");
 
         var link = new LinkEntity
         {
@@ -59,12 +50,12 @@ public class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand>
         {
             foreach (var item in request.Payload.Tags)
             {
-                var tag = await _dbContext.Tag.FirstOrDefaultAsync(q => q.Name == item, ct);
+                var tag = await dbContext.Tag.FirstOrDefaultAsync(q => q.Name == item, ct);
                 if (tag == null)
                 {
                     TagEntity t = new() { Name = item };
-                    await _dbContext.Tag.AddAsync(t, ct);
-                    await _dbContext.SaveChangesAsync(ct);
+                    await dbContext.Tag.AddAsync(t, ct);
+                    await dbContext.SaveChangesAsync(ct);
 
                     tag = t;
                 }
@@ -73,7 +64,7 @@ public class CreateLinkCommandHandler : IRequestHandler<CreateLinkCommand>
             }
         }
 
-        await _dbContext.AddAsync(link, ct);
-        await _dbContext.SaveChangesAsync(ct);
+        await dbContext.AddAsync(link, ct);
+        await dbContext.SaveChangesAsync(ct);
     }
 }

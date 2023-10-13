@@ -5,11 +5,7 @@ namespace Elf.Api.Features;
 
 public record GetTagsQuery : IRequest<List<TagEntity>>;
 
-public class GetTagsQueryHandler : IRequestHandler<GetTagsQuery, List<TagEntity>>
+public class GetTagsQueryHandler(ElfDbContext dbContext) : IRequestHandler<GetTagsQuery, List<TagEntity>>
 {
-    private readonly ElfDbContext _dbContext;
-
-    public GetTagsQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
-
-    public Task<List<TagEntity>> Handle(GetTagsQuery request, CancellationToken ct) => _dbContext.Tag.ToListAsync(ct);
+    public Task<List<TagEntity>> Handle(GetTagsQuery request, CancellationToken ct) => dbContext.Tag.ToListAsync(ct);
 }

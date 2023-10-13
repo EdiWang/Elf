@@ -5,16 +5,12 @@ namespace Elf.Api.Features;
 
 public record GetLinkTrackingDateCountQuery(DateRangeRequest Request) : IRequest<IReadOnlyList<LinkTrackingDateCount>>;
 
-public class GetLinkTrackingDateCountQueryHandler :
+public class GetLinkTrackingDateCountQueryHandler(ElfDbContext dbContext) :
         IRequestHandler<GetLinkTrackingDateCountQuery, IReadOnlyList<LinkTrackingDateCount>>
 {
-    private readonly ElfDbContext _dbContext;
-
-    public GetLinkTrackingDateCountQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
-
     public async Task<IReadOnlyList<LinkTrackingDateCount>> Handle(GetLinkTrackingDateCountQuery request, CancellationToken ct)
     {
-        var data = await _dbContext.LinkTracking
+        var data = await dbContext.LinkTracking
             .Where(lt =>
                 lt.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
                 lt.RequestTimeUtc >= request.Request.StartDateUtc.Date)

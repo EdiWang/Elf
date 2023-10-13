@@ -5,16 +5,12 @@ namespace Elf.Api.Features;
 
 public record GetRecentRequestsQuery(int Offset, int Take) : IRequest<(IReadOnlyList<RequestTrack>, int TotalRows)>;
 
-public class GetRecentRequestsQueryHandler : IRequestHandler<GetRecentRequestsQuery, (IReadOnlyList<RequestTrack>, int TotalRows)>
+public class GetRecentRequestsQueryHandler(ElfDbContext dbContext) : IRequestHandler<GetRecentRequestsQuery, (IReadOnlyList<RequestTrack>, int TotalRows)>
 {
-    private readonly ElfDbContext _dbContext;
-
-    public GetRecentRequestsQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
-
     public async Task<(IReadOnlyList<RequestTrack>, int TotalRows)> Handle(GetRecentRequestsQuery request, CancellationToken ct)
     {
         var (offset, take) = request;
-        var query = _dbContext.LinkTracking;
+        var query = dbContext.LinkTracking;
         var totalRows = query.Count();
 
         var result = await query

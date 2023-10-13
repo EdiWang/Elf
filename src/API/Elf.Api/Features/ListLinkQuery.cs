@@ -6,21 +6,17 @@ namespace Elf.Api.Features;
 public record ListLinkQuery(int Offset, int Take, string NoteKeyword = null) :
     IRequest<(IReadOnlyList<LinkModel> Links, int TotalRows)>;
 
-public class ListLinkQueryHandler : IRequestHandler<ListLinkQuery, (IReadOnlyList<LinkModel> Links, int TotalRows)>
+public class ListLinkQueryHandler(ElfDbContext dbContext) : IRequestHandler<ListLinkQuery, (IReadOnlyList<LinkModel> Links, int TotalRows)>
 {
-    private readonly ElfDbContext _dbContext;
-
-    public ListLinkQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
-
     public async Task<(IReadOnlyList<LinkModel> Links, int TotalRows)> Handle(ListLinkQuery request, CancellationToken ct)
     {
-        var query = from l in _dbContext.Link.Include(l => l.LinkTrackings)
+        var query = from l in dbContext.Link.Include(l => l.LinkTrackings)
                     select l;
 
         var (offset, take, noteKeyword) = request;
         if (noteKeyword is not null)
         {
-            query = _dbContext.Link
+            query = dbContext.Link
                 .Include(l => l.Tags)
                 .Where(l => l.Note.Contains(noteKeyword) || l.FwToken.Contains(noteKeyword));
         }

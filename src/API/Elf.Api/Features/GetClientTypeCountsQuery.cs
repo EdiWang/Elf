@@ -6,12 +6,8 @@ namespace Elf.Api.Features;
 
 public record GetClientTypeCountsQuery(DateRangeRequest Request, int TopTypes) : IRequest<IReadOnlyList<ClientTypeCount>>;
 
-public class GetClientTypeCountsQueryHandler : IRequestHandler<GetClientTypeCountsQuery, IReadOnlyList<ClientTypeCount>>
+public class GetClientTypeCountsQueryHandler(ElfDbContext dbContext) : IRequestHandler<GetClientTypeCountsQuery, IReadOnlyList<ClientTypeCount>>
 {
-    private readonly ElfDbContext _dbContext;
-
-    public GetClientTypeCountsQueryHandler(ElfDbContext dbContext) => _dbContext = dbContext;
-
     public async Task<IReadOnlyList<ClientTypeCount>> Handle(GetClientTypeCountsQuery request, CancellationToken ct)
     {
         var uaParser = Parser.GetDefault();
@@ -25,7 +21,7 @@ public class GetClientTypeCountsQueryHandler : IRequestHandler<GetClientTypeCoun
         }
 
         var utc = DateTime.UtcNow;
-        var uac = await _dbContext.LinkTracking
+        var uac = await dbContext.LinkTracking
                 .Where(p =>
                     p.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
                     p.RequestTimeUtc >= request.Request.StartDateUtc.Date)
