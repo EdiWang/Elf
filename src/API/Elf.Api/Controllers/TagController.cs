@@ -6,17 +6,13 @@ namespace Elf.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class TagController : ControllerBase
+public class TagController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public TagController(IMediator mediator) => _mediator = mediator;
-
     [HttpGet("list")]
     [ProducesResponseType(typeof(List<TagEntity>), StatusCodes.Status200OK)]
     public async Task<IActionResult> List()
     {
-        var list = await _mediator.Send(new GetTagsQuery());
+        var list = await mediator.Send(new GetTagsQuery());
         return Ok(list);
     }
 
@@ -25,7 +21,7 @@ public class TagController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(CreateTagCommand command)
     {
-        await _mediator.Send(command);
+        await mediator.Send(command);
         return NoContent();
     }
 
@@ -35,7 +31,7 @@ public class TagController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int id, UpdateTagRequest request)
     {
-        var code = await _mediator.Send(new UpdateTagCommand(id, request));
+        var code = await mediator.Send(new UpdateTagCommand(id, request));
         if (code == -1) return NotFound();
 
         return NoContent();
@@ -47,7 +43,7 @@ public class TagController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id)
     {
-        var code = await _mediator.Send(new DeleteTagCommand(id));
+        var code = await mediator.Send(new DeleteTagCommand(id));
         if (code == -1) return NotFound();
 
         return NoContent();

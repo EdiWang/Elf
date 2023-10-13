@@ -11,21 +11,7 @@ namespace Elf.Api.Controllers;
 
 [ApiController]
 [EnableRateLimiting("fixed-ip")]
-public class ForwardController : ControllerBase
-{
-    private readonly ILogger<ForwardController> _logger;
-    private readonly IConfiguration _configuration;
-    private readonly ITokenGenerator _tokenGenerator;
-    private readonly ILinkVerifier _linkVerifier;
-    private readonly IDistributedCache _cache;
-    private readonly IFeatureManager _featureManager;
-    private readonly IMediator _mediator;
-    private readonly IIPLocationService _ipLocationService;
-    private readonly CannonService _cannonService;
-
-    private StringValues UserAgent => Request.Headers["User-Agent"];
-
-    public ForwardController(
+public class ForwardController(
         ILogger<ForwardController> logger,
         IConfiguration configuration,
         ITokenGenerator tokenGenerator,
@@ -34,18 +20,9 @@ public class ForwardController : ControllerBase
         IFeatureManager featureManager,
         IMediator mediator,
         IIPLocationService ipLocationService,
-        CannonService cannonService)
-    {
-        _logger = logger;
-        _configuration = configuration;
-        _tokenGenerator = tokenGenerator;
-        _cache = cache;
-        _linkVerifier = linkVerifier;
-        _featureManager = featureManager;
-        _mediator = mediator;
-        _ipLocationService = ipLocationService;
-        _cannonService = cannonService;
-    }
+        CannonService cannonService) : ControllerBase
+{
+    private StringValues UserAgent => Request.Headers["User-Agent"];
 
     [AddForwarderHeader]
     [HttpGet("/aka/{akaName:regex(^(?!-)([[a-zA-Z0-9-]]+)$)}")]
@@ -57,7 +34,7 @@ public class ForwardController : ControllerBase
         var ip = Utils.GetClientIP(HttpContext) ?? "N/A";
         if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
 
-        var token = await _mediator.Send(new GetTokenByAkaNameQuery(akaName));
+        var token = await mediator.Send(new GetTokenByAkaNameQuery(akaName));
 
         // can not redirect to default url because it will confuse user that the aka points to that default url.
         if (token is null) return NotFound();
@@ -81,20 +58,20 @@ public class ForwardController : ControllerBase
 
     private async Task<IActionResult> PerformTokenRedirection(string token, string ip)
     {
-        var isValid = _tokenGenerator.TryParseToken(token, out var validatedToken);
+        var isValid = tokenGenerator.TryParseToken(token, out var validatedToken);
         if (!isValid) return BadRequest();
 
-        var linkEntry = await _cache.GetLink(token);
+        var linkEntry = await cache.GetLink(token);
         if (null == linkEntry)
         {
-            var flag = await _featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
-            var link = await _mediator.Send(new GetLinkByTokenQuery(validatedToken));
+            var flag = await featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
+            var link = await mediator.Send(new GetLinkByTokenQuery(validatedToken));
             if (link is null)
             {
-                var dru = _configuration["DefaultRedirectionUrl"];
+                var dru = configuration["DefaultRedirectionUrl"];
                 if (string.IsNullOrWhiteSpace(dru)) return NotFound();
 
-                var result = _linkVerifier.Verify(dru, Url, Request, flag);
+                var result = linkVerifier.Verify(dru, Url, Request, flag);
                 if (result == LinkVerifyResult.Valid) return Redirect(dru);
 
                 throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
@@ -102,28 +79,28 @@ public class ForwardController : ControllerBase
 
             if (!link.IsEnabled) return BadRequest("This link is disabled.");
 
-            var verifyOriginUrl = _linkVerifier.Verify(link.OriginUrl, Url, Request, flag);
+            var verifyOriginUrl = linkVerifier.Verify(link.OriginUrl, Url, Request, flag);
             switch (verifyOriginUrl)
             {
                 case LinkVerifyResult.Valid:
                     // cache valid link entity only.
                     if (link.TTL is not null)
                     {
-                        await _cache.SetLink(token, link, TimeSpan.FromSeconds(link.TTL.GetValueOrDefault()));
+                        await cache.SetLink(token, link, TimeSpan.FromSeconds(link.TTL.GetValueOrDefault()));
                     }
                     else
                     {
-                        await _cache.SetLink(token, link);
+                        await cache.SetLink(token, link);
                     }
                     break;
                 case LinkVerifyResult.InvalidFormat:
                     throw new UriFormatException(
                         $"OriginUrl '{link.OriginUrl}' is not a valid URL, link ID: {link.Id}.");
                 case LinkVerifyResult.InvalidLocal:
-                    _logger.LogWarning($"Local redirection is blocked. link: {JsonSerializer.Serialize(link)}");
+                    logger.LogWarning($"Local redirection is blocked. link: {JsonSerializer.Serialize(link)}");
                     return BadRequest("Local redirection is blocked");
                 case LinkVerifyResult.InvalidSelfReference:
-                    _logger.LogWarning(
+                    logger.LogWarning(
                         $"Self reference redirection is blocked. link: {JsonSerializer.Serialize(link)}");
                     return BadRequest("Self reference redirection is blocked");
                 default:
@@ -131,19 +108,19 @@ public class ForwardController : ControllerBase
             }
         }
 
-        linkEntry ??= await _cache.GetLink(token);
+        linkEntry ??= await cache.GetLink(token);
 
-        if (await _featureManager.IsEnabledAsync(nameof(FeatureFlags.EnableTracking)))
+        if (await featureManager.IsEnabledAsync(nameof(FeatureFlags.EnableTracking)))
         {
             Response.Headers.Append("X-Elf-Tracking-For", ip);
             var ua = UserAgent;
 
-            _cannonService.Fire(async (IMediator mediator) =>
+            cannonService.Fire(async (IMediator mediator) =>
             {
                 IPLocation location;
                 try
                 {
-                    location = await _ipLocationService.GetLocationAsync(ip, ua);
+                    location = await ipLocationService.GetLocationAsync(ip, ua);
                 }
                 catch (Exception)
                 {
