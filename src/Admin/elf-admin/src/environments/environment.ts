@@ -7,6 +7,5 @@ export const environment = {
   elfApiBaseUrl: window["env"]["elfApiBaseUrl"] || "https://localhost:5001",
   clientId: window["env"]["clientId"] || '00000000-0000-0000-0000-000000000000',
   tenantId: window["env"]["tenantId"] || '00000000-0000-0000-0000-000000000000',
-  applicationIdUri: window["env"]["applicationIdUri"] || "api://elf",
-  applicationInsightKey: window["env"]["elfApiBaseUrl"] || '00000000-0000-0000-0000-000000000000'
+  applicationIdUri: window["env"]["applicationIdUri"] || "api://elf"
 };

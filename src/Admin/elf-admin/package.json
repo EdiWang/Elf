@@ -23,8 +23,6 @@
     "@angular/router": "^16.2.10",
     "@azure/msal-angular": "^3.0.5",
     "@azure/msal-browser": "^3.2.0",
-    "@microsoft/applicationinsights-angularplugin-js": "^15.0.0",
-    "@microsoft/applicationinsights-web": "^3.0.3",
     "@progress/kendo-angular-barcodes": "^14.0.1",
     "@progress/kendo-angular-buttons": "^14.0.1",
     "@progress/kendo-angular-charts": "^14.0.1",

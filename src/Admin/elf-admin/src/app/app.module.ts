@@ -6,7 +6,6 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
 import { ClipboardModule } from 'ngx-clipboard';
 
-import { ElfApplicationinsightsErrorHandlerService } from './error-handler.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -135,10 +134,6 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     {
       provide: MSAL_INTERCEPTOR_CONFIG,
       useFactory: MSALInterceptorConfigFactory
-    },
-    {
-      provide: ErrorHandler,
-      useClass: ElfApplicationinsightsErrorHandlerService
     },
     MsalService,
     MsalGuard,

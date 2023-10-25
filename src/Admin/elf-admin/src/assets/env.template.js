@@ -5,5 +5,4 @@
     window["env"]["clientId"] = "${CLIENT_ID}";
     window["env"]["tenantId"] = "${TENANT_ID}";
     window["env"]["applicationIdUri"] = "${APPLICATION_ID_URI}";
-    window["env"]["applicationInsightKey"] = "${APPLICATION_INSIGHT_KEY}";
 })(this);

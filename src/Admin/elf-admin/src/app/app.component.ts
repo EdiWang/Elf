@@ -4,8 +4,6 @@ import { AccountInfo, AuthenticationResult, InteractionStatus, InteractionType, 
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ApplicationInsights } from '@microsoft/applicationinsights-web';
-import { AngularPlugin } from '@microsoft/applicationinsights-angularplugin-js';
 import { Router } from '@angular/router';
 import {
   SVGIcon, chartPieIcon, listUnorderedIcon, linkIcon, userIcon, logoutIcon, mapMarkerIcon
@@ -38,20 +36,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private msalBroadcastService: MsalBroadcastService,
     private router: Router
   ) {
-    if (environment.production) {
-      // https://docs.microsoft.com/en-us/azure/azure-monitor/app/javascript-angular-plugin
-      var angularPlugin = new AngularPlugin();
-      const appInsights = new ApplicationInsights({
-        config: {
-          instrumentationKey: environment.applicationInsightKey,
-          extensions: [angularPlugin as any],
-          extensionConfig: {
-            [angularPlugin.identifier]: { router: this.router }
-          }
-        }
-      });
-      appInsights.loadAppInsights();
-    }
   }
 
   ngOnInit(): void {

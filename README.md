@@ -112,7 +112,7 @@ To use Redis, follow these steps:
 
 Open `./src/Admin/elf-admin/src/assets/env.js`
 
-Replace `elfApiBaseUrl`, `clientId`, `tenantId`, `applicationIdUri`, `applicationInsightKey` with your own values.
+Replace `elfApiBaseUrl`, `clientId`, `tenantId`, `applicationIdUri`, with your own values.
 
 ### Setup Kendo UI license
 
