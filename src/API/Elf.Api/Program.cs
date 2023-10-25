@@ -3,8 +3,6 @@ using Elf.Api.Auth;
 using Elf.Api.Data;
 using Elf.Api.Features;
 using Elf.Api.TokenGenerator;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
@@ -169,7 +167,6 @@ void ConfigureServices(IServiceCollection services)
     {
         services.AddAzureAppConfiguration();
     }
-    services.AddApplicationInsightsTelemetry();
 
     // Elf
     services.AddSingleton<CannonService>();
@@ -211,9 +208,6 @@ void ConfigureMiddleware()
         app.UseCors("local");
         app.UseSwagger();
         app.UseSwaggerUI();
-        var tc = app.Services.GetRequiredService<TelemetryConfiguration>();
-        tc.DisableTelemetry = true;
-        TelemetryDebugWriter.IsTracingDisabled = true;
         app.UseDeveloperExceptionPage();
     }
     else
