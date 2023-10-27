@@ -12,15 +12,15 @@
     "node": ">=18.17.0"
   },
   "dependencies": {
-    "@angular/animations": "^16.2.10",
-    "@angular/common": "^16.2.10",
-    "@angular/compiler": "^16.2.10",
-    "@angular/core": "^16.2.10",
-    "@angular/forms": "^16.2.10",
-    "@angular/localize": "^16.2.10",
-    "@angular/platform-browser": "^16.2.10",
-    "@angular/platform-browser-dynamic": "^16.2.10",
-    "@angular/router": "^16.2.10",
+    "@angular/animations": "^16.2.11",
+    "@angular/common": "^16.2.11",
+    "@angular/compiler": "^16.2.11",
+    "@angular/core": "^16.2.11",
+    "@angular/forms": "^16.2.11",
+    "@angular/localize": "^16.2.11",
+    "@angular/platform-browser": "^16.2.11",
+    "@angular/platform-browser-dynamic": "^16.2.11",
+    "@angular/router": "^16.2.11",
     "@azure/msal-angular": "^3.0.5",
     "@azure/msal-browser": "^3.2.0",
     "@progress/kendo-angular-barcodes": "^14.0.1",
@@ -60,9 +60,9 @@
     "zone.js": "^0.13.3"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^16.2.6",
-    "@angular/cli": "^16.2.6",
-    "@angular/compiler-cli": "^16.2.10",
+    "@angular-devkit/build-angular": "^16.2.8",
+    "@angular/cli": "^16.2.8",
+    "@angular/compiler-cli": "^16.2.11",
     "@types/node": "^18.18.6",
     "@types/qrcode": "^1.5.4",
     "typescript": "^5.1.6"
