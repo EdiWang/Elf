@@ -12,25 +12,12 @@ using Microsoft.Identity.Web;
 using Polly;
 using System.Globalization;
 using System.Net;
-using System.Reflection;
 using System.Threading.RateLimiting;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddAzureWebAppDiagnostics();
-
-if (bool.Parse(builder.Configuration["AppSettings:PreferAzureAppConfiguration"]!))
-{
-    builder.Configuration.AddAzureAppConfiguration(options =>
-        {
-            options.Connect(builder.Configuration["ConnectionStrings:AzureAppConfig"])
-                .ConfigureRefresh(refresh => refresh
-                    .Register("Elf:Settings:Sentinel", true)
-                    .SetCacheExpiration(TimeSpan.FromSeconds(10)))
-                .UseFeatureFlags(o => o.Label = "Elf");
-        });
-}
 
 ConfigureServices(builder.Services);
 
@@ -162,12 +149,6 @@ void ConfigureServices(IServiceCollection services)
             .UseSqlServer(builder.Configuration.GetConnectionString("ElfDatabase"))
             .EnableDetailedErrors());
 
-    // Azure
-    if (bool.Parse(builder.Configuration["AppSettings:PreferAzureAppConfiguration"]!))
-    {
-        services.AddAzureAppConfiguration();
-    }
-
     // Elf
     services.AddSingleton<CannonService>();
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -217,11 +198,6 @@ void ConfigureMiddleware()
 
     app.UseHsts();
     app.UseHttpsRedirection();
-
-    if (bool.Parse(app.Configuration["AppSettings:PreferAzureAppConfiguration"]!))
-    {
-        app.UseAzureAppConfiguration();
-    }
 
     app.UseStaticFiles();
     app.UseRouting();
