@@ -1,5 +1,30 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+
 @attribute [Authorize]
+@inject IAccessTokenProvider AccessTokenProvider
 
 <PageTitle>Links</PageTitle>
+
+<FluentToolbar id="toolbar-links" Style="width:100%">
+    <FluentButton Appearance="Appearance.Accent">New</FluentButton>
+    <FluentButton>Refresh</FluentButton>
+
+    <FluentRadioGroup @bind-Value=searchBy slot="end">
+
+    </FluentRadioGroup>
+
+    <FluentTextField Placeholder="Search"></FluentTextField>
+</FluentToolbar>
+
+<FluentCard>
+    <FluentDataGrid Items="@Links" Pagination="@Pagination" GenerateHeader="GenerateHeaderOption.Sticky">
+        <PropertyColumn Property="@(c => c.FwToken)" Sortable="false" Class="token" />
+        <PropertyColumn Property="@(c => c.OriginUrl)" Sortable="true" Class="origin-url" />
+        <PropertyColumn Property="@(c => c.Note)" Sortable="true" Class="note" />
+        <PropertyColumn Property="@(c => c.AkaName)" Sortable="true" Class="aka" />
+    </FluentDataGrid>
+</FluentCard>
