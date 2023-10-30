@@ -13,11 +13,14 @@ builder.Services.AddFluentUIComponents(options =>
     options.HostingModel = BlazorHostingModel.WebAssembly;
 });
 
-builder.Services.AddHttpClient("ElfAdmin.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
-    .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
+builder.Services.AddScoped<ElfAuthorizationMessageHandler>();
+
+// builder.HostEnvironment.BaseAddress
+builder.Services.AddHttpClient("ElfAPI", client => client.BaseAddress = new Uri("https://go.edi.wang"))
+    .AddHttpMessageHandler<ElfAuthorizationMessageHandler>();
 
 // Supply HttpClient instances that include access tokens when making requests to the server project
-builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ElfAdmin.ServerAPI"));
+builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ElfAPI"));
 
 builder.Services.AddMsalAuthentication(options =>
 {
