@@ -17,26 +17,26 @@ public partial class Links
 
     public PaginationState Pagination { get; set; } = new PaginationState { ItemsPerPage = 10 };
 
+    public int Offset { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        var result = await Http.GetFromJsonAsync<PagedLinkResult>($"api/link/list?take={Pagination.ItemsPerPage}&offset=0");
+        Pagination.TotalItemCountChanged += (sender, eventArgs) => StateHasChanged();
 
+        await GetData();
+    }
+
+    private async Task GetData()
+    {
+        var result = await Http.GetFromJsonAsync<PagedLinkResult>($"api/link/list?take={Pagination.ItemsPerPage}&offset={Offset}");
         LinkItems = result.Links.AsQueryable();
 
-        Pagination.TotalItemCountChanged += (sender, eventArgs) => StateHasChanged();
+        await Pagination.SetTotalItemCountAsync(result.TotalRows);
     }
 
-    private async Task GoToPageAsync(int pageIndex)
+    private async Task CurrentPageIndexChanged()
     {
-        await Pagination.SetCurrentPageIndexAsync(pageIndex);
+        Offset = Pagination.CurrentPageIndex * Pagination.ItemsPerPage;
+        await GetData();
     }
-
-    private Appearance PageButtonAppearance(int pageIndex)
-        => Pagination.CurrentPageIndex == pageIndex ? Appearance.Accent : Appearance.Neutral;
-
-    private string AriaCurrentValue(int pageIndex)
-        => Pagination.CurrentPageIndex == pageIndex ? "page" : null;
-
-    private string AriaLabel(int pageIndex)
-        => $"Go to page {pageIndex}";
 }
