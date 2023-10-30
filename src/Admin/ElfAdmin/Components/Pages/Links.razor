@@ -21,7 +21,7 @@
 </FluentToolbar>
 
 <FluentCard>
-    <FluentDataGrid Items="@Links" Pagination="@Pagination" GenerateHeader="GenerateHeaderOption.Sticky">
+    <FluentDataGrid Items="@LinkItems" Pagination="@Pagination" GenerateHeader="GenerateHeaderOption.Sticky">
         <PropertyColumn Property="@(c => c.FwToken)" Sortable="false" Class="token" />
         <PropertyColumn Property="@(c => c.OriginUrl)" Sortable="true" Class="origin-url" />
         <PropertyColumn Property="@(c => c.Note)" Sortable="true" Class="note" />

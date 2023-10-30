@@ -3,6 +3,7 @@ using Microsoft.Fast.Components.FluentUI;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using ElfAdmin;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -16,7 +17,7 @@ builder.Services.AddFluentUIComponents(options =>
 builder.Services.AddScoped<ElfAuthorizationMessageHandler>();
 
 // builder.HostEnvironment.BaseAddress
-builder.Services.AddHttpClient("ElfAPI", client => client.BaseAddress = new Uri("https://go.edi.wang"))
+builder.Services.AddHttpClient("ElfAPI", client => client.BaseAddress = new Uri(Constants.APIAddress))
     .AddHttpMessageHandler<ElfAuthorizationMessageHandler>();
 
 // Supply HttpClient instances that include access tokens when making requests to the server project
@@ -25,7 +26,7 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().Cre
 builder.Services.AddMsalAuthentication(options =>
 {
     builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
-    options.ProviderOptions.DefaultAccessTokenScopes.Add("api://a439e578-3ff8-4bee-91e5-96141234bc67/access_as_user");
+    options.ProviderOptions.DefaultAccessTokenScopes.Add($"api://{Constants.APIAppUrlGuid}/access_as_user");
 });
 
 await builder.Build().RunAsync();

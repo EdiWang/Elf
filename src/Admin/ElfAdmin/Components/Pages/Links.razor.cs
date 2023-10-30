@@ -6,14 +6,14 @@ using Microsoft.Fast.Components.FluentUI;
 
 namespace ElfAdmin.Components.Pages;
 
-public partial class Index
+public partial class Links
 {
     public string searchBy { get; set; }
 
     [Inject]
     public HttpClient Http { get; set; }
 
-    public IQueryable<LinkModel> Links { get; set; } = default;
+    public IQueryable<LinkModel> LinkItems { get; set; } = default;
 
     public PaginationState Pagination { get; set; } = new PaginationState { ItemsPerPage = 10 };
 
@@ -21,7 +21,7 @@ public partial class Index
     {
         var result = await Http.GetFromJsonAsync<PagedLinkResult>($"api/link/list?take={Pagination.ItemsPerPage}&offset=0");
 
-        Links = result.Links.AsQueryable();
+        LinkItems = result.Links.AsQueryable();
 
         Pagination.TotalItemCountChanged += (sender, eventArgs) => StateHasChanged();
     }
