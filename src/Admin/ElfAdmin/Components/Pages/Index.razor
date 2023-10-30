@@ -26,5 +26,14 @@
         <PropertyColumn Property="@(c => c.OriginUrl)" Sortable="true" Class="origin-url" />
         <PropertyColumn Property="@(c => c.Note)" Sortable="true" Class="note" />
         <PropertyColumn Property="@(c => c.AkaName)" Sortable="true" Class="aka" />
+        <PropertyColumn Property="@(c => c.Tags)" Sortable="false" Class="tags" />
+        <PropertyColumn Property="@(c => c.IsEnabled)" Sortable="true" Class="enabled" />
+        <PropertyColumn Property="@(c => c.TTL)" Sortable="true" Class="ttl" />
+        <PropertyColumn Property="@(c => c.UpdateTimeUtc)" Sortable="true" Class="update-time-utc" />
+        <PropertyColumn Property="@(c => c.Hits)" Sortable="true" Class="hits" />
+        <TemplateColumn Title="Actions" Align="@Align.End">
+            <FluentButton IconEnd="@(new Icons.Regular.Size16.Edit())"
+                OnClick="@(() => Console.WriteLine(context.Id))" />
+        </TemplateColumn>
     </FluentDataGrid>
 </FluentCard>
