@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - src/Admin/**
+      - src/Admin/elf-admin/**
 
 jobs:
   build_and_deploy_job:
