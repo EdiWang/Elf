@@ -1,34 +1,37 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">ElfAdmin</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+﻿@inject NavigationManager navigationmanager
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
+
+<FluentStack Orientation="Orientation.Vertical">
+    <FluentNavMenu Collapsible="false" Title="Main menu" Width="200" Style="margin-left: 10px">
+        <FluentNavLink Href="/" Match="NavLinkMatch.All">Links</FluentNavLink>
+    </FluentNavMenu>
+
+    <FluentFooter Style="padding-left: 10px; width: 200px;">
+        <hr />
+        <div style="text-align: center;">
+            <a href="" target="_blank">GitHub</a>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </div>
-    </nav>
-</div>
+    </FluentFooter>
+</FluentStack>
 
 @code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
+    private string target;
+    protected override void OnInitialized()
     {
-        collapseNavMenu = !collapseNavMenu;
+        navigationmanager.LocationChanged += LocationChanged;
+        base.OnInitialized();
     }
+
+    private void LocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        Uri uri = new Uri(e.Location);
+        if (uri.Segments.Count() > 1)
+            target = uri.Segments[1];
+        else
+            target = "";
+        StateHasChanged();
+    }
+
+    private Appearance SetAppearance(string location) => (string.Equals(location, target,
+    StringComparison.OrdinalIgnoreCase)) ? Appearance.Neutral : Appearance.Stealth;
 }

@@ -1,13 +1,31 @@
 ﻿@inherits LayoutComponentBase
 
-<FluentHeader>
-    Elf Admin
-</FluentHeader>
+<style>
+    fluent-card {
+        padding: 20px;
+    }
 
-<NavMenu />
+    .elf-main {
+        min-width: 0;
+        width: 100%;
+    }
+</style>
 
-<main>
-    <LoginDisplay />
+<div id="container" @ref="container">
+    <FluentHeader>
+        Elf Admin
 
-    @Body
-</main>
+        <FluentSpacer />
+
+        <LoginDisplay />
+    </FluentHeader>
+
+    <div class="d-flex elf-body-wrapper">
+        <aside class="duck-nav">
+            <NavMenu />
+        </aside>
+        <div class="elf-main me-3 ms-3">
+            @Body
+        </div>
+    </div>
+</div>
