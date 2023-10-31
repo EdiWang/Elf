@@ -32,7 +32,7 @@
     <div>
         <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.ArrowSync())"
             OnClick="Refresh" Loading="IsBusy">Refresh</FluentButton>
-        <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())" Loading="IsBusy">Clear</FluentButton>
+        <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())" Loading="IsBusy" OnClick="Clear">Clear</FluentButton>
     </div>
 
     <FluentDataGrid Items="@RequestTrackItems" GenerateHeader="GenerateHeaderOption.Sticky"

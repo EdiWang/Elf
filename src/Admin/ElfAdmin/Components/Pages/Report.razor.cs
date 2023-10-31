@@ -16,6 +16,9 @@ public partial class Report
     [Inject]
     public IMessageService MessageService { get; set; }
 
+    [Inject]
+    public IDialogService DialogService { get; set; }
+
     public IQueryable<RequestTrack> RequestTrackItems { get; set; } = default;
 
     public PaginationState Pagination { get; set; } = new PaginationState { ItemsPerPage = 5 };
@@ -58,4 +61,37 @@ public partial class Report
         await GetData();
     }
 
+    private async Task Clear()
+    {
+        var isConfirmed = await ShowClearDataConfirmationAsync();
+        if (isConfirmed)
+        {
+            try
+            {
+                // TODO: Clear data
+            }
+            catch (Exception e)
+            {
+                await ShowMessage($"Error clearing data: {e.Message}", MessageIntent.Error);
+            }
+        }
+    }
+
+    private async Task<bool> ShowClearDataConfirmationAsync()
+    {
+        var dialog = await DialogService.ShowConfirmationAsync("Do you want to clear tracking data?", "Yes", "No", "Confirmation");
+        var result = await dialog.Result;
+        return !result.Cancelled;
+    }
+
+    private async Task ShowMessage(string message, MessageIntent messageIntent)
+    {
+        await MessageService.ShowMessageBarAsync(options =>
+            {
+                options.Title = message;
+                options.Intent = messageIntent;
+                options.Section = "MESSAGES_BOTTOM";
+                options.Timeout = 3;
+            });
+    }
 }
