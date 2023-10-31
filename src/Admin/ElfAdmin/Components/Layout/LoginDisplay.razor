@@ -2,16 +2,11 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject NavigationManager Navigation
 
-<style>
-    .nav-username {
-        margin-right: 10px;
-    }
-</style>
-
 <AuthorizeView>
     <Authorized>
-        <span class="nav-username">@context.User.Identity?.Name</span>
-
+        <FluentPersona Name="@context.User.Identity?.Name" ImageSize="36px">
+        </FluentPersona>
+        <FluentSpacer Width="20" />
         <FluentButton Appearance="Appearance.Lightweight" @onclick="BeginLogOut">Log out</FluentButton>
     </Authorized>
     <NotAuthorized>
