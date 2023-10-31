@@ -1,1 +1,26 @@
 @page "/Report"
+
+<FluentCard>
+    <h4>Recent Requests</h4>
+
+    <FluentDataGrid Items="@RequestTrackItems" GenerateHeader="GenerateHeaderOption.Sticky"
+        GridTemplateColumns="0.2fr 0.4fr 0.4fr 0.25fr 0.2fr 0.15fr 0.2fr 0.3fr 0.3fr 0.3fr">
+
+        <TemplateColumn Title="Token">
+            <a href="@Constants.APIAddress/fw/@context.FwToken" target="_blank">@context.FwToken</a>
+        </TemplateColumn>
+
+        <PropertyColumn Property="@(c => c.Note)" Sortable="true" Class="note" />
+        <PropertyColumn Property="@(c => c.UserAgent)" Sortable="true" Title="User Agent" Class="user-agent" />
+        <PropertyColumn Property="@(c => c.IpAddress)" Sortable="true" Title="Ip Address" Class="ip-address" />
+        <PropertyColumn Property="@(c => c.IPCountry)" Sortable="true" Title="Country" Class="country" />
+        <PropertyColumn Property="@(c => c.IPRegion)" Sortable="true" Title="Region" Class="region" />
+        <PropertyColumn Property="@(c => c.IPCity)" Sortable="true" Title="City" Class="city" />
+        <PropertyColumn Property="@(c => c.IPASN)" Sortable="true" Title="ASN" Class="asn" />
+        <PropertyColumn Property="@(c => c.IPOrg)" Sortable="true" Title="Organization" Class="org" />
+        <PropertyColumn Property="@(c => c.RequestTimeUtc)" Sortable="true" Title="Request Time (UTC)"
+            Class="request-time-utc" />
+    </FluentDataGrid>
+
+    <FluentPaginator State="@Pagination" CurrentPageIndexChanged="CurrentPageIndexChanged" />
+</FluentCard>
