@@ -9,6 +9,19 @@
         min-width: 0;
         width: 100%;
     }
+
+    .elf-toast-container {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        z-index: 9999;
+    }
+
+    .fluent-messagebar-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
 </style>
 
 <div id="container" @ref="container">
@@ -28,4 +41,8 @@
             @Body
         </div>
     </div>
+</div>
+
+<div class="elf-toast-container">
+    <FluentMessageBarContainer Section="MESSAGES_BOTTOM" />
 </div>

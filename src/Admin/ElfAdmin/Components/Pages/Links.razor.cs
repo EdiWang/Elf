@@ -19,6 +19,9 @@ public partial class Links
     [Inject]
     public IJSRuntime JavaScriptRuntime { get; set; }
 
+    [Inject]
+    public IMessageService MessageService { get; set; }
+
     public IQueryable<LinkModel> LinkItems { get; set; } = default;
 
     public PaginationState Pagination { get; set; } = new PaginationState { ItemsPerPage = 10 };
@@ -66,8 +69,13 @@ public partial class Links
         var result = await Http.PutAsync($"api/link/{link.Id}/enable?isEnabled={value}", null);
         if (result.IsSuccessStatusCode)
         {
-            Console.WriteLine("SetEnableValue: Success");
-            // await Refresh();
+            await MessageService.ShowMessageBarAsync(options =>
+            {
+                options.Title = "Updated";
+                options.Intent = MessageIntent.Success;
+                options.Section = "MESSAGES_BOTTOM";
+                options.Timeout = 3;
+            });
         }
     }
 
