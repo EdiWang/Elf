@@ -10,13 +10,17 @@
 <PageTitle>Links</PageTitle>
 
 <FluentToolbar id="toolbar-links" Style="width:100%">
-    <FluentButton Appearance="Appearance.Accent" Loading="IsBusy" OnClick="New">New</FluentButton>
-    <FluentButton OnClick="Refresh" Loading="IsBusy">Refresh</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.New())" Loading="IsBusy"
+        OnClick="New">New</FluentButton>
+    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowSync())" Loading="IsBusy" OnClick="Refresh">Refresh
+    </FluentButton>
 
-    <FluentSearch @bind-Value=SearchTerm Placeholder="Token or Note" Disabled="IsBusy" AfterBindValue="HandleSearchInput"></FluentSearch>
+    <FluentSearch @bind-Value=SearchTerm Placeholder="Token or Note" Disabled="IsBusy"
+        AfterBindValue="HandleSearchInput"></FluentSearch>
 </FluentToolbar>
 
-<FluentDivider Style="width: 100%; margin-top: 10px; margin-bottom: 10px" Orientation=Orientation.Horizontal Role="DividerRole.Separator"></FluentDivider>
+<FluentDivider Style="width: 100%; margin-top: 10px; margin-bottom: 10px" Orientation=Orientation.Horizontal
+    Role="DividerRole.Separator"></FluentDivider>
 
 <FluentCard>
     <FluentDataGrid Items="@LinkItems" GenerateHeader="GenerateHeaderOption.Sticky"
@@ -38,7 +42,8 @@
             }
         </TemplateColumn>
         <TemplateColumn Title="Enabled">
-            <FluentCheckbox Value="context.IsEnabled" ValueChanged="@((e)=> SetEnableValue(context, e))"></FluentCheckbox>
+            <FluentCheckbox Value="context.IsEnabled" ValueChanged="@((e)=> SetEnableValue(context, e))">
+            </FluentCheckbox>
         </TemplateColumn>
         <PropertyColumn Property="@(c => c.TTL)" Sortable="true" Class="ttl" />
         <PropertyColumn Property="@(c => c.UpdateTimeUtc)" Title="Update Time (UTC)" Sortable="true"
@@ -46,8 +51,7 @@
         <PropertyColumn Property="@(c => c.Hits)" Sortable="true" Class="hits" />
 
         <TemplateColumn Title="Actions" Align="@Align.End">
-            <FluentButton IconEnd="@(new Icons.Regular.Size16.Copy())"
-                OnClick="@(() => Copy(context.FwToken))" />
+            <FluentButton IconEnd="@(new Icons.Regular.Size16.Copy())" OnClick="@(() => Copy(context.FwToken))" />
 
             <FluentButton IconEnd="@(new Icons.Regular.Size16.Share())"
                 OnClick="@(() => Console.WriteLine(context.Id))" />
@@ -55,8 +59,7 @@
             <FluentButton IconEnd="@(new Icons.Regular.Size16.Edit())"
                 OnClick="@(() => Console.WriteLine(context.Id))" />
 
-            <FluentButton IconEnd="@(new Icons.Regular.Size16.Delete())"
-                OnClick="@(() => Delete(context))" />
+            <FluentButton IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(() => Delete(context))" />
         </TemplateColumn>
     </FluentDataGrid>
 
