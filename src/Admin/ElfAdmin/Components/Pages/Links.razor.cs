@@ -11,6 +11,8 @@ public partial class Links
 {
     public string searchBy { get; set; }
 
+    public bool IsBusy { get; set; }
+
     [Inject]
     public HttpClient Http { get; set; }
 
@@ -32,15 +34,28 @@ public partial class Links
 
     private async Task GetData()
     {
+        IsBusy = true;
+
         var result = await Http.GetFromJsonAsync<PagedLinkResult>($"api/link/list?take={Pagination.ItemsPerPage}&offset={Offset}");
         LinkItems = result.Links.AsQueryable();
 
         await Pagination.SetTotalItemCountAsync(result.TotalRows);
+
+        IsBusy = false;
     }
 
     private async Task CurrentPageIndexChanged()
     {
         Offset = Pagination.CurrentPageIndex * Pagination.ItemsPerPage;
+        await GetData();
+    }
+
+    private async Task Refresh()
+    {
+        Pagination = new PaginationState { ItemsPerPage = 10 };
+        LinkItems = new List<LinkModel>().AsQueryable();
+        Offset = 0;
+
         await GetData();
     }
 

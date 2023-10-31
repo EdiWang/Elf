@@ -10,14 +10,14 @@
 <PageTitle>Links</PageTitle>
 
 <FluentToolbar id="toolbar-links" Style="width:100%">
-    <FluentButton Appearance="Appearance.Accent">New</FluentButton>
-    <FluentButton>Refresh</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Loading="IsBusy">New</FluentButton>
+    <FluentButton OnClick="Refresh" Loading="IsBusy">Refresh</FluentButton>
 
-    <FluentRadioGroup @bind-Value=searchBy slot="end">
+    <FluentRadioGroup @bind-Value=searchBy slot="end" Disabled="IsBusy">
 
     </FluentRadioGroup>
 
-    <FluentTextField Placeholder="Search"></FluentTextField>
+    <FluentTextField Placeholder="Search" Disabled="IsBusy"></FluentTextField>
 </FluentToolbar>
 
 <FluentDivider Style="width: 100%; margin-top: 10px; margin-bottom: 10px" Orientation=Orientation.Horizontal Role="DividerRole.Separator"></FluentDivider>
