@@ -115,14 +115,14 @@ public partial class Links
             var result = await Http.PutAsync($"api/link/{link.Id}/enable?isEnabled={value}", null);
             if (result.IsSuccessStatusCode)
             {
-                await ShowMessage("Link updated successfully", MessageIntent.Success);
+                await MessageService.ShowMessage("Link updated successfully", MessageIntent.Success);
             }
         }
         catch (Exception e)
         {
             link.IsEnabled = !value;
 
-            await ShowMessage($"Error updating link: {e.Message}", MessageIntent.Error);
+            await MessageService.ShowMessage($"Error updating link: {e.Message}", MessageIntent.Error);
         }
     }
 
@@ -144,13 +144,13 @@ public partial class Links
                 var result = await Http.DeleteAsync($"api/link/{link.Id}");
                 if (result.IsSuccessStatusCode)
                 {
-                    await ShowMessage("Link deleted successfully", MessageIntent.Success);
+                    await MessageService.ShowMessage("Link deleted successfully", MessageIntent.Success);
                     await Refresh();
                 }
             }
             catch (Exception e)
             {
-                await ShowMessage($"Error deleting link: {e.Message}", MessageIntent.Error);
+                await MessageService.ShowMessage($"Error deleting link: {e.Message}", MessageIntent.Error);
             }
         }
     }
@@ -163,15 +163,4 @@ public partial class Links
     }
 
     #endregion
-
-    private async Task ShowMessage(string message, MessageIntent messageIntent)
-    {
-        await MessageService.ShowMessageBarAsync(options =>
-            {
-                options.Title = message;
-                options.Intent = messageIntent;
-                options.Section = "MESSAGES_BOTTOM";
-                options.Timeout = 3;
-            });
-    }
 }
