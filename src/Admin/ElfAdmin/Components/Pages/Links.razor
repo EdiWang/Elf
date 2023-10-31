@@ -22,12 +22,25 @@
 
 <FluentCard>
     <FluentDataGrid Items="@LinkItems" GenerateHeader="GenerateHeaderOption.Sticky">
-        <PropertyColumn Property="@(c => c.FwToken)" Sortable="false" Class="token" />
-        <PropertyColumn Property="@(c => c.OriginUrl)" Sortable="true" Class="origin-url" />
+        <TemplateColumn Title="Token">
+            <a href="@Constants.APIAddress/fw/@context.FwToken" target="_blank">@context.FwToken</a>
+        </TemplateColumn>
+        <TemplateColumn Title="Origin Url">
+            <a href="@context.OriginUrl" target="_blank">@context.OriginUrl</a>
+        </TemplateColumn>
         <PropertyColumn Property="@(c => c.Note)" Sortable="true" Class="note" />
         <PropertyColumn Property="@(c => c.AkaName)" Sortable="true" Class="aka" />
-        <PropertyColumn Property="@(c => c.Tags)" Sortable="false" Class="tags" />
-        <PropertyColumn Property="@(c => c.IsEnabled)" Sortable="true" Class="enabled" />
+        <TemplateColumn Title="Tags">
+            @foreach (var tag in context.Tags)
+            {
+                <FluentBadge Appearance="Appearance.Accent">
+                    <span data-tag-id="@tag.Id">@tag.Name</span>
+                </FluentBadge>
+            }
+        </TemplateColumn>
+        <TemplateColumn Title="Enabled">
+            <FluentCheckbox @bind-Value=context.IsEnabled Readonly=true></FluentCheckbox>
+        </TemplateColumn>
         <PropertyColumn Property="@(c => c.TTL)" Sortable="true" Class="ttl" />
         <PropertyColumn Property="@(c => c.UpdateTimeUtc)" Sortable="true" Class="update-time-utc" />
         <PropertyColumn Property="@(c => c.Hits)" Sortable="true" Class="hits" />
