@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using ElfAdmin.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Fast.Components.FluentUI;
+using Microsoft.JSInterop;
 
 namespace ElfAdmin.Components.Pages;
 
@@ -12,6 +13,9 @@ public partial class Links
 
     [Inject]
     public HttpClient Http { get; set; }
+
+    [Inject]
+    public IJSRuntime JavaScriptRuntime { get; set; }
 
     public IQueryable<LinkModel> LinkItems { get; set; } = default;
 
@@ -39,4 +43,14 @@ public partial class Links
         Offset = Pagination.CurrentPageIndex * Pagination.ItemsPerPage;
         await GetData();
     }
+
+    #region Action Buttons
+
+    private async Task Copy(string fwToken)
+    {
+        var fwUrl = $"{Constants.APIAddress}/fw/{fwToken}";
+        await JavaScriptRuntime.InvokeVoidAsync("clipboardCopy.copyText", fwUrl);
+    }
+
+    #endregion
 }

@@ -20,8 +20,11 @@
     <FluentTextField Placeholder="Search"></FluentTextField>
 </FluentToolbar>
 
+<FluentDivider Style="width: 100%; margin-top: 10px; margin-bottom: 10px" Orientation=Orientation.Horizontal Role="DividerRole.Separator"></FluentDivider>
+
 <FluentCard>
-    <FluentDataGrid Items="@LinkItems" GenerateHeader="GenerateHeaderOption.Sticky" GridTemplateColumns="0.2fr 0.8fr 0.4fr 0.2fr 0.2fr 0.15fr 0.1fr 0.3fr 0.1fr 0.3fr">
+    <FluentDataGrid Items="@LinkItems" GenerateHeader="GenerateHeaderOption.Sticky"
+        GridTemplateColumns="0.2fr 0.8fr 0.4fr 0.2fr 0.2fr 0.15fr 0.1fr 0.3fr 0.1fr 0.3fr">
         <TemplateColumn Title="Token">
             <a href="@Constants.APIAddress/fw/@context.FwToken" target="_blank">@context.FwToken</a>
         </TemplateColumn>
@@ -42,12 +45,13 @@
             <FluentCheckbox @bind-Value=context.IsEnabled Readonly=true></FluentCheckbox>
         </TemplateColumn>
         <PropertyColumn Property="@(c => c.TTL)" Sortable="true" Class="ttl" />
-        <PropertyColumn Property="@(c => c.UpdateTimeUtc)" Title="Update Time (UTC)" Sortable="true" Class="update-time-utc" />
+        <PropertyColumn Property="@(c => c.UpdateTimeUtc)" Title="Update Time (UTC)" Sortable="true"
+            Class="update-time-utc" />
         <PropertyColumn Property="@(c => c.Hits)" Sortable="true" Class="hits" />
 
         <TemplateColumn Title="Actions" Align="@Align.End">
             <FluentButton IconEnd="@(new Icons.Regular.Size16.Copy())"
-                OnClick="@(() => Console.WriteLine(context.Id))" />
+                OnClick="@(() => Copy(context.FwToken))" />
 
             <FluentButton IconEnd="@(new Icons.Regular.Size16.Share())"
                 OnClick="@(() => Console.WriteLine(context.Id))" />
