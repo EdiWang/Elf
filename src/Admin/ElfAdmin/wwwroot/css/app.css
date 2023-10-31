@@ -6,6 +6,14 @@ a {
     text-decoration: none;
 }
 
+.nav-link {
+    color: white;
+}
+
+.nav-link:hover {
+    color: white;
+}
+
 .validation-message {
     color: red;
 }
