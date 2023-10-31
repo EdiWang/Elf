@@ -1,4 +1,6 @@
 
+using System.Net.Http.Json;
+using ElfAdmin.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Fast.Components.FluentUI;
 
@@ -14,8 +16,10 @@ public partial class Tags
     [Inject]
     public IMessageService MessageService { get; set; }
 
+    public List<Tag> TagItems { get; set; }
+
     protected override async Task OnInitializedAsync()
-    { 
+    {
         await GetData();
     }
 
@@ -23,7 +27,10 @@ public partial class Tags
     {
         IsBusy = true;
 
-        
+        TagItems?.Clear();
+
+        var apiUrl = $"api/tag/list";
+        TagItems = await Http.GetFromJsonAsync<List<Tag>>(apiUrl);
 
         IsBusy = false;
     }

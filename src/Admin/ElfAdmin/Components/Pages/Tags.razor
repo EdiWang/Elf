@@ -3,3 +3,22 @@
 @using Microsoft.AspNetCore.Authorization
 
 @attribute [Authorize]
+
+<PageTitle>Tags</PageTitle>
+
+<FluentToolbar id="toolbar-tags" Style="width:100%">
+    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowSync())" Loading="IsBusy" OnClick="GetData">Refresh
+    </FluentButton>
+</FluentToolbar>
+
+<FluentProgressRing Visible="IsBusy"></FluentProgressRing>
+
+@if (null != TagItems && TagItems.Count > 0)
+{
+    foreach (var item in TagItems)
+    {
+        <FluentBadge Appearance="Appearance.Accent">
+            @item.Name
+        </FluentBadge>
+    }
+}
