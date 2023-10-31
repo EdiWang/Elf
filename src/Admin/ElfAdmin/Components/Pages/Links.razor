@@ -21,7 +21,7 @@
 </FluentToolbar>
 
 <FluentCard>
-    <FluentDataGrid Items="@LinkItems" GenerateHeader="GenerateHeaderOption.Sticky">
+    <FluentDataGrid Items="@LinkItems" GenerateHeader="GenerateHeaderOption.Sticky" GridTemplateColumns="0.2fr 0.8fr 0.4fr 0.2fr 0.2fr 0.15fr 0.1fr 0.3fr 0.1fr 0.3fr">
         <TemplateColumn Title="Token">
             <a href="@Constants.APIAddress/fw/@context.FwToken" target="_blank">@context.FwToken</a>
         </TemplateColumn>
