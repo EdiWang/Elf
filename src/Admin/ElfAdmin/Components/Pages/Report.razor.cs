@@ -68,7 +68,12 @@ public partial class Report
         {
             try
             {
-                // TODO: Clear data
+                var result = await Http.DeleteAsync($"api/report/tracking/clear");
+                if (result.IsSuccessStatusCode)
+                {
+                    await ShowMessage("Clear data successfully", MessageIntent.Success);
+                    await Refresh();
+                }
             }
             catch (Exception e)
             {
