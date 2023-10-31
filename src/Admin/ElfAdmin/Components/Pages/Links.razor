@@ -60,7 +60,7 @@
                 OnClick="@(() => Console.WriteLine(context.Id))" />
 
             <FluentButton IconEnd="@(new Icons.Regular.Size16.Delete())"
-                OnClick="@(() => Console.WriteLine(context.Id))" />
+                OnClick="@(() => Delete(context))" />
         </TemplateColumn>
     </FluentDataGrid>
 

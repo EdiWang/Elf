@@ -22,6 +22,9 @@ public partial class Links
     [Inject]
     public IMessageService MessageService { get; set; }
 
+    [Inject]
+    public IDialogService DialogService { get; set; }
+
     public IQueryable<LinkModel> LinkItems { get; set; } = default;
 
     public PaginationState Pagination { get; set; } = new PaginationState { ItemsPerPage = 10 };
@@ -88,6 +91,34 @@ public partial class Links
     {
         var fwUrl = $"{Constants.APIAddress}/fw/{fwToken}";
         await JavaScriptRuntime.InvokeVoidAsync("clipboardCopy.copyText", fwUrl);
+    }
+
+    private async Task Delete(LinkModel link)
+    {
+        var isConfirmed = await ShowDeleteConfirmationAsync();
+        if (isConfirmed)
+        {
+            try
+            {
+                var result = await Http.DeleteAsync($"api/link/{link.Id}");
+                if (result.IsSuccessStatusCode)
+                {
+                    await ShowMessage("Link deleted successfully", MessageIntent.Success);
+                    await Refresh();
+                }
+            }
+            catch (Exception e)
+            {
+                await ShowMessage($"Error deleting link: {e.Message}", MessageIntent.Error);
+            }
+        }
+    }
+
+    private async Task<bool> ShowDeleteConfirmationAsync()
+    {
+        var dialog = await DialogService.ShowConfirmationAsync("Do you want to delete this link?", "Yes", "No", "Delete confirmation");
+        var result = await dialog.Result;
+        return !result.Cancelled;
     }
 
     #endregion
