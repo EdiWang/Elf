@@ -13,11 +13,7 @@
     <FluentButton Appearance="Appearance.Accent" Loading="IsBusy">New</FluentButton>
     <FluentButton OnClick="Refresh" Loading="IsBusy">Refresh</FluentButton>
 
-    <FluentRadioGroup @bind-Value=searchBy slot="end" Disabled="IsBusy">
-
-    </FluentRadioGroup>
-
-    <FluentTextField Placeholder="Search" Disabled="IsBusy"></FluentTextField>
+    <FluentSearch @bind-Value=SearchTerm Placeholder="Token or Note" Disabled="IsBusy" AfterBindValue="HandleSearchInput"></FluentSearch>
 </FluentToolbar>
 
 <FluentDivider Style="width: 100%; margin-top: 10px; margin-bottom: 10px" Orientation=Orientation.Horizontal Role="DividerRole.Separator"></FluentDivider>

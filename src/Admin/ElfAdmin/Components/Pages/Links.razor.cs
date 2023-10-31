@@ -9,7 +9,7 @@ namespace ElfAdmin.Components.Pages;
 
 public partial class Links
 {
-    public string searchBy { get; set; }
+    public string SearchTerm { get; set; }
 
     public bool IsBusy { get; set; }
 
@@ -42,7 +42,14 @@ public partial class Links
     {
         IsBusy = true;
 
-        var result = await Http.GetFromJsonAsync<PagedLinkResult>($"api/link/list?take={Pagination.ItemsPerPage}&offset={Offset}");
+        var apiUrl = $"api/link/list?take={Pagination.ItemsPerPage}&offset={Offset}";
+
+        if (!string.IsNullOrEmpty(SearchTerm))
+        {
+            apiUrl += $"&term={SearchTerm}";
+        }
+
+        var result = await Http.GetFromJsonAsync<PagedLinkResult>(apiUrl);
         LinkItems = result.Links.AsQueryable();
 
         await Pagination.SetTotalItemCountAsync(result.TotalRows);
@@ -63,6 +70,11 @@ public partial class Links
         Offset = 0;
 
         await GetData();
+    }
+
+    private async Task HandleSearchInput(string value)
+    {
+        await Refresh();
     }
 
     private async Task SetEnableValue(LinkModel link, bool value)
