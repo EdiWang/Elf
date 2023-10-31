@@ -3,6 +3,12 @@
 <FluentCard>
     <h4>Recent Requests</h4>
 
+    <div>
+        <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.ArrowSync())"
+            OnClick="Refresh" Loading="IsBusy">Refresh</FluentButton>
+        <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())" Loading="IsBusy">Clear</FluentButton>
+    </div>
+
     <FluentDataGrid Items="@RequestTrackItems" GenerateHeader="GenerateHeaderOption.Sticky"
         GridTemplateColumns="0.2fr 0.4fr 0.4fr 0.25fr 0.2fr 0.15fr 0.2fr 0.3fr 0.3fr 0.3fr">
 
