@@ -59,6 +59,17 @@ public partial class Links
         await GetData();
     }
 
+    private async Task SetEnableValue(LinkModel link, bool value)
+    {
+        link.IsEnabled = value;
+
+        // var result = await Http.PostAsJsonAsync($"api/link/setenable?id={id}&value={value}", null);
+        // if (result.IsSuccessStatusCode)
+        // {
+        //     await Refresh();
+        // }
+    }
+
     #region Action Buttons
 
     private async Task Copy(string fwToken)

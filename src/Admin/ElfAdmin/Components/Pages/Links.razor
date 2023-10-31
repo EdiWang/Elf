@@ -42,7 +42,7 @@
             }
         </TemplateColumn>
         <TemplateColumn Title="Enabled">
-            <FluentCheckbox @bind-Value=context.IsEnabled Readonly=true></FluentCheckbox>
+            <FluentCheckbox Value="context.IsEnabled" ValueChanged="@((e)=> SetEnableValue(context, e))"></FluentCheckbox>
         </TemplateColumn>
         <PropertyColumn Property="@(c => c.TTL)" Sortable="true" Class="ttl" />
         <PropertyColumn Property="@(c => c.UpdateTimeUtc)" Title="Update Time (UTC)" Sortable="true"
