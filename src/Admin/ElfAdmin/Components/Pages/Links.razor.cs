@@ -77,6 +77,35 @@ public partial class Links
         await Refresh();
     }
 
+    private async Task New()
+    {
+        DialogParameters parameters = new()
+        {
+            Title = $"Create link",
+            PrimaryAction = "Save",
+            SecondaryAction = "Cancel",
+            Width = "600px",
+            Modal = true,
+            PreventScroll = true
+        };
+
+        var editModel = new LinkEditModel() { IsEnabled = true, TTL = 3600 };
+
+        IDialogReference dialog = await DialogService.ShowDialogAsync<EditLinkDialog>(editModel, parameters);
+        DialogResult result = await dialog.Result;
+
+        if (result.Data is not null)
+        {
+            var diagResult = result.Data as LinkEditModel;
+
+            IsBusy = true;
+
+            // TODO: Call API
+
+            IsBusy = false;
+        }
+    }
+
     private async Task SetEnableValue(LinkModel link, bool value)
     {
         link.IsEnabled = value;

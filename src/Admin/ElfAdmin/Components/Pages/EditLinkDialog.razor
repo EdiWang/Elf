@@ -1,5 +1,21 @@
 @implements IDialogContentComponent<LinkEditModel>
 
+<style>
+    .w100 {
+        width: 100%;
+    }
+</style>
+
+<EditForm Model="Content">
+    <DataAnnotationsValidator />
+    <FluentValidationSummary />
+
+    <FluentStack Orientation="Orientation.Vertical">
+        <FluentTextField Class="w100" @bind-Value="Content.OriginUrl" Placeholder="Origin Url">
+        </FluentTextField>
+    </FluentStack>
+</EditForm>
+
 @code {
     [Parameter]
     public LinkEditModel Content { get; set; } = default!;

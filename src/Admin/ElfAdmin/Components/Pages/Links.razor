@@ -10,7 +10,7 @@
 <PageTitle>Links</PageTitle>
 
 <FluentToolbar id="toolbar-links" Style="width:100%">
-    <FluentButton Appearance="Appearance.Accent" Loading="IsBusy">New</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" Loading="IsBusy" OnClick="New">New</FluentButton>
     <FluentButton OnClick="Refresh" Loading="IsBusy">Refresh</FluentButton>
 
     <FluentSearch @bind-Value=SearchTerm Placeholder="Token or Note" Disabled="IsBusy" AfterBindValue="HandleSearchInput"></FluentSearch>
