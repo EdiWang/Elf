@@ -36,12 +36,19 @@ public partial class Report
     {
         IsBusy = true;
 
-        var apiUrl = $"api/report/requests?take={Pagination.ItemsPerPage}&offset={Offset}";
+        try
+        {
+            var apiUrl = $"api/report/requests?take={Pagination.ItemsPerPage}&offset={Offset}";
 
-        var result = await Http.GetFromJsonAsync<PagedRequestTrack>(apiUrl);
-        RequestTrackItems = result.RequestTracks.AsQueryable();
+            var result = await Http.GetFromJsonAsync<PagedRequestTrack>(apiUrl);
+            RequestTrackItems = result.RequestTracks.AsQueryable();
 
-        await Pagination.SetTotalItemCountAsync(result.TotalRows);
+            await Pagination.SetTotalItemCountAsync(result.TotalRows);
+        }
+        catch (Exception e)
+        {
+            await MessageService.ShowMessage($"Error getting data: {e.Message}", MessageIntent.Error);
+        }
 
         IsBusy = false;
     }

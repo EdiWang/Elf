@@ -42,17 +42,24 @@ public partial class Links
     {
         IsBusy = true;
 
-        var apiUrl = $"api/link/list?take={Pagination.ItemsPerPage}&offset={Offset}";
-
-        if (!string.IsNullOrEmpty(SearchTerm))
+        try
         {
-            apiUrl += $"&term={SearchTerm}";
+            var apiUrl = $"api/link/list?take={Pagination.ItemsPerPage}&offset={Offset}";
+
+            if (!string.IsNullOrEmpty(SearchTerm))
+            {
+                apiUrl += $"&term={SearchTerm}";
+            }
+
+            var result = await Http.GetFromJsonAsync<PagedLinkResult>(apiUrl);
+            LinkItems = result.Links.AsQueryable();
+
+            await Pagination.SetTotalItemCountAsync(result.TotalRows);
         }
-
-        var result = await Http.GetFromJsonAsync<PagedLinkResult>(apiUrl);
-        LinkItems = result.Links.AsQueryable();
-
-        await Pagination.SetTotalItemCountAsync(result.TotalRows);
+        catch (Exception e)
+        {
+            await MessageService.ShowMessage($"Error getting data: {e.Message}", MessageIntent.Error);
+        }
 
         IsBusy = false;
     }

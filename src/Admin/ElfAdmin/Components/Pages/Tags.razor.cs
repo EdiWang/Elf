@@ -28,8 +28,15 @@ public partial class Tags
 
         TagItems?.Clear();
 
-        var apiUrl = $"api/tag/list";
-        TagItems = await Http.GetFromJsonAsync<List<Tag>>(apiUrl);
+        try
+        {
+            var apiUrl = $"api/tag/list";
+            TagItems = await Http.GetFromJsonAsync<List<Tag>>(apiUrl);
+        }
+        catch (Exception e)
+        {
+            await MessageService.ShowMessage($"Error getting data: {e.Message}", MessageIntent.Error);
+        }
 
         IsBusy = false;
     }
