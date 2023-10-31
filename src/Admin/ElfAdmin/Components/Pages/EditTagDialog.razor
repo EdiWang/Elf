@@ -1,0 +1,25 @@
+@implements IDialogContentComponent<UpdateTagRequest>
+
+<style>
+    .w100 {
+        width: 100%;
+    }
+</style>
+
+<EditForm Model="Content">
+    <DataAnnotationsValidator />
+    <FluentValidationSummary />
+
+    <FluentStack Orientation="Orientation.Vertical">
+        <FluentTextField Class="w100" @bind-Value="Content.Name" Placeholder="Note">
+        </FluentTextField>
+    </FluentStack>
+</EditForm>
+
+@code {
+    [Parameter]
+    public UpdateTagRequest Content { get; set; } = default!;
+
+    [CascadingParameter]
+    public FluentDialog Dialog { get; set; }
+}
