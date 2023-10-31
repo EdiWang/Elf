@@ -66,16 +66,19 @@ public partial class Links
     {
         link.IsEnabled = value;
 
-        var result = await Http.PutAsync($"api/link/{link.Id}/enable?isEnabled={value}", null);
-        if (result.IsSuccessStatusCode)
+        try
         {
-            await MessageService.ShowMessageBarAsync(options =>
+            var result = await Http.PutAsync($"api/link/{link.Id}/enable?isEnabled={value}", null);
+            if (result.IsSuccessStatusCode)
             {
-                options.Title = "Updated";
-                options.Intent = MessageIntent.Success;
-                options.Section = "MESSAGES_BOTTOM";
-                options.Timeout = 3;
-            });
+                await ShowMessage("Link updated successfully", MessageIntent.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            link.IsEnabled = !value;
+
+            await ShowMessage($"Error updating link: {e.Message}", MessageIntent.Error);
         }
     }
 
@@ -88,4 +91,15 @@ public partial class Links
     }
 
     #endregion
+
+    private async Task ShowMessage(string message, MessageIntent messageIntent)
+    {
+        await MessageService.ShowMessageBarAsync(options =>
+            {
+                options.Title = message;
+                options.Intent = messageIntent;
+                options.Section = "MESSAGES_BOTTOM";
+                options.Timeout = 3;
+            });
+    }
 }
