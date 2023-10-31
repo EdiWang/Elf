@@ -29,7 +29,7 @@
             <a href="@context.OriginUrl" target="_blank">@context.OriginUrl</a>
         </TemplateColumn>
         <PropertyColumn Property="@(c => c.Note)" Sortable="true" Class="note" />
-        <PropertyColumn Property="@(c => c.AkaName)" Sortable="true" Class="aka" />
+        <PropertyColumn Property="@(c => c.AkaName)" Title="Aka" Sortable="true" Class="aka" />
         <TemplateColumn Title="Tags">
             @foreach (var tag in context.Tags)
             {
@@ -42,7 +42,7 @@
             <FluentCheckbox @bind-Value=context.IsEnabled Readonly=true></FluentCheckbox>
         </TemplateColumn>
         <PropertyColumn Property="@(c => c.TTL)" Sortable="true" Class="ttl" />
-        <PropertyColumn Property="@(c => c.UpdateTimeUtc)" Sortable="true" Class="update-time-utc" />
+        <PropertyColumn Property="@(c => c.UpdateTimeUtc)" Title="Update Time (UTC)" Sortable="true" Class="update-time-utc" />
         <PropertyColumn Property="@(c => c.Hits)" Sortable="true" Class="hits" />
 
         <TemplateColumn Title="Actions" Align="@Align.End">
