@@ -117,7 +117,21 @@ public partial class Links
                 diagResult.Tags = null;
             }
 
-            // TODO: Call API
+            try
+            {
+                IsBusy = true;
+
+                var response = await Http.PostAsJsonAsync($"api/link/create", diagResult);
+                if (response.IsSuccessStatusCode)
+                {
+                    await MessageService.ShowMessage("Link created successfully", MessageIntent.Success);
+                    await GetData();
+                }
+            }
+            catch (Exception e)
+            {
+                await MessageService.ShowMessage($"Error creating link: {e.Message}", MessageIntent.Error);
+            }
 
             IsBusy = false;
         }
