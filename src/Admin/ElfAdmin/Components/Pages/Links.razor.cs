@@ -102,7 +102,7 @@ public partial class Links
         IDialogReference dialog = await DialogService.ShowDialogAsync<EditLinkDialog>(editModel, parameters);
         DialogResult result = await dialog.Result;
 
-        if (result.Data is not null)
+        if (!result.Cancelled && result.Data is not null)
         {
             var diagResult = result.Data as LinkEditModel;
 
@@ -203,6 +203,40 @@ public partial class Links
 
         IDialogReference dialog = await DialogService.ShowDialogAsync<EditLinkDialog>(editModel, parameters);
         DialogResult result = await dialog.Result;
+
+        if (!result.Cancelled && result.Data is not null)
+        {
+            var diagResult = result.Data as LinkEditModel;
+
+            IsBusy = true;
+
+            if (diagResult.SelectedTags.Any())
+            {
+                diagResult.Tags = diagResult.SelectedTags.Select(t => t.Name).ToArray();
+            }
+            else
+            {
+                diagResult.Tags = null;
+            }
+
+            try
+            {
+                IsBusy = true;
+
+                var response = await Http.PutAsJsonAsync($"api/link/{link.Id}", diagResult);
+                if (response.IsSuccessStatusCode)
+                {
+                    await MessageService.ShowMessage("Link updated successfully", MessageIntent.Success);
+                    await GetData();
+                }
+            }
+            catch (Exception e)
+            {
+                await MessageService.ShowMessage($"Error updating link: {e.Message}", MessageIntent.Error);
+            }
+
+            IsBusy = false;
+        }
     }
 
     private async Task Delete(LinkModel link)
