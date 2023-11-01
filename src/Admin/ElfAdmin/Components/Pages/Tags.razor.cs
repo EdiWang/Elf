@@ -43,6 +43,32 @@ public partial class Tags
 
     private async Task Edit(Tag tag)
     {
-        tag.InEditMode = true;
+        if (!tag.InEditMode)
+        {
+            tag.InEditMode = true;
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(tag.Name))
+            {
+                await MessageService.ShowMessage("Tag name cannot be empty", MessageIntent.Warning);
+                return;
+            }
+
+            try
+            {
+                var result = await Http.PutAsJsonAsync($"api/tag/{tag.Id}", new UpdateTagRequest { Name = tag.Name });
+                if (result.IsSuccessStatusCode)
+                {
+                    await MessageService.ShowMessage("Tag updated successfully", MessageIntent.Success);
+                }
+            }
+            catch (Exception e)
+            {
+                await MessageService.ShowMessage($"Error getting data: {e.Message}", MessageIntent.Error);
+            }
+
+            tag.InEditMode = false;
+        }
     }
 }
