@@ -6,6 +6,12 @@
 
 @attribute [Authorize]
 
+<style>
+    .text-muted {
+        color: #aaa;
+    }
+</style>
+
 <PageTitle>Links</PageTitle>
 
 <FluentToolbar id="toolbar-links" Style="width:100%">
@@ -31,7 +37,18 @@
             <a href="@context.OriginUrl" target="_blank">@context.OriginUrl</a>
         </TemplateColumn>
         <PropertyColumn Property="@(c => c.Note)" Sortable="true" Class="note" />
-        <PropertyColumn Property="@(c => c.AkaName)" Title="Aka" Sortable="true" Class="aka" />
+
+        <TemplateColumn Title="Aka">
+            @if (!string.IsNullOrWhiteSpace(context.AkaName))
+            {
+                <a href="@Constants.APIAddress/aka/@context.AkaName" target="_blank">@context.AkaName</a>
+            }
+            else
+            {
+                <span class="text-muted">(none)</span>
+            }
+        </TemplateColumn>
+
         <TemplateColumn Title="Tags">
             @foreach (var tag in context.Tags)
             {
@@ -52,8 +69,7 @@
         <TemplateColumn Title="Actions" Align="@Align.End">
             <FluentButton IconEnd="@(new Icons.Regular.Size16.Copy())" OnClick="() => Copy(context.FwToken)" />
 
-            <FluentButton IconEnd="@(new Icons.Regular.Size16.Share())"
-                OnClick="() => Share(context)" />
+            <FluentButton IconEnd="@(new Icons.Regular.Size16.Share())" OnClick="() => Share(context)" />
 
             <FluentButton IconEnd="@(new Icons.Regular.Size16.Edit())"
                 OnClick="@(() => Console.WriteLine(context.Id))" />
