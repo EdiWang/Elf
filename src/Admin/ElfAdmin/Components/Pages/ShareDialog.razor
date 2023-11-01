@@ -7,6 +7,12 @@
     </div>
     <div class="links">
         <code><a href="@Constants.APIAddress/fw/@Content.FwToken" target="_blank">@Constants.APIAddress/fw/@Content.FwToken</a></code>
+
+        @if (!string.IsNullOrWhiteSpace(Content.AkaName))
+        {
+            <br />
+            <code><a href="@Constants.APIAddress/aka/@Content.AkaName" target="_blank">@Constants.APIAddress/aka/@Content.AkaName</a></code>
+        }
     </div>
 </FluentDialogBody>
 
