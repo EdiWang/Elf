@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ElfAdmin.Models;
 
@@ -17,15 +18,8 @@ public class LinkModel
     public DateTime UpdateTimeUtc { get; set; }
     public string AkaName { get; set; }
     public int? TTL { get; set; }
-    public TagEntity[] Tags { get; set; }
+    public Tag[] Tags { get; set; }
     public int Hits { get; set; }
-}
-
-public class TagEntity
-{
-    public int Id { get; set; }
-
-    public string Name { get; set; }
 }
 
 public class LinkEditModel
@@ -55,6 +49,9 @@ public class LinkEditModel
     public int TTL { get; set; }
 
     public string[] Tags { get; set; }
+
+    [JsonIgnore]
+    public IEnumerable<Tag> SelectedTags { get; set; } = Array.Empty<Tag>();
 }
 
 public class ListByTagsRequest

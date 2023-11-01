@@ -1,4 +1,6 @@
 @implements IDialogContentComponent<LinkEditModel>
+@inject HttpClient Http
+@inject IMessageService MessageService
 
 <style>
     .w100 {
@@ -28,6 +30,10 @@
             </div>
         </div>
 
+        <FluentAutocomplete TOption="Tag" Placeholder="Select tags" Label="Tags"
+            OnOptionsSearch="@OnSearchAsync" OptionText="@(i => i.Name)"
+            @bind-SelectedOptions="@Content.SelectedTags" />
+
         <FluentCheckbox @bind-Value=Content.IsEnabled Label="Enabled"></FluentCheckbox>
     </FluentStack>
 </EditForm>
@@ -38,4 +44,31 @@
 
     [CascadingParameter]
     public FluentDialog Dialog { get; set; }
+
+    public bool IsBusy { get; set; }
+
+    public List<Tag> AllTags { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsBusy = true;
+
+        try
+        {
+            var apiUrl = $"api/tag/list";
+            AllTags = await Http.GetFromJsonAsync<List<Tag>>(apiUrl);
+        }
+        catch (Exception e)
+        {
+            await MessageService.ShowMessage($"Error getting data: {e.Message}", MessageIntent.Error);
+        }
+
+        IsBusy = false;
+    }
+
+    private async Task OnSearchAsync(OptionsSearchEventArgs<Tag> e)
+    {
+        e.Items = AllTags.Where(i => i.Name.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase))
+        .OrderBy(i => i.Name);
+    }
 }

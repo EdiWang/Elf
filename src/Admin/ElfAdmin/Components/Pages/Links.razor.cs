@@ -1,5 +1,6 @@
 
 using System.Net.Http.Json;
+using System.Text.Json;
 using ElfAdmin.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Fast.Components.FluentUI;
@@ -106,6 +107,15 @@ public partial class Links
             var diagResult = result.Data as LinkEditModel;
 
             IsBusy = true;
+
+            if (diagResult.SelectedTags.Any())
+            {
+                diagResult.Tags = diagResult.SelectedTags.Select(t => t.Name).ToArray();
+            }
+            else
+            {
+                diagResult.Tags = null;
+            }
 
             // TODO: Call API
 
