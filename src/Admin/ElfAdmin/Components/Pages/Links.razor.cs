@@ -164,6 +164,33 @@ public partial class Links
         IDialogReference dialog = await DialogService.ShowDialogAsync<ShareDialog>(link, parameters);
     }
 
+    private async Task Edit(LinkModel link)
+    {
+        DialogParameters parameters = new()
+        {
+            Title = $"Edit link",
+            PrimaryAction = "Save",
+            SecondaryAction = "Cancel",
+            Width = "600px",
+            Modal = true,
+            PreventScroll = true
+        };
+
+        var editModel = new LinkEditModel()
+        {
+            OriginUrl = link.OriginUrl,
+            Note = link.Note,
+            AkaName = link.AkaName,
+            IsEnabled = link.IsEnabled,
+            TTL = link.TTL.GetValueOrDefault(),
+            Tags = link.Tags.Select(t => t.Name).ToArray(),
+            SelectedTags = link.Tags
+        };
+
+        IDialogReference dialog = await DialogService.ShowDialogAsync<EditLinkDialog>(editModel, parameters);
+        DialogResult result = await dialog.Result;
+    }
+
     private async Task Delete(LinkModel link)
     {
         var isConfirmed = await ShowDeleteConfirmationAsync();

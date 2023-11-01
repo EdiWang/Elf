@@ -68,12 +68,8 @@
 
         <TemplateColumn Title="Actions" Align="@Align.End">
             <FluentButton IconEnd="@(new Icons.Regular.Size16.Copy())" OnClick="() => Copy(context.FwToken)" />
-
             <FluentButton IconEnd="@(new Icons.Regular.Size16.Share())" OnClick="() => Share(context)" />
-
-            <FluentButton IconEnd="@(new Icons.Regular.Size16.Edit())"
-                OnClick="@(() => Console.WriteLine(context.Id))" />
-
+            <FluentButton IconEnd="@(new Icons.Regular.Size16.Edit())" OnClick="() => Edit(context)" />
             <FluentButton IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="() => Delete(context)" />
         </TemplateColumn>
     </FluentDataGrid>
