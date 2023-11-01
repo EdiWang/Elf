@@ -151,6 +151,19 @@ public partial class Links
         await JavaScriptRuntime.InvokeVoidAsync("clipboardCopy.copyText", fwUrl);
     }
 
+    private async Task Share(LinkModel link)
+    {
+        DialogParameters parameters = new()
+        {
+            Title = $"Share link",
+            Width = "600px",
+            Modal = true,
+            PreventScroll = true
+        };
+
+        IDialogReference dialog = await DialogService.ShowDialogAsync<ShareDialog>(link, parameters);
+    }
+
     private async Task Delete(LinkModel link)
     {
         var isConfirmed = await ShowDeleteConfirmationAsync();

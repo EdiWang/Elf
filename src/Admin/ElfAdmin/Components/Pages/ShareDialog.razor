@@ -1,5 +1,18 @@
 ﻿@implements IDialogContentComponent<LinkModel>
 
-@code {
+<FluentDialogFooter>
+    <FluentButton Appearance="Appearance.Accent" OnClick="@CloseAsync">Close</FluentButton>
+</FluentDialogFooter>
 
+@code {
+    [Parameter]
+    public LinkModel Content { get; set; } = default!;
+
+    [CascadingParameter]
+    public FluentDialog Dialog { get; set; } = default!;
+
+    private async Task CloseAsync()
+    {
+        await Dialog.CloseAsync();
+    }
 }
