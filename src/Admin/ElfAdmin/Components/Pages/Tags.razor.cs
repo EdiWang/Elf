@@ -15,6 +15,9 @@ public partial class Tags
     [Inject]
     public IMessageService MessageService { get; set; }
 
+    [Inject]
+    public IDialogService DialogService { get; set; }
+
     public List<Tag> TagItems { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -70,5 +73,35 @@ public partial class Tags
 
             tag.InEditMode = false;
         }
+    }
+
+    private async Task Delete(Tag tag)
+    {
+        tag.InEditMode = false;
+
+        var isConfirmed = await ShowDeleteConfirmationAsync();
+        if (isConfirmed)
+        {
+            try
+            {
+                var result = await Http.DeleteAsync($"api/tag/{tag.Id}");
+                if (result.IsSuccessStatusCode)
+                {
+                    await MessageService.ShowMessage("Tag deleted successfully", MessageIntent.Success);
+                    await GetData();
+                }
+            }
+            catch (Exception e)
+            {
+                await MessageService.ShowMessage($"Error deleting tag: {e.Message}", MessageIntent.Error);
+            }
+        }
+    }
+
+    private async Task<bool> ShowDeleteConfirmationAsync()
+    {
+        var dialog = await DialogService.ShowConfirmationAsync("Do you want to delete this tag?", "Yes", "No", "Delete confirmation");
+        var result = await dialog.Result;
+        return !result.Cancelled;
     }
 }
