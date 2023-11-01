@@ -28,6 +28,9 @@ public partial class Links
 
     public IQueryable<LinkModel> LinkItems { get; set; } = default;
 
+    public List<Tag> AllTags { get; set; }
+    public IEnumerable<Tag> SelectedTags { get; set; } = Array.Empty<Tag>();
+
     public PaginationState Pagination { get; set; } = new PaginationState { ItemsPerPage = 10 };
 
     public int Offset { get; set; }
@@ -36,7 +39,23 @@ public partial class Links
     {
         Pagination.TotalItemCountChanged += (sender, eventArgs) => StateHasChanged();
 
-        await GetData();
+        var t1 = GetData();
+        var t2 = GetTags();
+
+        await Task.WhenAll(t1, t2);
+    }
+
+    private async Task GetTags()
+    {
+        try
+        {
+            var apiUrl = $"api/tag/list";
+            AllTags = await Http.GetFromJsonAsync<List<Tag>>(apiUrl);
+        }
+        catch (Exception e)
+        {
+            await MessageService.ShowMessage($"Error getting data: {e.Message}", MessageIntent.Error);
+        }
     }
 
     private async Task GetData()
@@ -68,16 +87,68 @@ public partial class Links
     private async Task CurrentPageIndexChanged()
     {
         Offset = Pagination.CurrentPageIndex * Pagination.ItemsPerPage;
-        await GetData();
+
+        if (SelectedTags.Any())
+        {
+            await FilterByTag();
+        }
+        else
+        {
+            await GetData();
+        }
     }
 
     private async Task Refresh()
     {
+        SelectedTags = Array.Empty<Tag>();
+
         Pagination = new PaginationState { ItemsPerPage = 10 };
         LinkItems = new List<LinkModel>().AsQueryable();
         Offset = 0;
 
         await GetData();
+    }
+
+    private async Task FilterByTag(bool firstTime = false)
+    {
+        if (!SelectedTags.Any())
+        {
+            await Refresh();
+            return;
+        }
+
+        if (firstTime)
+        {
+            Offset = 0;
+            Pagination = new PaginationState { ItemsPerPage = 10 };
+        }
+
+        IsBusy = true;
+
+        try
+        {
+            var apiUrl = $"api/link/list/tags";
+
+            var result = await Http.PostAsJsonAsync(apiUrl, new ListByTagsRequest
+            {
+                TagIds = SelectedTags.Select(t => t.Id).ToArray(),
+                Take = Pagination.ItemsPerPage,
+                Offset = Offset
+            });
+
+            result.EnsureSuccessStatusCode();
+
+            var response = await result.Content.ReadFromJsonAsync<PagedLinkResult>();
+            LinkItems = response.Links.AsQueryable();
+
+            await Pagination.SetTotalItemCountAsync(response.TotalRows);
+        }
+        catch (Exception e)
+        {
+            await MessageService.ShowMessage($"Error getting data: {e.Message}", MessageIntent.Error);
+        }
+
+        IsBusy = false;
     }
 
     private async Task HandleSearchInput(string value)
@@ -268,4 +339,12 @@ public partial class Links
     }
 
     #endregion
+
+    private async Task OnSearchTagAsync(OptionsSearchEventArgs<Tag> e)
+    {
+        e.Items = AllTags.Where(i => i.Name.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase))
+        .OrderBy(i => i.Name);
+
+        await Task.CompletedTask;
+    }
 }

@@ -20,7 +20,19 @@
     <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowSync())" Loading="IsBusy" OnClick="Refresh">Refresh
     </FluentButton>
 
-    <FluentSearch @bind-Value=SearchTerm Placeholder="Token or Note" Disabled="IsBusy"
+    <FluentSpacer />
+
+    <FluentAutocomplete TOption="Tag" Placeholder="Filter by tags" OnOptionsSearch="@OnSearchTagAsync"
+        Disabled="!string.IsNullOrWhiteSpace(SearchTerm)" OptionText="@(i => i.Name)"
+        @bind-SelectedOptions="@SelectedTags" Width="300px" Style="display: inline-flex;" />
+
+    <FluentButton IconStart="@(new Icons.Regular.Size16.Filter())" Loading="IsBusy" OnClick="() => FilterByTag(true)">
+        Filter
+    </FluentButton>
+
+    <FluentSpacer Width="10" />
+
+    <FluentSearch @bind-Value=SearchTerm Placeholder="Token or Note" Disabled="IsBusy || SelectedTags.Any()"
         AfterBindValue="HandleSearchInput"></FluentSearch>
 </FluentToolbar>
 
