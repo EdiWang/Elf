@@ -12,7 +12,7 @@
 
     <FluentSpacer Width="20" />
 
-    <FluentTextField @bind-Value=NewTagName Required></FluentTextField>
+    <FluentTextField @bind-Value=NewTagName Required Disabled="IsBusy"></FluentTextField>
     <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.Add())" Loading="IsBusy"
         OnClick="New">Add</FluentButton>
 </FluentToolbar>

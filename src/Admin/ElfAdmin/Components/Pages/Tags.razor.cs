@@ -48,7 +48,31 @@ public partial class Tags
 
     private async Task New()
     {
+        if (string.IsNullOrWhiteSpace(NewTagName))
+        {
+            await MessageService.ShowMessage("Tag name cannot be empty", MessageIntent.Warning);
+            return;
+        }
 
+        try
+        {
+            IsBusy = true;
+
+            var result = await Http.PostAsJsonAsync($"api/tag", new UpdateTagRequest { Name = NewTagName });
+            if (result.IsSuccessStatusCode)
+            {
+                NewTagName = string.Empty;
+
+                await MessageService.ShowMessage("Tag created successfully", MessageIntent.Success);
+                await GetData();
+            }
+        }
+        catch (Exception e)
+        {
+            await MessageService.ShowMessage($"Error getting data: {e.Message}", MessageIntent.Error);
+        }
+
+        IsBusy = false;
     }
 
     private async Task Edit(Tag tag)
