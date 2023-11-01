@@ -1,5 +1,15 @@
 ﻿@implements IDialogContentComponent<LinkModel>
 
+
+<FluentDialogBody>
+    <div class="qrcode">
+
+    </div>
+    <div class="links">
+        <code><a href="@Constants.APIAddress/fw/@Content.FwToken" target="_blank">@Constants.APIAddress/fw/@Content.FwToken</a></code>
+    </div>
+</FluentDialogBody>
+
 <FluentDialogFooter>
     <FluentButton Appearance="Appearance.Accent" OnClick="@CloseAsync">Close</FluentButton>
 </FluentDialogFooter>
