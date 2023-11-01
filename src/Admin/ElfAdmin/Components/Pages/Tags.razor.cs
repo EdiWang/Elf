@@ -40,4 +40,9 @@ public partial class Tags
 
         IsBusy = false;
     }
+
+    private async Task Edit(Tag tag)
+    {
+        tag.InEditMode = true;
+    }
 }
