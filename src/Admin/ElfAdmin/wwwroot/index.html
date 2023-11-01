@@ -26,6 +26,9 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
+    <script src="js/qrious.min.js"></script>
+    <script src="_content/Microsoft.Authentication.WebAssembly.Msal/AuthenticationService.js"></script>
+    <script src="_framework/blazor.webassembly.js"></script>
     <script>
         window.clipboardCopy = {
             copyText: function (text) {
@@ -37,9 +40,17 @@
                     });
             }
         };
+
+        window.qrCode = {
+            generate: function (text) {
+                var qr = new QRious({
+                    element: document.querySelector('.qrcode'),
+                    value: text,
+                    size: 300
+                });
+            }
+        }
     </script>
-    <script src="_content/Microsoft.Authentication.WebAssembly.Msal/AuthenticationService.js"></script>
-    <script src="_framework/blazor.webassembly.js"></script>
 </body>
 
 </html>

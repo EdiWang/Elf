@@ -156,7 +156,7 @@ public partial class Links
         DialogParameters parameters = new()
         {
             Title = $"Share link",
-            Width = "600px",
+            Width = "400px",
             Modal = true,
             PreventScroll = true
         };

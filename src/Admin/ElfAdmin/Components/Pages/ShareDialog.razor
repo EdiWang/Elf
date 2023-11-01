@@ -1,18 +1,20 @@
 ﻿@implements IDialogContentComponent<LinkModel>
-
+@inject IJSRuntime JavaScriptRuntime
 
 <FluentDialogBody>
-    <div class="qrcode">
+    <div style="text-align: center;">
+        <canvas class="qrcode">
 
-    </div>
-    <div class="links">
-        <code><a href="@Constants.APIAddress/fw/@Content.FwToken" target="_blank">@Constants.APIAddress/fw/@Content.FwToken</a></code>
+        </canvas>
+        <div class="links">
+            <code><a href="@Constants.APIAddress/fw/@Content.FwToken" target="_blank">@Constants.APIAddress/fw/@Content.FwToken</a></code>
 
-        @if (!string.IsNullOrWhiteSpace(Content.AkaName))
-        {
-            <br />
-            <code><a href="@Constants.APIAddress/aka/@Content.AkaName" target="_blank">@Constants.APIAddress/aka/@Content.AkaName</a></code>
-        }
+            @if (!string.IsNullOrWhiteSpace(Content.AkaName))
+            {
+                <br />
+                <code><a href="@Constants.APIAddress/aka/@Content.AkaName" target="_blank">@Constants.APIAddress/aka/@Content.AkaName</a></code>
+            }
+        </div>
     </div>
 </FluentDialogBody>
 
@@ -26,6 +28,15 @@
 
     [CascadingParameter]
     public FluentDialog Dialog { get; set; } = default!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var qrText = $"{Constants.APIAddress}/fw/{Content.FwToken}";
+            await JavaScriptRuntime.InvokeVoidAsync("qrCode.generate", qrText);
+        }
+    }
 
     private async Task CloseAsync()
     {
