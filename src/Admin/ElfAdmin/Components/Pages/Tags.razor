@@ -6,9 +6,15 @@
 
 <PageTitle>Tags</PageTitle>
 
-<FluentToolbar id="toolbar-tags" Style="width:100%">
+<FluentToolbar id="toolbar-tags" Style="width:100%;margin-bottom:20px;">
     <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowSync())" Loading="IsBusy" OnClick="GetData">Refresh
     </FluentButton>
+
+    <FluentSpacer Width="20" />
+
+    <FluentTextField @bind-Value=NewTagName Required></FluentTextField>
+    <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.Add())" Loading="IsBusy"
+        OnClick="New">Add</FluentButton>
 </FluentToolbar>
 
 <FluentCard>
@@ -25,7 +31,9 @@
                     <FluentTextField @bind-Value=item.Name
                         Appearance="!item.InEditMode ? FluentInputAppearance.Filled : FluentInputAppearance.Outline"
                         Readonly="!item.InEditMode"></FluentTextField>
-                    <FluentButton IconStart="@(!item.InEditMode ? new Icons.Regular.Size16.Edit() : new Icons.Regular.Size16.Checkmark())" OnClick="()=> Edit(item)">
+                    <FluentButton
+                        IconStart="@(!item.InEditMode ? new Icons.Regular.Size16.Edit() : new Icons.Regular.Size16.Checkmark())"
+                        OnClick="()=> Edit(item)">
                     </FluentButton>
 
                     <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())" OnClick="()=> Delete(item)">

@@ -20,6 +20,8 @@ public partial class Tags
 
     public List<Tag> TagItems { get; set; }
 
+    public string NewTagName { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         await GetData();
@@ -42,6 +44,11 @@ public partial class Tags
         }
 
         IsBusy = false;
+    }
+
+    private async Task New()
+    {
+
     }
 
     private async Task Edit(Tag tag)
