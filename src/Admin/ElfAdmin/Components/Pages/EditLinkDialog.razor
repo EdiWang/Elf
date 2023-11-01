@@ -70,5 +70,7 @@
     {
         e.Items = AllTags.Where(i => i.Name.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase))
         .OrderBy(i => i.Name);
+
+        await Task.CompletedTask;
     }
 }
