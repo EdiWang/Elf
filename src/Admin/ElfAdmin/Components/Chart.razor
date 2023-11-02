@@ -5,7 +5,8 @@
 @code {
     public enum ChartType
     {
-        Pie
+        Pie,
+        Pulsing
     }
 
     [Parameter]
@@ -22,24 +23,23 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var config = new
+        if (firstRender)
         {
-            Type = Type.ToString().ToLower(),
-            Options = new
+            var config = new
             {
-                Responsive = true,
-                Scales = new
+                Type = Type.ToString().ToLower(),
+                Options = new
                 {
-                    YAxes = new[] { new { Ticks = new { BeginAtZero = true } } }
+                    Responsive = true
+                },
+                Data = new
+                {
+                    Datasets = new[] { new { Data = Data } },
+                    Labels = Labels
                 }
-            },
-            Data = new
-            {
-                Datasets = new[] { new { Data = Data } },
-                Labels = Labels
-            }
-        };
+            };
 
-        await JSRuntime.InvokeVoidAsync("setupChart", Id, config);
+            await JSRuntime.InvokeVoidAsync("setupChart", Id, config);
+        }
     }
 }

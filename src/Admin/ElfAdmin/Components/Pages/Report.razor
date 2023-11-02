@@ -5,6 +5,15 @@
 
 <PageTitle>Report</PageTitle>
 
+<FluentToolbar id="toolbar-report" Style="width:100%;margin-bottom:10px;">
+    <FluentDatePicker AriaLabel="StartDate" Label="Start Date" @bind-Value="@StartDateLocal" Required />
+    <FluentDatePicker AriaLabel="EndDate" Label="End Date" @bind-Value="@EndDateLocal" Required />
+
+    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowSync())" Loading="IsChartBusy">
+        Refresh Chart
+    </FluentButton>
+</FluentToolbar>
+
 <div class="row g-2" style="margin-bottom: 10px;">
     <div class="col-md-4">
         <FluentCard>
@@ -15,13 +24,15 @@
     <div class="col-md-4">
         <FluentCard>
             <h4>Client types</h4>
-            
+
         </FluentCard>
     </div>
     <div class="col-md-4">
         <FluentCard>
             <h4>Most requested links</h4>
-
+            <Chart Id="pie1" Type="@Chart.ChartType.Pie" Data="@(new[] { "1", "2" })"
+                Labels="@(new[] { "Fail","Ok" })">
+            </Chart>
         </FluentCard>
     </div>
 </div>
@@ -32,7 +43,8 @@
     <div>
         <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.ArrowSync())"
             OnClick="Refresh" Loading="IsBusy">Refresh</FluentButton>
-        <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())" Loading="IsBusy" OnClick="Clear">Clear</FluentButton>
+        <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())" Loading="IsBusy" OnClick="Clear">Clear
+        </FluentButton>
     </div>
 
     <FluentDataGrid Items="@RequestTrackItems" GenerateHeader="GenerateHeaderOption.Sticky"

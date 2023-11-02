@@ -10,6 +10,8 @@ public partial class Report
 {
     public bool IsBusy { get; set; }
 
+    public bool IsChartBusy { get; set; }
+
     [Inject]
     public HttpClient Http { get; set; }
 
@@ -21,7 +23,8 @@ public partial class Report
 
     public IQueryable<RequestTrack> RequestTrackItems { get; set; } = default;
 
-    public DateRangeRequest DateRangeRequest { get; set; }
+    public DateTime? StartDateLocal { get; set; }
+    public DateTime? EndDateLocal { get; set; }
 
     public List<MostRequestedLinkCount> MostRequestedLinkCount { get; set; } = new();
 
@@ -31,11 +34,8 @@ public partial class Report
 
     public Report()
     {
-        DateRangeRequest = new DateRangeRequest
-        {
-            StartDateUtc = DateTime.Now.Date.AddDays(-7),
-            EndDateUtc = DateTime.Now.Date
-        };
+        StartDateLocal = DateTime.Now.Date.AddDays(-7);
+        EndDateLocal = DateTime.Now.Date;
     }
 
     protected override async Task OnInitializedAsync()
@@ -48,9 +48,13 @@ public partial class Report
 
     private async Task GetReport()
     {
+        IsChartBusy = true;
+
         var t1 = GetMostRequestedLinks();
 
         await Task.WhenAll(t1);
+
+        IsChartBusy = false;
     }
 
     private async Task GetData()
@@ -123,7 +127,12 @@ public partial class Report
     {
         try
         {
-            var response = await Http.PostAsJsonAsync($"api/report/requests/link", DateRangeRequest);
+            var response = await Http.PostAsJsonAsync($"api/report/requests/link", new DateRangeRequest
+            {
+                StartDateUtc = StartDateLocal.Value.ToUniversalTime(),
+                EndDateUtc = EndDateLocal.Value.ToUniversalTime()
+            });
+
             response.EnsureSuccessStatusCode();
 
             MostRequestedLinkCount = await response.Content.ReadFromJsonAsync<List<MostRequestedLinkCount>>();
