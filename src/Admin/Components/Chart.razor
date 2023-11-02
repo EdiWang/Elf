@@ -31,6 +31,9 @@
     [Parameter]
     public bool LegendDisplay { get; set; } = true;
 
+    [Parameter]
+    public int AspectRatio { get; set; } = 1;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (Data.Any() && Labels.Any())
@@ -41,7 +44,7 @@
                 Options = new
                 {
                     Responsive = true,
-
+                    AspectRatio = AspectRatio,
                     Plugins = new
                     {
                         Legend = new

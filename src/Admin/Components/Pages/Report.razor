@@ -5,7 +5,7 @@
 
 <style>
     .chart-container {
-        height: 330px;
+        height: 300px;
         align-items: center;
         flex-direction: column;
     }
@@ -35,7 +35,7 @@
                 <div class="chart-container d-flex">
                     <Chart Id="line-link-tracking-date" Type="@Chart.ChartType.Line"
                         Data="LinkTrackingDateCount.Select(p => p.RequestCount.ToString()).ToArray()"
-                        Labels="dateLabels" DataSetLabel="Number of requests" LegendDisplay="false">
+                        Labels="dateLabels" DataSetLabel="Number of requests" LegendDisplay="false" AspectRatio="2">
                     </Chart>
                 </div>
             </FluentCard>
@@ -47,7 +47,8 @@
                 <div class="chart-container d-flex">
                     <Chart Id="pie-client-types" Type="@Chart.ChartType.Pie"
                         Data="ClientTypeCount.Select(p => p.Count.ToString()).ToArray()"
-                        Labels="ClientTypeCount.Select(p => p.ClientTypeName).ToArray()" LegendPosition="right">
+                        Labels="ClientTypeCount.Select(p => p.ClientTypeName).ToArray()" LegendPosition="right"
+                        AspectRatio="2">
                     </Chart>
                 </div>
             </FluentCard>
@@ -59,7 +60,8 @@
                 <div class="chart-container d-flex">
                     <Chart Id="doughnut-most-requested-link-count" Type="@Chart.ChartType.Doughnut"
                         Data="MostRequestedLinkCount.Select(p => p.RequestCount.ToString()).ToArray()"
-                        Labels="MostRequestedLinkCount.Select(p => p.Note).ToArray()" LegendPosition="right">
+                        Labels="MostRequestedLinkCount.Select(p => p.Note).ToArray()" LegendPosition="right"
+                        AspectRatio="2">
                     </Chart>
                 </div>
             </FluentCard>
