@@ -36,7 +36,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (Data.Any() && Labels.Any())
+        if (!firstRender && Data.Any() && Labels.Any())
         {
             var config = new
             {

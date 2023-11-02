@@ -55,6 +55,11 @@
         }
 
         window.setupChart = (id, config) => {
+            var existingChart = Chart.getChart(id);
+            if (existingChart != undefined) {
+                existingChart.destroy();
+            }
+
             var ctx = document.getElementById(id);
             new Chart(ctx, config);
         }
