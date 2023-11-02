@@ -21,10 +21,6 @@ export class ReportService {
     trackingCount(request: DateRangeRequest) {
         return this.http.post<LinkTrackingDateCount[]>(this.url + `/tracking`, request);
     }
-
-    clearTrackingData() {
-        return this.http.delete(this.url + '/tracking/clear');
-    }
 }
 
 export interface DateRangeRequest {
