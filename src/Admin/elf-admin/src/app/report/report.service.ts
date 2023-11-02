@@ -10,10 +10,6 @@ export class ReportService {
 
     constructor(private http: HttpClient) { }
 
-    recentRequests(take: number, offset: number) {
-        return this.http.get<PagedRequestTrack>(this.url + `/requests?take=${take}&offset=${offset}`);
-    }
-
     mostRequestedLinks(request: DateRangeRequest) {
         return this.http.post<MostRequestedLinkCount[]>(this.url + `/requests/link`, request);
     }
