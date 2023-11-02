@@ -28,10 +28,13 @@
             <FluentCard>
                 <h4>Requests</h4>
 
+                @{
+                    var dateLabels = LinkTrackingDateCount.Select(p => p.TrackingDateUtc.ToString("MM/dd")).ToArray();
+                }
+
                 <div class="chart-container d-flex">
                     <Chart Id="line-link-tracking-date" Type="@Chart.ChartType.Line"
-                        Data="LinkTrackingDateCount.Select(p => p.RequestCount.ToString()).ToArray()"
-                        Labels="LinkTrackingDateCount.Select(p => p.TrackingDateUtc.ToString()).ToArray()">
+                        Data="LinkTrackingDateCount.Select(p => p.RequestCount.ToString()).ToArray()" Labels="dateLabels">
                     </Chart>
                 </div>
             </FluentCard>
