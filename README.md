@@ -21,7 +21,7 @@ will be translate to `https://yourdomain/fw/token` or `https://yourdomain/aka/na
 Forward Link, Create/Manage/Share Link, View Report.
 
 ![list](https://github.com/EdiWang/Elf/assets/3304703/e5ad9ad9-c644-45ca-95f1-cc32836abf5d)
-![report](https://github.com/EdiWang/Elf/assets/3304703/94cf13cb-8392-4abd-bbe3-f3fd84e4dc16)
+![report](https://github.com/EdiWang/Elf/assets/3304703/9731a258-0e96-4aed-ab49-6141028bcd46)
 
 ## Forward Logic
 
