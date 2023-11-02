@@ -27,8 +27,8 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="js/qrious.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"
-        integrity="sha512-7U4rRB8aGAHGVad3u2jiC7GA5/1YhQcQjxKeaVms/bT66i3LVBMRcBI9KwABNWnxOSwulkuSXxZLGuyfvo7V1A=="
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"
+        integrity="sha512-SIMGYRUjwY8+gKg7nn9EItdD8LCADSDfJNutF9TPrvEo86sQmFMh6MyralfIyhADlajSxqc7G0gs7+MwWF/ogQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="_content/Microsoft.Authentication.WebAssembly.Msal/AuthenticationService.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
@@ -55,7 +55,7 @@
         }
 
         window.setupChart = (id, config) => {
-            var ctx = document.getElementById(id).getContext('2d');
+            var ctx = document.getElementById(id);
             new Chart(ctx, config);
         }
     </script>
