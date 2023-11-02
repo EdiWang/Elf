@@ -26,6 +26,7 @@ public partial class Report
     public DateTime? StartDateLocal { get; set; }
     public DateTime? EndDateLocal { get; set; }
 
+    public List<ClientTypeCount> ClientTypeCount { get; set; } = new();
     public List<MostRequestedLinkCount> MostRequestedLinkCount { get; set; } = new();
 
     public PaginationState Pagination { get; set; } = new PaginationState { ItemsPerPage = 5 };
@@ -50,9 +51,10 @@ public partial class Report
     {
         IsChartBusy = true;
 
-        var t1 = GetMostRequestedLinks();
+        var t1 = GetClientType();
+        var t2 = GetMostRequestedLinks();
 
-        await Task.WhenAll(t1);
+        await Task.WhenAll(t1, t2);
 
         IsChartBusy = false;
     }
@@ -122,6 +124,26 @@ public partial class Report
     }
 
     #region Chart
+
+    private async Task GetClientType()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync($"api/report/requests/clienttype", new DateRangeRequest
+            {
+                StartDateUtc = StartDateLocal.Value.ToUniversalTime(),
+                EndDateUtc = EndDateLocal.Value.ToUniversalTime()
+            });
+
+            response.EnsureSuccessStatusCode();
+
+            ClientTypeCount = await response.Content.ReadFromJsonAsync<List<ClientTypeCount>>();
+        }
+        catch (Exception e)
+        {
+            await MessageService.ShowMessage($"Error clearing data: {e.Message}", MessageIntent.Error);
+        }
+    }
 
     private async Task GetMostRequestedLinks()
     {

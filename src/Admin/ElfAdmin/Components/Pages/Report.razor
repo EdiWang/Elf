@@ -9,7 +9,7 @@
     <FluentDatePicker AriaLabel="StartDate" Label="Start Date" @bind-Value="@StartDateLocal" Required />
     <FluentDatePicker AriaLabel="EndDate" Label="End Date" @bind-Value="@EndDateLocal" Required />
 
-    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowSync())" Loading="IsChartBusy">
+    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowSync())" Loading="IsChartBusy" OnClick="GetReport">
         Refresh Chart
     </FluentButton>
 </FluentToolbar>
@@ -24,15 +24,16 @@
     <div class="col-md-4">
         <FluentCard>
             <h4>Client types</h4>
-
+            <Chart Id="pie-client-types" Type="@Chart.ChartType.Pie"
+                Data="ClientTypeCount.Select(p => p.Count.ToString()).ToArray()"
+                Labels="ClientTypeCount.Select(p => p.ClientTypeName).ToArray()">
+            </Chart>
         </FluentCard>
     </div>
     <div class="col-md-4">
         <FluentCard>
             <h4>Most requested links</h4>
-            <Chart Id="pie1" Type="@Chart.ChartType.Pie" Data="@(new[] { "1", "2" })"
-                Labels="@(new[] { "Fail","Ok" })">
-            </Chart>
+
         </FluentCard>
     </div>
 </div>

@@ -5,8 +5,9 @@
 @code {
     public enum ChartType
     {
+        Line,
         Pie,
-        Pulsing
+        Doughnut
     }
 
     [Parameter]
@@ -23,7 +24,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (Data.Any() && Labels.Any())
         {
             var config = new
             {
