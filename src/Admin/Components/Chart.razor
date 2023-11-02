@@ -28,6 +28,9 @@
     [Parameter]
     public string LegendPosition { get; set; } = "top";
 
+    [Parameter]
+    public bool LegendDisplay { get; set; } = true;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (Data.Any() && Labels.Any())
@@ -38,11 +41,12 @@
                 Options = new
                 {
                     Responsive = true,
-                    
+
                     Plugins = new
                     {
                         Legend = new
                         {
+                            Display = LegendDisplay,
                             Position = LegendPosition,
                             Align = "middle"
                         }

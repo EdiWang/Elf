@@ -35,7 +35,7 @@
                 <div class="chart-container d-flex">
                     <Chart Id="line-link-tracking-date" Type="@Chart.ChartType.Line"
                         Data="LinkTrackingDateCount.Select(p => p.RequestCount.ToString()).ToArray()"
-                        Labels="dateLabels" DataSetLabel="Number of requests">
+                        Labels="dateLabels" DataSetLabel="Number of requests" LegendDisplay="false">
                     </Chart>
                 </div>
             </FluentCard>
