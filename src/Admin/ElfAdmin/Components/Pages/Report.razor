@@ -28,6 +28,8 @@
             <FluentCard>
                 <h4>Requests</h4>
 
+                <div class="chart-container d-flex">
+                </div>
             </FluentCard>
         </div>
         <div class="col-md-4">
@@ -46,6 +48,12 @@
             <FluentCard>
                 <h4>Most requested links</h4>
 
+                <div class="chart-container d-flex">
+                    <Chart Id="doughnut-most-requested-link-count" Type="@Chart.ChartType.Doughnut"
+                        Data="MostRequestedLinkCount.Select(p => p.RequestCount.ToString()).ToArray()"
+                        Labels="MostRequestedLinkCount.Select(p => p.Note).ToArray()">
+                    </Chart>
+                </div>
             </FluentCard>
         </div>
     </div>
