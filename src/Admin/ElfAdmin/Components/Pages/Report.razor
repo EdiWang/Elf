@@ -3,6 +3,14 @@
 
 @attribute [Authorize]
 
+<style>
+    .chart-container {
+        height: 300px;
+        align-items: center;
+        flex-direction: column;
+    }
+</style>
+
 <PageTitle>Report</PageTitle>
 
 <FluentToolbar id="toolbar-report" Style="width:100%;margin-bottom:10px;">
@@ -25,10 +33,13 @@
         <div class="col-md-4">
             <FluentCard>
                 <h4>Client types</h4>
-                <Chart Id="pie-client-types" Type="@Chart.ChartType.Pie"
-                    Data="ClientTypeCount.Select(p => p.Count.ToString()).ToArray()"
-                    Labels="ClientTypeCount.Select(p => p.ClientTypeName).ToArray()">
-                </Chart>
+
+                <div class="chart-container d-flex">
+                    <Chart Id="pie-client-types" Type="@Chart.ChartType.Pie"
+                        Data="ClientTypeCount.Select(p => p.Count.ToString()).ToArray()"
+                        Labels="ClientTypeCount.Select(p => p.ClientTypeName).ToArray()">
+                    </Chart>
+                </div>
             </FluentCard>
         </div>
         <div class="col-md-4">

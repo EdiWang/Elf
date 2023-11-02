@@ -14,10 +14,6 @@ export class ReportService {
         return this.http.post<MostRequestedLinkCount[]>(this.url + `/requests/link`, request);
     }
 
-    clientType(request: DateRangeRequest) {
-        return this.http.post<ClientTypeCount[]>(this.url + `/requests/clienttype`, request);
-    }
-
     trackingCount(request: DateRangeRequest) {
         return this.http.post<LinkTrackingDateCount[]>(this.url + `/tracking`, request);
     }
@@ -32,11 +28,6 @@ export interface LinkTrackingDateCount {
     requestCount: number;
     trackingDateUtc: string;
     date?: Date;
-}
-
-export interface ClientTypeCount {
-    clientTypeName: string;
-    count: number;
 }
 export interface MostRequestedLinkCount {
     fwToken: string;

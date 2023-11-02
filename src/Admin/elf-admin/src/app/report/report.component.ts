@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ClientTypeCount, LinkTrackingDateCount, MostRequestedLinkCount, ReportService, RequestTrack } from './report.service';
+import { LinkTrackingDateCount, MostRequestedLinkCount, ReportService } from './report.service';
 import { environment } from 'src/environments/environment';
 import { LegendLabelsContentArgs, SeriesLabelsContentArgs } from '@progress/kendo-angular-charts';
 import { FormatSettings } from '@progress/kendo-angular-dateinputs';
@@ -33,7 +33,6 @@ export class ReportComponent implements OnInit {
 
     getChartData() {
         this.getTrackingCount();
-        this.getClientType();
         this.getMostRequestedLinks();
     }
 
@@ -55,29 +54,6 @@ export class ReportComponent implements OnInit {
             .subscribe((result: MostRequestedLinkCount[]) => {
                 this.isMostRequestedLinksLoading = false;
                 this.mostRequestedLinkCount = result;
-            })
-    }
-
-    //#endregion
-
-    //#region clientTypeChart
-
-    public labelContentClientTypeCount(e: SeriesLabelsContentArgs): string {
-        return `${e.category} - ${e.value}, ${(e.percentage * 100).toFixed(0)}%`;
-    }
-
-    clientTypeCount: ClientTypeCount[];
-    isClientTypeLoading: boolean;
-    getClientType() {
-        this.isClientTypeLoading = true;
-        this.service
-            .clientType({
-                startDateUtc: this.range.start,
-                endDateUtc: this.range.end!.toISOString()
-            })
-            .subscribe((result: ClientTypeCount[]) => {
-                this.isClientTypeLoading = false;
-                this.clientTypeCount = result;
             })
     }
 

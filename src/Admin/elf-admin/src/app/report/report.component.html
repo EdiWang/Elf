@@ -35,28 +35,7 @@
                 </kendo-card-body>
             </kendo-card>
         </kendo-gridlayout-item>
-        <kendo-gridlayout-item [row]="2" [col]="2">
-            <kendo-card width="auto">
-                <kendo-card-header>
-                    Client types
-                    <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isClientTypeLoading">
-                    </kendo-loader>
-                </kendo-card-header>
-                <kendo-card-body>
-                    <kendo-chart style="height:350px">
-                        <kendo-chart-legend [visible]="false"></kendo-chart-legend>
-                        <kendo-chart-series>
-                            <kendo-chart-series-item type="donut" [data]="clientTypeCount" field="count"
-                                categoryField="clientTypeName">
-                                <kendo-chart-series-item-labels [content]="labelContentClientTypeCount"
-                                    position="outsideEnd" color="#333">
-                                </kendo-chart-series-item-labels>
-                            </kendo-chart-series-item>
-                        </kendo-chart-series>
-                    </kendo-chart>
-                </kendo-card-body>
-            </kendo-card>
-        </kendo-gridlayout-item>
+
         <kendo-gridlayout-item [row]="2" [col]="3">
             <kendo-card width="auto">
                 <kendo-card-header>
