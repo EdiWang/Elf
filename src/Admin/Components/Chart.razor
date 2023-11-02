@@ -22,6 +22,9 @@
     [Parameter]
     public string[] Labels { get; set; }
 
+    [Parameter]
+    public string DataSetLabel { get; set; }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (Data.Any() && Labels.Any())
@@ -35,7 +38,7 @@
                 },
                 Data = new
                 {
-                    Datasets = new[] { new { Data = Data } },
+                    Datasets = new[] { new { Label = DataSetLabel, Data = Data } },
                     Labels = Labels
                 }
             };
