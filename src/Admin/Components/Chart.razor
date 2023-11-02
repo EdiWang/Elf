@@ -25,6 +25,9 @@
     [Parameter]
     public string DataSetLabel { get; set; }
 
+    [Parameter]
+    public string LegendPosition { get; set; } = "top";
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (Data.Any() && Labels.Any())
@@ -34,7 +37,16 @@
                 Type = Type.ToString().ToLower(),
                 Options = new
                 {
-                    Responsive = true
+                    Responsive = true,
+                    
+                    Plugins = new
+                    {
+                        Legend = new
+                        {
+                            Position = LegendPosition,
+                            Align = "middle"
+                        }
+                    }
                 },
                 Data = new
                 {
