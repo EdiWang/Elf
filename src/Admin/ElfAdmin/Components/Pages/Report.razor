@@ -14,58 +14,61 @@
     </FluentButton>
 </FluentToolbar>
 
-<div class="row g-2" style="margin-bottom: 10px;">
-    <div class="col-md-4">
-        <FluentCard>
-            <h4>Requests</h4>
+<FluentStack Orientation="Orientation.Vertical">
+    <div class="row g-2" style="width:100%;">
+        <div class="col-md-4">
+            <FluentCard>
+                <h4>Requests</h4>
 
-        </FluentCard>
-    </div>
-    <div class="col-md-4">
-        <FluentCard>
-            <h4>Client types</h4>
-            <Chart Id="pie-client-types" Type="@Chart.ChartType.Pie"
-                Data="ClientTypeCount.Select(p => p.Count.ToString()).ToArray()"
-                Labels="ClientTypeCount.Select(p => p.ClientTypeName).ToArray()">
-            </Chart>
-        </FluentCard>
-    </div>
-    <div class="col-md-4">
-        <FluentCard>
-            <h4>Most requested links</h4>
+            </FluentCard>
+        </div>
+        <div class="col-md-4">
+            <FluentCard>
+                <h4>Client types</h4>
+                <Chart Id="pie-client-types" Type="@Chart.ChartType.Pie"
+                    Data="ClientTypeCount.Select(p => p.Count.ToString()).ToArray()"
+                    Labels="ClientTypeCount.Select(p => p.ClientTypeName).ToArray()">
+                </Chart>
+            </FluentCard>
+        </div>
+        <div class="col-md-4">
+            <FluentCard>
+                <h4>Most requested links</h4>
 
-        </FluentCard>
-    </div>
-</div>
-
-<FluentCard>
-    <h4>Recent Requests</h4>
-
-    <div>
-        <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.ArrowSync())"
-            OnClick="Refresh" Loading="IsBusy">Refresh</FluentButton>
-        <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())" Loading="IsBusy" OnClick="Clear">Clear
-        </FluentButton>
+            </FluentCard>
+        </div>
     </div>
 
-    <FluentDataGrid Items="@RequestTrackItems" GenerateHeader="GenerateHeaderOption.Sticky"
-        GridTemplateColumns="0.2fr 0.4fr 0.4fr 0.25fr 0.2fr 0.15fr 0.2fr 0.3fr 0.3fr 0.3fr">
+    <FluentCard>
+        <h4>Recent Requests</h4>
 
-        <TemplateColumn Title="Token">
-            <a href="@Constants.APIAddress/fw/@context.FwToken" target="_blank">@context.FwToken</a>
-        </TemplateColumn>
+        <div>
+            <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.ArrowSync())"
+                OnClick="Refresh" Loading="IsBusy">Refresh</FluentButton>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())" Loading="IsBusy" OnClick="Clear">Clear
+            </FluentButton>
+        </div>
 
-        <PropertyColumn Property="@(c => c.Note)" Sortable="true" Class="note" />
-        <PropertyColumn Property="@(c => c.UserAgent)" Sortable="true" Title="User Agent" Class="user-agent" />
-        <PropertyColumn Property="@(c => c.IpAddress)" Sortable="true" Title="Ip Address" Class="ip-address" />
-        <PropertyColumn Property="@(c => c.IPCountry)" Sortable="true" Title="Country" Class="country" />
-        <PropertyColumn Property="@(c => c.IPRegion)" Sortable="true" Title="Region" Class="region" />
-        <PropertyColumn Property="@(c => c.IPCity)" Sortable="true" Title="City" Class="city" />
-        <PropertyColumn Property="@(c => c.IPASN)" Sortable="true" Title="ASN" Class="asn" />
-        <PropertyColumn Property="@(c => c.IPOrg)" Sortable="true" Title="Organization" Class="org" />
-        <PropertyColumn Property="@(c => c.RequestTimeUtc)" Sortable="true" Title="Request Time (UTC)"
-            Class="request-time-utc" />
-    </FluentDataGrid>
+        <FluentDataGrid Items="@RequestTrackItems" GenerateHeader="GenerateHeaderOption.Sticky"
+            GridTemplateColumns="0.2fr 0.4fr 0.4fr 0.25fr 0.2fr 0.15fr 0.2fr 0.3fr 0.3fr 0.3fr">
 
-    <FluentPaginator State="@Pagination" CurrentPageIndexChanged="CurrentPageIndexChanged" />
-</FluentCard>
+            <TemplateColumn Title="Token">
+                <a href="@Constants.APIAddress/fw/@context.FwToken" target="_blank">@context.FwToken</a>
+            </TemplateColumn>
+
+            <PropertyColumn Property="@(c => c.Note)" Sortable="true" Class="note" />
+            <PropertyColumn Property="@(c => c.UserAgent)" Sortable="true" Title="User Agent" Class="user-agent" />
+            <PropertyColumn Property="@(c => c.IpAddress)" Sortable="true" Title="Ip Address" Class="ip-address" />
+            <PropertyColumn Property="@(c => c.IPCountry)" Sortable="true" Title="Country" Class="country" />
+            <PropertyColumn Property="@(c => c.IPRegion)" Sortable="true" Title="Region" Class="region" />
+            <PropertyColumn Property="@(c => c.IPCity)" Sortable="true" Title="City" Class="city" />
+            <PropertyColumn Property="@(c => c.IPASN)" Sortable="true" Title="ASN" Class="asn" />
+            <PropertyColumn Property="@(c => c.IPOrg)" Sortable="true" Title="Organization" Class="org" />
+            <PropertyColumn Property="@(c => c.RequestTimeUtc)" Sortable="true" Title="Request Time (UTC)"
+                Class="request-time-utc" />
+        </FluentDataGrid>
+
+        <FluentPaginator State="@Pagination" CurrentPageIndexChanged="CurrentPageIndexChanged" />
+    </FluentCard>
+
+</FluentStack>
