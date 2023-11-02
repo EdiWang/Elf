@@ -21,15 +21,36 @@ public partial class Report
 
     public IQueryable<RequestTrack> RequestTrackItems { get; set; } = default;
 
+    public DateRangeRequest DateRangeRequest { get; set; }
+
+    public List<MostRequestedLinkCount> MostRequestedLinkCount { get; set; } = new();
+
     public PaginationState Pagination { get; set; } = new PaginationState { ItemsPerPage = 5 };
 
     public int Offset { get; set; }
+
+    public Report()
+    {
+        DateRangeRequest = new DateRangeRequest
+        {
+            StartDateUtc = DateTime.Now.Date.AddDays(-7),
+            EndDateUtc = DateTime.Now.Date
+        };
+    }
 
     protected override async Task OnInitializedAsync()
     {
         Pagination.TotalItemCountChanged += (sender, eventArgs) => StateHasChanged();
 
         await GetData();
+        await GetReport();
+    }
+
+    private async Task GetReport()
+    {
+        var t1 = GetMostRequestedLinks();
+
+        await Task.WhenAll(t1);
     }
 
     private async Task GetData()
@@ -95,4 +116,23 @@ public partial class Report
         var result = await dialog.Result;
         return !result.Cancelled;
     }
+
+    #region Chart
+
+    private async Task GetMostRequestedLinks()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync($"api/report/requests/link", DateRangeRequest);
+            response.EnsureSuccessStatusCode();
+
+            MostRequestedLinkCount = await response.Content.ReadFromJsonAsync<List<MostRequestedLinkCount>>();
+        }
+        catch (Exception e)
+        {
+            await MessageService.ShowMessage($"Error clearing data: {e.Message}", MessageIntent.Error);
+        }
+    }
+
+    #endregion
 }
