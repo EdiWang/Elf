@@ -26,6 +26,7 @@ public partial class Report
     public DateTime? StartDateLocal { get; set; }
     public DateTime? EndDateLocal { get; set; }
 
+    public List<LinkTrackingDateCount> LinkTrackingDateCount { get; set; } = new();
     public List<ClientTypeCount> ClientTypeCount { get; set; } = new();
     public List<MostRequestedLinkCount> MostRequestedLinkCount { get; set; } = new();
 
@@ -51,10 +52,11 @@ public partial class Report
     {
         IsChartBusy = true;
 
+        var t0 = GetLinkTrackingDateCount();
         var t1 = GetClientType();
         var t2 = GetMostRequestedLinks();
 
-        await Task.WhenAll(t1, t2);
+        await Task.WhenAll(t0, t1, t2);
 
         IsChartBusy = false;
     }
@@ -125,6 +127,26 @@ public partial class Report
 
     #region Chart
 
+    private async Task GetLinkTrackingDateCount()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync($"api/report/tracking", new DateRangeRequest
+            {
+                StartDateUtc = StartDateLocal.Value.ToUniversalTime(),
+                EndDateUtc = EndDateLocal.Value.ToUniversalTime()
+            });
+
+            response.EnsureSuccessStatusCode();
+
+            LinkTrackingDateCount = await response.Content.ReadFromJsonAsync<List<LinkTrackingDateCount>>();
+        }
+        catch (Exception e)
+        {
+            await MessageService.ShowMessage($"Error getting data: {e.Message}", MessageIntent.Error);
+        }
+    }
+
     private async Task GetClientType()
     {
         try
@@ -141,7 +163,7 @@ public partial class Report
         }
         catch (Exception e)
         {
-            await MessageService.ShowMessage($"Error clearing data: {e.Message}", MessageIntent.Error);
+            await MessageService.ShowMessage($"Error getting data: {e.Message}", MessageIntent.Error);
         }
     }
 
@@ -161,7 +183,7 @@ public partial class Report
         }
         catch (Exception e)
         {
-            await MessageService.ShowMessage($"Error clearing data: {e.Message}", MessageIntent.Error);
+            await MessageService.ShowMessage($"Error getting data: {e.Message}", MessageIntent.Error);
         }
     }
 
