@@ -9,12 +9,7 @@ import { ClipboardModule } from 'ngx-clipboard';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
-import { LinkService } from './links/link.service';
-import { LinksComponent } from './links/links.component';
-import { EditLinkDialog } from './links/edit-link/edit-link-dialog';
-import { EditTagDialog } from './tag/edit-tag/edit-tag-dialog';
 import { ReportComponent } from './report/report.component';
-import { TagsComponent } from './tag/tags.component';
 
 //#region Kendo UI
 import 'hammerjs';
@@ -85,12 +80,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   declarations: [
     AppComponent,
     HomeComponent,
-    LinksComponent,
     ReportComponent,
-    RecentRequestsComponent,
-    EditLinkDialog,
-    EditTagDialog,
-    TagsComponent
+    RecentRequestsComponent
   ],
   imports: [
     BrowserModule,
@@ -137,8 +128,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     },
     MsalService,
     MsalGuard,
-    MsalBroadcastService,
-    LinkService
+    MsalBroadcastService
   ],
   bootstrap: [AppComponent, MsalRedirectComponent]
 })
