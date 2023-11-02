@@ -3,6 +3,10 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Authors>Edi Wang</Authors>
+    <Company>edi.wang</Company>
+    <Copyright>(C) 2023 edi.wang@outlook.com</Copyright>
+    <Version>6.7.0-rc</Version>
   </PropertyGroup>
 
   <ItemGroup>
