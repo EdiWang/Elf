@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { LinkTrackingDateCount, MostRequestedLinkCount, ReportService } from './report.service';
+import { LinkTrackingDateCount, ReportService } from './report.service';
 import { environment } from 'src/environments/environment';
 import { LegendLabelsContentArgs, SeriesLabelsContentArgs } from '@progress/kendo-angular-charts';
 import { FormatSettings } from '@progress/kendo-angular-dateinputs';
@@ -33,31 +33,7 @@ export class ReportComponent implements OnInit {
 
     getChartData() {
         this.getTrackingCount();
-        this.getMostRequestedLinks();
     }
-
-    //#region mostRequestedChart
-
-    public labelContentMostRequestedLinkCount(args: LegendLabelsContentArgs): string {
-        return `${args.dataItem.note} - ${args.dataItem.requestCount}`;
-    }
-
-    mostRequestedLinkCount: MostRequestedLinkCount[];
-    isMostRequestedLinksLoading: boolean;
-    getMostRequestedLinks() {
-        this.isMostRequestedLinksLoading = true;
-        this.service
-            .mostRequestedLinks({
-                startDateUtc: this.range.start,
-                endDateUtc: this.range.end!.toISOString()
-            })
-            .subscribe((result: MostRequestedLinkCount[]) => {
-                this.isMostRequestedLinksLoading = false;
-                this.mostRequestedLinkCount = result;
-            })
-    }
-
-    //#endregion
 
     //#region trackingCountChart
 

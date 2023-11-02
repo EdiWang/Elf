@@ -35,26 +35,5 @@
                 </kendo-card-body>
             </kendo-card>
         </kendo-gridlayout-item>
-
-        <kendo-gridlayout-item [row]="2" [col]="3">
-            <kendo-card width="auto">
-                <kendo-card-header>
-                    Most requested links
-                    <kendo-loader [type]="'pulsing'" [size]="'medium'" *ngIf="isMostRequestedLinksLoading">
-                    </kendo-loader>
-                </kendo-card-header>
-                <kendo-card-body>
-                    <kendo-chart style="height:350px">
-                        <kendo-chart-legend [visible]="false"></kendo-chart-legend>
-                        <kendo-chart-series>
-                            <kendo-chart-series-item type="pie" [data]="mostRequestedLinkCount" field="requestCount"
-                                categoryField="note"
-                                [labels]="{ visible: true, content: labelContentMostRequestedLinkCount }">
-                            </kendo-chart-series-item>
-                        </kendo-chart-series>
-                    </kendo-chart>
-                </kendo-card-body>
-            </kendo-card>
-        </kendo-gridlayout-item>
     </kendo-gridlayout>
 </div>
