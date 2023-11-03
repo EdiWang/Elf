@@ -14,7 +14,7 @@
 
 <PageTitle>Links</PageTitle>
 
-<FluentToolbar id="toolbar-links" Style="width:100%">
+<FluentToolbar id="toolbar-links" Style="width:100%;margin-bottom:15px;">
     <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.New())" Loading="IsBusy"
         OnClick="New">New</FluentButton>
     <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowSync())" Loading="IsBusy" OnClick="Refresh">Refresh
@@ -35,9 +35,6 @@
     <FluentSearch @bind-Value=SearchTerm Placeholder="Token or Note" Disabled="IsBusy || SelectedTags.Any()"
         AfterBindValue="HandleSearchInput"></FluentSearch>
 </FluentToolbar>
-
-<FluentDivider Style="width: 100%; margin-top: 10px; margin-bottom: 10px" Orientation=Orientation.Horizontal
-    Role="DividerRole.Separator"></FluentDivider>
 
 <FluentCard>
     <FluentDataGrid Items="@LinkItems" GenerateHeader="GenerateHeaderOption.Sticky"
