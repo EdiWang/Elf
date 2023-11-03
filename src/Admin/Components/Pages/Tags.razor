@@ -30,7 +30,7 @@
                 <div class="d-flex">
                     <FluentTextField @bind-Value=item.Name
                         Appearance="!item.InEditMode ? FluentInputAppearance.Filled : FluentInputAppearance.Outline"
-                        Readonly="!item.InEditMode"></FluentTextField>
+                        ReadOnly="!item.InEditMode"></FluentTextField>
                     <FluentButton
                         IconStart="@(!item.InEditMode ? new Icons.Regular.Size16.Edit() : new Icons.Regular.Size16.Checkmark())"
                         OnClick="()=> Edit(item)">

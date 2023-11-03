@@ -2,7 +2,7 @@
 using System.Net.Http.Json;
 using ElfAdmin.Models;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Fast.Components.FluentUI;
+using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace ElfAdmin.Components.Pages;
 

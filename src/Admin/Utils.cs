@@ -1,4 +1,4 @@
-using Microsoft.Fast.Components.FluentUI;
+using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace ElfAdmin;
 
