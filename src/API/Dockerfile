@@ -3,7 +3,7 @@ LABEL maintainer="edi.wang@outlook.com"
 LABEL repo="https://github.com/EdiWang/Elf"
 
 WORKDIR /app
-EXPOSE 80
+EXPOSE 8080
 EXPOSE 443
 
 ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
