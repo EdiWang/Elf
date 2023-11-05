@@ -98,7 +98,7 @@ To use Redis, follow these steps:
 3. In the **Register an application page**, enter your application's information:
    - In the **Name** section, for example `elf-admin`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI (optional)** section, select **Single-page application** and enter redirect URI: `[http://localhost:7160/](https://localhost:7160/authentication/login-callback)` for local debug and whatever URL you use in production.
+   - In the **Redirect URI (optional)** section, select **Single-page application** and enter redirect URI: `https://localhost:7160/authentication/login-callback` for local debug and whatever URL you use in production.
 4. Select **Register** to create the application.
 5. In the app's registration screen, find and note the **Application (client) ID**. 
 6. In the app's registration screen, click on the **API permissions** blade.
