@@ -28,9 +28,14 @@
     {
         Uri uri = new Uri(e.Location);
         if (uri.Segments.Count() > 1)
+        {
             target = uri.Segments[1];
+        }
         else
+        {
             target = "";
+        }
+        
         StateHasChanged();
     }
 
