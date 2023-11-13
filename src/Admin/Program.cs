@@ -9,10 +9,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddFluentUIComponents(options =>
-{
-    options.HostingModel = BlazorHostingModel.WebAssembly;
-});
+builder.Services.AddFluentUIComponents();
 
 builder.Services.AddScoped<ElfAuthorizationMessageHandler>();
 
