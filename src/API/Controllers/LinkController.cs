@@ -12,7 +12,7 @@ namespace Elf.Api.Controllers;
 public class LinkController(
         ILinkVerifier linkVerifier,
         IDistributedCache cache,
-        IFeatureManager featureManager, 
+        IFeatureManager featureManager,
         IMediator mediator) : ControllerBase
 {
     [HttpPost("create")]

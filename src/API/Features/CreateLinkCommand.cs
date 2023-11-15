@@ -7,8 +7,8 @@ namespace Elf.Api.Features;
 public record CreateLinkCommand(LinkEditModel Payload) : IRequest;
 
 public class CreateLinkCommandHandler(
-    ElfDbContext dbContext, 
-    ITokenGenerator tokenGenerator, 
+    ElfDbContext dbContext,
+    ITokenGenerator tokenGenerator,
     ILogger<CreateLinkCommandHandler> logger) : IRequestHandler<CreateLinkCommand>
 {
     public async Task Handle(CreateLinkCommand request, CancellationToken ct)

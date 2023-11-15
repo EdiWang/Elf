@@ -1,8 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
 
 namespace Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
