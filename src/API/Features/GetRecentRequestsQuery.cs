@@ -1,4 +1,5 @@
 ﻿using Elf.Api.Data;
+using Elf.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
