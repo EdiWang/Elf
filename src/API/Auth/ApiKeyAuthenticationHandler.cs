@@ -7,24 +7,18 @@ using System.Text.Json;
 namespace Elf.Api.Auth;
 
 // Credits: https://josefottosson.se/asp-net-core-protect-your-api-with-api-keys/
-public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
-{
-    private const string ProblemDetailsContentType = "application/problem+json";
-    private const string ApiKeyHeaderName = "X-Api-Key";
-    private readonly IGetApiKeyQuery _getApiKeyQuery;
-    private readonly bool _isEnabled;
-    private string _reason;
-
-    public ApiKeyAuthenticationHandler(
-        IOptionsMonitor<ApiKeyAuthenticationOptions> options,
+public class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
         IGetApiKeyQuery getApiKeyQuery,
-        IConfiguration configuration) : base(options, logger, encoder)
-    {
-        _isEnabled = bool.Parse(configuration["EnableApiKeyAuthentication"]);
-        _getApiKeyQuery = getApiKeyQuery ?? throw new ArgumentNullException(nameof(getApiKeyQuery));
-    }
+        IConfiguration configuration)
+    : AuthenticationHandler<ApiKeyAuthenticationOptions>(options, logger, encoder)
+{
+    private const string ProblemDetailsContentType = "application/problem+json";
+    private const string ApiKeyHeaderName = "X-Api-Key";
+    private readonly IGetApiKeyQuery _getApiKeyQuery = getApiKeyQuery ?? throw new ArgumentNullException(nameof(getApiKeyQuery));
+    private readonly bool _isEnabled = bool.Parse(configuration["EnableApiKeyAuthentication"]!);
+    private string _reason;
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {

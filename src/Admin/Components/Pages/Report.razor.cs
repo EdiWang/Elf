@@ -23,8 +23,8 @@ public partial class Report
 
     public IQueryable<RequestTrack> RequestTrackItems { get; set; } = default;
 
-    public DateTime? StartDateLocal { get; set; }
-    public DateTime? EndDateLocal { get; set; }
+    public DateTime? StartDateLocal { get; set; } = DateTime.Now.Date.AddDays(-7);
+    public DateTime? EndDateLocal { get; set; } = DateTime.Now.Date;
 
     public List<LinkTrackingDateCount> LinkTrackingDateCount { get; set; } = new();
     public List<ClientTypeCount> ClientTypeCount { get; set; } = new();
@@ -33,12 +33,6 @@ public partial class Report
     public PaginationState Pagination { get; set; } = new PaginationState { ItemsPerPage = 5 };
 
     public int Offset { get; set; }
-
-    public Report()
-    {
-        StartDateLocal = DateTime.Now.Date.AddDays(-7);
-        EndDateLocal = DateTime.Now.Date;
-    }
 
     protected override async Task OnInitializedAsync()
     {

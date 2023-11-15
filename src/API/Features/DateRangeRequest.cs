@@ -5,16 +5,10 @@ namespace Elf.Api.Features;
 public class DateRangeRequest : IValidatableObject
 {
     [Required]
-    public DateTime StartDateUtc { get; set; }
+    public DateTime StartDateUtc { get; set; } = DateTime.UtcNow.Date;
 
     [Required]
-    public DateTime EndDateUtc { get; set; }
-
-    public DateRangeRequest()
-    {
-        StartDateUtc = DateTime.UtcNow.Date;
-        EndDateUtc = DateTime.UtcNow.Date;
-    }
+    public DateTime EndDateUtc { get; set; } = DateTime.UtcNow.Date;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
