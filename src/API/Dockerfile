@@ -1,7 +1,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 LABEL maintainer="edi.wang@outlook.com"
 LABEL repo="https://github.com/EdiWang/Elf"
-
 USER app
 WORKDIR /app
 EXPOSE 8080
@@ -12,10 +11,10 @@ ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Elf.Api.csproj", "API/"]
-RUN dotnet restore "./API/Elf.Api.csproj"
+COPY ["Elf.Api.csproj", "."]
+RUN dotnet restore "./././Elf.Api.csproj"
 COPY . .
-WORKDIR "/src/API"
+WORKDIR "/src/."
 RUN dotnet build "./Elf.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
