@@ -7,12 +7,6 @@ public class MostRequestedLinkCount
     public int RequestCount { get; set; }
 }
 
-public class ClientTypeCount
-{
-    public string ClientTypeName { get; set; }
-    public int Count { get; set; }
-}
-
 public class LinkTrackingDateCount
 {
     public int RequestCount { get; set; }
