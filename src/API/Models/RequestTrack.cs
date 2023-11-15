@@ -1,4 +1,6 @@
-﻿namespace Elf.Api.Models;
+﻿using Elf.Shared;
+
+namespace Elf.Api.Models;
 
 public class RequestTrack
 {

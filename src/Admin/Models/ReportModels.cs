@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Elf.Shared;
 
 namespace ElfAdmin.Models;
 
