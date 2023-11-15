@@ -1,5 +1,3 @@
-
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace ElfAdmin.Models;
@@ -12,11 +10,4 @@ public class Tag
 
     [JsonIgnore]
     public bool InEditMode { get; set; }
-}
-
-public class UpdateTagRequest
-{
-    [Required]
-    [MaxLength(32)]
-    public string Name { get; set; }
 }

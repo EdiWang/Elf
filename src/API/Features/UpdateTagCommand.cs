@@ -1,15 +1,8 @@
 ﻿using Elf.Api.Data;
+using Elf.Shared;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Api.Features;
-
-public class UpdateTagRequest
-{
-    [Required]
-    [MaxLength(32)]
-    public string Name { get; set; }
-}
 
 public record UpdateTagCommand(int Id, UpdateTagRequest Payload) : IRequest<int>;
 
