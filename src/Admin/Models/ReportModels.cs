@@ -1,5 +1,4 @@
 using Elf.Shared;
-using System.ComponentModel.DataAnnotations;
 
 namespace ElfAdmin.Models;
 
@@ -29,23 +28,6 @@ public class RequestTrack
 public class PagedRequestTrack : PagedResult
 {
     public IReadOnlyList<RequestTrack> RequestTracks { get; set; }
-}
-
-public class DateRangeRequest : IValidatableObject
-{
-    [Required]
-    public DateTime StartDateUtc { get; set; } = DateTime.UtcNow.Date;
-
-    [Required]
-    public DateTime EndDateUtc { get; set; } = DateTime.UtcNow.Date;
-
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    {
-        if (EndDateUtc < StartDateUtc)
-        {
-            yield return new("EndDateUtc must be greater than StartDateUtc", new[] { nameof(StartDateUtc), nameof(EndDateUtc) });
-        }
-    }
 }
 
 public class MostRequestedLinkCount

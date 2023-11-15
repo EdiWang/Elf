@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace Elf.Api.Features;
+namespace Elf.Shared;
 
 public class DateRangeRequest : IValidatableObject
 {
