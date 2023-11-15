@@ -160,7 +160,7 @@ public partial class Links
     {
         DialogParameters parameters = new()
         {
-            Title = $"Create link",
+            Title = "Create link",
             PrimaryAction = "Save",
             SecondaryAction = "Cancel",
             Width = "600px",
@@ -179,29 +179,27 @@ public partial class Links
 
             IsBusy = true;
 
-            if (diagResult.SelectedTags.Any())
+            if (diagResult != null)
             {
-                diagResult.Tags = diagResult.SelectedTags.Select(t => t.Name).ToArray();
-            }
-            else
-            {
-                diagResult.Tags = null;
-            }
+                diagResult.Tags = diagResult.SelectedTags.Any()
+                    ? diagResult.SelectedTags.Select(t => t.Name).ToArray()
+                    : null;
 
-            try
-            {
-                IsBusy = true;
-
-                var response = await Http.PostAsJsonAsync($"api/link/create", diagResult);
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    await MessageService.ShowMessage("Link created successfully", MessageIntent.Success);
-                    await GetData();
+                    IsBusy = true;
+
+                    var response = await Http.PostAsJsonAsync($"api/link/create", diagResult);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        await MessageService.ShowMessage("Link created successfully", MessageIntent.Success);
+                        await GetData();
+                    }
                 }
-            }
-            catch (Exception e)
-            {
-                await MessageService.ShowMessage($"Error creating link: {e.Message}", MessageIntent.Error);
+                catch (Exception e)
+                {
+                    await MessageService.ShowMessage($"Error creating link: {e.Message}", MessageIntent.Error);
+                }
             }
 
             IsBusy = false;
@@ -281,29 +279,27 @@ public partial class Links
 
             IsBusy = true;
 
-            if (diagResult.SelectedTags.Any())
+            if (diagResult != null)
             {
-                diagResult.Tags = diagResult.SelectedTags.Select(t => t.Name).ToArray();
-            }
-            else
-            {
-                diagResult.Tags = null;
-            }
+                diagResult.Tags = diagResult.SelectedTags.Any()
+                    ? diagResult.SelectedTags.Select(t => t.Name).ToArray()
+                    : null;
 
-            try
-            {
-                IsBusy = true;
-
-                var response = await Http.PutAsJsonAsync($"api/link/{link.Id}", diagResult);
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    await MessageService.ShowMessage("Link updated successfully", MessageIntent.Success);
-                    await GetData();
+                    IsBusy = true;
+
+                    var response = await Http.PutAsJsonAsync($"api/link/{link.Id}", diagResult);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        await MessageService.ShowMessage("Link updated successfully", MessageIntent.Success);
+                        await GetData();
+                    }
                 }
-            }
-            catch (Exception e)
-            {
-                await MessageService.ShowMessage($"Error updating link: {e.Message}", MessageIntent.Error);
+                catch (Exception e)
+                {
+                    await MessageService.ShowMessage($"Error updating link: {e.Message}", MessageIntent.Error);
+                }
             }
 
             IsBusy = false;

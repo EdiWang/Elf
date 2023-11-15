@@ -23,7 +23,7 @@
     <FluentProgressRing Visible="IsBusy"></FluentProgressRing>
 
     <div class="d-flex">
-        @if (null != TagItems && TagItems.Count > 0)
+        @if (TagItems is {Count: > 0 })
         {
             foreach (var item in TagItems)
             {

@@ -27,14 +27,7 @@
     private void LocationChanged(object sender, LocationChangedEventArgs e)
     {
         Uri uri = new Uri(e.Location);
-        if (uri.Segments.Count() > 1)
-        {
-            target = uri.Segments[1];
-        }
-        else
-        {
-            target = "";
-        }
+        target = uri.Segments.Length > 1 ? uri.Segments[1] : "";
         
         StateHasChanged();
     }
