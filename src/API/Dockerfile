@@ -2,22 +2,25 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 LABEL maintainer="edi.wang@outlook.com"
 LABEL repo="https://github.com/EdiWang/Elf"
 
+USER app
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 443
+EXPOSE 8081
 
 ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Elf.Api.csproj", "Elf.Api/"]
-RUN dotnet restore "Elf.Api.csproj"
+COPY ["API/Elf.Api.csproj", "API/"]
+RUN dotnet restore "./API/./Elf.Api.csproj"
 COPY . .
-WORKDIR "/src/Elf.Api"
-RUN dotnet build "Elf.Api.csproj" -c Release -o /app/build
+WORKDIR "/src/API"
+RUN dotnet build "./Elf.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Elf.Api.csproj" -c Release -o /app/publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./Elf.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
