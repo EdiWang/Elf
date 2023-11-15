@@ -6,7 +6,7 @@
 		<Authors>Edi Wang</Authors>
 		<Company>edi.wang</Company>
 		<Copyright>(C) 2023 edi.wang@outlook.com</Copyright>
-		<Version>6.7.0-rc.2</Version>
+		<Version>6.7.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -26,11 +26,11 @@
 		<PackageReference Include="Microsoft.Identity.Web" Version="2.15.3" />
 		<PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.0.0" />
 
-		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.0-rc.2.23480.2" />
-		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.0-rc.2.23480.2" />
-		<PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="8.0.0-rc.2.23480.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.0-rc.2.23480.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0-rc.2.23480.1" />
+		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
 	</ItemGroup>
 
 </Project>
