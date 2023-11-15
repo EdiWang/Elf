@@ -1,5 +1,6 @@
 ﻿using Elf.Api.Auth;
 using Elf.Api.Features;
+using Elf.Shared;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.FeatureManagement;
 using System.ComponentModel.DataAnnotations;
