@@ -1,4 +1,4 @@
-@implements IDialogContentComponent<LinkEditModel>
+@implements IDialogContentComponent<LinkEditModelUI>
 @inject HttpClient Http
 @inject IMessageService MessageService
 
@@ -40,7 +40,7 @@
 
 @code {
     [Parameter]
-    public LinkEditModel Content { get; set; } = default!;
+    public LinkEditModelUI Content { get; set; } = default!;
 
     [CascadingParameter]
     public FluentDialog Dialog { get; set; }

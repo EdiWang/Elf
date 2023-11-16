@@ -1,5 +1,6 @@
 ﻿using Elf.Api.Data;
 using Elf.Api.TokenGenerator;
+using Elf.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;

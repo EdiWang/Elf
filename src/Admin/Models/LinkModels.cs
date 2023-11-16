@@ -23,34 +23,8 @@ public class LinkModel
     public int Hits { get; set; }
 }
 
-public class LinkEditModel
+public class LinkEditModelUI : LinkEditModel
 {
-    [Required]
-    [MinLength(1)]
-    [MaxLength(256)]
-    [DataType(DataType.Url)]
-    [Display(Name = "Origin Url")]
-    public string OriginUrl { get; set; }
-
-    [Display(Name = "Note")]
-    public string Note { get; set; }
-
-    [Display(Name = "Aka")]
-    [MaxLength(32)]
-    [RegularExpression("(?!-)([a-z0-9-]+)",
-        ErrorMessage = "Aka can only accept lower case English letters (a-z) and numbers (0-9) with/out hyphen (-) in middle.")]
-    public string AkaName { get; set; }
-
-    [Required]
-    [Display(Name = "Enable")]
-    public bool IsEnabled { get; set; }
-
-    [Display(Name = "TTL (seconds)")]
-    [Range(0, 24 * 60 * 60)]
-    public int TTL { get; set; }
-
-    public string[] Tags { get; set; }
-
     [JsonIgnore]
     public IEnumerable<Tag> SelectedTags { get; set; } = Array.Empty<Tag>();
 }

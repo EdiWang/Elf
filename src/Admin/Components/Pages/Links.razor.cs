@@ -168,14 +168,14 @@ public partial class Links
             PreventScroll = true
         };
 
-        var editModel = new LinkEditModel() { IsEnabled = true, TTL = 3600 };
+        var editModel = new LinkEditModelUI { IsEnabled = true, TTL = 3600 };
 
         IDialogReference dialog = await DialogService.ShowDialogAsync<EditLinkDialog>(editModel, parameters);
         DialogResult result = await dialog.Result;
 
         if (!result.Cancelled && result.Data is not null)
         {
-            var diagResult = result.Data as LinkEditModel;
+            var diagResult = result.Data as LinkEditModelUI;
 
             IsBusy = true;
 
@@ -259,7 +259,7 @@ public partial class Links
             PreventScroll = true
         };
 
-        var editModel = new LinkEditModel()
+        var editModel = new LinkEditModelUI
         {
             OriginUrl = link.OriginUrl,
             Note = link.Note,
@@ -275,7 +275,7 @@ public partial class Links
 
         if (!result.Cancelled && result.Data is not null)
         {
-            var diagResult = result.Data as LinkEditModel;
+            var diagResult = result.Data as LinkEditModelUI;
 
             IsBusy = true;
 
