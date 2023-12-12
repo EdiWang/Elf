@@ -47,11 +47,11 @@ public class LinkController(
         switch (verifyResult)
         {
             case LinkVerifyResult.InvalidFormat:
-                return BadRequest("Not a valid URL.");
+                return BadRequest("Invalid URL.");
             case LinkVerifyResult.InvalidLocal:
                 return BadRequest("Can not use local URL.");
             case LinkVerifyResult.InvalidSelfReference:
-                return BadRequest("Can not use url pointing to this site.");
+                return BadRequest("Can not use url from this site.");
         }
 
         var token = await mediator.Send(new EditLinkCommand(id, model));
