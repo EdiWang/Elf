@@ -7,10 +7,10 @@
         <FluentPersona Name="@context.User.Identity?.Name" ImageSize="36px">
         </FluentPersona>
         <FluentSpacer Width="20" />
-        <FluentButton Appearance="Appearance.Lightweight" @onclick="BeginLogOut">Log out</FluentButton>
+        <FluentButton Appearance="Appearance.Lightweight" @onclick="BeginLogOut">Sign out</FluentButton>
     </Authorized>
     <NotAuthorized>
-        <a class="nav-link" href="authentication/login">Log in</a>
+        <a class="nav-link" href="authentication/login">Sign in</a>
     </NotAuthorized>
 </AuthorizeView>
 
