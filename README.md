@@ -28,7 +28,7 @@ Forward Link, Create/Manage/Share Link, View Report.
 
 ## Forward Logic
 
-![image](https://cdn-blog.edi.wang/web-assets/lf/LinkForwarder-FW.png)
+![image](https://cdn.edi.wang/web-assets/lf/LinkForwarder-FW.png)
 
 ## Docker Deployment
 
