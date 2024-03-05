@@ -10,7 +10,7 @@ namespace Elf.Api.Controllers;
 public class ReportController(IConfiguration configuration, IMediator mediator) : ControllerBase
 {
     [HttpGet("requests")]
-    [ProducesResponseType(typeof(PagedRequestTrack), StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedRequestTrack>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Requests(
         [Range(1, int.MaxValue)] int take,
         [Range(0, int.MaxValue)] int offset)
@@ -28,7 +28,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator) 
     }
 
     [HttpPost("requests/link")]
-    [ProducesResponseType(typeof(IReadOnlyList<MostRequestedLinkCount>), StatusCodes.Status200OK)]
+    [ProducesResponseType<List<MostRequestedLinkCount>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> MostRequestedLinks(DateRangeRequest request)
     {
         var linkCounts = await mediator.Send(new GetMostRequestedLinkCountQuery(request));
@@ -36,7 +36,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator) 
     }
 
     [HttpPost("requests/clienttype")]
-    [ProducesResponseType(typeof(IReadOnlyList<ClientTypeCount>), StatusCodes.Status200OK)]
+    [ProducesResponseType<List<ClientTypeCount>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> ClientType(DateRangeRequest request)
     {
         var types = await mediator.Send(new GetClientTypeCountsQuery(request,
@@ -45,7 +45,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator) 
     }
 
     [HttpPost("tracking")]
-    [ProducesResponseType(typeof(IReadOnlyList<LinkTrackingDateCount>), StatusCodes.Status200OK)]
+    [ProducesResponseType<List<LinkTrackingDateCount>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> TrackingCount(DateRangeRequest request)
     {
         var dateCounts = await mediator.Send(new GetLinkTrackingDateCountQuery(request));

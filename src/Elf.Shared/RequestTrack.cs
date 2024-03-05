@@ -25,5 +25,5 @@ public class RequestTrack
 
 public class PagedRequestTrack : PagedResult
 {
-    public IReadOnlyList<RequestTrack> RequestTracks { get; set; }
+    public List<RequestTrack> RequestTracks { get; set; }
 }

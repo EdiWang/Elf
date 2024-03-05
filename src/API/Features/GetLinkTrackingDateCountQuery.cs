@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record GetLinkTrackingDateCountQuery(DateRangeRequest Request) : IRequest<IReadOnlyList<LinkTrackingDateCount>>;
+public record GetLinkTrackingDateCountQuery(DateRangeRequest Request) : IRequest<List<LinkTrackingDateCount>>;
 
 public class GetLinkTrackingDateCountQueryHandler(ElfDbContext dbContext) :
-        IRequestHandler<GetLinkTrackingDateCountQuery, IReadOnlyList<LinkTrackingDateCount>>
+        IRequestHandler<GetLinkTrackingDateCountQuery, List<LinkTrackingDateCount>>
 {
-    public async Task<IReadOnlyList<LinkTrackingDateCount>> Handle(GetLinkTrackingDateCountQuery request, CancellationToken ct)
+    public async Task<List<LinkTrackingDateCount>> Handle(GetLinkTrackingDateCountQuery request, CancellationToken ct)
     {
         var data = await dbContext.LinkTracking
             .Where(lt =>

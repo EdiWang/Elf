@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record GetRecentRequestsQuery(int Offset, int Take) : IRequest<(IReadOnlyList<RequestTrack>, int TotalRows)>;
+public record GetRecentRequestsQuery(int Offset, int Take) : IRequest<(List<RequestTrack>, int TotalRows)>;
 
-public class GetRecentRequestsQueryHandler(ElfDbContext dbContext) : IRequestHandler<GetRecentRequestsQuery, (IReadOnlyList<RequestTrack>, int TotalRows)>
+public class GetRecentRequestsQueryHandler(ElfDbContext dbContext) : IRequestHandler<GetRecentRequestsQuery, (List<RequestTrack>, int TotalRows)>
 {
-    public async Task<(IReadOnlyList<RequestTrack>, int TotalRows)> Handle(GetRecentRequestsQuery request, CancellationToken ct)
+    public async Task<(List<RequestTrack>, int TotalRows)> Handle(GetRecentRequestsQuery request, CancellationToken ct)
     {
         var (offset, take) = request;
         var query = dbContext.LinkTracking;

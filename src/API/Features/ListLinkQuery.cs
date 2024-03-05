@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Elf.Api.Features;
 
 public record ListLinkQuery(int Offset, int Take, string NoteKeyword = null) :
-    IRequest<(IReadOnlyList<LinkModel> Links, int TotalRows)>;
+    IRequest<(List<LinkModel> Links, int TotalRows)>;
 
-public class ListLinkQueryHandler(ElfDbContext dbContext) : IRequestHandler<ListLinkQuery, (IReadOnlyList<LinkModel> Links, int TotalRows)>
+public class ListLinkQueryHandler(ElfDbContext dbContext) : IRequestHandler<ListLinkQuery, (List<LinkModel> Links, int TotalRows)>
 {
-    public async Task<(IReadOnlyList<LinkModel> Links, int TotalRows)> Handle(ListLinkQuery request, CancellationToken ct)
+    public async Task<(List<LinkModel> Links, int TotalRows)> Handle(ListLinkQuery request, CancellationToken ct)
     {
         var query = from l in dbContext.Link.Include(l => l.LinkTrackings)
                     select l;

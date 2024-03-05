@@ -17,7 +17,7 @@ public class LinkController(
         IMediator mediator) : ControllerBase
 {
     [HttpPost("create")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(LinkEditModel model)
     {
@@ -68,7 +68,7 @@ public class LinkController(
     }
 
     [HttpGet("list")]
-    [ProducesResponseType(typeof(PagedLinkResult), StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedLinkResult>(StatusCodes.Status200OK)]
     public async Task<IActionResult> List(
         string term,
         [Range(1, int.MaxValue)] int take,
@@ -87,7 +87,7 @@ public class LinkController(
     }
 
     [HttpPost("list/tags")]
-    [ProducesResponseType(typeof(PagedLinkResult), StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedLinkResult>(StatusCodes.Status200OK)]
     public async Task<IActionResult> ListByTags(ListByTagsRequest request)
     {
         var (links, totalRows) = await mediator.Send(new ListByTagsCommand(request));
@@ -103,7 +103,7 @@ public class LinkController(
     }
 
     [HttpGet("{id:int}")]
-    [ProducesResponseType(typeof(LinkEditModel), StatusCodes.Status200OK)]
+    [ProducesResponseType<LinkEditModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get(int id)
     {
@@ -114,7 +114,7 @@ public class LinkController(
     }
 
     [HttpDelete("{id:int}")]
-    [ProducesResponseType(typeof(LinkEditModel), StatusCodes.Status200OK)]
+    [ProducesResponseType<LinkEditModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id)
     {

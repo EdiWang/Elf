@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record GetMostRequestedLinkCountQuery(DateRangeRequest Request) : IRequest<IReadOnlyList<MostRequestedLinkCount>>;
+public record GetMostRequestedLinkCountQuery(DateRangeRequest Request) : IRequest<List<MostRequestedLinkCount>>;
 
 public class GetMostRequestedLinkCountQueryHandler(ElfDbContext dbContext) :
-    IRequestHandler<GetMostRequestedLinkCountQuery, IReadOnlyList<MostRequestedLinkCount>>
+    IRequestHandler<GetMostRequestedLinkCountQuery, List<MostRequestedLinkCount>>
 {
-    public async Task<IReadOnlyList<MostRequestedLinkCount>> Handle(GetMostRequestedLinkCountQuery request, CancellationToken ct)
+    public async Task<List<MostRequestedLinkCount>> Handle(GetMostRequestedLinkCountQuery request, CancellationToken ct)
     {
         var utc = DateTime.UtcNow;
 

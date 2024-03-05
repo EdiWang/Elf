@@ -10,7 +10,7 @@ namespace Elf.Api.Controllers;
 public class TagController(IMediator mediator) : ControllerBase
 {
     [HttpGet("list")]
-    [ProducesResponseType(typeof(List<TagEntity>), StatusCodes.Status200OK)]
+    [ProducesResponseType<List<TagEntity>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> List()
     {
         var list = await mediator.Send(new GetTagsQuery());

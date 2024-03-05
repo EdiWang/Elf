@@ -5,11 +5,11 @@ using UAParser;
 
 namespace Elf.Api.Features;
 
-public record GetClientTypeCountsQuery(DateRangeRequest Request, int TopTypes) : IRequest<IReadOnlyList<ClientTypeCount>>;
+public record GetClientTypeCountsQuery(DateRangeRequest Request, int TopTypes) : IRequest<List<ClientTypeCount>>;
 
-public class GetClientTypeCountsQueryHandler(ElfDbContext dbContext) : IRequestHandler<GetClientTypeCountsQuery, IReadOnlyList<ClientTypeCount>>
+public class GetClientTypeCountsQueryHandler(ElfDbContext dbContext) : IRequestHandler<GetClientTypeCountsQuery, List<ClientTypeCount>>
 {
-    public async Task<IReadOnlyList<ClientTypeCount>> Handle(GetClientTypeCountsQuery request, CancellationToken ct)
+    public async Task<List<ClientTypeCount>> Handle(GetClientTypeCountsQuery request, CancellationToken ct)
     {
         var uaParser = Parser.GetDefault();
 
@@ -21,7 +21,6 @@ public class GetClientTypeCountsQueryHandler(ElfDbContext dbContext) : IRequestH
             return $"{c.OS.Family}-{c.UA.Family}";
         }
 
-        var utc = DateTime.UtcNow;
         var uac = await dbContext.LinkTracking
                 .Where(p =>
                     p.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
@@ -46,6 +45,7 @@ public class GetClientTypeCountsQueryHandler(ElfDbContext dbContext) : IRequestH
             if (request.TopTypes > 0) q = q.OrderByDescending(p => p.Count).Take(request.TopTypes);
             return q.ToList();
         }
+
         return new List<ClientTypeCount>();
     }
 }
