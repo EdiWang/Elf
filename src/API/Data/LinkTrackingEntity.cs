@@ -1,26 +1,35 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Elf.Api.Data;
 
 public class LinkTrackingEntity
 {
+    [Key]
     public Guid Id { get; set; }
 
     public int LinkId { get; set; }
 
+    [MaxLength(256)]
     public string UserAgent { get; set; }
 
+    [MaxLength(64)]
     public string IpAddress { get; set; }
 
+    [MaxLength(64)]
     public string IPCountry { get; set; }
 
+    [MaxLength(64)]
     public string IPRegion { get; set; }
 
+    [MaxLength(64)]
     public string IPCity { get; set; }
 
+    [MaxLength(16)]
     public string IPASN { get; set; }
 
+    [MaxLength(64)]
     public string IPOrg { get; set; }
 
     public DateTime RequestTimeUtc { get; set; }
@@ -33,14 +42,6 @@ internal class LinkTrackingEntityConfiguration : IEntityTypeConfiguration<LinkTr
     public void Configure(EntityTypeBuilder<LinkTrackingEntity> builder)
     {
         builder.Property(e => e.Id).ValueGeneratedNever();
-
-        builder.Property(e => e.UserAgent).HasMaxLength(256);
-        builder.Property(e => e.IpAddress).HasMaxLength(64);
-        builder.Property(e => e.IPCountry).HasMaxLength(64);
-        builder.Property(e => e.IPRegion).HasMaxLength(64);
-        builder.Property(e => e.IPCity).HasMaxLength(64);
-        builder.Property(e => e.IPASN).HasMaxLength(16);
-        builder.Property(e => e.IPOrg).HasMaxLength(64);
         builder.Property(e => e.RequestTimeUtc).HasColumnType("datetime");
 
         builder.HasOne(d => d.Link)
