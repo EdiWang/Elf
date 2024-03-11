@@ -6,7 +6,7 @@
     <Authors>Edi Wang</Authors>
     <Company>edi.wang</Company>
     <Copyright>(C) 2024 edi.wang@outlook.com</Copyright>
-    <Version>6.8.5</Version>
+    <Version>6.8.6</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,8 +14,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.2" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.4.1" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.4.0" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.5.0" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
