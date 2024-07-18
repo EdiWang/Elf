@@ -6,7 +6,7 @@
         <Authors>Edi Wang</Authors>
         <Company>edi.wang</Company>
         <Copyright>(C) 2024 edi.wang@outlook.com</Copyright>
-        <Version>6.8.19</Version>
+        <Version>6.8.20</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,7 +24,7 @@
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.22.0" />
         <PackageReference Include="Edi.ChinaDetector" Version="1.1.251" />
 
-        <PackageReference Include="Microsoft.Identity.Web" Version="2.20.0" />
+        <PackageReference Include="Microsoft.Identity.Web" Version="3.0.0" />
         <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.4.0" />
 
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.7" />
