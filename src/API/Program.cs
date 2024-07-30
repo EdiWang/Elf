@@ -1,3 +1,4 @@
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Elf.Api;
 using Elf.Api.Auth;
 using Elf.Api.Data;
@@ -120,6 +121,11 @@ void ConfigureServices(IServiceCollection services)
             return RateLimitPartition.GetNoLimiter(IPAddress.Loopback);
         });
     });
+
+    if (!string.IsNullOrWhiteSpace(builder.Configuration["AzureMonitor:ConnectionString"]))
+    {
+        services.AddOpenTelemetry().UseAzureMonitor();
+    }
 
     services.AddHealthChecks();
     services.AddOptions();
