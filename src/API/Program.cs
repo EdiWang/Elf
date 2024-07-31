@@ -122,7 +122,7 @@ void ConfigureServices(IServiceCollection services)
         });
     });
 
-    if (!string.IsNullOrWhiteSpace(builder.Configuration["AzureMonitor:ConnectionString"]))
+    if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING")))
     {
         services.AddOpenTelemetry().UseAzureMonitor();
     }
