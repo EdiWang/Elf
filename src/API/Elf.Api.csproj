@@ -6,7 +6,7 @@
         <Authors>Edi Wang</Authors>
         <Company>edi.wang</Company>
         <Copyright>(C) 2024 edi.wang@outlook.com</Copyright>
-        <Version>6.10.0</Version>
+        <Version>6.10.1</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,7 +22,7 @@
         <PackageReference Include="UAParser" Version="3.1.47" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.22.0" />
-        <PackageReference Include="Edi.ChinaDetector" Version="1.1.251" />
+        <PackageReference Include="Edi.ChinaDetector" Version="1.2.251" />
 
         <PackageReference Include="Microsoft.Identity.Web" Version="3.0.1" />
         <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.5.0" />

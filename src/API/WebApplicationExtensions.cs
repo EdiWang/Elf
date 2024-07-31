@@ -6,39 +6,35 @@ public static class WebApplicationExtensions
 {
     public static async Task DetectChina(this WebApplication app)
     {
-        // Read config `Experimental:DetectChina` to decide how to deal with China
-        // Refer: https://go.edi.wang/aka/os251
-        var detectChina = app.Configuration["DetectChina"];
-        if (!string.IsNullOrWhiteSpace(detectChina))
+        // Learn more at https://go.edi.wang/aka/os251
+        var service = new OfflineChinaDetectService();
+        var result = await service.Detect(DetectionMethod.TimeZone | DetectionMethod.Culture | DetectionMethod.Behavior);
+        if (result.Rank >= 1)
         {
-            var service = new OfflineChinaDetectService();
-            var result = await service.Detect(DetectionMethod.TimeZone | DetectionMethod.Culture | DetectionMethod.Behavior);
-            if (result.Rank >= 1)
-            {
-                DealWithChina(app, detectChina);
-            }
+            DealWithChina(app);
         }
     }
 
-    private static void DealWithChina(WebApplication app, string detectChina)
+    private static void DealWithChina(WebApplication app)
     {
-        switch (detectChina.ToLower())
+        void Prevent()
         {
-            case "block":
-                app.Logger.LogError("Positive China detection, application stopped.");
+            app.Logger.LogError("Positive China detection, application stopped.");
 
-                app.MapGet("/", () => Results.Text(
-                    "Due to legal and regulation concerns, we regret to inform you that deploying Elf on servers located in Mainland China is currently not possible",
-                    statusCode: 251
-                ));
-                app.Run();
+            app.MapGet("/", () => Results.Text(
+                "Due to legal and regulation concerns, we regret to inform you that deploying Moonglade on servers located in China (including Hong Kong) is currently not possible",
+                statusCode: 251
+            ));
+            app.Run();
+        }
 
-                break;
-            case "allow":
-            default:
-                app.Logger.LogInformation("Current server is suspected to be located in Mainland China, Elf will still run on full functionality.");
-
-                break;
+        if (app.Environment.IsDevelopment())
+        {
+            app.Logger.LogWarning("Current deployment is suspected to be located in China, Moonglade will still run on full functionality in development environment.");
+        }
+        else
+        {
+            Prevent();
         }
     }
 }
