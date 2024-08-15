@@ -1,4 +1,4 @@
-﻿@inject NavigationManager navigationmanager
+﻿@inject NavigationManager Navigationmanager
 
 
 <FluentStack Orientation="Orientation.Vertical">
@@ -7,31 +7,24 @@
         <FluentNavLink Icon="@(new Icons.Regular.Size20.TagMultiple())" Href="/Tags">Tags</FluentNavLink>
         <FluentNavLink Icon="@(new Icons.Regular.Size20.ChartMultiple())" Href="/Report">Report</FluentNavLink>
     </FluentNavMenu>
-
-    <FluentFooter Style="padding-left: 10px; width: 200px;">
-         <FluentDivider Style="width: 100%; margin-bottom: 10px" Role="DividerRole.Presentation"></FluentDivider>
-        <div style="text-align: center;">
-            <a href="https://github.com/EdiWang/Elf" target="_blank">GitHub</a>
-        </div>
-    </FluentFooter>
 </FluentStack>
 
 @code {
-    private string target;
+    private string _target;
     protected override void OnInitialized()
     {
-        navigationmanager.LocationChanged += LocationChanged;
+        Navigationmanager.LocationChanged += LocationChanged;
         base.OnInitialized();
     }
 
     private void LocationChanged(object sender, LocationChangedEventArgs e)
     {
         Uri uri = new Uri(e.Location);
-        target = uri.Segments.Length > 1 ? uri.Segments[1] : "";
-        
+        _target = uri.Segments.Length > 1 ? uri.Segments[1] : "";
+
         StateHasChanged();
     }
 
-    private Appearance SetAppearance(string location) => (string.Equals(location, target,
+    private Appearance SetAppearance(string location) => (string.Equals(location, _target,
     StringComparison.OrdinalIgnoreCase)) ? Appearance.Neutral : Appearance.Stealth;
 }
