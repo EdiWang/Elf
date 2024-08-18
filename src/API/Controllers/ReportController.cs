@@ -40,7 +40,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator) 
     public async Task<IActionResult> ClientType(DateRangeRequest request)
     {
         var types = await mediator.Send(new GetClientTypeCountsQuery(request,
-            configuration.GetSection("AppSettings:TopClientTypes").Get<int>()));
+            int.Parse(configuration["TopClientTypes"]!)));
         return Ok(types);
     }
 
