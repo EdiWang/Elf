@@ -11,8 +11,6 @@ public class GetMostRequestedLinkCountQueryHandler(ElfDbContext dbContext) :
 {
     public async Task<List<MostRequestedLinkCount>> Handle(GetMostRequestedLinkCountQuery request, CancellationToken ct)
     {
-        var utc = DateTime.UtcNow;
-
         var data = await dbContext.LinkTracking
                         .Where(p => p.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
                                     p.RequestTimeUtc >= request.Request.StartDateUtc.Date)
