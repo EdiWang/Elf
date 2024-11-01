@@ -66,17 +66,8 @@ public class ForwardController(
         {
             var flag = await featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
             var link = await mediator.Send(new GetLinkByTokenQuery(validatedToken));
-            if (link is null)
-            {
-                var dru = configuration["DefaultRedirectionUrl"];
-                if (string.IsNullOrWhiteSpace(dru)) return NotFound();
 
-                var result = linkVerifier.Verify(dru, Url, Request, flag);
-                if (result == LinkVerifyResult.Valid) return Redirect(dru);
-
-                throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
-            }
-
+            if (link is null) return TryDefaultRedirect(flag);
             if (!link.IsEnabled) return BadRequest("This link is disabled.");
 
             var verifyOriginUrl = linkVerifier.Verify(link.OriginUrl, Url, Request, flag);
@@ -112,26 +103,42 @@ public class ForwardController(
 
         if (await featureManager.IsEnabledAsync(nameof(FeatureFlags.EnableTracking)))
         {
-            Response.Headers.Append("X-Elf-Tracking-For", ip);
-            var ua = UserAgent;
-
-            cannonService.Fire(async (IMediator mediator) =>
-            {
-                IPLocation location;
-                try
-                {
-                    location = await ipLocationService.GetLocationAsync(ip, ua);
-                }
-                catch (Exception)
-                {
-                    location = null;
-                }
-
-                var req = new LinkTrackingRequest(ip, ua, linkEntry.Id);
-                await mediator.Send(new TrackSucessRedirectionCommand(req, location));
-            });
+            TrackLinkRequest(ip, linkEntry.Id);
         }
 
         return Redirect(linkEntry.OriginUrl);
+    }
+
+    private IActionResult TryDefaultRedirect(bool flag)
+    {
+        var dru = configuration["DefaultRedirectionUrl"];
+        if (string.IsNullOrWhiteSpace(dru)) return NotFound();
+
+        var result = linkVerifier.Verify(dru, Url, Request, flag);
+        if (result == LinkVerifyResult.Valid) return Redirect(dru);
+
+        throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
+    }
+
+    private void TrackLinkRequest(string ip, int id)
+    {
+        Response.Headers.Append("X-Elf-Tracking-For", ip);
+        var ua = UserAgent;
+
+        cannonService.Fire(async (IMediator mediator2) =>
+        {
+            IPLocation location;
+            try
+            {
+                location = await ipLocationService.GetLocationAsync(ip, ua);
+            }
+            catch (Exception)
+            {
+                location = null;
+            }
+
+            var req = new LinkTrackingRequest(ip, ua, id);
+            await mediator2.Send(new TrackSucessRedirectionCommand(req, location));
+        });
     }
 }
