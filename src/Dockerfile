@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 LABEL maintainer="edi.wang@outlook.com"
 LABEL repo="https://github.com/EdiWang/Elf"
 
@@ -9,7 +9,7 @@ EXPOSE 8081
 
 ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 COPY ["API/Elf.Api.csproj", "Elf.Api/"]
 RUN dotnet restore "API/Elf.Api.csproj"
