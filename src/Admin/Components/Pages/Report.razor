@@ -1,5 +1,6 @@
 @page "/Report"
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 
 @attribute [Authorize]
 
@@ -17,7 +18,7 @@
     <FluentDatePicker AriaLabel="StartDate" Label="Start Date" @bind-Value="@StartDateLocal" Required />
     <FluentDatePicker AriaLabel="EndDate" Label="End Date" @bind-Value="@EndDateLocal" Required />
 
-    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowSync())" Loading="IsChartBusy" OnClick="GetReport">
+    <FluentButton IconStart="@(new Size20.ArrowSync())" Loading="IsChartBusy" OnClick="GetReport">
         Refresh Chart
     </FluentButton>
 </FluentToolbar>
@@ -74,9 +75,10 @@
             <FluentSpacer />
 
             <div>
-                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.ArrowSync())"
+                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Size20.ArrowSync())"
                     OnClick="Refresh" Loading="IsBusy">Refresh</FluentButton>
-                <FluentButton IconStart="@(new Icons.Regular.Size16.Delete())" Loading="IsBusy" OnClick="Clear">Clear
+                <FluentButton IconStart="@(new Size20.Delete())" Loading="IsBusy" OnClick="Clear">
+                    Clear
                 </FluentButton>
             </div>
         </FluentStack>

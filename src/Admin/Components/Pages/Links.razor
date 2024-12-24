@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 
 @attribute [Authorize]
 
@@ -12,9 +13,9 @@
 <PageTitle>Links</PageTitle>
 
 <FluentToolbar id="toolbar-links" Style="width:100%;margin-bottom:15px;">
-    <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size16.New())" Loading="IsBusy"
+    <FluentButton Appearance="Appearance.Accent" IconStart="@(new Size20.New())" Loading="IsBusy"
         OnClick="New">New</FluentButton>
-    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowSync())" Loading="IsBusy" OnClick="Refresh">Refresh
+    <FluentButton IconStart="@(new Size20.ArrowSync())" Loading="IsBusy" OnClick="Refresh">Refresh
     </FluentButton>
 
     <FluentSpacer />
@@ -23,7 +24,7 @@
         Disabled="!string.IsNullOrWhiteSpace(SearchTerm)" OptionText="@(i => i.Name)"
         @bind-SelectedOptions="@SelectedTags" Width="300px" Style="display: inline-flex;" />
 
-    <FluentButton IconStart="@(new Icons.Regular.Size16.Filter())" Loading="IsBusy" OnClick="() => FilterByTag(true)">
+    <FluentButton IconStart="@(new Size20.Filter())" Loading="IsBusy" OnClick="() => FilterByTag(true)">
         Filter
     </FluentButton>
 
@@ -74,10 +75,10 @@
         <PropertyColumn Property="@(c => c.Hits)" Sortable="true" Class="hits" />
 
         <TemplateColumn Title="Actions" Align="@Align.End">
-            <FluentButton IconEnd="@(new Icons.Regular.Size16.Copy())" OnClick="() => Copy(context.FwToken)" />
-            <FluentButton IconEnd="@(new Icons.Regular.Size16.Share())" OnClick="() => Share(context)" />
-            <FluentButton IconEnd="@(new Icons.Regular.Size16.Edit())" OnClick="() => Edit(context)" />
-            <FluentButton IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="() => Delete(context)" />
+            <FluentButton IconEnd="@(new Size20.Copy())" OnClick="() => Copy(context.FwToken)" />
+            <FluentButton IconEnd="@(new Size20.Share())" OnClick="() => Share(context)" />
+            <FluentButton IconEnd="@(new Size20.Edit())" OnClick="() => Edit(context)" />
+            <FluentButton IconEnd="@(new Size20.Delete())" OnClick="() => Delete(context)" />
         </TemplateColumn>
     </FluentDataGrid>
 
