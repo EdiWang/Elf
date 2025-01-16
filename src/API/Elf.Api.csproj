@@ -22,7 +22,7 @@
         <PackageReference Include="UAParser" Version="3.1.47" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.24.0" />
-        <PackageReference Include="Edi.ChinaDetector" Version="1.2.251" />
+        <PackageReference Include="Edi.ChinaDetector" Version="1.3.251" />
 
         <PackageReference Include="Microsoft.Identity.Web" Version="3.5.0" />
         <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.0.0" />
