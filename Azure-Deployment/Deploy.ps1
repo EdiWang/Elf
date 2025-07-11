@@ -11,14 +11,11 @@ param(
     [bool] $useLinuxPlanWithDocker = 1
 )
 
-function Get-UrlStatusCode([string] $Url)
-{
-    try
-    {
+function Get-UrlStatusCode([string] $Url) {
+    try {
         [System.Net.WebRequest]::Create($Url).GetResponse().StatusCode
     }
-    catch [Net.WebException]
-    {
+    catch [Net.WebException] {
         [int]$_.Exception.Response.StatusCode
     }
 }
@@ -32,34 +29,39 @@ $selectedSubscription = $output.name
 Write-Host "Currently logged in to subscription """$output.name.Trim()""" in tenant " $output.tenantId
 $selectedSubscription = Read-Host "Enter subscription Id ("$output.id")"
 $selectedSubscription = $selectedSubscription.Trim()
-if([string]::IsNullOrWhiteSpace($selectedSubscription)) {
+if ([string]::IsNullOrWhiteSpace($selectedSubscription)) {
     $selectedSubscription = $output.id
-} else {
+}
+else {
     # az account set --subscription $selectedSubscription
     Write-Host "Changed to subscription ("$selectedSubscription")"
 }
 
-while($true) {
+while ($true) {
     $webAppName = Read-Host -Prompt "Enter webapp name"
     $webAppName = $webAppName.Trim()
-    if($webAppName.ToLower() -match "xbox") {
+    if ($webAppName.ToLower() -match "xbox") {
         Write-Host "Webapp name cannot have keywords xbox,windows,login,microsoft"
         continue
-    } elseif ($webAppName.ToLower() -match "windows") {
+    }
+    elseif ($webAppName.ToLower() -match "windows") {
         Write-Host "Webapp name cannot have keywords xbox,windows,login,microsoft"
         continue
-    } elseif ($webAppName.ToLower() -match "login") {
+    }
+    elseif ($webAppName.ToLower() -match "login") {
         Write-Host "Webapp name cannot have keywords xbox,windows,login,microsoft"
         continue
-    } elseif ($webAppName.ToLower() -match "microsoft") {
+    }
+    elseif ($webAppName.ToLower() -match "microsoft") {
         Write-Host "Webapp name cannot have keywords xbox,windows,login,microsoft"
         continue
     }
     # Create the request
     $HTTP_Status = Get-UrlStatusCode('http://' + $webAppName + '.azurewebsites.net')
-    if($HTTP_Status -eq 0) {
+    if ($HTTP_Status -eq 0) {
         break
-    } else {
+    }
+    else {
         Write-Host "Webapp name taken"
     }
 }
@@ -74,11 +76,11 @@ $sqlDatabaseName = "elfdb$rndNumber"
 
 function Get-RandomCharacters($length, $characters) {
     $random = 1..$length | ForEach-Object { Get-Random -Maximum $characters.length }
-    $private:ofs=""
+    $private:ofs = ""
     return [String]$characters[$random]
 }
  
-function Scramble-String([string]$inputString){     
+function Scramble-String([string]$inputString) {     
     $characterArray = $inputString.ToCharArray()   
     $scrambledStringArray = $characterArray | Get-Random -Count $characterArray.Length     
     $outputString = -join $scrambledStringArray
@@ -134,7 +136,7 @@ $planCheck = az appservice plan list --query "[?name=='$aspName']" | ConvertFrom
 $planExists = $planCheck.Length -gt 0
 if (!$planExists) {
     Write-Host "Creating App Service Plan..."
-    if ($useLinuxPlanWithDocker){
+    if ($useLinuxPlanWithDocker) {
         $echo = az appservice plan create -n $aspName -g $rsgName --is-linux --sku S1 --location $regionName
     }
     else {
@@ -198,7 +200,7 @@ $sqlConnStrTemplate = az sql db show-connection-string -s $sqlServerName -n $sql
 $sqlConnStr = $sqlConnStrTemplate.Replace("<username>", $sqlServerUsername).Replace("<password>", $sqlServerPassword)
 $echo = az webapp config connection-string set -g $rsgName -n $webAppName -t SQLAzure --settings ElfDatabase=$sqlConnStr
 
-if (!$useLinuxPlanWithDocker){
+if (!$useLinuxPlanWithDocker) {
     Write-Host "Pulling source code and run build on Azure (this takes time, please wait)..."
     $echo = az webapp deployment source config --branch master --manual-integration --name $webAppName --repo-url https://github.com/EdiWang/Elf --resource-group $rsgName
 }
@@ -206,11 +208,11 @@ if (!$useLinuxPlanWithDocker){
 # Azure AD
 Write-Host ""
 Write-Host "Creating Azure AD Application Registration..." -ForegroundColor Green
-$clientid=$(az ad app create --display-name $webAppName --query appId --output tsv)
+$clientid = $(az ad app create --display-name $webAppName --query appId --output tsv)
 #$objectid=$(az ad app show --id $clientid --query objectId --output tsv)
 
 Write-Host "Removing default API scope..."
-$default_scope=(az ad app show --id $clientid | ConvertFrom-Json).oauth2Permissions
+$default_scope = (az ad app show --id $clientid | ConvertFrom-Json).oauth2Permissions
 $default_scope[0].isEnabled = 'false'
 $default_scope_new = ConvertTo-Json -InputObject @($default_scope)
 $default_scope_new | Out-File -FilePath .\oauth2Permissionsold.json
@@ -222,7 +224,7 @@ Write-Host "Updating Configuration for AAD" -ForegroundColor Green
 if ($useLinuxPlanWithDocker) {
     $echo = az webapp config appsettings set -g $rsgName -n $webAppName --settings AzureAd__ClientId=$clientid
 }
-else{
+else {
     $echo = az webapp config appsettings set -g $rsgName -n $webAppName --settings AzureAd:ClientId=$clientid
 }
 
