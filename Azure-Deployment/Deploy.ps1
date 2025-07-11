@@ -20,6 +20,19 @@ function Get-UrlStatusCode([string] $Url) {
     }
 }
 
+function Get-RandomCharacters($length, $characters) {
+    $random = 1..$length | ForEach-Object { Get-Random -Maximum $characters.length }
+    $private:ofs = ""
+    return [String]$characters[$random]
+}
+
+function Scramble-String([string]$inputString) {     
+    $characterArray = $inputString.ToCharArray()   
+    $scrambledStringArray = $characterArray | Get-Random -Count $characterArray.Length     
+    $outputString = -join $scrambledStringArray
+    return $outputString 
+}
+
 [Console]::ResetColor()
 # az login --use-device-code
 $output = az account show -o json | ConvertFrom-Json
@@ -74,18 +87,6 @@ $sqlServerName = "elfsqlsvr$rndNumber"
 $sqlServerUsername = "elf"
 $sqlDatabaseName = "elfdb$rndNumber"
 
-function Get-RandomCharacters($length, $characters) {
-    $random = 1..$length | ForEach-Object { Get-Random -Maximum $characters.length }
-    $private:ofs = ""
-    return [String]$characters[$random]
-}
- 
-function Scramble-String([string]$inputString) {     
-    $characterArray = $inputString.ToCharArray()   
-    $scrambledStringArray = $characterArray | Get-Random -Count $characterArray.Length     
-    $outputString = -join $scrambledStringArray
-    return $outputString 
-}
 
 $password = Get-RandomCharacters -length 4 -characters 'abcdefghiklmnoprstuvwxyz'
 $password += Get-RandomCharacters -length 1 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
