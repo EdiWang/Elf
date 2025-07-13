@@ -11,10 +11,6 @@ param(
     [bool] $useLinuxPlanWithDocker = 1
 )
 
-function Check-Command($cmdname) {
-    return [bool](Get-Command -Name $cmdname -ErrorAction SilentlyContinue)
-}
-
 function Get-UrlStatusCode([string] $Url) {
     try {
         [System.Net.WebRequest]::Create($Url).GetResponse().StatusCode
@@ -74,10 +70,6 @@ while ($true) {
 $rndNumber = Get-Random -Minimum 100 -Maximum 999
 $suffix = "$rndNumber"
 $rsgName = "elfgroup$suffix"
-$aspName = "elfplan$suffix"
-$sqlServerName = "elfsqlsvr$suffix"
-$sqlServerUsername = "elf"
-$sqlDatabaseName = "elfdb$suffix"
 
 $password = Get-RandomCharacters -length 4 -characters 'abcdefghiklmnoprstuvwxyz'
 $password += Get-RandomCharacters -length 1 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
@@ -104,7 +96,7 @@ Write-Host "Preparing Resource Group" -ForegroundColor Green
 $rsgExists = az group exists -n $rsgName
 if ($rsgExists -eq 'false') {
     Write-Host "Creating Resource Group..."
-    $echo = az group create -l $regionName -n $rsgName
+    az group create -l $regionName -n $rsgName | Out-Null
 }
 
 # Write Bicep parameters to temp file
@@ -164,10 +156,10 @@ Write-Host "NOTE: You need to manually expose API with name access_as_user and s
 
 Write-Host "Updating Configuration for AAD" -ForegroundColor Green
 if ($useLinuxPlanWithDocker) {
-    $echo = az webapp config appsettings set -g $rsgName -n $webAppName --settings AzureAd__ClientId=$clientid
+    az webapp config appsettings set -g $rsgName -n $webAppName --settings AzureAd__ClientId=$clientid | Out-Null
 }
 else {
-    $echo = az webapp config appsettings set -g $rsgName -n $webAppName --settings AzureAd:ClientId=$clientid
+    az webapp config appsettings set -g $rsgName -n $webAppName --settings AzureAd:ClientId=$clientid | Out-Null
 }
 
 Write-Host "NOTE: You need to manually set domain and tenantId with the AAD application, please refer to Readme of https://github.com/EdiWang/Elf"
