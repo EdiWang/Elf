@@ -19,7 +19,6 @@ public class ForwardController(
         IDistributedCache cache,
         ILinkVerifier linkVerifier,
         IFeatureManager featureManager,
-        IMediator mediator,
         IQueryMediator queryMediator,
         IIPLocationService ipLocationService,
         CannonService cannonService) : ControllerBase
@@ -67,7 +66,7 @@ public class ForwardController(
         if (null == linkEntry)
         {
             var flag = await featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
-            var link = await mediator.Send(new GetLinkByTokenQuery(validatedToken));
+            var link = await queryMediator.QueryAsync(new GetLinkByTokenQuery(validatedToken));
 
             if (link is null) return TryDefaultRedirect(flag);
             if (!link.IsEnabled) return BadRequest("This link is disabled.");
