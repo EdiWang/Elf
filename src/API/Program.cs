@@ -23,8 +23,6 @@ ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
-await app.DetectChina();
-
 #region First Run
 
 using (var scope = app.Services.CreateScope())
