@@ -1,18 +1,19 @@
 ﻿using Elf.Api.Data;
 using Elf.Api.TokenGenerator;
 using Elf.Shared;
+using LiteBus.Commands.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record CreateLinkCommand(LinkEditModel Payload) : IRequest;
+public record CreateLinkCommand(LinkEditModel Payload) : ICommand;
 
 public class CreateLinkCommandHandler(
     ElfDbContext dbContext,
     ITokenGenerator tokenGenerator,
-    ILogger<CreateLinkCommandHandler> logger) : IRequestHandler<CreateLinkCommand>
+    ILogger<CreateLinkCommandHandler> logger) : ICommandHandler<CreateLinkCommand>
 {
-    public async Task Handle(CreateLinkCommand request, CancellationToken ct)
+    public async Task HandleAsync(CreateLinkCommand request, CancellationToken ct)
     {
         var l = await dbContext.Link.FirstOrDefaultAsync(p => p.OriginUrl == request.Payload.OriginUrl, ct);
         var tempToken = l?.FwToken;

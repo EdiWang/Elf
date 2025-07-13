@@ -1,12 +1,13 @@
 ﻿using Elf.Api.Data;
+using LiteBus.Commands.Abstractions;
 
 namespace Elf.Api.Features;
 
-public record ClearTrackingDataCommand : IRequest;
+public record ClearTrackingDataCommand : ICommand;
 
-public class ClearTrackingDataCommandHandler(ElfDbContext dbContext) : IRequestHandler<ClearTrackingDataCommand>
+public class ClearTrackingDataCommandHandler(ElfDbContext dbContext) : ICommandHandler<ClearTrackingDataCommand>
 {
-    public async Task Handle(ClearTrackingDataCommand request, CancellationToken ct)
+    public async Task HandleAsync(ClearTrackingDataCommand request, CancellationToken ct)
     {
         dbContext.LinkTracking.RemoveRange();
         await dbContext.SaveChangesAsync(ct);

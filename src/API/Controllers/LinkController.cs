@@ -1,6 +1,7 @@
 ﻿using Elf.Api.Auth;
 using Elf.Api.Features;
 using Elf.Shared;
+using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.FeatureManagement;
@@ -16,6 +17,7 @@ public class LinkController(
         IDistributedCache cache,
         IFeatureManager featureManager,
         IMediator mediator,
+        ICommandMediator commandMediator,
         IQueryMediator queryMediator) : ControllerBase
 {
     [HttpPost("create")]
@@ -35,7 +37,7 @@ public class LinkController(
                 return BadRequest("Can not use url pointing to this site.");
         }
 
-        await mediator.Send(new CreateLinkCommand(model));
+        await commandMediator.SendAsync(new CreateLinkCommand(model));
         return NoContent();
     }
 

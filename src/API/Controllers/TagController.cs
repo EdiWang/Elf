@@ -1,6 +1,7 @@
 ﻿using Elf.Api.Data;
 using Elf.Api.Features;
 using Elf.Shared;
+using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
 
 namespace Elf.Api.Controllers;
@@ -8,7 +9,7 @@ namespace Elf.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class TagController(IMediator mediator, IQueryMediator queryMediator) : ControllerBase
+public class TagController(IMediator mediator, ICommandMediator commandMediator, IQueryMediator queryMediator) : ControllerBase
 {
     [HttpGet("list")]
     [ProducesResponseType<List<TagEntity>>(StatusCodes.Status200OK)]
@@ -23,7 +24,7 @@ public class TagController(IMediator mediator, IQueryMediator queryMediator) : C
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(CreateTagCommand command)
     {
-        await mediator.Send(command);
+        await commandMediator.SendAsync(command);
         return NoContent();
     }
 
