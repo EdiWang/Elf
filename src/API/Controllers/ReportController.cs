@@ -1,5 +1,6 @@
 ﻿using Elf.Api.Features;
 using Elf.Shared;
+using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
 using System.ComponentModel.DataAnnotations;
 
@@ -8,7 +9,10 @@ namespace Elf.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class ReportController(IConfiguration configuration, IMediator mediator, IQueryMediator queryMediator) : ControllerBase
+public class ReportController(
+    IConfiguration configuration,
+    ICommandMediator commandMediator,
+    IQueryMediator queryMediator) : ControllerBase
 {
     [HttpGet("requests")]
     [ProducesResponseType<PagedRequestTrack>(StatusCodes.Status200OK)]
@@ -57,7 +61,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator, 
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ClearTrackingData()
     {
-        await mediator.Send(new ClearTrackingDataCommand());
+        await commandMediator.SendAsync(new ClearTrackingDataCommand());
         return NoContent();
     }
 }
