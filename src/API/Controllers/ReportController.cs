@@ -1,5 +1,6 @@
 ﻿using Elf.Api.Features;
 using Elf.Shared;
+using LiteBus.Queries.Abstractions;
 using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Api.Controllers;
@@ -7,7 +8,7 @@ namespace Elf.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class ReportController(IConfiguration configuration, IMediator mediator) : ControllerBase
+public class ReportController(IConfiguration configuration, IMediator mediator, IQueryMediator queryMediator) : ControllerBase
 {
     [HttpGet("requests")]
     [ProducesResponseType<PagedRequestTrack>(StatusCodes.Status200OK)]
@@ -15,7 +16,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator) 
         [Range(1, int.MaxValue)] int take,
         [Range(0, int.MaxValue)] int offset)
     {
-        var (requests, totalRows) = await mediator.Send(new GetRecentRequestsQuery(offset, take));
+        var (requests, totalRows) = await queryMediator.QueryAsync(new GetRecentRequestsQuery(offset, take));
 
         var result = new PagedRequestTrack
         {
