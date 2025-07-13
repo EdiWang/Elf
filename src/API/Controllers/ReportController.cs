@@ -40,7 +40,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator, 
     [ProducesResponseType<List<ClientTypeCount>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> ClientType(DateRangeRequest request)
     {
-        var types = await mediator.Send(new GetClientTypeCountsQuery(request,
+        var types = await queryMediator.QueryAsync(new GetClientTypeCountsQuery(request,
             int.Parse(configuration["TopClientTypes"]!)));
         return Ok(types);
     }

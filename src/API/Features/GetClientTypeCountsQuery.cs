@@ -1,15 +1,16 @@
 ﻿using Elf.Api.Data;
 using Elf.Shared;
+using LiteBus.Queries.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using UAParser;
 
 namespace Elf.Api.Features;
 
-public record GetClientTypeCountsQuery(DateRangeRequest Request, int TopTypes) : IRequest<List<ClientTypeCount>>;
+public record GetClientTypeCountsQuery(DateRangeRequest Request, int TopTypes) : IQuery<List<ClientTypeCount>>;
 
-public class GetClientTypeCountsQueryHandler(ElfDbContext dbContext) : IRequestHandler<GetClientTypeCountsQuery, List<ClientTypeCount>>
+public class GetClientTypeCountsQueryHandler(ElfDbContext dbContext) : IQueryHandler<GetClientTypeCountsQuery, List<ClientTypeCount>>
 {
-    public async Task<List<ClientTypeCount>> Handle(GetClientTypeCountsQuery request, CancellationToken ct)
+    public async Task<List<ClientTypeCount>> HandleAsync(GetClientTypeCountsQuery request, CancellationToken ct)
     {
         var uaParser = Parser.GetDefault();
 
