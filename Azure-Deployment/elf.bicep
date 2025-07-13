@@ -15,7 +15,6 @@ param suffix string
 param sqlServerPassword string
 
 // Resource Names
-var rsgName = 'elfgroup${suffix}'
 var aspName = 'elfplan${suffix}'
 var sqlServerName = 'elfsqlsvr${suffix}'
 var sqlServerUsername = 'elf'
@@ -84,28 +83,30 @@ resource sqlFirewallRule 'Microsoft.Sql/servers/firewallRules@2022-02-01-preview
 
 // Azure SQL Database
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-02-01-preview' = {
-  name: '${sqlServer.name}/${sqlDatabaseName}'
+  parent: sqlServer
+  name: sqlDatabaseName
   location: location
   sku: {
     name: 'S0'
     tier: 'Standard'
   }
   properties: {
-    backupStorageRedundancy: 'Local'
+    zoneRedundant: false
   }
 }
 
 // Set connection string for Web App
 resource webAppConnStr 'Microsoft.Web/sites/config@2022-03-01' = {
-  name: '${webApp.name}/connectionstrings'
+  parent: webApp
+  name: 'connectionstrings'
   properties: {
     ElfDatabase: {
       type: 'SQLAzure'
+#disable-next-line no-hardcoded-env-urls
       value: 'Server=tcp:${sqlServerName}.database.windows.net,1433;Initial Catalog=${sqlDatabaseName};Persist Security Info=False;User ID=${sqlServerUsername};Password=${sqlServerPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
     }
   }
   dependsOn: [
-    webApp
     sqlDatabase
   ]
 }
