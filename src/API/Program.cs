@@ -3,6 +3,9 @@ using Elf.Api.Auth;
 using Elf.Api.Data;
 using Elf.Api.Features;
 using Elf.Api.TokenGenerator;
+using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
+using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
+using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +55,19 @@ app.Run();
 void ConfigureServices(IServiceCollection services)
 {
     builder.Services.AddMediatR(options => options.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+
+    builder.Services.AddLiteBus(liteBus =>
+    {
+        liteBus.AddCommandModule(module =>
+        {
+            module.RegisterFromAssembly(typeof(Program).Assembly);
+        });
+
+        liteBus.AddQueryModule(module =>
+        {
+            module.RegisterFromAssembly(typeof(Program).Assembly);
+        });
+    });
 
     // Fix docker deployments on Azure App Service blows up with Azure AD authentication
     // https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-6.0

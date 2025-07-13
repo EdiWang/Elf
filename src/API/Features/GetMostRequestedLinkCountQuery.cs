@@ -1,15 +1,16 @@
 ﻿using Elf.Api.Data;
 using Elf.Shared;
+using LiteBus.Queries.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record GetMostRequestedLinkCountQuery(DateRangeRequest Request) : IRequest<List<MostRequestedLinkCount>>;
+public record GetMostRequestedLinkCountQuery(DateRangeRequest Request) : IQuery<List<MostRequestedLinkCount>>;
 
 public class GetMostRequestedLinkCountQueryHandler(ElfDbContext dbContext) :
-    IRequestHandler<GetMostRequestedLinkCountQuery, List<MostRequestedLinkCount>>
+    IQueryHandler<GetMostRequestedLinkCountQuery, List<MostRequestedLinkCount>>
 {
-    public async Task<List<MostRequestedLinkCount>> Handle(GetMostRequestedLinkCountQuery request, CancellationToken ct)
+    public async Task<List<MostRequestedLinkCount>> HandleAsync(GetMostRequestedLinkCountQuery request, CancellationToken ct)
     {
         var data = await dbContext.LinkTracking
                         .Where(p => p.RequestTimeUtc <= request.Request.EndDateUtc.Date &&

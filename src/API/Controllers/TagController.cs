@@ -1,19 +1,20 @@
 ﻿using Elf.Api.Data;
 using Elf.Api.Features;
 using Elf.Shared;
+using LiteBus.Queries.Abstractions;
 
 namespace Elf.Api.Controllers;
 
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class TagController(IMediator mediator) : ControllerBase
+public class TagController(IMediator mediator, IQueryMediator queryMediator) : ControllerBase
 {
     [HttpGet("list")]
     [ProducesResponseType<List<TagEntity>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> List()
     {
-        var list = await mediator.Send(new GetTagsQuery());
+        var list = await queryMediator.QueryAsync(new GetTagsQuery());
         return Ok(list);
     }
 

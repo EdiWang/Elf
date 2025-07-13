@@ -1,14 +1,15 @@
 ﻿using Elf.Api.Data;
 using Elf.Shared;
+using LiteBus.Queries.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record GetRecentRequestsQuery(int Offset, int Take) : IRequest<(List<RequestTrack>, int TotalRows)>;
+public record GetRecentRequestsQuery(int Offset, int Take) : IQuery<(List<RequestTrack>, int TotalRows)>;
 
-public class GetRecentRequestsQueryHandler(ElfDbContext dbContext) : IRequestHandler<GetRecentRequestsQuery, (List<RequestTrack>, int TotalRows)>
+public class GetRecentRequestsQueryHandler(ElfDbContext dbContext) : IQueryHandler<GetRecentRequestsQuery, (List<RequestTrack>, int TotalRows)>
 {
-    public async Task<(List<RequestTrack>, int TotalRows)> Handle(GetRecentRequestsQuery request, CancellationToken ct)
+    public async Task<(List<RequestTrack>, int TotalRows)> HandleAsync(GetRecentRequestsQuery request, CancellationToken ct)
     {
         var (offset, take) = request;
         var query = dbContext.LinkTracking;

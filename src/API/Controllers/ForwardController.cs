@@ -1,6 +1,7 @@
 ﻿using Elf.Api.Features;
 using Elf.Api.Filters;
 using Elf.Api.TokenGenerator;
+using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Primitives;
@@ -18,7 +19,7 @@ public class ForwardController(
         IDistributedCache cache,
         ILinkVerifier linkVerifier,
         IFeatureManager featureManager,
-        IMediator mediator,
+        IQueryMediator queryMediator,
         IIPLocationService ipLocationService,
         CannonService cannonService) : ControllerBase
 {
@@ -34,7 +35,7 @@ public class ForwardController(
         var ip = Utils.GetClientIP(HttpContext) ?? "N/A";
         if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
 
-        var token = await mediator.Send(new GetTokenByAkaNameQuery(akaName));
+        var token = await queryMediator.QueryAsync(new GetTokenByAkaNameQuery(akaName));
 
         // can not redirect to default url because it will confuse user that the aka points to that default url.
         if (token is null) return NotFound();
@@ -65,7 +66,7 @@ public class ForwardController(
         if (null == linkEntry)
         {
             var flag = await featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
-            var link = await mediator.Send(new GetLinkByTokenQuery(validatedToken));
+            var link = await queryMediator.QueryAsync(new GetLinkByTokenQuery(validatedToken));
 
             if (link is null) return TryDefaultRedirect(flag);
             if (!link.IsEnabled) return BadRequest("This link is disabled.");

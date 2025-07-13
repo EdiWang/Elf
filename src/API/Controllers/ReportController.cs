@@ -1,5 +1,6 @@
 ﻿using Elf.Api.Features;
 using Elf.Shared;
+using LiteBus.Queries.Abstractions;
 using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Api.Controllers;
@@ -7,7 +8,7 @@ namespace Elf.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class ReportController(IConfiguration configuration, IMediator mediator) : ControllerBase
+public class ReportController(IConfiguration configuration, IMediator mediator, IQueryMediator queryMediator) : ControllerBase
 {
     [HttpGet("requests")]
     [ProducesResponseType<PagedRequestTrack>(StatusCodes.Status200OK)]
@@ -15,7 +16,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator) 
         [Range(1, int.MaxValue)] int take,
         [Range(0, int.MaxValue)] int offset)
     {
-        var (requests, totalRows) = await mediator.Send(new GetRecentRequestsQuery(offset, take));
+        var (requests, totalRows) = await queryMediator.QueryAsync(new GetRecentRequestsQuery(offset, take));
 
         var result = new PagedRequestTrack
         {
@@ -31,7 +32,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator) 
     [ProducesResponseType<List<MostRequestedLinkCount>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> MostRequestedLinks(DateRangeRequest request)
     {
-        var linkCounts = await mediator.Send(new GetMostRequestedLinkCountQuery(request));
+        var linkCounts = await queryMediator.QueryAsync(new GetMostRequestedLinkCountQuery(request));
         return Ok(linkCounts);
     }
 
@@ -39,7 +40,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator) 
     [ProducesResponseType<List<ClientTypeCount>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> ClientType(DateRangeRequest request)
     {
-        var types = await mediator.Send(new GetClientTypeCountsQuery(request,
+        var types = await queryMediator.QueryAsync(new GetClientTypeCountsQuery(request,
             int.Parse(configuration["TopClientTypes"]!)));
         return Ok(types);
     }
@@ -48,7 +49,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator) 
     [ProducesResponseType<List<LinkTrackingDateCount>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> TrackingCount(DateRangeRequest request)
     {
-        var dateCounts = await mediator.Send(new GetLinkTrackingDateCountQuery(request));
+        var dateCounts = await queryMediator.QueryAsync(new GetLinkTrackingDateCountQuery(request));
         return Ok(dateCounts);
     }
 

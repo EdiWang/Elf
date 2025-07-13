@@ -1,15 +1,16 @@
 ﻿using Elf.Api.Data;
 using Elf.Shared;
+using LiteBus.Queries.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record GetLinkTrackingDateCountQuery(DateRangeRequest Request) : IRequest<List<LinkTrackingDateCount>>;
+public record GetLinkTrackingDateCountQuery(DateRangeRequest Request) : IQuery<List<LinkTrackingDateCount>>;
 
 public class GetLinkTrackingDateCountQueryHandler(ElfDbContext dbContext) :
-        IRequestHandler<GetLinkTrackingDateCountQuery, List<LinkTrackingDateCount>>
+        IQueryHandler<GetLinkTrackingDateCountQuery, List<LinkTrackingDateCount>>
 {
-    public async Task<List<LinkTrackingDateCount>> Handle(GetLinkTrackingDateCountQuery request, CancellationToken ct)
+    public async Task<List<LinkTrackingDateCount>> HandleAsync(GetLinkTrackingDateCountQuery request, CancellationToken ct)
     {
         var data = await dbContext.LinkTracking
             .Where(lt =>
