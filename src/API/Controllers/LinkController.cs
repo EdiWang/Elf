@@ -76,7 +76,7 @@ public class LinkController(
         [Range(1, int.MaxValue)] int take,
         [Range(0, int.MaxValue)] int offset)
     {
-        var (links, totalRows) = await mediator.Send(new ListLinkQuery(offset, take, term));
+        var (links, totalRows) = await queryMediator.QueryAsync(new ListLinkQuery(offset, take, term));
 
         var result = new PagedLinkResult
         {
