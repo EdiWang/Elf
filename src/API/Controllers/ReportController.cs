@@ -32,7 +32,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator, 
     [ProducesResponseType<List<MostRequestedLinkCount>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> MostRequestedLinks(DateRangeRequest request)
     {
-        var linkCounts = await mediator.Send(new GetMostRequestedLinkCountQuery(request));
+        var linkCounts = await queryMediator.QueryAsync(new GetMostRequestedLinkCountQuery(request));
         return Ok(linkCounts);
     }
 
@@ -49,7 +49,7 @@ public class ReportController(IConfiguration configuration, IMediator mediator, 
     [ProducesResponseType<List<LinkTrackingDateCount>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> TrackingCount(DateRangeRequest request)
     {
-        var dateCounts = await mediator.Send(new GetLinkTrackingDateCountQuery(request));
+        var dateCounts = await queryMediator.QueryAsync(new GetLinkTrackingDateCountQuery(request));
         return Ok(dateCounts);
     }
 
