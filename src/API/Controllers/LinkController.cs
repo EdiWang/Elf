@@ -1,6 +1,7 @@
 ﻿using Elf.Api.Auth;
 using Elf.Api.Features;
 using Elf.Shared;
+using LiteBus.Queries.Abstractions;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.FeatureManagement;
 using System.ComponentModel.DataAnnotations;
@@ -14,7 +15,8 @@ public class LinkController(
         ILinkVerifier linkVerifier,
         IDistributedCache cache,
         IFeatureManager featureManager,
-        IMediator mediator) : ControllerBase
+        IMediator mediator,
+        IQueryMediator queryMediator) : ControllerBase
 {
     [HttpPost("create")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -107,7 +109,7 @@ public class LinkController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get(int id)
     {
-        var link = await mediator.Send(new GetLinkQuery(id));
+        var link = await queryMediator.QueryAsync(new GetLinkQuery(id));
         if (link is null) return NotFound();
 
         return Ok(link);
@@ -118,7 +120,7 @@ public class LinkController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id)
     {
-        var link = await mediator.Send(new GetLinkQuery(id));
+        var link = await queryMediator.QueryAsync(new GetLinkQuery(id));
         if (link is null) return NotFound();
 
         await mediator.Send(new DeleteLinkCommand(id));
