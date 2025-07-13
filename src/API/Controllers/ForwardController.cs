@@ -1,6 +1,7 @@
 ﻿using Elf.Api.Features;
 using Elf.Api.Filters;
 using Elf.Api.TokenGenerator;
+using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Primitives;
@@ -19,6 +20,7 @@ public class ForwardController(
         ILinkVerifier linkVerifier,
         IFeatureManager featureManager,
         IMediator mediator,
+        IQueryMediator queryMediator,
         IIPLocationService ipLocationService,
         CannonService cannonService) : ControllerBase
 {
@@ -34,7 +36,7 @@ public class ForwardController(
         var ip = Utils.GetClientIP(HttpContext) ?? "N/A";
         if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
 
-        var token = await mediator.Send(new GetTokenByAkaNameQuery(akaName));
+        var token = await queryMediator.QueryAsync(new GetTokenByAkaNameQuery(akaName));
 
         // can not redirect to default url because it will confuse user that the aka points to that default url.
         if (token is null) return NotFound();
