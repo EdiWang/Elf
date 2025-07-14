@@ -1,6 +1,7 @@
 ﻿using Elf.Api.Features;
 using Elf.Api.Filters;
 using Elf.Api.TokenGenerator;
+using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Distributed;
@@ -126,7 +127,7 @@ public class ForwardController(
         Response.Headers.Append("X-Elf-Tracking-For", ip);
         var ua = UserAgent;
 
-        cannonService.Fire(async (IMediator mediator2) =>
+        cannonService.Fire(async (ICommandMediator commandMediator) =>
         {
             IPLocation location;
             try
@@ -139,7 +140,7 @@ public class ForwardController(
             }
 
             var req = new LinkTrackingRequest(ip, ua, id);
-            await mediator2.Send(new TrackSucessRedirectionCommand(req, location));
+            await commandMediator.SendAsync(new TrackSucessRedirectionCommand(req, location));
         });
     }
 }
