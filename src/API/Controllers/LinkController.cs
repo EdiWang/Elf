@@ -16,7 +16,6 @@ public class LinkController(
         ILinkVerifier linkVerifier,
         IDistributedCache cache,
         IFeatureManager featureManager,
-        IMediator mediator,
         ICommandMediator commandMediator,
         IQueryMediator queryMediator) : ControllerBase
 {
@@ -67,7 +66,7 @@ public class LinkController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> SetEnable(int id, bool isEnabled)
     {
-        await mediator.Send(new SetEnableCommand(id, isEnabled));
+        await commandMediator.SendAsync(new SetEnableCommand(id, isEnabled));
         return NoContent();
     }
 
