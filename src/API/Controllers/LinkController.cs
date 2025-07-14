@@ -125,7 +125,7 @@ public class LinkController(
         var link = await queryMediator.QueryAsync(new GetLinkQuery(id));
         if (link is null) return NotFound();
 
-        await mediator.Send(new DeleteLinkCommand(id));
+        await commandMediator.SendAsync(new DeleteLinkCommand(id));
 
         await cache.RemoveAsync(link.FwToken);
         return Ok();
