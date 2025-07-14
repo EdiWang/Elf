@@ -94,7 +94,7 @@ public class LinkController(
     [ProducesResponseType<PagedLinkResult>(StatusCodes.Status200OK)]
     public async Task<IActionResult> ListByTags(ListByTagsRequest request)
     {
-        var (links, totalRows) = await mediator.Send(new ListByTagsQuery(request));
+        var (links, totalRows) = await queryMediator.QueryAsync(new ListByTagsQuery(request));
 
         var result = new PagedLinkResult
         {

@@ -1,14 +1,15 @@
 ﻿using Elf.Api.Data;
 using Elf.Shared;
+using LiteBus.Queries.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record ListByTagsQuery(ListByTagsRequest Payload) : IRequest<(List<LinkModel> Links, int TotalRows)>;
+public record ListByTagsQuery(ListByTagsRequest Payload) : IQuery<(List<LinkModel> Links, int TotalRows)>;
 
-public class ListByTagsQueryHandler(ElfDbContext dbContext) : IRequestHandler<ListByTagsQuery, (List<LinkModel> Links, int TotalRows)>
+public class ListByTagsQueryHandler(ElfDbContext dbContext) : IQueryHandler<ListByTagsQuery, (List<LinkModel> Links, int TotalRows)>
 {
-    public async Task<(List<LinkModel> Links, int TotalRows)> Handle(ListByTagsQuery request, CancellationToken ct)
+    public async Task<(List<LinkModel> Links, int TotalRows)> HandleAsync(ListByTagsQuery request, CancellationToken ct)
     {
         var query = from l in dbContext.Link.Include(l => l.Tags)
                     where l.Tags.Any(t => request.Payload.TagIds.Contains(t.Id))
