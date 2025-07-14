@@ -58,7 +58,7 @@ public class LinkController(
                 return BadRequest("Can not use url from this site.");
         }
 
-        var token = await mediator.Send(new EditLinkCommand(id, model));
+        var token = await commandMediator.SendAsync(new EditLinkCommand(id, model));
         if (token is not null) await cache.RemoveAsync(token);
         return NoContent();
     }
