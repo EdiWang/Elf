@@ -54,8 +54,6 @@ app.Run();
 
 void ConfigureServices(IServiceCollection services)
 {
-    builder.Services.AddMediatR(options => options.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
-
     builder.Services.AddLiteBus(liteBus =>
     {
         liteBus.AddCommandModule(module =>
