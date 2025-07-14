@@ -1,14 +1,15 @@
 ﻿using Elf.Api.Data;
 using Elf.Shared;
+using LiteBus.Commands.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
-public record EditLinkCommand(int Id, LinkEditModel Payload) : IRequest<string>;
+public record EditLinkCommand(int Id, LinkEditModel Payload) : ICommand<string>;
 
-public class EditLinkCommandHandler(ElfDbContext dbContext) : IRequestHandler<EditLinkCommand, string>
+public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<EditLinkCommand, string>
 {
-    public async Task<string> Handle(EditLinkCommand request, CancellationToken ct)
+    public async Task<string> HandleAsync(EditLinkCommand request, CancellationToken ct)
     {
         var (id, payload) = request;
 

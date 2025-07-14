@@ -58,7 +58,7 @@ public class LinkController(
                 return BadRequest("Can not use url from this site.");
         }
 
-        var token = await mediator.Send(new EditLinkCommand(id, model));
+        var token = await commandMediator.SendAsync(new EditLinkCommand(id, model));
         if (token is not null) await cache.RemoveAsync(token);
         return NoContent();
     }
@@ -94,7 +94,7 @@ public class LinkController(
     [ProducesResponseType<PagedLinkResult>(StatusCodes.Status200OK)]
     public async Task<IActionResult> ListByTags(ListByTagsRequest request)
     {
-        var (links, totalRows) = await mediator.Send(new ListByTagsCommand(request));
+        var (links, totalRows) = await mediator.Send(new ListByTagsQuery(request));
 
         var result = new PagedLinkResult
         {
@@ -125,7 +125,7 @@ public class LinkController(
         var link = await queryMediator.QueryAsync(new GetLinkQuery(id));
         if (link is null) return NotFound();
 
-        await mediator.Send(new DeleteLinkCommand(id));
+        await commandMediator.SendAsync(new DeleteLinkCommand(id));
 
         await cache.RemoveAsync(link.FwToken);
         return Ok();

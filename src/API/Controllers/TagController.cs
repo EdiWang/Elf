@@ -46,7 +46,7 @@ public class TagController(IMediator mediator, ICommandMediator commandMediator,
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id)
     {
-        var code = await mediator.Send(new DeleteTagCommand(id));
+        var code = await commandMediator.SendAsync(new DeleteTagCommand(id));
         if (code == -1) return NotFound();
 
         return NoContent();
