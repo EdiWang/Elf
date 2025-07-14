@@ -9,7 +9,7 @@ namespace Elf.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class TagController(IMediator mediator, ICommandMediator commandMediator, IQueryMediator queryMediator) : ControllerBase
+public class TagController(ICommandMediator commandMediator, IQueryMediator queryMediator) : ControllerBase
 {
     [HttpGet("list")]
     [ProducesResponseType<List<TagEntity>>(StatusCodes.Status200OK)]
@@ -34,7 +34,7 @@ public class TagController(IMediator mediator, ICommandMediator commandMediator,
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int id, UpdateTagRequest request)
     {
-        var code = await mediator.Send(new UpdateTagCommand(id, request));
+        var code = await commandMediator.SendAsync(new UpdateTagCommand(id, request));
         if (code == -1) return NotFound();
 
         return NoContent();

@@ -16,7 +16,6 @@ public class LinkController(
         ILinkVerifier linkVerifier,
         IDistributedCache cache,
         IFeatureManager featureManager,
-        IMediator mediator,
         ICommandMediator commandMediator,
         IQueryMediator queryMediator) : ControllerBase
 {
@@ -67,7 +66,7 @@ public class LinkController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> SetEnable(int id, bool isEnabled)
     {
-        await mediator.Send(new SetEnableCommand(id, isEnabled));
+        await commandMediator.SendAsync(new SetEnableCommand(id, isEnabled));
         return NoContent();
     }
 
@@ -94,7 +93,7 @@ public class LinkController(
     [ProducesResponseType<PagedLinkResult>(StatusCodes.Status200OK)]
     public async Task<IActionResult> ListByTags(ListByTagsRequest request)
     {
-        var (links, totalRows) = await mediator.Send(new ListByTagsQuery(request));
+        var (links, totalRows) = await queryMediator.QueryAsync(new ListByTagsQuery(request));
 
         var result = new PagedLinkResult
         {

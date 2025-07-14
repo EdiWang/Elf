@@ -1,12 +1,13 @@
 ﻿using Elf.Api.Data;
+using LiteBus.Commands.Abstractions;
 
 namespace Elf.Api.Features;
 
-public record SetEnableCommand(int Id, bool IsEnabled) : IRequest;
+public record SetEnableCommand(int Id, bool IsEnabled) : ICommand;
 
-public class SetEnableCommandHandler(ElfDbContext dbContext) : IRequestHandler<SetEnableCommand>
+public class SetEnableCommandHandler(ElfDbContext dbContext) : ICommandHandler<SetEnableCommand>
 {
-    public async Task Handle(SetEnableCommand request, CancellationToken ct)
+    public async Task HandleAsync(SetEnableCommand request, CancellationToken ct)
     {
         var (id, isEnabled) = request;
 

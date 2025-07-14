@@ -6,21 +6,19 @@
         <Authors>Edi Wang</Authors>
         <Company>edi.wang</Company>
         <Copyright>(C) 2025 Edi Wang</Copyright>
-        <Version>6.17.1</Version>
+        <Version>6.17.2</Version>
     </PropertyGroup>
 
     <ItemGroup>
         <Using Include="System.Text" />
         <Using Include="Microsoft.AspNetCore.Mvc" />
         <Using Include="Microsoft.AspNetCore.Authorization" />
-        <Using Include="MediatR" />
         <Using Include="Elf.Api.Models" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="LiteBus" Version="2.2.1" />
         <PackageReference Include="LiteBus.Extensions.MicrosoftDependencyInjection" Version="2.2.1" />
-        <PackageReference Include="MediatR" Version="12.5.0" />
         <PackageReference Include="UAParser" Version="3.1.47" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="1.1.0" />
