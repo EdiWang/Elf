@@ -1,5 +1,4 @@
 using Elf.Api;
-using Elf.Api.Auth;
 using Elf.Api.Data;
 using Elf.Api.Features;
 using Elf.Api.TokenGenerator;

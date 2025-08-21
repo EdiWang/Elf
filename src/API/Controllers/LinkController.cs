@@ -1,5 +1,4 @@
-﻿using Elf.Api.Auth;
-using Elf.Api.Features;
+﻿using Elf.Api.Features;
 using Elf.Shared;
 using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
