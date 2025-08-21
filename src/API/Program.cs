@@ -147,8 +147,6 @@ void ConfigureServices(IServiceCollection services)
         services.AddDistributedMemoryCache();
     }
 
-    services.Configure<List<ApiKey>>(builder.Configuration.GetSection("ApiKeys"));
-    services.AddScoped<IGetApiKeyQuery, AppSettingsGetApiKeyQuery>();
     services.AddControllers();
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen();
@@ -166,7 +164,6 @@ void ConfigureServices(IServiceCollection services)
     // Elf
     services.AddSingleton<CannonService>();
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddApiKeySupport(_ => { })
             .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("EntraID"));
 
     services.AddAuthorization();
