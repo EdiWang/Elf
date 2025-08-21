@@ -1,6 +1,6 @@
 ﻿using Elf.Api.Features;
 using Elf.Api.Filters;
-using Elf.Api.TokenGenerator;
+using Elf.TokenGenerator;
 using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.RateLimiting;

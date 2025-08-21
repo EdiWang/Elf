@@ -1,4 +1,4 @@
-﻿namespace Elf.Api.TokenGenerator;
+﻿namespace Elf.TokenGenerator;
 
 public interface ITokenGenerator
 {

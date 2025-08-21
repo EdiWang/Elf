@@ -1,6 +1,6 @@
 ﻿using Elf.Api.Data;
-using Elf.Api.TokenGenerator;
 using Elf.Shared;
+using Elf.TokenGenerator;
 using LiteBus.Commands.Abstractions;
 using Microsoft.EntityFrameworkCore;
 

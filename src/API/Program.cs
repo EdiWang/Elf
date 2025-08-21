@@ -1,7 +1,7 @@
 using Elf.Api;
 using Elf.Api.Data;
 using Elf.Api.Features;
-using Elf.Api.TokenGenerator;
+using Elf.TokenGenerator;
 using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
