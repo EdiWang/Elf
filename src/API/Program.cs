@@ -236,8 +236,6 @@ static Task WriteResponse(HttpContext context, HealthReport result)
     {
         Utils.AppVersion,
         DotNetVersion = Environment.Version.ToString(),
-        EnvironmentTags = Utils.GetEnvironmentTags(),
-        GeoMatch = context.Request.Headers["geo-match"],
         RequestIpAddress = context.Connection.RemoteIpAddress?.ToString()
     };
 

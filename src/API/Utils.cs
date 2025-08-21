@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace Elf.Api;
 
@@ -64,30 +63,5 @@ public static class Utils
             _ => throw new ArgumentOutOfRangeException(nameof(urlScheme), urlScheme, null),
         };
         return isValidUrl;
-    }
-
-    /// <summary>
-    /// Get values from `ELF_TAGS` Environment Variable
-    /// </summary>
-    /// <returns>string values</returns>
-    public static IEnumerable<string> GetEnvironmentTags()
-    {
-        var tagsEnv = Environment.GetEnvironmentVariable("ELF_TAGS");
-        if (string.IsNullOrWhiteSpace(tagsEnv))
-        {
-            yield return string.Empty;
-            yield break;
-        }
-
-        var tagRegex = new Regex(@"^[a-zA-Z0-9-#@$()\[\]/]+$");
-        var tags = tagsEnv.Split(',');
-        foreach (var tag in tags)
-        {
-            var t = tag.Trim();
-            if (tagRegex.IsMatch(t))
-            {
-                yield return t;
-            }
-        }
     }
 }
