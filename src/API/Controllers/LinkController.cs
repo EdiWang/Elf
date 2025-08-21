@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Api.Controllers;
 
-[Authorize(AuthenticationSchemes = ElfAuthSchemas.All)]
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class LinkController(
