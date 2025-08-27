@@ -1,6 +1,8 @@
+using Elf.Admin.Data;
 using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Admin;
 
@@ -11,7 +13,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         ConfigureLogging(builder);
-        ConfigureServices(builder.Services);
+        ConfigureServices(builder.Services, builder.Configuration);
 
         var app = builder.Build();
 
@@ -28,7 +30,7 @@ public class Program
         }
     }
 
-    private static void ConfigureServices(IServiceCollection services)
+    private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddLiteBus(liteBus =>
         {
@@ -45,6 +47,10 @@ public class Program
 
         services.AddRazorPages();
         services.AddControllers();
+
+        services.AddDbContext<ElfDbContext>(options => options.UseLazyLoadingProxies()
+            .UseSqlServer(configuration.GetConnectionString("ElfDatabase"))
+            .EnableDetailedErrors());
     }
 
     private static void ConfigureMiddleware(WebApplication app)
