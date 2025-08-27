@@ -44,7 +44,7 @@ public class LinkVerifier : ILinkVerifier
     }
 
     // Check only for Forward endpoints (fw, aka) as suggested in #10
-    public bool IsForwardEndpoint(Uri uri)
+    public static bool IsForwardEndpoint(Uri uri)
     {
         var endpoints = new[] { "fw", "fw/", "aka", "aka/" };
 
