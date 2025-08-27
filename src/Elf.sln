@@ -19,6 +19,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elf.TokenGenerator", "Elf.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elf.Admin", "Elf.Admin\Elf.Admin.csproj", "{B0D2E5CF-B088-40FF-80DB-26BFB26DB306}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "App", "App", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{C5BDE151-1440-4224-9DDB-A66CBDAFEEBA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +48,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3547DF3C-1BEC-415D-A033-52D9031A0B93} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{0903F6B1-8DBB-4FAE-8E2B-96ECB1E0E1B8} = {C5BDE151-1440-4224-9DDB-A66CBDAFEEBA}
+		{5AA30F9C-BEAA-4989-84BF-6FD89E0DB3E6} = {C5BDE151-1440-4224-9DDB-A66CBDAFEEBA}
+		{B0D2E5CF-B088-40FF-80DB-26BFB26DB306} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {348533E6-2375-4327-91CD-50A621E3B7BA}
