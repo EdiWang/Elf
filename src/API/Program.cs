@@ -24,27 +24,6 @@ ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
-#region First Run
-
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-
-    var context = services.GetRequiredService<ElfDbContext>();
-    var canConnect = await context.Database.CanConnectAsync();
-    if (!canConnect)
-    {
-        app.MapGet("/", () => Results.Problem(
-            detail: "Database connection test failed, please check your connection string and firewall settings, then RESTART Elf manually.",
-            statusCode: 500));
-        app.Run();
-    }
-
-    await context.Database.EnsureCreatedAsync();
-}
-
-#endregion
-
 ConfigureMiddleware();
 ConfigureEndpoints();
 
@@ -146,8 +125,6 @@ void ConfigureServices(IServiceCollection services)
     }
 
     services.AddControllers();
-    services.AddEndpointsApiExplorer();
-    services.AddSwaggerGen();
     services.Configure<RouteOptions>(options =>
     {
         options.LowercaseUrls = true;
@@ -162,16 +139,11 @@ void ConfigureServices(IServiceCollection services)
     // Elf
     services.AddSingleton<CannonService>();
 
-    services.AddAuthorization();
-
     services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
     services.AddScoped<ILinkVerifier, LinkVerifier>();
 
     services.AddHttpClient<IIPLocationService, IPLocationService>()
             .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(3, retryCount => TimeSpan.FromSeconds(Math.Pow(2, retryCount))));
-
-    services.AddCors(o => o.AddPolicy("local", x =>
-        x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 }
 
 void ConfigureMiddleware()
@@ -193,9 +165,6 @@ void ConfigureMiddleware()
 
     if (app.Environment.IsDevelopment())
     {
-        app.UseCors("local");
-        app.UseSwagger();
-        app.UseSwaggerUI();
         app.UseDeveloperExceptionPage();
     }
     else
