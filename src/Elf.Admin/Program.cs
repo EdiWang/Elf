@@ -44,6 +44,7 @@ public class Program
         });
 
         services.AddRazorPages();
+        services.AddControllers();
     }
 
     private static void ConfigureMiddleware(WebApplication app)
