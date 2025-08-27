@@ -3,7 +3,7 @@ using Microsoft.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Elf.Api.Features;
+namespace Elf.Api.Services;
 
 public interface IIPLocationService
 {

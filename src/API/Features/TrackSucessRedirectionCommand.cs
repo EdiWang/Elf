@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Elf.Api.Services;
 using LiteBus.Commands.Abstractions;
 using System.Data;
 
