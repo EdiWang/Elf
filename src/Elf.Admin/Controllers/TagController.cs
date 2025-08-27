@@ -7,7 +7,7 @@ using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Elf.Api.Controllers;
+namespace Elf.Admin.Controllers;
 
 [Authorize]
 [ApiController]
