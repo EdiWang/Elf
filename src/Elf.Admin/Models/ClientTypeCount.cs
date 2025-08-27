@@ -1,4 +1,4 @@
-﻿namespace Elf.Shared.Models;
+﻿namespace Elf.Admin.Models;
 
 public class ClientTypeCount
 {
