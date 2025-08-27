@@ -1,15 +1,12 @@
 ﻿using Elf.Admin.Data;
 using Elf.Admin.Features;
-using Elf.Api.Features;
 using Elf.Shared;
 using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Elf.Admin.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class TagController(ICommandMediator commandMediator, IQueryMediator queryMediator) : ControllerBase

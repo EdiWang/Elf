@@ -1,10 +1,11 @@
-﻿using Elf.Api.Data;
+﻿using Elf.Admin.Data;
+using Elf.Admin.Models;
 using Elf.Shared;
 using LiteBus.Queries.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using UAParser;
 
-namespace Elf.Api.Features;
+namespace Elf.Admin.Features;
 
 public record GetClientTypeCountsQuery(DateRangeRequest Request, int TopTypes) : IQuery<List<ClientTypeCount>>;
 

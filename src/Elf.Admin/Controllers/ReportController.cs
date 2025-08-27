@@ -1,12 +1,12 @@
-﻿using Elf.Api.Features;
+﻿using Elf.Admin.Features;
 using Elf.Shared;
 using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
-namespace Elf.Api.Controllers;
+namespace Elf.Admin.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class ReportController(

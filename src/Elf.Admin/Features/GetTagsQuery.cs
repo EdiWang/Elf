@@ -2,7 +2,7 @@
 using LiteBus.Queries.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Elf.Api.Features;
+namespace Elf.Admin.Features;
 
 public record GetTagsQuery : IQuery<List<TagEntity>>;
 

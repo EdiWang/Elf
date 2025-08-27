@@ -1,9 +1,9 @@
-﻿using Elf.Api.Data;
+﻿using Elf.Admin.Data;
 using Elf.Shared;
 using LiteBus.Queries.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Elf.Api.Features;
+namespace Elf.Admin.Features;
 
 public record GetRecentRequestsQuery(int Offset, int Take) : IQuery<(List<RequestTrack>, int TotalRows)>;
 
