@@ -162,13 +162,15 @@ function createLinkRow(link) {
                 </div>
             `;
 
-    // Add event listener for delete button
-    const deleteBtn = row.querySelector('.delete-btn');
-    deleteBtn.addEventListener('click', function () {
-        const linkId = this.getAttribute('data-link-id');
-        const token = this.getAttribute('data-token');
-        const url = this.getAttribute('data-url');
-        showDeleteModal(linkId, token, url);
+    // Use event delegation instead of direct event listener
+    row.addEventListener('click', function (e) {
+        if (e.target.closest('.delete-btn')) {
+            const deleteBtn = e.target.closest('.delete-btn');
+            const linkId = deleteBtn.getAttribute('data-link-id');
+            const token = deleteBtn.getAttribute('data-token');
+            const url = deleteBtn.getAttribute('data-url');
+            showDeleteModal(linkId, token, url);
+        }
     });
 
     return row;
