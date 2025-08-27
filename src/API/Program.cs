@@ -7,7 +7,6 @@ using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
 using Polly;
@@ -133,10 +132,6 @@ void ConfigureServices(IServiceCollection services)
         options.LowercaseQueryStrings = true;
         options.AppendTrailingSlash = false;
     });
-
-    services.AddDbContext<ElfDbContext>(options => options.UseLazyLoadingProxies()
-            .UseSqlServer(builder.Configuration.GetConnectionString("ElfDatabase"))
-            .EnableDetailedErrors());
 
     // Elf
     services.AddSingleton<CannonService>();

@@ -26,8 +26,6 @@
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.8" />
         <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.8" />
         <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="9.0.8" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="9.0.8" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
     </ItemGroup>
 
     <ItemGroup>
