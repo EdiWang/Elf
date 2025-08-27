@@ -101,7 +101,7 @@ function displayLinks(links) {
 
 function createLinkRow(link) {
     const row = document.createElement('div');
-    row.className = 'row py-2 border-bottom align-items-center link-row';
+    row.className = 'row align-items-center bg-white py-3 px-2 rounded-3 border mb-1 link-row';
     row.setAttribute('data-link-id', link.id);
 
     const statusBadge = link.isEnabled
@@ -114,47 +114,24 @@ function createLinkRow(link) {
     const updateDate = new Date(link.updateTimeUtc).toLocaleDateString();
 
     row.innerHTML = `
-                <!-- Mobile Layout -->
-                <div class="d-block d-md-none">
-                    <div class="card mb-2">
-                        <div class="card-body p-3">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h6 class="card-title mb-0">${escapeHtml(link.fwToken)}</h6>
-                                <div class="d-flex gap-2">
-                                    ${statusBadge}
-                                    <button class="btn btn-sm btn-outline-danger delete-btn" data-link-id="${link.id}" data-token="${escapeHtml(link.fwToken)}" data-url="${escapeHtml(link.originUrl)}">
-                                        <i class="bi bi-trash"></i> Delete
-                                    </button>
-                                </div>
-                            </div>
-                            <p class="card-text small mb-1"><strong>URL:</strong> ${escapeHtml(shortUrl)}</p>
-                            <p class="card-text small mb-1"><strong>Note:</strong> ${escapeHtml(link.note || 'No note')}</p>
-                            <div class="d-flex justify-content-between small text-muted">
-                                <span><strong>Hits:</strong> ${link.hits}</span>
-                                <span><strong>Updated:</strong> ${updateDate}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Desktop Layout -->
                 <div class="d-none d-md-flex w-100 align-items-center">
-                    <div class="col-md-1">${link.id}</div>
-                    <div class="col-md-2">
-                        <code class="text-primary">${escapeHtml(link.fwToken)}</code>
+                    <div class="col-auto">
+                        <code class="text-primary">
+                            ${escapeHtml(link.fwToken)}
+                        </code>
                     </div>
-                    <div class="col-md-3">
-                        <a href="${escapeHtml(link.originUrl)}" target="_blank" class="text-decoration-none" title="${escapeHtml(link.originUrl)}">
+                    <div class="col-md-4">
+                        <a href="${escapeHtml(link.originUrl)}" target="_blank" title="${escapeHtml(link.originUrl)}">
                             ${escapeHtml(shortUrl)}
                         </a>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <span title="${escapeHtml(link.note || 'No note')}">${escapeHtml(link.note || 'No note')}</span>
                     </div>
                     <div class="col-md-1">${statusBadge}</div>
                     <div class="col-md-1">${link.hits}</div>
                     <div class="col-md-1">${updateDate}</div>
-                    <div class="col-md-1">
+                    <div class="col-auto">
                         <button class="btn btn-sm btn-outline-danger delete-btn" data-link-id="${link.id}" data-token="${escapeHtml(link.fwToken)}" data-url="${escapeHtml(link.originUrl)}">
                             <i class="bi bi-trash"></i>
                         </button>
