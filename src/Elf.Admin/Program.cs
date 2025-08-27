@@ -1,4 +1,6 @@
 using Elf.Admin.Data;
+using Elf.Shared;
+using Elf.TokenGenerator;
 using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
@@ -47,6 +49,9 @@ public class Program
 
         services.AddRazorPages();
         services.AddControllers();
+
+        services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
+        services.AddScoped<ILinkVerifier, LinkVerifier>();
 
         services.AddDbContext<ElfDbContext>(options => options.UseLazyLoadingProxies()
             .UseSqlServer(configuration.GetConnectionString("ElfDatabase"))
