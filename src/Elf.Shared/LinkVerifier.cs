@@ -1,7 +1,7 @@
-﻿using Elf.Shared;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Elf.Admin.Services;
+namespace Elf.Shared;
 
 public enum LinkVerifyResult
 {
