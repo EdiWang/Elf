@@ -3,7 +3,7 @@ name: Docker for API
 on:
   push:
     branches: [ master ]
-    paths: [ src/API/** ]
+    paths: [ src/** ]
 jobs:
 
   build:
@@ -28,7 +28,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./src
-        file: ./src/Dockerfile
+        file: ./src/Elf.Api/Dockerfile
         push: true
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/elf:latest
 

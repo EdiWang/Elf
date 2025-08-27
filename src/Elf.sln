@@ -3,21 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElfAdmin", "Admin\ElfAdmin.csproj", "{B83F49C6-145D-4E00-BD14-2F7ED9B40A51}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A75DC07A-C0E7-41C1-B86D-28518EDF556D}"
 	ProjectSection(SolutionItems) = preProject
-		..\.github\workflows\azure-api.yml = ..\.github\workflows\azure-api.yml
-		..\.github\workflows\azure-static-web-apps-nice-sky-0c4bd7c00.yml = ..\.github\workflows\azure-static-web-apps-nice-sky-0c4bd7c00.yml
 		..\.github\workflows\docker-api.yml = ..\.github\workflows\docker-api.yml
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elf.Api", "API\Elf.Api.csproj", "{3547DF3C-1BEC-415D-A033-52D9031A0B93}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elf.Api", "Elf.Api\Elf.Api.csproj", "{3547DF3C-1BEC-415D-A033-52D9031A0B93}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elf.Shared", "Elf.Shared\Elf.Shared.csproj", "{0903F6B1-8DBB-4FAE-8E2B-96ECB1E0E1B8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elf.TokenGenerator", "Elf.TokenGenerator\Elf.TokenGenerator.csproj", "{5AA30F9C-BEAA-4989-84BF-6FD89E0DB3E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elf.Admin", "Elf.Admin\Elf.Admin.csproj", "{B0D2E5CF-B088-40FF-80DB-26BFB26DB306}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "App", "App", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{C5BDE151-1440-4224-9DDB-A66CBDAFEEBA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B83F49C6-145D-4E00-BD14-2F7ED9B40A51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B83F49C6-145D-4E00-BD14-2F7ED9B40A51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B83F49C6-145D-4E00-BD14-2F7ED9B40A51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B83F49C6-145D-4E00-BD14-2F7ED9B40A51}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3547DF3C-1BEC-415D-A033-52D9031A0B93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3547DF3C-1BEC-415D-A033-52D9031A0B93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3547DF3C-1BEC-415D-A033-52D9031A0B93}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -41,9 +39,19 @@ Global
 		{5AA30F9C-BEAA-4989-84BF-6FD89E0DB3E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5AA30F9C-BEAA-4989-84BF-6FD89E0DB3E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AA30F9C-BEAA-4989-84BF-6FD89E0DB3E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0D2E5CF-B088-40FF-80DB-26BFB26DB306}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0D2E5CF-B088-40FF-80DB-26BFB26DB306}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0D2E5CF-B088-40FF-80DB-26BFB26DB306}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0D2E5CF-B088-40FF-80DB-26BFB26DB306}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3547DF3C-1BEC-415D-A033-52D9031A0B93} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{0903F6B1-8DBB-4FAE-8E2B-96ECB1E0E1B8} = {C5BDE151-1440-4224-9DDB-A66CBDAFEEBA}
+		{5AA30F9C-BEAA-4989-84BF-6FD89E0DB3E6} = {C5BDE151-1440-4224-9DDB-A66CBDAFEEBA}
+		{B0D2E5CF-B088-40FF-80DB-26BFB26DB306} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {348533E6-2375-4327-91CD-50A621E3B7BA}
