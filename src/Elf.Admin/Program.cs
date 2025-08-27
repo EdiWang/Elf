@@ -1,34 +1,70 @@
-namespace Elf.Admin
+using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
+using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
+using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
+
+namespace Elf.Admin;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        var builder = WebApplication.CreateBuilder(args);
+
+        ConfigureLogging(builder);
+        ConfigureServices(builder.Services);
+
+        var app = builder.Build();
+
+        ConfigureMiddleware(app);
+
+        app.Run();
+    }
+
+    private static void ConfigureLogging(WebApplicationBuilder builder)
+    {
+        if (IsRunningOnAzureAppService())
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-            builder.Services.AddRazorPages();
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.MapRazorPages();
-
-            app.Run();
+            builder.Logging.AddAzureWebAppDiagnostics();
         }
     }
+
+    private static void ConfigureServices(IServiceCollection services)
+    {
+        services.AddLiteBus(liteBus =>
+        {
+            liteBus.AddCommandModule(module =>
+            {
+                module.RegisterFromAssembly(typeof(Program).Assembly);
+            });
+
+            liteBus.AddQueryModule(module =>
+            {
+                module.RegisterFromAssembly(typeof(Program).Assembly);
+            });
+        });
+
+        services.AddRazorPages();
+    }
+
+    private static void ConfigureMiddleware(WebApplication app)
+    {
+        // Configure the HTTP request pipeline.
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseExceptionHandler("/Error");
+            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            app.UseHsts();
+        }
+
+        app.UseHttpsRedirection();
+        app.UseStaticFiles();
+
+        app.UseRouting();
+
+        app.UseAuthorization();
+
+        app.MapRazorPages();
+    }
+
+    private static bool IsRunningOnAzureAppService() => !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME"));
 }
