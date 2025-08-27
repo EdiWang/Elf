@@ -3,7 +3,7 @@ using Elf.Admin.Models;
 using LiteBus.Queries.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Elf.Api.Features;
+namespace Elf.Admin.Features;
 
 public record ListLinkQuery(int Offset, int Take, string NoteKeyword = null) :
     IQuery<(List<LinkModel> Links, int TotalRows)>;

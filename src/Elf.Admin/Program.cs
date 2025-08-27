@@ -5,6 +5,7 @@ using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.FeatureManagement;
 
 namespace Elf.Admin;
 
@@ -50,6 +51,9 @@ public class Program
         services.AddRazorPages();
         services.AddControllers();
 
+        services.AddOptions();
+        services.AddFeatureManagement();
+
         services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
         services.AddScoped<ILinkVerifier, LinkVerifier>();
 
@@ -72,10 +76,8 @@ public class Program
         app.UseStaticFiles();
 
         app.UseRouting();
-
-        app.UseAuthorization();
-
         app.MapRazorPages();
+        app.MapControllers();
     }
 
     private static bool IsRunningOnAzureAppService() => !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME"));
