@@ -1,4 +1,4 @@
-﻿namespace Elf.Shared;
+﻿namespace Elf.Admin.Models;
 
 public class LinkTrackingDateCount
 {
