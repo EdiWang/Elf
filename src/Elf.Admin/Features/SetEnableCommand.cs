@@ -1,7 +1,7 @@
-﻿using Elf.Api.Data;
+﻿using Elf.Admin.Data;
 using LiteBus.Commands.Abstractions;
 
-namespace Elf.Api.Features;
+namespace Elf.Admin.Features;
 
 public record SetEnableCommand(int Id, bool IsEnabled) : ICommand;
 

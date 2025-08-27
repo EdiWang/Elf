@@ -1,17 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Text.Json.Serialization;
 
 namespace Elf.Api.Data;
 
 public class LinkEntity
 {
-    public LinkEntity()
-    {
-        LinkTrackings = new HashSet<LinkTrackingEntity>();
-        Tags = new HashSet<TagEntity>();
-    }
-
     public int Id { get; set; } // int
     public string OriginUrl { get; set; } // nvarchar(256)
     public string FwToken { get; set; } // varchar(32)
@@ -20,12 +13,6 @@ public class LinkEntity
     public DateTime UpdateTimeUtc { get; set; } // datetime
     public string AkaName { get; set; } // varchar(32)
     public int? TTL { get; set; } // int
-
-    [JsonIgnore]
-    public virtual ICollection<LinkTrackingEntity> LinkTrackings { get; set; }
-
-    [JsonIgnore]
-    public virtual ICollection<TagEntity> Tags { get; set; }
 }
 
 internal class LinkEntityConfiguration : IEntityTypeConfiguration<LinkEntity>

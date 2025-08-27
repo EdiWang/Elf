@@ -1,6 +1,6 @@
-﻿using Elf.Api.Data;
+﻿using Elf.Admin.Data;
 
-namespace Elf.Api.Models;
+namespace Elf.Admin.Models;
 
 public class LinkModel
 {

@@ -1,6 +1,6 @@
 ﻿using Elf.Shared;
 
-namespace Elf.Api.Models;
+namespace Elf.Admin.Models;
 
 public class PagedLinkResult : PagedResult
 {

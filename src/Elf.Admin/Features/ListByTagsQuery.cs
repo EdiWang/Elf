@@ -1,9 +1,10 @@
-﻿using Elf.Api.Data;
+﻿using Elf.Admin.Data;
+using Elf.Admin.Models;
 using Elf.Shared;
 using LiteBus.Queries.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Elf.Api.Features;
+namespace Elf.Admin.Features;
 
 public record ListByTagsQuery(ListByTagsRequest Payload) : IQuery<(List<LinkModel> Links, int TotalRows)>;
 

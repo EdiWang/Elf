@@ -1,6 +1,7 @@
 ﻿using Elf.Shared;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Elf.Api.Features;
+namespace Elf.Admin.Services;
 
 public enum LinkVerifyResult
 {

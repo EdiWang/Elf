@@ -1,5 +1,6 @@
 ﻿using Elf.Api.Features;
 using Elf.Api.Filters;
+using Elf.Shared;
 using Elf.TokenGenerator;
 using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;

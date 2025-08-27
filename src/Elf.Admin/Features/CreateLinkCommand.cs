@@ -1,10 +1,10 @@
-﻿using Elf.Api.Data;
+﻿using Elf.Admin.Data;
 using Elf.Shared;
 using Elf.TokenGenerator;
 using LiteBus.Commands.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Elf.Api.Features;
+namespace Elf.Admin.Features;
 
 public record CreateLinkCommand(LinkEditModel Payload) : ICommand;
 

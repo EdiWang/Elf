@@ -13,25 +13,25 @@ public class TrackSucessRedirectionCommandHandler(ElfDbContext dbContext) : ICom
     {
         var ((ipAddress, userAgent, linkId), ipLocation) = request;
 
-        var lt = new LinkTrackingEntity
-        {
-            Id = Guid.NewGuid(),
-            IpAddress = ipAddress,
-            LinkId = linkId,
-            RequestTimeUtc = DateTime.UtcNow,
-            UserAgent = userAgent
-        };
+        //var lt = new LinkTrackingEntity
+        //{
+        //    Id = Guid.NewGuid(),
+        //    IpAddress = ipAddress,
+        //    LinkId = linkId,
+        //    RequestTimeUtc = DateTime.UtcNow,
+        //    UserAgent = userAgent
+        //};
 
-        if (null != ipLocation)
-        {
-            lt.IPASN = ipLocation.ASN;
-            lt.IPCity = ipLocation.City;
-            lt.IPCountry = ipLocation.Country;
-            lt.IPOrg = ipLocation.Org;
-            lt.IPRegion = ipLocation.Region;
-        }
+        //if (null != ipLocation)
+        //{
+        //    lt.IPASN = ipLocation.ASN;
+        //    lt.IPCity = ipLocation.City;
+        //    lt.IPCountry = ipLocation.Country;
+        //    lt.IPOrg = ipLocation.Org;
+        //    lt.IPRegion = ipLocation.Region;
+        //}
 
-        await dbContext.AddAsync(lt, ct);
-        await dbContext.SaveChangesAsync(ct);
+        //await dbContext.AddAsync(lt, ct);
+        //await dbContext.SaveChangesAsync(ct);
     }
 }

@@ -1,7 +1,8 @@
-﻿using System.Net;
+﻿using Microsoft.AspNetCore.Http;
+using System.Net;
 using System.Reflection;
 
-namespace Elf.Api;
+namespace Elf.Shared;
 
 public static class Utils
 {

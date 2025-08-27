@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Elf.Shared;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Elf.Api.Filters;
 
