@@ -24,18 +24,11 @@ Forward Link, Create/Manage/Share Link, View Report.
 
 ![report](https://github.com/EdiWang/Elf/assets/3304703/09eab5b0-0749-4d41-a4a9-56da4eb5aeb5)
 
-
 ## Forward Logic
 
 ![image](https://cdn.edi.wang/web-assets/lf/LinkForwarder-FW.png)
 
-## Docker Deployment
-
-https://hub.docker.com/r/ediwang/elf
-
-You can also follow the next section to build and run the project yourself.
-
-## Build and Run API
+## Development Prerequisites
 
 Tools | Alternative
 --- | ---
@@ -43,7 +36,7 @@ Tools | Alternative
 [Visual Studio 2022](https://visualstudio.microsoft.com/) | [Visual Studio Code](https://code.visualstudio.com/)
 [Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/) | [SQL Server 2022](https://www.microsoft.com/en-us/sql-server/sql-server-2022) / LocalDB (Dev Only)
 
-For a quick Azure deployment, you can use the automation script ```Azure-Deployment\Deploy.ps1``` to setup a ready-to-run Elf in a couple of minutes. (Azure CLI is required to run the script)
+## Forwarder API
 
 ### Setup Database
 
@@ -56,11 +49,11 @@ Update the connection string "**ElfDatabase**" in **appsettings.[env].json**
   "ElfDatabase": "Server=(localdb)\\MSSQLLocalDB;Database=elf;Trusted_Connection=True;"
 }
 ```
-### Build Source
+### Build and Run
 
-Build and run `./src/Elf.sln`
+Build `./src/Elf.sln` and run `Elf.Api` project.
 
-### Azure Cache for Redis (Optional)
+### Optional: Azure Cache for Redis
 
 To use Redis, follow these steps:
 
@@ -69,5 +62,6 @@ To use Redis, follow these steps:
 3. Set the connection string in `ConnectionStrings:RedisConnection` in `appsettings.json` or environment variable
 4. Restart the application
 
-## Build and Run Admin Portal
+## Admin Portal
 
+> NOTE: A new version of Admin Portal is under development, please stay tuned.
