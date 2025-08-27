@@ -58,23 +58,7 @@ Update the connection string "**ElfDatabase**" in **appsettings.[env].json**
 ```
 ### Build Source
 
-Build and run `./src/API/Elf.sln`
-
-### Authentication
-
-Register an App in **[Microsoft Entra ID (Azure Active Directory)]((https://azure.microsoft.com/en-us/services/active-directory/))**
-- Set an **Application ID URI** as unique for this app
-- Expose an API with name `access_as_user` and with **Admins and users** type
-- Change `accessTokenAcceptedVersion` to `2` in Manifest blade
-- Copy "**appId**" to set as **EntraID:ClientId** in **appsettings.json** file
-
-```json
-"EntraID": {
-  "Domain": "{YOUR-VALUE}",
-  "TenantId": "{YOUR-VALUE}",
-  "ClientId": "{YOUR-VALUE}",
-}
-```
+Build and run `./src/Elf.sln`
 
 ### Azure Cache for Redis (Optional)
 
@@ -87,35 +71,3 @@ To use Redis, follow these steps:
 
 ## Build and Run Admin Portal
 
-### Pre-requests
-
-- Visual Studio / VSCode / .NET CLI or any editor you like
-
-### Configure Microsoft Entra ID
-
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Microsoft Entra ID** service.
-2. Select **New registration**.
-3. In the **Register an application page**, enter your application's information:
-   - In the **Name** section, for example `elf-admin`.
-   - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI (optional)** section, select **Single-page application** and enter redirect URI: `https://localhost:7160/authentication/login-callback` for local debug and whatever URL you use in production.
-4. Select **Register** to create the application.
-5. In the app's registration screen, find and note the **Application (client) ID**. 
-6. In the app's registration screen, click on the **API permissions** blade.
-   - Click the **Add a permission** button and then,
-   - Ensure that the **My APIs** tab is selected.
-   - In the list of APIs, select the API you created.
-   - In the **Delegated permissions** section, select the **access_as_user** in the list.
-   - Click on the **Add permissions**.
-   
-### Configure API endpoint
-
-1. Open `./src/Admin/Constants.cs`, replace `APIAddress`, `APIAppUrlGuid` with your own values.
-2. Open `./src/Admin/wwwroot/appsettings.json`, replace `Authority`, `ClientId` with your own values.
-
-### Run
-
-```bash
-cd ./src/Admin/
-dotnet run
-```
