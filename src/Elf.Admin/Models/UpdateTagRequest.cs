@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Elf.Shared;
+namespace Elf.Admin.Models;
 
 public class UpdateTagRequest
 {
