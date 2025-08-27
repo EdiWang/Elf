@@ -1,5 +1,5 @@
 ﻿using Elf.Admin.Data;
-using Elf.Shared.Models;
+using Elf.Admin.Models;
 using Elf.TokenGenerator;
 using LiteBus.Commands.Abstractions;
 using Microsoft.EntityFrameworkCore;
