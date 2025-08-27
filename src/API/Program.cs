@@ -14,6 +14,8 @@ using Polly;
 using System.Globalization;
 using System.Net;
 using System.Threading.RateLimiting;
+using System.Data;
+using Microsoft.Data.SqlClient;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -144,6 +146,11 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddHttpClient<IIPLocationService, IPLocationService>()
             .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(3, retryCount => TimeSpan.FromSeconds(Math.Pow(2, retryCount))));
+    services.AddScoped<IDbConnection>(provider =>
+    {
+        var connectionString = builder.Configuration.GetConnectionString("ElfDatabase");
+        return new SqlConnection(connectionString);
+    });
 }
 
 void ConfigureMiddleware()
