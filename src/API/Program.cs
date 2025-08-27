@@ -5,12 +5,10 @@ using Elf.TokenGenerator;
 using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
-using Microsoft.Identity.Web;
 using Polly;
 using System.Globalization;
 using System.Net;
@@ -162,8 +160,6 @@ void ConfigureServices(IServiceCollection services)
 
     // Elf
     services.AddSingleton<CannonService>();
-    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("EntraID"));
 
     services.AddAuthorization();
 
@@ -212,9 +208,6 @@ void ConfigureMiddleware()
     app.UseStaticFiles();
     app.UseRouting();
     app.UseRateLimiter();
-
-    app.UseAuthentication();
-    app.UseAuthorization();
 }
 
 void ConfigureEndpoints()

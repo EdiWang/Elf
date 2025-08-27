@@ -8,7 +8,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Api.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class LinkController(

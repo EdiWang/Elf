@@ -5,7 +5,6 @@ using LiteBus.Queries.Abstractions;
 
 namespace Elf.Api.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class TagController(ICommandMediator commandMediator, IQueryMediator queryMediator) : ControllerBase
