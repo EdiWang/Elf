@@ -1,5 +1,6 @@
 ﻿using Elf.Admin.Features;
 using Elf.Shared;
+using Elf.Shared.Models;
 using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Mvc;
