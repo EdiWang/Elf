@@ -26,9 +26,9 @@ public class ForwardController(
         IIPLocationService ipLocationService,
         CannonService cannonService) : ControllerBase
 {
-    private StringValues UserAgent => Request.Headers["User-Agent"];
+    private StringValues UserAgent => Request.Headers.UserAgent;
 
-    [AddForwarderHeader]
+    [AddElfHeader]
     [HttpGet("/aka/{akaName:regex(^(?!-)([[a-zA-Z0-9-]]+)$)}")]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Aka(string akaName)
@@ -47,7 +47,7 @@ public class ForwardController(
         return await PerformTokenRedirection(token, ip);
     }
 
-    [AddForwarderHeader]
+    [AddElfHeader]
     [HttpGet("/fw/{token}")]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Forward(string token)

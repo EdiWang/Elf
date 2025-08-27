@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Elf.Api.Filters;
 
-public class AddForwarderHeaderAttribute : ResultFilterAttribute
+public class AddElfHeaderAttribute : ResultFilterAttribute
 {
     public override void OnResultExecuting(ResultExecutingContext context)
     {
