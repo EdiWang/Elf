@@ -3,7 +3,7 @@ name: Docker for API
 on:
   push:
     branches: [ master ]
-    paths: [ src/API/** ]
+    paths: [ src/Elf.Api/** ]
 jobs:
 
   build:

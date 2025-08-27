@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elf.Api", "API\Elf.Api.csproj", "{3547DF3C-1BEC-415D-A033-52D9031A0B93}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elf.Api", "Elf.Api\Elf.Api.csproj", "{3547DF3C-1BEC-415D-A033-52D9031A0B93}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elf.Shared", "Elf.Shared\Elf.Shared.csproj", "{0903F6B1-8DBB-4FAE-8E2B-96ECB1E0E1B8}"
 EndProject

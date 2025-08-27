@@ -11,8 +11,8 @@ ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
-COPY ["API/Elf.Api.csproj", "Elf.Api/"]
-RUN dotnet restore "API/Elf.Api.csproj"
+COPY ["Elf.Api/Elf.Api.csproj", "Elf.Api/"]
+RUN dotnet restore "Elf.Api/Elf.Api.csproj"
 COPY . .
 WORKDIR "/src/Elf.Api"
 RUN dotnet build "Elf.Api.csproj" -c Release -o /app/build
