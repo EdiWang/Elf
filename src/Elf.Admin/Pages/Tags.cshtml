@@ -1,6 +1,8 @@
-﻿@page
-@model Elf.Admin.Pages.TagsModel
+﻿@page "/Tags"
 @{
+    ViewData["Title"] = "Tags";
 }
 
-TODO
+@section scripts {
+    <script type="module" src="~/js/tags.mjs" asp-append-version="true"></script>
+}
