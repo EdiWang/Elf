@@ -47,8 +47,8 @@ function createLinkRow(link) {
     row.setAttribute('data-link-id', link.id);
 
     const statusBadge = link.isEnabled
-        ? '<span class="badge bg-success">Active</span>'
-        : '<span class="badge bg-secondary">Disabled</span>';
+        ? '<span class="badge bg-success"><i class="bi bi-check"></i></span>'
+        : '<span class="badge bg-secondary"><i class="bi bi-cross"></i></span>';
 
     const updateDate = new Date(link.updateTimeUtc).toLocaleDateString('en-US', {
         month: '2-digit',
@@ -68,7 +68,7 @@ function createLinkRow(link) {
                     <div class="col-md-1">
                         ${link.akaName 
                             ? `<code>${escapeHtml(link.akaName)}</code>` 
-                            : '<span class="text-muted small">(N/A)</span>'
+                            : '<span class="text-muted small">(none)</span>'
                         }
                     </div>
                     <div class="col col-overflow-ellipsis">
@@ -79,7 +79,10 @@ function createLinkRow(link) {
                     <div class="col col-overflow-ellipsis">
                         <span title="${escapeHtml(link.note || 'No note')}">${escapeHtml(link.note || 'No note')}</span>
                     </div>
-                    <div class="col-md-1">${statusBadge}</div>
+                    <div class="col-auto">${statusBadge}</div>
+                    <div class="col-md-1">
+                        ${link.ttl}
+                    </div>
                     <div class="col-md-1">
                         <i class="bi bi-eye"></i> ${link.hits}
                     </div>
