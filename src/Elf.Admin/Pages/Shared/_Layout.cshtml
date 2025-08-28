@@ -1,5 +1,9 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@inject IConfiguration Configuration
+@{
+    var forwarderBaseUrl = Configuration["ForwarderBaseUrl"] ?? string.Empty;
+}
+<!DOCTYPE html>
+<html lang="en" data-forwarder-base-url="@forwarderBaseUrl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

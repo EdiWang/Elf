@@ -59,9 +59,11 @@ function createLinkRow(link) {
     row.innerHTML = `
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <code class="code-link-token ms-2">
-                            ${escapeHtml(link.fwToken)}
-                        </code>
+                        <a href="${getForwarderUrl(link.fwToken)}" target="_blank" class="code-link-token ms-2">
+                            <code>
+                                ${escapeHtml(link.fwToken)}
+                            </code>
+                        </a>
                     </div>
                     <div class="col-md-1">
                         ${link.akaName 
@@ -104,4 +106,11 @@ function createLinkRow(link) {
     });
 
     return row;
+}
+
+function getForwarderUrl(token) {
+    // Get base URL from global configuration or data attribute using HTML5 data API
+    const baseUrl = window.appConfig?.forwarderBaseUrl || document.documentElement.dataset.forwarderBaseUrl || '';
+    const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    return `${cleanBaseUrl}/fw/${encodeURIComponent(token)}`;
 }
