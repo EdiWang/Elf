@@ -63,6 +63,12 @@ function createLinkRow(link) {
                             ${escapeHtml(link.fwToken)}
                         </code>
                     </div>
+                    <div class="col-md-1">
+                        ${link.akaName 
+                            ? `<code>${escapeHtml(link.akaName)}</code>` 
+                            : '<span class="text-muted small">(N/A)</span>'
+                        }
+                    </div>
                     <div class="col col-overflow-ellipsis">
                         <a href="${escapeHtml(link.originUrl)}" target="_blank" title="${escapeHtml(link.originUrl)}">
                             ${escapeHtml(link.originUrl)}
