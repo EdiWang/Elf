@@ -3,6 +3,7 @@ import { elements } from './index.dom.js';
 import { state, updateState, getOffset } from './index.state.js';
 import { updatePagination } from './index.pagination.js';
 import { showDeleteModal } from './index.delete.js';
+import { showLinkEditModal } from './index.linkEdit.js';
 import { escapeHtml } from './index.utils.js';
 
 export async function loadLinks() {
@@ -98,16 +99,23 @@ function createLinkRow(link) {
                         <span class="text-muted">${updateDate}</span>
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-sm btn-outline-danger delete-btn" data-link-id="${link.id}" data-token="${escapeHtml(link.fwToken)}" data-url="${escapeHtml(link.originUrl)}">
+                        <button class="btn btn-sm btn-outline-primary me-1 edit-btn" data-link-id="${link.id}" title="Edit link">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-btn" data-link-id="${link.id}" data-token="${escapeHtml(link.fwToken)}" data-url="${escapeHtml(link.originUrl)}" title="Delete link">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
                 </div>
             `;
 
-    // Use event delegation instead of direct event listener
+    // Use event delegation for both edit and delete buttons
     row.addEventListener('click', function (e) {
-        if (e.target.closest('.delete-btn')) {
+        if (e.target.closest('.edit-btn')) {
+            const editBtn = e.target.closest('.edit-btn');
+            const linkId = parseInt(editBtn.getAttribute('data-link-id'));
+            showLinkEditModal(linkId);
+        } else if (e.target.closest('.delete-btn')) {
             const deleteBtn = e.target.closest('.delete-btn');
             const linkId = deleteBtn.getAttribute('data-link-id');
             const token = deleteBtn.getAttribute('data-token');
