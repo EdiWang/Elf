@@ -9,6 +9,7 @@ export const elements = {
     searchTerm: document.getElementById('searchTerm'),
     searchBtn: document.getElementById('searchBtn'),
     clearBtn: document.getElementById('clearBtn'),
+    refreshBtn: document.getElementById('refreshBtn'),
     pageSizeSelect: document.getElementById('pageSize'),
     deleteModal: new bootstrap.Modal(document.getElementById('deleteModal')),
     deleteTokenPreview: document.getElementById('deleteTokenPreview'),
