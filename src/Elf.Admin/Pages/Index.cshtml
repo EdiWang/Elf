@@ -1,14 +1,27 @@
 ﻿@page
 @{
     ViewData["Title"] = "Link Management";
+    var currentPage = ViewContext.RouteData.Values["Page"]?.ToString();
 }
 
 <div class="container-fluid">
     <div class="row">
-        <aside class="col-xl-2">
-
+        <aside class="col-auto">
+            <nav class="aside-nav">
+                <ul class="nav nav-pills flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link @(currentPage is "/Index" ? "active" : null)" asp-page="./Index">Links</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Tags</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Report</a>
+                    </li>
+                </ul>
+            </nav>
         </aside>
-        <div class="col-xl-10">
+        <div class="col">
             <!-- Search and Controls -->
             <div class="row mb-3">
                 <div class="col">

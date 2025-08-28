@@ -26,6 +26,10 @@ a {
     background-color: var(--gray-1);
 }
 
+.aside-nav {
+    width: 200px;
+}
+
 .col-overflow-ellipsis {
     overflow: hidden;
     text-overflow: ellipsis;
