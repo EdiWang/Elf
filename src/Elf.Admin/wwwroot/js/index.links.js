@@ -5,6 +5,7 @@ import { updatePagination } from './index.pagination.js';
 import { showDeleteModal } from './index.delete.js';
 import { showLinkEditModal } from './index.linkEdit.js';
 import { escapeHtml } from './index.utils.js';
+import { success as showSuccessToast, error as showErrorToast } from './toastService.mjs';
 
 export async function loadLinks() {
     try {
@@ -99,6 +100,9 @@ function createLinkRow(link) {
                         <span class="text-muted">${updateDate}</span>
                     </div>
                     <div class="col-auto">
+                        <button class="btn btn-sm btn-outline-secondary me-1 copy-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Copy link URL">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
                         <button class="btn btn-sm btn-outline-primary me-1 edit-btn" data-link-id="${link.id}" title="Edit link">
                             <i class="bi bi-pencil"></i>
                         </button>
@@ -109,9 +113,13 @@ function createLinkRow(link) {
                 </div>
             `;
 
-    // Use event delegation for both edit and delete buttons
+    // Use event delegation for copy, edit and delete buttons
     row.addEventListener('click', function (e) {
-        if (e.target.closest('.edit-btn')) {
+        if (e.target.closest('.copy-btn')) {
+            const copyBtn = e.target.closest('.copy-btn');
+            const fwToken = copyBtn.getAttribute('data-fw-token');
+            copyLinkToClipboard(fwToken);
+        } else if (e.target.closest('.edit-btn')) {
             const editBtn = e.target.closest('.edit-btn');
             const linkId = parseInt(editBtn.getAttribute('data-link-id'));
             showLinkEditModal(linkId);
@@ -125,6 +133,29 @@ function createLinkRow(link) {
     });
 
     return row;
+}
+
+async function copyLinkToClipboard(fwToken) {
+    try {
+        const url = getForwarderUrl(fwToken);
+        await navigator.clipboard.writeText(url);
+        showSuccessToast('Link copied to clipboard!');
+    } catch (error) {
+        console.error('Failed to copy to clipboard:', error);
+        // Fallback for older browsers
+        try {
+            const textArea = document.createElement('textarea');
+            textArea.value = getForwarderUrl(fwToken);
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showSuccessToast('Link copied to clipboard!');
+        } catch (fallbackError) {
+            console.error('Fallback copy failed:', fallbackError);
+            showErrorToast('Failed to copy link to clipboard');
+        }
+    }
 }
 
 function getForwarderUrl(token) {
