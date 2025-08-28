@@ -3,10 +3,6 @@
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Authors>Edi Wang</Authors>
-        <Company>edi.wang</Company>
-        <Copyright>(C) 2025 Edi Wang</Copyright>
-        <Version>6.18.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
