@@ -56,6 +56,11 @@ function createLinkRow(link) {
         year: 'numeric'
     });
 
+    // Create tags badges
+    const tagsBadges = link.tags && link.tags.length > 0
+        ? link.tags.map(tag => `<span class="badge bg-primary me-1">${escapeHtml(tag.name)}</span>`).join('')
+        : '<span class="text-muted small">(no tags)</span>';
+
     row.innerHTML = `
                 <div class="row align-items-center">
                     <div class="col-auto">
@@ -78,6 +83,9 @@ function createLinkRow(link) {
                     </div>
                     <div class="col col-overflow-ellipsis">
                         <span title="${escapeHtml(link.note || 'No note')}">${escapeHtml(link.note || 'No note')}</span>
+                    </div>
+                    <div class="col-md-1">
+                        ${tagsBadges}
                     </div>
                     <div class="col-auto">${statusBadge}</div>
                     <div class="col-md-1">
