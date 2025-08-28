@@ -61,15 +61,15 @@ function transformTag(tagData) {
 }
 
 function onTagAdd(e) {
-    console.log('Tag added:', e.detail.data);
+    console.debug('Tag added:', e.detail.data);
 }
 
 function onTagRemove(e) {
-    console.log('Tag removed:', e.detail.data);
+    console.debug('Tag removed:', e.detail.data);
 }
 
 function onTagEdit(e) {
-    console.log('Tag edited:', e.detail.data);
+    console.debug('Tag edited:', e.detail.data);
 }
 
 export function showLinkEditModal(linkId = null) {

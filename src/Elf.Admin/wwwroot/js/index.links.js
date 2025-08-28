@@ -48,8 +48,8 @@ function createLinkRow(link) {
     row.setAttribute('data-link-id', link.id);
 
     const statusBadge = link.isEnabled
-        ? '<span class="badge bg-success"><i class="bi bi-check"></i></span>'
-        : '<span class="badge bg-secondary"><i class="bi bi-cross"></i></span>';
+        ? '<span class="badge bg-success"><i class="bi bi-check-lg"></i></span>'
+        : '<span class="badge bg-danger"><i class="bi bi-dash-circle"></i></span>';
 
     const updateDate = new Date(link.updateTimeUtc).toLocaleDateString('en-US', {
         month: '2-digit',
