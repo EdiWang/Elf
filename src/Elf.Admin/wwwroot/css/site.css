@@ -25,3 +25,9 @@ a {
 .bg-gray-1 {
     background-color: var(--gray-1);
 }
+
+.col-overflow-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

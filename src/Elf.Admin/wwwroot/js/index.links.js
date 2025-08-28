@@ -50,9 +50,6 @@ function createLinkRow(link) {
         ? '<span class="badge bg-success">Active</span>'
         : '<span class="badge bg-secondary">Disabled</span>';
 
-    const shortUrl = link.originUrl.length > 50 ?
-        link.originUrl.substring(0, 50) + '...' : link.originUrl;
-
     const updateDate = new Date(link.updateTimeUtc).toLocaleDateString('en-US', {
         month: '2-digit',
         day: '2-digit',
@@ -66,12 +63,12 @@ function createLinkRow(link) {
                             ${escapeHtml(link.fwToken)}
                         </code>
                     </div>
-                    <div class="col">
+                    <div class="col col-overflow-ellipsis">
                         <a href="${escapeHtml(link.originUrl)}" target="_blank" title="${escapeHtml(link.originUrl)}">
-                            ${escapeHtml(shortUrl)}
+                            ${escapeHtml(link.originUrl)}
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col col-overflow-ellipsis">
                         <span title="${escapeHtml(link.note || 'No note')}">${escapeHtml(link.note || 'No note')}</span>
                     </div>
                     <div class="col-md-1">${statusBadge}</div>

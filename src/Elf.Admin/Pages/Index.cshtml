@@ -14,8 +14,12 @@
                 <div class="col">
                     <div class="input-group">
                         <input type="text" class="form-control" id="searchTerm" placeholder="Search links by note or token...">
-                        <button class="btn btn-outline-secondary" type="button" id="searchBtn">Search</button>
-                        <button class="btn btn-outline-secondary" type="button" id="clearBtn">Clear</button>
+                        <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" type="button" id="clearBtn">
+                            <i class="bi bi-eraser"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="col-auto text-end">
@@ -95,35 +99,5 @@
 
 @section scripts {
     <script type="module" src="~/js/index.mjs" asp-append-version="true"></script>
-}
-
-@section head {
-    <style>
-        .link-row:hover {
-            background-color: #f8f9fa;
-        }
-
-        .card {
-            border: 1px solid #dee2e6;
-        }
-
-        .badge {
-            font-size: 0.75em;
-        }
-
-        code {
-            font-size: 0.9em;
-        }
-
-        .btn-sm {
-            font-size: 0.8rem;
-        }
-
-        @@media (max-width: 768px) {
-            .container-fluid {
-                padding: 0.5rem;
-            }
-        }
-    </style>
 }
 
