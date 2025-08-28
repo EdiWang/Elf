@@ -62,16 +62,16 @@ function createLinkRow(link) {
     row.innerHTML = `
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <code class="code-link-token">
+                        <code class="code-link-token ms-2">
                             ${escapeHtml(link.fwToken)}
                         </code>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col">
                         <a href="${escapeHtml(link.originUrl)}" target="_blank" title="${escapeHtml(link.originUrl)}">
                             ${escapeHtml(shortUrl)}
                         </a>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col">
                         <span title="${escapeHtml(link.note || 'No note')}">${escapeHtml(link.note || 'No note')}</span>
                     </div>
                     <div class="col-md-1">${statusBadge}</div>
