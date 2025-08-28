@@ -43,7 +43,7 @@ export function displayLinks(links) {
 
 function createLinkRow(link) {
     const row = document.createElement('div');
-    row.className = 'row align-items-center bg-white py-3 px-2 rounded-3 border mb-1 link-row';
+    row.className = 'bg-white py-3 px-2 rounded-3 border mb-1 link-row';
     row.setAttribute('data-link-id', link.id);
 
     const statusBadge = link.isEnabled
@@ -53,11 +53,16 @@ function createLinkRow(link) {
     const shortUrl = link.originUrl.length > 50 ?
         link.originUrl.substring(0, 50) + '...' : link.originUrl;
 
-    const updateDate = new Date(link.updateTimeUtc).toLocaleDateString();
+    const updateDate = new Date(link.updateTimeUtc).toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric'
+    });
 
     row.innerHTML = `
+                <div class="row align-items-center">
                     <div class="col-auto">
-                        <code class="text-primary">
+                        <code class="code-link-token">
                             ${escapeHtml(link.fwToken)}
                         </code>
                     </div>
@@ -70,13 +75,18 @@ function createLinkRow(link) {
                         <span title="${escapeHtml(link.note || 'No note')}">${escapeHtml(link.note || 'No note')}</span>
                     </div>
                     <div class="col-md-1">${statusBadge}</div>
-                    <div class="col-md-1">${link.hits}</div>
-                    <div class="col-md-1">${updateDate}</div>
+                    <div class="col-md-1">
+                        <i class="bi bi-eye"></i> ${link.hits}
+                    </div>
+                    <div class="col-auto">
+                        <span class="text-muted">${updateDate}</span>
+                    </div>
                     <div class="col-auto">
                         <button class="btn btn-sm btn-outline-danger delete-btn" data-link-id="${link.id}" data-token="${escapeHtml(link.fwToken)}" data-url="${escapeHtml(link.originUrl)}">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
+                </div>
             `;
 
     // Use event delegation instead of direct event listener
