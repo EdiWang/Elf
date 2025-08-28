@@ -74,8 +74,10 @@ function createLinkRow(link) {
                     </div>
                     <div class="col-md-1">
                         ${link.akaName 
-                            ? `<code>${escapeHtml(link.akaName)}</code>` 
-                            : '<span class="text-muted small">(none)</span>'
+                            ? `<a href="${getAkaForwarderUrl(link.akaName)}" target="_blank">
+                                    <code>${escapeHtml(link.akaName)}</code>
+                               </a>` 
+                            : `<span class="text-muted small">(none)</span>`
                         }
                     </div>
                     <div class="col col-overflow-ellipsis">
@@ -185,9 +187,15 @@ async function copyLinkToClipboard(fwToken) {
     }
 }
 
-function getForwarderUrl(token) {
-    // Get base URL from global configuration or data attribute using HTML5 data API
+function getBaseUrl() {
     const baseUrl = window.appConfig?.forwarderBaseUrl || document.documentElement.dataset.forwarderBaseUrl || '';
-    const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-    return `${cleanBaseUrl}/fw/${encodeURIComponent(token)}`;
+    return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+}
+
+function getForwarderUrl(token) {
+    return `${getBaseUrl()}/fw/${encodeURIComponent(token)}`;
+}
+
+function getAkaForwarderUrl(aka) {
+    return `${getBaseUrl()}/aka/${encodeURIComponent(aka)}`;
 }
