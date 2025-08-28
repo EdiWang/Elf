@@ -1,6 +1,7 @@
 ﻿@inject IConfiguration Configuration
 @{
     var forwarderBaseUrl = Configuration["ForwarderBaseUrl"] ?? string.Empty;
+    var currentPage = ViewContext.RouteData.Values["Page"]?.ToString();
 }
 <!DOCTYPE html>
 <html lang="en" data-forwarder-base-url="@forwarderBaseUrl">
@@ -26,9 +27,27 @@
         </nav>
     </header>
     <div class="container-fluid">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+        <div class="row">
+            <aside class="col-auto">
+                <nav class="aside-nav">
+                    <ul class="nav nav-pills flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link @(currentPage is "/Index" ? "active" : null)" asp-page="./Index">Links</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentPage is "/Tags" ? "active" : null)" asp-page="./Tags">Tags</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentPage is "/Report" ? "active" : null)" asp-page="./Report">Report</a>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <main role="main" class="col">
+                @RenderBody()
+            </main>
+        </div>
     </div>
 
     <partial name="_Toast" />

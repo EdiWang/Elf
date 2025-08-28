@@ -1,93 +1,71 @@
 ﻿@page
 @{
     ViewData["Title"] = "Link Management";
-    var currentPage = ViewContext.RouteData.Values["Page"]?.ToString();
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <aside class="col-auto">
-            <nav class="aside-nav">
-                <ul class="nav nav-pills flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link @(currentPage is "/Index" ? "active" : null)" asp-page="./Index">Links</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Tags</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Report</a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
-        <div class="col">
-            <!-- Search and Controls -->
-            <div class="row mb-3">
-                <div class="col">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="searchTerm" placeholder="Search links by note or token...">
-                        <button class="btn btn-outline-secondary" type="button" id="searchBtn">
-                            <i class="bi bi-search"></i>
-                        </button>
-                        <button class="btn btn-outline-secondary" type="button" id="clearBtn">
-                            <i class="bi bi-eraser"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="col-auto text-end">
-                    <button class="btn btn-outline-secondary me-2" id="refreshBtn" title="Refresh links">
-                        <i class="bi bi-arrow-clockwise"></i>
-                    </button>
-                    <button class="btn btn-outline-primary" id="addLinkBtn">
-                        <i class="bi bi-plus"></i>
-                        New
-                    </button>
-                </div>
-            </div>
-
-            <!-- Loading Spinner -->
-            <div id="loadingSpinner" class="text-center d-none">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
-
-            <div id="linksContainer">
-                <div id="linksData"></div>
-            </div>
-
-            <!-- No Data Message -->
-            <div id="noDataMessage" class="text-center py-5 d-none">
-                <h5 class="text-muted">No links found</h5>
-                <p class="text-muted">Try adjusting your search criteria or add a new link.</p>
-            </div>
-
-            <!-- Pagination -->
-            <nav aria-label="Links pagination" id="paginationContainer" class="mt-4">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <div class="d-flex align-items-center">
-                            <label for="pageSize" class="form-label me-2 mb-0">Show:</label>
-                            <select class="form-select form-select-sm me-3" id="pageSize" style="width: auto;">
-                                <option value="10" selected>10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
-                            <span id="recordsInfo" class="text-muted small"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <ul class="pagination pagination-sm justify-content-end mb-0" id="pagination">
-                            <!-- Pagination buttons will be generated here -->
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+<!-- Search and Controls -->
+<div class="row mb-3">
+    <div class="col">
+        <div class="input-group">
+            <input type="text" class="form-control" id="searchTerm" placeholder="Search links by note or token...">
+            <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                <i class="bi bi-search"></i>
+            </button>
+            <button class="btn btn-outline-secondary" type="button" id="clearBtn">
+                <i class="bi bi-eraser"></i>
+            </button>
         </div>
     </div>
+    <div class="col-auto text-end">
+        <button class="btn btn-outline-secondary me-2" id="refreshBtn" title="Refresh links">
+            <i class="bi bi-arrow-clockwise"></i>
+        </button>
+        <button class="btn btn-outline-primary" id="addLinkBtn">
+            <i class="bi bi-plus"></i>
+            New
+        </button>
+    </div>
 </div>
+
+<!-- Loading Spinner -->
+<div id="loadingSpinner" class="text-center d-none">
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<div id="linksContainer">
+    <div id="linksData"></div>
+</div>
+
+<!-- No Data Message -->
+<div id="noDataMessage" class="text-center py-5 d-none">
+    <h5 class="text-muted">No links found</h5>
+    <p class="text-muted">Try adjusting your search criteria or add a new link.</p>
+</div>
+
+<!-- Pagination -->
+<nav aria-label="Links pagination" id="paginationContainer" class="mt-4">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center">
+                <label for="pageSize" class="form-label me-2 mb-0">Show:</label>
+                <select class="form-select form-select-sm me-3" id="pageSize" style="width: auto;">
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span id="recordsInfo" class="text-muted small"></span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <ul class="pagination pagination-sm justify-content-end mb-0" id="pagination">
+                <!-- Pagination buttons will be generated here -->
+            </ul>
+        </div>
+    </div>
+</nav>
 
 <partial name="_DeleteModal" />
 
