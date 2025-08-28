@@ -1,4 +1,5 @@
-﻿@inject IConfiguration Configuration
+﻿@using Elf.Shared
+@inject IConfiguration Configuration
 @{
     var forwarderBaseUrl = Configuration["ForwarderBaseUrl"] ?? string.Empty;
 }
@@ -13,15 +14,15 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("head", required: false)
 </head>
-<body class="bg-gray-1">
+<body class="bg-body-tertiary">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">Elf Admin</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+
+                <div class="nav-appversion align-items-end">
+                    @Utils.AppVersion
+                </div>
             </div>
         </nav>
     </header>
