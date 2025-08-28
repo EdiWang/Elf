@@ -1,7 +1,10 @@
 import { createLink, editLink, getLink } from '/js/links.apiclient.mjs';
+import { getTags } from '/js/tags.apiclient.mjs';
 import { elements } from './index.dom.js';
 import { state, updateState } from './index.state.js';
 import { loadLinks } from './index.links.js';
+
+let tagify = null;
 
 export function setupLinkEditEventListeners() {
     elements.addLinkBtn.addEventListener('click', () => showLinkEditModal());
@@ -13,6 +16,60 @@ export function setupLinkEditEventListeners() {
     
     // Clear form when modal is hidden
     elements.linkEditModal._element.addEventListener('hidden.bs.modal', clearForm);
+    
+    // Initialize Tagify when modal is shown
+    elements.linkEditModal._element.addEventListener('shown.bs.modal', initializeTagify);
+}
+
+async function initializeTagify() {
+    if (tagify) return; // Already initialized
+    
+    try {
+        // Fetch existing tags from API
+        const tagsResponse = await getTags();
+        const existingTags = tagsResponse.map(tag => ({ value: tag.name, id: tag.id }));
+        
+        // Initialize Tagify
+        tagify = new Tagify(elements.tags, {
+            whitelist: existingTags,
+            maxTags: 10,
+            dropdown: {
+                maxItems: 20,
+                classname: 'tags-dropdown',
+                enabled: 0, // Show dropdown immediately when typing
+                closeOnSelect: false
+            },
+            editTags: 1, // Allow editing tags by clicking
+            placeholder: 'Type to search or add tags...',
+            transformTag: transformTag,
+            callbacks: {
+                'add': onTagAdd,
+                'remove': onTagRemove,
+                'edit:updated': onTagEdit
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error initializing Tagify:', error);
+        // Fallback to basic text input behavior
+    }
+}
+
+function transformTag(tagData) {
+    // Ensure tag names are properly formatted
+    tagData.value = tagData.value.toLowerCase().trim();
+}
+
+function onTagAdd(e) {
+    console.log('Tag added:', e.detail.data);
+}
+
+function onTagRemove(e) {
+    console.log('Tag removed:', e.detail.data);
+}
+
+function onTagEdit(e) {
+    console.log('Tag edited:', e.detail.data);
 }
 
 export function showLinkEditModal(linkId = null) {
@@ -43,11 +100,13 @@ async function loadLinkForEdit(linkId) {
         elements.isEnabled.checked = link.isEnabled;
         elements.ttl.value = link.ttl || 0;
         
-        // Handle tags - convert array to comma-separated string
-        if (link.tags && link.tags.length > 0) {
+        // Handle tags with Tagify
+        if (tagify && link.tags && link.tags.length > 0) {
+            const tagValues = link.tags.map(tag => ({ value: tag.name || tag }));
+            tagify.addTags(tagValues);
+        } else if (!tagify && link.tags && link.tags.length > 0) {
+            // Fallback for when Tagify isn't initialized yet
             elements.tags.value = link.tags.map(tag => tag.name || tag).join(', ');
-        } else {
-            elements.tags.value = '';
         }
         
     } catch (error) {
@@ -87,9 +146,16 @@ async function handleSaveLink() {
 }
 
 function getFormData() {
-    // Parse tags from comma-separated string to array
-    const tagsInput = elements.tags.value.trim();
-    const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0) : [];
+    let tags = [];
+    
+    if (tagify) {
+        // Get tags from Tagify
+        tags = tagify.value.map(tag => tag.value.trim()).filter(tag => tag.length > 0);
+    } else {
+        // Fallback: parse tags from comma-separated string
+        const tagsInput = elements.tags.value.trim();
+        tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0) : [];
+    }
     
     return {
         originUrl: elements.originUrl.value.trim(),
@@ -181,4 +247,9 @@ function clearForm() {
     clearValidationErrors();
     hideModalError();
     updateState({ editingLinkId: null });
+    
+    // Clear Tagify tags
+    if (tagify) {
+        tagify.removeAllTags();
+    }
 }

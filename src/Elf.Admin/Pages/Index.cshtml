@@ -71,5 +71,10 @@
 <partial name="_LinkEditModal" />
 
 @section scripts {
+    <script src="~/lib/tagify/tagify.js" asp-append-version="true"></script>
     <script type="module" src="~/js/index.mjs" asp-append-version="true"></script>
+}
+
+@section head{
+    <link href="~/lib/tagify/tagify.css" rel="stylesheet" asp-append-version="true" />
 }
