@@ -100,6 +100,9 @@ function createLinkRow(link) {
                         <span class="text-muted">${updateDate}</span>
                     </div>
                     <div class="col-auto">
+                        <button class="btn btn-sm btn-outline-info me-1 qr-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Show QR Code">
+                            <i class="bi bi-qr-code"></i>
+                        </button>
                         <button class="btn btn-sm btn-outline-secondary me-1 copy-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Copy link URL">
                             <i class="bi bi-clipboard"></i>
                         </button>
@@ -113,9 +116,13 @@ function createLinkRow(link) {
                 </div>
             `;
 
-    // Use event delegation for copy, edit and delete buttons
+    // Use event delegation for QR, copy, edit and delete buttons
     row.addEventListener('click', function (e) {
-        if (e.target.closest('.copy-btn')) {
+        if (e.target.closest('.qr-btn')) {
+            const qrBtn = e.target.closest('.qr-btn');
+            const fwToken = qrBtn.getAttribute('data-fw-token');
+            showQRCodeModal(fwToken);
+        } else if (e.target.closest('.copy-btn')) {
             const copyBtn = e.target.closest('.copy-btn');
             const fwToken = copyBtn.getAttribute('data-fw-token');
             copyLinkToClipboard(fwToken);
@@ -133,6 +140,26 @@ function createLinkRow(link) {
     });
 
     return row;
+}
+
+export function showQRCodeModal(fwToken) {
+    const url = getForwarderUrl(fwToken);
+    const modal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
+    
+    // Update the URL text
+    document.getElementById('qrCodeUrl').textContent = url;
+    
+    // Generate QR code
+    const canvas = document.getElementById('qrCodeCanvas');
+    const qr = new QRious({
+        element: canvas,
+        value: url,
+        size: 256,
+        foreground: '#000000',
+        background: '#ffffff'
+    });
+    
+    modal.show();
 }
 
 async function copyLinkToClipboard(fwToken) {
