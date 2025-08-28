@@ -1,0 +1,17 @@
+﻿@{
+    var currentPage = ViewContext.RouteData.Values["Page"]?.ToString();
+}
+
+<nav class="aside-nav">
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+            <a class="nav-link @(currentPage is "/Index" ? "active" : null)" asp-page="./Index">Links</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(currentPage is "/Tags" ? "active" : null)" asp-page="./Tags">Tags</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(currentPage is "/Report" ? "active" : null)" asp-page="./Report">Report</a>
+        </li>
+    </ul>
+</nav>
