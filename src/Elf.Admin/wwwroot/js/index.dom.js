@@ -10,9 +10,25 @@ export const elements = {
     searchBtn: document.getElementById('searchBtn'),
     clearBtn: document.getElementById('clearBtn'),
     refreshBtn: document.getElementById('refreshBtn'),
+    addLinkBtn: document.getElementById('addLinkBtn'),
     pageSizeSelect: document.getElementById('pageSize'),
     deleteModal: new bootstrap.Modal(document.getElementById('deleteModal')),
     deleteTokenPreview: document.getElementById('deleteTokenPreview'),
     deleteUrlPreview: document.getElementById('deleteUrlPreview'),
-    confirmDeleteBtn: document.getElementById('confirmDeleteBtn')
+    confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
+
+    // Link Edit Modal elements
+    linkEditModal: new bootstrap.Modal(document.getElementById('linkEditModal')),
+    linkEditModalLabel: document.getElementById('linkEditModalLabel'),
+    linkEditForm: document.getElementById('linkEditForm'),
+    originUrl: document.getElementById('originUrl'),
+    note: document.getElementById('note'),
+    akaName: document.getElementById('akaName'),
+    isEnabled: document.getElementById('isEnabled'),
+    ttl: document.getElementById('ttl'),
+    tags: document.getElementById('tags'),
+    saveLinkBtn: document.getElementById('saveLinkBtn'),
+    saveSpinner: document.getElementById('saveSpinner'),
+    modalErrorAlert: document.getElementById('modalErrorAlert'),
+    modalErrorMessage: document.getElementById('modalErrorMessage')
 };

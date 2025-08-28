@@ -4,7 +4,8 @@ export let state = {
     pageSize: 10,
     currentSearchTerm: '',
     totalRows: 0,
-    linkToDelete: null
+    linkToDelete: null,
+    editingLinkId: null
 };
 
 export function updateState(updates) {
