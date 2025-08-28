@@ -56,7 +56,6 @@ function createLinkRow(link) {
     const updateDate = new Date(link.updateTimeUtc).toLocaleDateString();
 
     row.innerHTML = `
-                <div class="d-none d-md-flex w-100 align-items-center">
                     <div class="col-auto">
                         <code class="text-primary">
                             ${escapeHtml(link.fwToken)}
@@ -78,7 +77,6 @@ function createLinkRow(link) {
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
-                </div>
             `;
 
     // Use event delegation instead of direct event listener
