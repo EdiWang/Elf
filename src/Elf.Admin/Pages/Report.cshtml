@@ -34,8 +34,8 @@
 </section>
 
 <!-- Chart Container -->
-<section class="chart-container">
-    <div class="row">
+<section class="chart-container mb-2">
+    <div class="row g-2">
         <div class="col-4">
             <div class="card bg-white">
                 <div class="card-body">
@@ -72,6 +72,37 @@
                         <canvas id="mostRequestedLinksDoughnutChart" width="400" height="300"></canvas>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="recent-requests-container">
+    <div class="card bg-white">
+        <div class="card-body">
+            <h6 class="card-subtitle mb-3 text-secondary">
+                Recent Requests
+            </h6>
+            <div class="table-responsive">
+                <table class="table table-hover" id="recentRequestsTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">Token</th>
+                            <th scope="col">Note</th>
+                            <th scope="col">User Agent</th>
+                            <th scope="col">IP Address</th>
+                            <th scope="col">Country</th>
+                            <th scope="col">Region</th>
+                            <th scope="col">City</th>
+                            <th scope="col">ASN</th>
+                            <th scope="col">Organization</th>
+                            <th scope="col">Request Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Recent requests will be populated here -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
