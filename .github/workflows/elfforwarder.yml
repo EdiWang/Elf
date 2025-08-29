@@ -8,7 +8,7 @@ env:
   AZURE_WEBAPP_PACKAGE_PATH: Elf.Api\published
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 9.0.x
-  WORKING_DIRECTORY: Elf.Api
+  WORKING_DIRECTORY: src/Elf.Api
 jobs:
   build:
     runs-on: windows-latest
