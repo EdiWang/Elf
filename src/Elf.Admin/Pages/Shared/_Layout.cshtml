@@ -21,7 +21,15 @@
                 <a class="navbar-brand" asp-area="" asp-page="/Index">Elf Admin</a>
 
                 <div class="nav-appversion align-items-end text-muted">
-                    @Utils.AppVersion
+                    <a href="@forwarderBaseUrl" target="_blank" class="me-3">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                        Forwarder API
+                    </a>
+
+                    <a href="https://github.com/EdiWang/Elf" target="_blank">
+                        <i class="bi bi-github"></i>
+                        @Utils.AppVersion
+                    </a>
                 </div>
             </div>
         </nav>
