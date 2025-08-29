@@ -35,3 +35,11 @@ a {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.link-hits-container {
+    width: 65px;
+}
+
+.ttl-container {
+    width: 75px;
+}

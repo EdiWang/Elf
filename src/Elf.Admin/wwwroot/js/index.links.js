@@ -99,17 +99,21 @@ function createLinkRow(link) {
                         ${tagsBadges}
                     </div>
                     <div class="col-auto">${statusBadge}</div>
-                    <div class="col-md-1">
-                        ${link.ttl}
+                    <div class="col-auto">
+                        <span class="ttl-container">
+                            <i class="bi bi-clock"></i> ${link.ttl}
+                        </span>
                     </div>
-                    <div class="col-md-1">
-                        <i class="bi bi-eye"></i> ${link.hits}
+                    <div class="col-auto">
+                        <div class="link-hits-container">
+                            <i class="bi bi-eye"></i> ${link.hits}
+                        </div>
                     </div>
                     <div class="col-auto">
                         <span class="text-muted">${updateDate}</span>
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-sm btn-outline-info me-1 qr-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Show QR Code">
+                        <button class="btn btn-sm btn-outline-secondary me-1 qr-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Show QR Code">
                             <i class="bi bi-qr-code"></i>
                         </button>
                         <button class="btn btn-sm btn-outline-secondary me-1 copy-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Copy link URL">
