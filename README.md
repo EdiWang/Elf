@@ -44,7 +44,7 @@ TODO
 #### Manually Deploy Forwarder API
 
 ```bash
-docker run -d -p 8080:80 -e "ConnectionStrings__ElfDatabase=Server=tcp:<your_server>.database.windows.net,1433;Initial Catalog=<your_database>.....;" --name elf-api ediwang/elf:latest
+docker run -d -p 80:8080 -e ConnectionStrings__ElfDatabase="<Your SQL Server Connection String>" --name elf-api ediwang/elf:latest
 ```
 
 #### Manually Deploy Admin UI
@@ -52,8 +52,10 @@ docker run -d -p 8080:80 -e "ConnectionStrings__ElfDatabase=Server=tcp:<your_ser
 > This image is not ready yet. It will be available soon in RC release.
 
 ```bash
-docker run -d -p 8081:80 -e "ConnectionStrings__ElfDatabase=Server=tcp:<your_server>.database.windows.net,1433;Initial Catalog=<your_database>.....;" --name elf-admin ediwang/elf-admin:latest
+docker run -d -p 80:8080 -e ConnectionStrings__ElfDatabase="<Your SQL Server Connection String>" --name elf-admin ediwang/elf-admin:latest
 ```
+
+If you deploy both `elf-api` and `elf-admin` on the same server, make sure to use different ports. You may [work 996](https://996.icu/) to figure out the correct network setup yourself. I am rich, I choose Azure!
 
 ### Code Deployment
 
