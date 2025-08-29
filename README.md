@@ -9,7 +9,6 @@ The link forward service used by https://go.edi.wang. It generates static URLs f
 
 e.g.:
 
-Raw URL:
 ```
 https://www.somewebsite.com/a-very-long-and-complicated-link-that-can-also-change?with=parameters
 ```
@@ -28,30 +27,46 @@ Forward Link, Create/Manage/Share Link, View Report.
 
 ![image](https://cdn.edi.wang/web-assets/lf/LinkForwarder-FW.png)
 
-## Development Prerequisites
-
-Tools | Alternative
---- | ---
-[.NET 9 SDK](http://dot.net) | N/A
-[Visual Studio 2022](https://visualstudio.microsoft.com/) | [Visual Studio Code](https://code.visualstudio.com/)
-[Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/) | [SQL Server 2022](https://www.microsoft.com/en-us/sql-server/sql-server-2022) / LocalDB (Dev Only)
-
-## Forwarder API
+## Deployment
 
 ### Setup Database
 
-[Create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started?WT.mc_id=AZ-MVP-5002809) or a SQL Server 2019+ database. e.g. elf
+[Create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started?WT.mc_id=AZ-MVP-5002809) or a SQL Server 2019+ database.
 
-Update the connection string "**ElfDatabase**" in **appsettings.[env].json**
+### Docker Deployment (Recommended)
+
+TODO
+
+### Code Deployment
+
+Update the connection string "**ElfDatabase**" in **Elf.Api/appsettings.json** and **Elf.Admin/appsettings.json**. Example:
 
 ```json
 "ConnectionStrings": {
   "ElfDatabase": "Server=(localdb)\\MSSQLLocalDB;Database=elf;Trusted_Connection=True;"
 }
 ```
-### Build and Run
 
-Build `./src/Elf.sln` and run `Elf.Api` project.
+Build `./src/Elf.sln`, deploy both `Elf.Api` and `Elf.Admin` project.
+
+### Setup Authentication
+
+Typically, `Elf.Api` should be publicly accessible, while `Elf.Admin` should be protected.
+
+`Elf.Admin` does not have authentication out of box. It is up to you to setup authentication in front of them. You can use, but not limited to:
+
+- Azure App Service Authentication
+- Azure Container Apps Authentication
+- Azure API Management
+
+#### Example: Azure App Service Authentication
+
+1. Create an [Azure App Service](https://docs.microsoft.com/en-us/azure/app-service/quickstart-dotnetcore?WT.mc_id=AZ-MVP-5002809)
+2. Deploy `Elf.Admin` to the App Service
+3. Enable [App Service Authentication](https://docs.microsoft.com/en-us/azure/app-service/overview-authentication-authorization?WT.mc_id=AZ-MVP-5002809)
+4. Choose an identity provider, e.g. Microsoft
+5. Configure the authentication settings to allow only authenticated users
+6. Access the Elf Admin site, login with the identity provider
 
 ### Optional: Azure Cache for Redis
 
@@ -59,9 +74,13 @@ To use Redis, follow these steps:
 
 1. Create an [Azure Cache for Redis instance](https://docs.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview?WT.mc_id=AZ-MVP-5002809)
 2. Copy the connection string in "Access keys"
-3. Set the connection string in `ConnectionStrings:RedisConnection` in `appsettings.json` or environment variable
+3. Set the connection string in `ConnectionStrings:RedisConnection` in `Elf.Api/appsettings.json` or environment variable
 4. Restart the application
 
-## Admin Portal
+## Development
 
-> NOTE: A new version of Admin Portal is under development, please stay tuned.
+Tools | Alternative
+--- | ---
+[.NET 9 SDK](http://dot.net) | N/A
+[Visual Studio 2022](https://visualstudio.microsoft.com/) | [Visual Studio Code](https://code.visualstudio.com/)
+[Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/) | [SQL Server 2022](https://www.microsoft.com/en-us/sql-server/sql-server-2022) / LocalDB (Dev Only)
