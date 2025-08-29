@@ -3,6 +3,7 @@ import { setupSearchEventListeners } from './index.search.js';
 import { setupDeleteEventListeners } from './index.delete.js';
 import { setupRefreshEventListeners } from './index.refresh.js';
 import { setupLinkEditEventListeners } from './index.linkEdit.js';
+import { setupTagSearchEventListeners } from './index.tagSearch.js';
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function () {
@@ -15,4 +16,5 @@ function setupEventListeners() {
     setupDeleteEventListeners();
     setupRefreshEventListeners();
     setupLinkEditEventListeners();
+    setupTagSearchEventListeners();
 }

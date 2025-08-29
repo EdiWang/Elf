@@ -8,6 +8,13 @@ import { escapeHtml } from './index.utils.js';
 import { success as showSuccessToast, error as showErrorToast } from './toastService.mjs';
 
 export async function loadLinks() {
+    // Check if we should use tag search instead
+    if (state.searchMode === 'tags' && state.selectedTagIds && state.selectedTagIds.length > 0) {
+        const { loadLinksByTags } = await import('./index.tagSearch.js');
+        await loadLinksByTags();
+        return;
+    }
+    
     try {
         showLoading(true);
         const response = await getLinks(state.currentSearchTerm, state.pageSize, getOffset());

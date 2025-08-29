@@ -3,6 +3,8 @@ export let state = {
     currentPage: 0,
     pageSize: 10,
     currentSearchTerm: '',
+    selectedTagIds: [],
+    searchMode: 'text', // 'text' or 'tags'
     totalRows: 0,
     linkToDelete: null,
     editingLinkId: null

@@ -17,6 +17,11 @@ export const elements = {
     deleteUrlPreview: document.getElementById('deleteUrlPreview'),
     confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
 
+    // Tag search elements
+    tagFilter: document.getElementById('tagFilter'),
+    tagSearchBtn: document.getElementById('tagSearchBtn'),
+    clearTagFilterBtn: document.getElementById('clearTagFilterBtn'),
+
     // Link Edit Modal elements
     linkEditModal: new bootstrap.Modal(document.getElementById('linkEditModal')),
     linkEditModalLabel: document.getElementById('linkEditModalLabel'),
