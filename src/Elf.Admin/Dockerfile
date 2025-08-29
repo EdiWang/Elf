@@ -11,6 +11,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Elf.Admin/Elf.Admin.csproj", "Elf.Admin/"]
+COPY ["Elf.Shared/Elf.Shared.csproj", "Elf.Shared/"]
+COPY ["Elf.TokenGenerator/Elf.TokenGenerator.csproj", "Elf.TokenGenerator/"]
 RUN dotnet restore "./Elf.Admin/Elf.Admin.csproj"
 COPY . .
 WORKDIR "/src/Elf.Admin"
