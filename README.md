@@ -31,11 +31,29 @@ Forward Link, Create/Manage/Share Link, View Report.
 
 ### Setup Database
 
-[Create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started?WT.mc_id=AZ-MVP-5002809) or a SQL Server 2019+ database.
+[Create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started?WT.mc_id=AZ-MVP-5002809) or a SQL Server 2019+ database on premises.
 
 ### Docker Deployment (Recommended)
 
+#### Quick Deploy on Azure
+
+> If you use Azure, we provides an automatic deployment script.
+
 TODO
+
+#### Manually Deploy Forwarder API
+
+```bash
+docker run -d -p 8080:80 -e "ConnectionStrings__ElfDatabase=Server=tcp:<your_server>.database.windows.net,1433;Initial Catalog=<your_database>.....;" --name elf-api ediwang/elf:latest
+```
+
+#### Manually Deploy Admin UI
+
+> This image is not ready yet. It will be available soon in RC release.
+
+```bash
+docker run -d -p 8081:80 -e "ConnectionStrings__ElfDatabase=Server=tcp:<your_server>.database.windows.net,1433;Initial Catalog=<your_database>.....;" --name elf-admin ediwang/elf-admin:latest
+```
 
 ### Code Deployment
 
