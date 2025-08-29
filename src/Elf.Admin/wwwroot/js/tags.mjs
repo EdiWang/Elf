@@ -13,8 +13,8 @@ const elements = {
     cancelTagBtn: document.getElementById('cancelTagBtn'),
     loadingSpinner: document.getElementById('loadingSpinner'),
     noTagsMessage: document.getElementById('noTagsMessage'),
-    tagsTableContainer: document.getElementById('tagsTableContainer'),
-    tagsTableBody: document.getElementById('tagsTableBody'),
+    tagsGridContainer: document.getElementById('tagsGridContainer'),
+    tagsGrid: document.getElementById('tagsGrid'),
     deleteTagModal: document.getElementById('deleteTagModal'),
     deleteTagName: document.getElementById('deleteTagName'),
     confirmDeleteBtn: document.getElementById('confirmDeleteBtn')
@@ -58,29 +58,25 @@ function renderTags() {
     
     if (tags.length === 0) {
         elements.noTagsMessage.style.display = 'block';
-        elements.tagsTableContainer.style.display = 'none';
+        elements.tagsGridContainer.style.display = 'none';
         return;
     }
 
     elements.noTagsMessage.style.display = 'none';
-    elements.tagsTableContainer.style.display = 'block';
+    elements.tagsGridContainer.style.display = 'block';
 
-    elements.tagsTableBody.innerHTML = tags.map(tag => `
-        <tr>
-            <td>
-                <span class="rounded border border-secondary px-2">${escapeHtml(tag.name)}</span>
-            </td>
-            <td>
-                <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-outline-primary" onclick="editTag(${tag.id})" title="Edit">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-danger" onclick="showDeleteConfirmation(${tag.id}, '${escapeHtml(tag.name)}')" title="Delete">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
+    elements.tagsGrid.innerHTML = tags.map(tag => `
+        <div class="tag-pill d-inline-flex align-items-center gap-1 bg-light border rounded-pill px-3 py-2">
+            <span class="tag-name">${escapeHtml(tag.name)}</span>
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-circle p-1" 
+                    onclick="editTag(${tag.id})" title="Edit" style="width: 24px; height: 24px;">
+                <i class="bi bi-pencil" style="font-size: 0.75rem;"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger rounded-circle p-1" 
+                    onclick="showDeleteConfirmation(${tag.id}, '${escapeHtml(tag.name)}')" title="Delete" style="width: 24px; height: 24px;">
+                <i class="bi bi-trash" style="font-size: 0.75rem;"></i>
+            </button>
+        </div>
     `).join('');
 }
 
@@ -212,7 +208,7 @@ async function handleConfirmDelete() {
 function showLoading() {
     elements.loadingSpinner.style.display = 'block';
     elements.noTagsMessage.style.display = 'none';
-    elements.tagsTableContainer.style.display = 'none';
+    elements.tagsGridContainer.style.display = 'none';
 }
 
 function hideLoading() {
