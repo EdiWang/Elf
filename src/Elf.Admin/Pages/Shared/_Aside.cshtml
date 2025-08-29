@@ -5,13 +5,22 @@
 <nav class="aside-nav">
     <ul class="nav nav-pills flex-column">
         <li class="nav-item">
-            <a class="nav-link @(currentPage is "/Index" ? "active" : null)" asp-page="./Index">Links</a>
+            <a class="nav-link @(currentPage is "/Index" ? "active" : null)" asp-page="./Index">
+                <i class="bi bi-list-ul"></i>
+                Links
+            </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link @(currentPage is "/Tags" ? "active" : null)" asp-page="./Tags">Tags</a>
+            <a class="nav-link @(currentPage is "/Tags" ? "active" : null)" asp-page="./Tags">
+                <i class="bi bi-tags"></i>
+                Tags
+            </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link @(currentPage is "/Report" ? "active" : null)" asp-page="./Report">Report</a>
+            <a class="nav-link @(currentPage is "/Report" ? "active" : null)" asp-page="./Report">
+                <i class="bi bi-pie-chart"></i>
+                Report
+            </a>
         </li>
     </ul>
 </nav>
