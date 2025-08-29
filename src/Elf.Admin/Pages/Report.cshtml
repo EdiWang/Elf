@@ -3,6 +3,39 @@
     ViewData["Title"] = "Report";
 }
 
+<section class="date-range-selector">
+    <form id="dateRangeForm">
+        <div class="row align-items-end">
+            <div class="col">
+                <div class="mb-3">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="startDate" name="startDate" required>
+                    <div class="invalid-feedback" id="startDateError"></div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="mb-3">
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="endDate" name="endDate" required>
+                    <div class="invalid-feedback" id="endDateError"></div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="mb-3">
+                    <button type="button" class="btn btn-outline-primary w-100" id="refreshChartBtn">
+                        <span class="spinner-border spinner-border-sm d-none" id="refreshSpinner" role="status" aria-hidden="true"></span>
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Refresh Chart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+
+<!-- Chart Container -->
+<section class="chart-container">
+</section>
 
 @section scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js" integrity="sha512-Y51n9mtKTVBh3Jbx5pZSJNDDMyY+yGe77DGtBPzRlgsf/YLCh13kSZ3JmfHGzYFCmOndraf0sQgfM654b7dJ3w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
