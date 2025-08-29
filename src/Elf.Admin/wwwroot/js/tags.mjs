@@ -68,7 +68,7 @@ function renderTags() {
     elements.tagsTableBody.innerHTML = tags.map(tag => `
         <tr>
             <td>
-                <span class="badge bg-secondary">${escapeHtml(tag.name)}</span>
+                <span class="rounded border border-secondary px-2">${escapeHtml(tag.name)}</span>
             </td>
             <td>
                 <div class="btn-group btn-group-sm" role="group">
