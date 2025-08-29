@@ -66,15 +66,17 @@ function renderTags() {
     elements.tagsGridContainer.style.display = 'block';
 
     elements.tagsGrid.innerHTML = tags.map(tag => `
-        <div class="tag-pill d-inline-flex align-items-center gap-1 bg-light border rounded-pill px-3 py-2">
-            <span class="tag-name">${escapeHtml(tag.name)}</span>
-            <button type="button" class="btn btn-sm btn-outline-primary rounded-circle p-1" 
-                    onclick="editTag(${tag.id})" title="Edit" style="width: 24px; height: 24px;">
-                <i class="bi bi-pencil" style="font-size: 0.75rem;"></i>
+        <div class="tag-pill d-inline-flex align-items-center gap-1 bg-white border rounded ps-2 pe-1 py-1">
+            <span class="tag-name me-2">
+                ${escapeHtml(tag.name)}
+            </span>
+            <button type="button" class="btn btn-sm btn-outline-primary" 
+                    onclick="editTag(${tag.id})" title="Edit">
+                <i class="bi bi-pencil"></i>
             </button>
-            <button type="button" class="btn btn-sm btn-outline-danger rounded-circle p-1" 
-                    onclick="showDeleteConfirmation(${tag.id}, '${escapeHtml(tag.name)}')" title="Delete" style="width: 24px; height: 24px;">
-                <i class="bi bi-trash" style="font-size: 0.75rem;"></i>
+            <button type="button" class="btn btn-sm btn-outline-danger" 
+                    onclick="showDeleteConfirmation(${tag.id}, '${escapeHtml(tag.name)}')" title="Delete">
+                <i class="bi bi-trash"></i>
             </button>
         </div>
     `).join('');
