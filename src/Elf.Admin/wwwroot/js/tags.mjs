@@ -1,4 +1,5 @@
 import { getTags, createTag, updateTag, deleteTag } from './tags.apiclient.mjs';
+import { success, error } from './toastService.mjs';
 
 // DOM elements
 const elements = {
@@ -47,9 +48,9 @@ async function loadTags() {
         const response = await getTags();
         tags = response.sort((a, b) => a.name.localeCompare(b.name));
         renderTags();
-    } catch (error) {
-        console.error('Error loading tags:', error);
-        showError('Failed to load tags. Please try again.');
+    } catch (err) {
+        console.error('Error loading tags:', err);
+        error('Failed to load tags. Please try again.');
     }
 }
 
@@ -127,16 +128,18 @@ async function handleSaveTag(event) {
 
         if (editingTagId) {
             await updateTag(editingTagId, { name });
+            success('Tag updated successfully.');
         } else {
             await createTag({ name });
+            success('Tag created successfully.');
         }
 
         hideForm();
         await loadTags();
         
-    } catch (error) {
-        console.error('Error saving tag:', error);
-        showError('Failed to save tag. Please try again.');
+    } catch (err) {
+        console.error('Error saving tag:', err);
+        error('Failed to save tag. Please try again.');
     } finally {
         elements.saveTagBtn.disabled = false;
         elements.saveTagBtn.innerHTML = '<i class="bi bi-check-circle"></i> Save';
@@ -195,11 +198,12 @@ async function handleConfirmDelete() {
 
         await deleteTag(tagToDeleteId);
         deleteModal.hide();
+        success('Tag deleted successfully.');
         await loadTags();
         
-    } catch (error) {
-        console.error('Error deleting tag:', error);
-        showError('Failed to delete tag. Please try again.');
+    } catch (err) {
+        console.error('Error deleting tag:', err);
+        error('Failed to delete tag. Please try again.');
     } finally {
         elements.confirmDeleteBtn.disabled = false;
         elements.confirmDeleteBtn.innerHTML = '<i class="bi bi-trash"></i> Delete';
@@ -215,37 +219,6 @@ function showLoading() {
 
 function hideLoading() {
     elements.loadingSpinner.style.display = 'none';
-}
-
-function showError(message) {
-    // Create and show a toast notification
-    const toastHtml = `
-        <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="bi bi-exclamation-triangle"></i> ${escapeHtml(message)}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
-    `;
-    
-    let toastContainer = document.querySelector('.toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-        document.body.appendChild(toastContainer);
-    }
-    
-    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-    const toastElement = toastContainer.lastElementChild;
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
-    
-    // Remove the toast element after it's hidden
-    toastElement.addEventListener('hidden.bs.toast', () => {
-        toastElement.remove();
-    });
 }
 
 function escapeHtml(text) {
