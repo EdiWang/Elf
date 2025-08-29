@@ -2,8 +2,8 @@
  * Chart data loading functions for the report page
  */
 
-import { getTrackingCounts, getClientTypeCounts } from './report.apiclient.mjs';
-import { createRequestsLineChart, createClientTypesPieChart } from './report.charts.mjs';
+import { getTrackingCounts, getClientTypeCounts, getMostRequestedLinks } from './report.apiclient.mjs';
+import { createRequestsLineChart, createClientTypesPieChart, createMostRequestedLinksDoughnutChart } from './report.charts.mjs';
 import { createDateRangeRequest } from './report.dateUtils.mjs';
 import { setLoadingState, handleError } from './report.uiState.mjs';
 
@@ -54,5 +54,26 @@ export async function loadClientTypesChart(startDateInput, endDateInput) {
 
     } catch (error) {
         handleError(error, 'loading client types chart');
+    }
+}
+
+/**
+ * Load and display the most requested links doughnut chart
+ * @param {HTMLInputElement} startDateInput - Start date input element
+ * @param {HTMLInputElement} endDateInput - End date input element
+ */
+export async function loadMostRequestedLinksChart(startDateInput, endDateInput) {
+    try {
+        // Prepare date range request
+        const dateRangeRequest = createDateRangeRequest(startDateInput.value, endDateInput.value);
+
+        // Get most requested links data
+        const mostRequestedLinksData = await getMostRequestedLinks(dateRangeRequest);
+
+        // Create chart
+        createMostRequestedLinksDoughnutChart(mostRequestedLinksData);
+
+    } catch (error) {
+        handleError(error, 'loading most requested links chart');
     }
 }

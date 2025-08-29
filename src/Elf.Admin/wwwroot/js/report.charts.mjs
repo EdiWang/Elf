@@ -33,6 +33,7 @@ const PIE_CHART_COLORS = {
 // Chart instances
 let requestsChart = null;
 let clientTypesChart = null;
+let mostRequestedLinksChart = null;
 
 /**
  * Create or update the requests line chart
@@ -149,6 +150,61 @@ export function createClientTypesPieChart(clientTypeData) {
 }
 
 /**
+ * Create or update the most requested links doughnut chart
+ * @param {Array} mostRequestedLinksData - Array of most requested links data objects
+ */
+export function createMostRequestedLinksDoughnutChart(mostRequestedLinksData) {
+    // Prepare chart data
+    const labels = mostRequestedLinksData.map(item => item.note || `Link ${item.fwToken}`);
+    const requestCounts = mostRequestedLinksData.map(item => item.requestCount);
+
+    // Destroy existing chart if it exists
+    if (mostRequestedLinksChart) {
+        mostRequestedLinksChart.destroy();
+    }
+
+    // Create new doughnut chart
+    const ctx = document.getElementById('mostRequestedLinksDoughnutChart').getContext('2d');
+    mostRequestedLinksChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Request Count',
+                data: requestCounts,
+                backgroundColor: PIE_CHART_COLORS.background.slice(0, labels.length),
+                borderColor: PIE_CHART_COLORS.border.slice(0, labels.length),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
  * Destroy all chart instances
  */
 export function destroyAllCharts() {
@@ -160,5 +216,10 @@ export function destroyAllCharts() {
     if (clientTypesChart) {
         clientTypesChart.destroy();
         clientTypesChart = null;
+    }
+
+    if (mostRequestedLinksChart) {
+        mostRequestedLinksChart.destroy();
+        mostRequestedLinksChart = null;
     }
 }

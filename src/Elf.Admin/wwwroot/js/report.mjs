@@ -1,5 +1,5 @@
 import { setDefaultDates, validateDateRange, setupDateValidation } from './report.dateUtils.mjs';
-import { loadRequestsChart, loadClientTypesChart } from './report.chartLoaders.mjs';
+import { loadRequestsChart, loadClientTypesChart, loadMostRequestedLinksChart } from './report.chartLoaders.mjs';
 
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize DOM elements
@@ -17,12 +17,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize charts on page load
     loadRequestsChart(startDateInput, endDateInput, refreshBtn, refreshSpinner);
     loadClientTypesChart(startDateInput, endDateInput);
+    loadMostRequestedLinksChart(startDateInput, endDateInput);
 
     // Refresh chart button click handler
     refreshBtn.addEventListener('click', function () {
         if (validateDateRange(startDateInput, endDateInput)) {
             loadRequestsChart(startDateInput, endDateInput, refreshBtn, refreshSpinner);
             loadClientTypesChart(startDateInput, endDateInput);
+            loadMostRequestedLinksChart(startDateInput, endDateInput);
         }
     });
 });
