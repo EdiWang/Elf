@@ -27,7 +27,7 @@ public class Program
 
     private static void ConfigureLogging(WebApplicationBuilder builder)
     {
-        if (IsRunningOnAzureAppService())
+        if (Utils.IsRunningOnAzureAppService())
         {
             builder.Logging.AddAzureWebAppDiagnostics();
         }
@@ -50,7 +50,7 @@ public class Program
 
         services.AddRazorPages();
         services.AddControllers();
-
+        services.AddHealthChecks();
         services.AddOptions();
         services.AddFeatureManagement();
 
@@ -64,6 +64,9 @@ public class Program
 
     private static void ConfigureMiddleware(WebApplication app)
     {
+        bool useXFFHeaders = app.Configuration.GetValue<bool>("ForwardedHeaders:Enabled");
+        if (useXFFHeaders) app.UseSmartXFFHeader();
+
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
@@ -77,8 +80,12 @@ public class Program
 
         app.UseRouting();
         app.MapRazorPages();
+
+        app.MapHealthChecks("/health", new()
+        {
+            ResponseWriter = PingEndpoint.WriteResponse
+        });
+
         app.MapControllers();
     }
-
-    private static bool IsRunningOnAzureAppService() => !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME"));
 }

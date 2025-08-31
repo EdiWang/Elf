@@ -1,8 +1,10 @@
-﻿using Elf.Shared;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Net;
 
-namespace Elf.Api;
+namespace Elf.Shared;
 
 public static class WebApplicationExtensions
 {

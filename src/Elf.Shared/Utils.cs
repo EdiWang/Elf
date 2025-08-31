@@ -6,6 +6,7 @@ namespace Elf.Shared;
 public static class Utils
 {
     public static bool IsRunningInDocker() => Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    public static bool IsRunningOnAzureAppService() => !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME"));
 
     public static void SetAppDomainData(string key, object value)
     {

@@ -1,8 +1,8 @@
-﻿using Elf.Shared;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text.Json;
 
-namespace Elf.Api;
+namespace Elf.Shared;
 
 public class PingEndpoint
 {
