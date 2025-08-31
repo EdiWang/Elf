@@ -7,7 +7,6 @@ using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
 using Polly;
 using System.Data;
@@ -185,22 +184,8 @@ void ConfigureEndpoints()
 {
     app.MapHealthChecks("/", new()
     {
-        ResponseWriter = WriteResponse
+        ResponseWriter = PingEndpoint.WriteResponse
     });
 
     app.MapControllers();
-}
-
-static Task WriteResponse(HttpContext context, HealthReport result)
-{
-    context.Response.Headers.Append("X-Elf-Version", Utils.AppVersion);
-
-    var obj = new
-    {
-        Utils.AppVersion,
-        DotNetVersion = Environment.Version.ToString(),
-        RequestIpAddress = context.Connection.RemoteIpAddress?.ToString()
-    };
-
-    return context.Response.WriteAsJsonAsync(obj);
 }

@@ -36,7 +36,7 @@ public class ForwardController(
     {
         if (string.IsNullOrWhiteSpace(akaName)) return BadRequest();
 
-        var ip = Utils.GetClientIP(HttpContext) ?? "N/A";
+        var ip = ClientIPHelper.GetClientIP(HttpContext) ?? "N/A";
         if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
 
         var token = await queryMediator.QueryAsync(new GetTokenByAkaNameQuery(akaName));
@@ -55,7 +55,7 @@ public class ForwardController(
     {
         if (string.IsNullOrWhiteSpace(token)) return BadRequest();
 
-        var ip = Utils.GetClientIP(HttpContext) ?? "N/A";
+        var ip = ClientIPHelper.GetClientIP(HttpContext) ?? "N/A";
         if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
 
         return await PerformTokenRedirection(token, ip);

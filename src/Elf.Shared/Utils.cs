@@ -1,11 +1,26 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Net;
+﻿using System.Net;
 using System.Reflection;
 
 namespace Elf.Shared;
 
 public static class Utils
 {
+    public static void SetAppDomainData(string key, object value)
+    {
+        AppDomain.CurrentDomain.SetData(key, value);
+    }
+
+    public static T GetAppDomainData<T>(string key, T defaultValue = default(T))
+    {
+        object data = AppDomain.CurrentDomain.GetData(key);
+        if (data == null)
+        {
+            return defaultValue;
+        }
+
+        return (T)data;
+    }
+
     public static string AppVersion
     {
         get
@@ -29,8 +44,6 @@ public static class Utils
             return version ?? fileVersion;
         }
     }
-
-    public static string GetClientIP(HttpContext context) => context?.Connection.RemoteIpAddress?.ToString();
 
     public static bool IsPrivateIP(string ip) => IPAddress.Parse(ip).GetAddressBytes() switch
     {
