@@ -1,4 +1,4 @@
-name: Docker for API
+name: Forwarder API (Docker)
 
 on:
   push:
