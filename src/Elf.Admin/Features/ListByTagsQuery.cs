@@ -11,12 +11,19 @@ public class ListByTagsQueryHandler(ElfDbContext dbContext) : IQueryHandler<List
 {
     public async Task<(List<LinkModel> Links, int TotalRows)> HandleAsync(ListByTagsQuery request, CancellationToken ct)
     {
-        var query = from l in dbContext.Link.Include(l => l.Tags)
-                    where l.Tags.Any(t => request.Payload.TagIds.Contains(t.Id))
-                    select l;
+        if (request.Payload.TagIds is not { Length: > 0 })
+            return (new List<LinkModel>(0), 0);
 
-        var totalRows = query.Count();
-        var data = await query.OrderByDescending(p => p.UpdateTimeUtc)
+        var baseQuery = dbContext.Link
+            .Where(l => l.Tags.Any(t => request.Payload.TagIds.Contains(t.Id)));
+
+        var totalRows = await baseQuery.CountAsync(ct);
+
+        if (totalRows == 0) return (new List<LinkModel>(), 0);
+
+        var data = await baseQuery
+            .OrderByDescending(p => p.UpdateTimeUtc)
+            .ThenByDescending(p => p.Id) // stable ordering for pagination
             .Skip(request.Payload.Offset)
             .Take(request.Payload.Take)
             .AsNoTracking()
@@ -30,7 +37,10 @@ public class ListByTagsQueryHandler(ElfDbContext dbContext) : IQueryHandler<List
                 AkaName = p.AkaName,
                 FwToken = p.FwToken,
                 IsEnabled = p.IsEnabled,
-                Tags = p.Tags.ToArray()
+                // Project to lightweight TagEntity instances to avoid loading navigation graphs
+                Tags = p.Tags
+                    .Select(t => new TagEntity { Id = t.Id, Name = t.Name })
+                    .ToArray()
             })
             .ToListAsync(ct);
 
