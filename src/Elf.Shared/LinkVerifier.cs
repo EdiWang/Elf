@@ -18,8 +18,16 @@ public interface ILinkVerifier
 
 public class LinkVerifier : ILinkVerifier
 {
+    private static readonly string[] ForwardEndpoints = ["fw", "fw/", "aka", "aka/"];
+
     public LinkVerifyResult Verify(string url, IUrlHelper urlHelper, HttpRequest currentRequest, bool allowSelfRedirection = false)
     {
+        // Early validation for null or empty URL
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return LinkVerifyResult.InvalidFormat;
+        }
+
         if (!url.IsValidUrl())
         {
             return LinkVerifyResult.InvalidFormat;
@@ -30,40 +38,49 @@ public class LinkVerifier : ILinkVerifier
             return LinkVerifyResult.InvalidLocal;
         }
 
-        if (!allowSelfRedirection && Uri.TryCreate(url, UriKind.Absolute, out var testUri))
+        if (!allowSelfRedirection && IsSelfReference(url, currentRequest))
         {
-            if (string.Compare(testUri.Authority, currentRequest.Host.ToString(), StringComparison.OrdinalIgnoreCase) == 0
-                && string.Compare(testUri.Scheme, currentRequest.Scheme, StringComparison.OrdinalIgnoreCase) == 0
-                && IsForwardEndpoint(testUri))
-            {
-                return LinkVerifyResult.InvalidSelfReference;
-            }
+            return LinkVerifyResult.InvalidSelfReference;
         }
 
         return LinkVerifyResult.Valid;
     }
 
-    // Check only for Forward endpoints (fw, aka) as suggested in #10
-    public static bool IsForwardEndpoint(Uri uri)
+    private static bool IsSelfReference(string url, HttpRequest currentRequest)
     {
-        var endpoints = new[] { "fw", "fw/", "aka", "aka/" };
-
-        if (uri.AbsolutePath != "/" && uri.Segments.Length > 1)
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
         {
-
-            for (var i = 1; i < uri.Segments.Length; i++)
-            {
-                if (uri.Segments[i] == "/") continue;
-
-                if (endpoints.Any(endpoint =>
-                    string.Compare(uri.Segments[i], endpoint, StringComparison.OrdinalIgnoreCase) == 0))
-                {
-                    return true;
-                }
-                break;
-            }
+            return false;
         }
 
-        return false;
+        var isSameHost = string.Equals(uri.Authority, currentRequest.Host.ToString(), StringComparison.OrdinalIgnoreCase);
+        var isSameScheme = string.Equals(uri.Scheme, currentRequest.Scheme, StringComparison.OrdinalIgnoreCase);
+        
+        return isSameHost && isSameScheme && IsForwardEndpoint(uri);
+    }
+
+    /// <summary>
+    /// Checks if the URI points to a forward endpoint (fw, aka) as suggested in issue #10
+    /// </summary>
+    /// <param name="uri">The URI to check</param>
+    /// <returns>True if the URI is a forward endpoint, false otherwise</returns>
+    public static bool IsForwardEndpoint(Uri uri)
+    {
+        ArgumentNullException.ThrowIfNull(uri);
+
+        if (uri.AbsolutePath == "/" || uri.Segments.Length <= 1)
+        {
+            return false;
+        }
+
+        // Check the first non-root segment for forward endpoints
+        var firstSegment = uri.Segments[1];
+        if (firstSegment == "/")
+        {
+            return false;
+        }
+
+        return ForwardEndpoints.Any(endpoint =>
+            string.Equals(firstSegment, endpoint, StringComparison.OrdinalIgnoreCase));
     }
 }
