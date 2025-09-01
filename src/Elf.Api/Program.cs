@@ -5,9 +5,7 @@ using Elf.TokenGenerator;
 using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
 using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
 using Polly;
 using System.Data;
@@ -42,33 +40,6 @@ void ConfigureServices(IServiceCollection services)
         {
             module.RegisterFromAssembly(typeof(Program).Assembly);
         });
-    });
-
-    // Fix docker deployments on Azure App Service blows up with Azure AD authentication
-    // https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-6.0
-    // "Outside of using IIS Integration when hosting out-of-process, Forwarded Headers Middleware isn't enabled by default."
-    var knownProxies = builder.Configuration.GetSection("KnownProxies").Get<string[]>();
-    builder.Services.Configure<ForwardedHeadersOptions>(options =>
-    {
-        if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
-        {
-            // Adding KnownProxies will make Azure App Service boom boom with Azure AD redirect URL
-            // Result in `https` incorrectly written into `http`.
-            Console.WriteLine("Running in Docker, skip adding 'KnownProxies'.");
-        }
-        else
-        {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            options.ForwardLimit = null;
-            options.KnownProxies.Clear();
-            if (knownProxies != null)
-            {
-                foreach (var ip in knownProxies)
-                {
-                    options.KnownProxies.Add(IPAddress.Parse(ip));
-                }
-            }
-        }
     });
 
     var rateLimitOptions = new RateLimitOptions();
@@ -149,7 +120,8 @@ void ConfigureServices(IServiceCollection services)
 
 void ConfigureMiddleware()
 {
-    app.UseForwardedHeaders();
+    bool useXFFHeaders = app.Configuration.GetValue<bool>("ForwardedHeaders:Enabled");
+    if (useXFFHeaders) app.UseSmartXFFHeader();
 
     var policyCollection = new HeaderPolicyCollection()
     .AddFrameOptionsDeny()
@@ -185,22 +157,8 @@ void ConfigureEndpoints()
 {
     app.MapHealthChecks("/", new()
     {
-        ResponseWriter = WriteResponse
+        ResponseWriter = PingEndpoint.WriteResponse
     });
 
     app.MapControllers();
-}
-
-static Task WriteResponse(HttpContext context, HealthReport result)
-{
-    context.Response.Headers.Append("X-Elf-Version", Utils.AppVersion);
-
-    var obj = new
-    {
-        Utils.AppVersion,
-        DotNetVersion = Environment.Version.ToString(),
-        RequestIpAddress = context.Connection.RemoteIpAddress?.ToString()
-    };
-
-    return context.Response.WriteAsJsonAsync(obj);
 }

@@ -1,6 +1,5 @@
 ﻿using Elf.Admin.Features;
 using Elf.Admin.Models;
-using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +10,6 @@ namespace Elf.Admin.Controllers;
 [Route("api/[controller]")]
 public class ReportController(
     IConfiguration configuration,
-    ICommandMediator commandMediator,
     IQueryMediator queryMediator) : ControllerBase
 {
     [HttpGet("requests")]
@@ -55,13 +53,5 @@ public class ReportController(
     {
         var dateCounts = await queryMediator.QueryAsync(new GetLinkTrackingDateCountQuery(request));
         return Ok(dateCounts);
-    }
-
-    [HttpDelete("tracking/clear")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> ClearTrackingData()
-    {
-        await commandMediator.SendAsync(new ClearTrackingDataCommand());
-        return NoContent();
     }
 }

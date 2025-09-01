@@ -1,4 +1,4 @@
-name: Forwarder API (Docker)
+name: Admin UI (Docker)
 
 on:
   workflow_dispatch:
@@ -26,9 +26,9 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./src
-        file: ./src/Elf.Api/Dockerfile
+        file: ./src/Elf.Admin/Dockerfile
         push: true
-        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/elf:latest
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/elf-admin:latest
 
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
