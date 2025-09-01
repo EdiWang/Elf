@@ -12,19 +12,27 @@ public class ListLinkQueryHandler(ElfDbContext dbContext) : IQueryHandler<ListLi
 {
     public async Task<(List<LinkModel> Links, int TotalRows)> HandleAsync(ListLinkQuery request, CancellationToken ct)
     {
-        var query = from l in dbContext.Link.Include(l => l.LinkTrackings)
-                    select l;
-
         var (offset, take, noteKeyword) = request;
-        if (noteKeyword is not null)
+
+        // Build base query with all necessary includes
+        var query = dbContext.Link
+            .Include(l => l.LinkTrackings)
+            .Include(l => l.Tags)
+            .AsQueryable();
+
+        // Apply filtering if keyword is provided
+        if (!string.IsNullOrWhiteSpace(noteKeyword))
         {
-            query = dbContext.Link
-                .Include(l => l.Tags)
-                .Where(l => l.Note.Contains(noteKeyword) || l.FwToken.Contains(noteKeyword));
+            query = query.Where(l => l.Note.Contains(noteKeyword) || l.FwToken.Contains(noteKeyword));
         }
 
-        var totalRows = query.Count();
-        var data = await query.OrderByDescending(p => p.UpdateTimeUtc)
+        // Get total count asynchronously before applying pagination
+        var totalRows = await query.CountAsync(ct);
+        if (totalRows == 0) return (new List<LinkModel>(), 0);
+
+        // Apply pagination and projection
+        var data = await query
+            .OrderByDescending(p => p.UpdateTimeUtc)
             .Skip(offset)
             .Take(take)
             .AsNoTracking()
