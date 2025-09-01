@@ -1,7 +1,7 @@
 import { getRequests } from './report.apiclient.mjs';
 
 let currentPage = 1;
-const pageSize = 10;
+const pageSize = 15;
 let totalRows = 0;
 
 /**
@@ -55,9 +55,9 @@ function createTableRow(request) {
             <td>${escapeHtml(request.note)}</td>
             <td class="text-truncate" style="max-width: 200px;" title="${escapeHtml(request.userAgent)}">${escapeHtml(request.userAgent)}</td>
             <td><code>${escapeHtml(request.ipAddress)}</code></td>
-            <td>${escapeHtml(location)}</td>
+            <td class="text-truncate">${escapeHtml(location)}</td>
             <td>${escapeHtml(request.ipasn)}</td>
-            <td>${escapeHtml(request.ipOrg)}</td>
+            <td class="text-truncate">${escapeHtml(request.ipOrg)}</td>
             <td>${escapeHtml(localDateTime)}</td>
         </tr>
     `;
@@ -72,7 +72,7 @@ function createTableRow(request) {
 function createPaginationHtml(currentPage, totalPages) {
     if (totalPages <= 1) return '';
 
-    let paginationHtml = '<nav aria-label="Recent requests pagination"><ul class="pagination pagination-sm justify-content-center mt-3">';
+    let paginationHtml = '<nav aria-label="Recent requests pagination"><ul class="pagination pagination-sm justify-content-end mt-3">';
 
     // Previous button
     const prevDisabled = currentPage === 1 ? 'disabled' : '';
@@ -128,7 +128,7 @@ function createPaginationHtml(currentPage, totalPages) {
 export async function loadRecentRequestsTable(page = 1) {
     try {
         const tableBody = document.querySelector('#recentRequestsTable tbody');
-        const tableContainer = document.querySelector('.recent-requests-container .card-body');
+        const tableContainer = document.querySelector('.recent-requests-container');
 
         if (!tableBody || !tableContainer) {
             console.error('Recent requests table elements not found');
