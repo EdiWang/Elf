@@ -42,44 +42,7 @@ void ConfigureServices(IServiceCollection services)
         });
     });
 
-    var rateLimitOptions = new RateLimitOptions();
-    builder.Configuration.GetSection(RateLimitOptions.RateLimit).Bind(rateLimitOptions);
-
-    builder.Services.AddRateLimiter(limiterOptions =>
-    {
-        limiterOptions.OnRejected = async (context, ct) =>
-        {
-            if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
-            {
-                context.HttpContext.Response.Headers.RetryAfter =
-                    ((int)retryAfter.TotalSeconds).ToString(NumberFormatInfo.InvariantInfo);
-            }
-
-            context.HttpContext.Response.Headers["x-ratelimit-limit"] = rateLimitOptions.PermitLimit.ToString();
-
-            context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-            await context.HttpContext.Response.WriteAsync("Too Many Requests", ct);
-        };
-
-        limiterOptions.AddPolicy("fixed-ip", context =>
-        {
-            var remoteIpAddress = context.Connection.RemoteIpAddress;
-            if (remoteIpAddress != null && !IPAddress.IsLoopback(remoteIpAddress))
-            {
-                return RateLimitPartition.GetFixedWindowLimiter
-                    (remoteIpAddress!, _ =>
-                        new()
-                        {
-                            AutoReplenishment = rateLimitOptions.AutoReplenishment,
-                            PermitLimit = rateLimitOptions.PermitLimit,
-                            Window = TimeSpan.FromSeconds(rateLimitOptions.WindowSeconds),
-                            QueueLimit = rateLimitOptions.QueueLimit
-                        });
-            }
-
-            return RateLimitPartition.GetNoLimiter(IPAddress.Loopback);
-        });
-    });
+    AddRateLimit(builder);
 
     services.AddHealthChecks();
     services.AddOptions();
@@ -124,15 +87,9 @@ void ConfigureMiddleware()
     if (useXFFHeaders) app.UseSmartXFFHeader();
 
     var policyCollection = new HeaderPolicyCollection()
-    .AddFrameOptionsDeny()
-    .AddContentTypeOptionsNoSniff()
-    .RemoveServerHeader()
-    .AddContentSecurityPolicy(x =>
-    {
-        x.AddObjectSrc().None();
-        x.AddFormAction().Self();
-        x.AddFrameAncestors().None();
-    });
+        .AddFrameOptionsDeny()
+        .AddContentTypeOptionsNoSniff()
+        .RemoveServerHeader();
 
     app.UseSecurityHeaders(policyCollection);
 
@@ -161,4 +118,46 @@ void ConfigureEndpoints()
     });
 
     app.MapControllers();
+}
+
+static void AddRateLimit(WebApplicationBuilder builder)
+{
+    var rateLimitOptions = new RateLimitOptions();
+    builder.Configuration.GetSection(RateLimitOptions.RateLimit).Bind(rateLimitOptions);
+
+    builder.Services.AddRateLimiter(limiterOptions =>
+    {
+        limiterOptions.OnRejected = async (context, ct) =>
+        {
+            if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+            {
+                context.HttpContext.Response.Headers.RetryAfter =
+                    ((int)retryAfter.TotalSeconds).ToString(NumberFormatInfo.InvariantInfo);
+            }
+
+            context.HttpContext.Response.Headers["x-ratelimit-limit"] = rateLimitOptions.PermitLimit.ToString();
+
+            context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+            await context.HttpContext.Response.WriteAsync("Too Many Requests", ct);
+        };
+
+        limiterOptions.AddPolicy("fixed-ip", context =>
+        {
+            var remoteIpAddress = context.Connection.RemoteIpAddress;
+            if (remoteIpAddress != null && !IPAddress.IsLoopback(remoteIpAddress))
+            {
+                return RateLimitPartition.GetFixedWindowLimiter
+                    (remoteIpAddress!, _ =>
+                        new()
+                        {
+                            AutoReplenishment = rateLimitOptions.AutoReplenishment,
+                            PermitLimit = rateLimitOptions.PermitLimit,
+                            Window = TimeSpan.FromSeconds(rateLimitOptions.WindowSeconds),
+                            QueueLimit = rateLimitOptions.QueueLimit
+                        });
+            }
+
+            return RateLimitPartition.GetNoLimiter(IPAddress.Loopback);
+        });
+    });
 }
