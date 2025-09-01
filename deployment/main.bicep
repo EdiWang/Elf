@@ -18,28 +18,43 @@ param sqlDbName string = 'elfdb'
 param location string = resourceGroup().location
 
 // Create App Service Plan
-resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2024-11-01' = {
   name: 'elf-plan'
   location: location
+  kind: 'linux'
   sku: {
-    name: 'S1'
-    tier: 'Standard'
+    name: 'P0v3'
+    tier: 'Premium0V3'
+    size: 'P0v3'
+    family: 'Pv3'
     capacity: 1
   }
 }
 
 // Create Forwarder API Web App
-resource webApp 'Microsoft.Web/sites@2022-03-01' = {
+resource webApp 'Microsoft.Web/sites@2024-11-01' = {
   name: forwarderApiName
   location: location
+  kind: 'app,linux,container'
   properties: {
     serverFarmId: appServicePlan.id
-    httpsOnly: true
     siteConfig: {
-      appSettings: [
-        // Connection string to be added later
-      ]
+      numberOfWorkers: 1
+      linuxFxVersion: 'DOCKER|ediwang/elf:latest'
+      acrUseManagedIdentityCreds: false
+      alwaysOn: true
+      http20Enabled: true
+      functionAppScaleLimit: 0
+      minimumElasticInstanceCount: 1
     }
+    httpsOnly: true
+    ipMode: 'IPv4AndIPv6'
+    containerSize: 0
+    dailyMemoryTimeQuota: 0
+    endToEndEncryptionEnabled: false
+    redundancyMode: 'None'
+    publicNetworkAccess: 'Enabled'
+    sshEnabled: true
   }
 }
 
