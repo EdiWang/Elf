@@ -1,5 +1,6 @@
 using Elf.Api;
 using Elf.Api.Services;
+using Elf.Api.Setup;
 using Elf.Shared;
 using Elf.TokenGenerator;
 using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
@@ -22,6 +23,7 @@ ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
+await app.InitStartUp();
 ConfigureMiddleware();
 ConfigureEndpoints();
 
@@ -69,6 +71,7 @@ void ConfigureServices(IServiceCollection services)
     // Elf
     services.AddSingleton<CannonService>();
 
+    services.AddScoped<IStartUpInitializer, StartUpInitializer>();
     services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
     services.AddScoped<ILinkVerifier, LinkVerifier>();
 
