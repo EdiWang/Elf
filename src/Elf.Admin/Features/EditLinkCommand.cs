@@ -3,7 +3,7 @@ using Elf.Admin.Models;
 using LiteBus.Commands.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Elf.Api.Features;
+namespace Elf.Admin.Features;
 
 public record EditLinkCommand(int Id, LinkEditModel Payload) : ICommand<string>;
 
@@ -13,35 +13,64 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
     {
         var (id, payload) = request;
 
-        var link = await dbContext.Link.FindAsync(id);
+        // Use Include to load tags in a single query
+        var link = await dbContext.Link
+            .Include(l => l.Tags)
+            .FirstOrDefaultAsync(l => l.Id == id, ct);
+            
         if (link is null) return null;
 
+        // Update link properties
         link.OriginUrl = payload.OriginUrl;
         link.Note = payload.Note;
         link.AkaName = string.IsNullOrWhiteSpace(payload.AkaName) ? null : payload.AkaName;
         link.IsEnabled = payload.IsEnabled;
         link.TTL = payload.TTL;
+        link.UpdateTimeUtc = DateTime.UtcNow; // Update timestamp
 
-        link.Tags.Clear();
-        if (request.Payload.Tags is { Length: > 0 })
-        {
-            foreach (var item in request.Payload.Tags)
-            {
-                var tag = await dbContext.Tag.FirstOrDefaultAsync(q => q.Name == item, ct);
-                if (tag == null)
-                {
-                    TagEntity t = new() { Name = item };
-                    await dbContext.Tag.AddAsync(t, ct);
-                    await dbContext.SaveChangesAsync(ct);
-
-                    tag = t;
-                }
-
-                link.Tags.Add(tag);
-            }
-        }
+        // Handle tags efficiently
+        await UpdateLinkTagsAsync(link, payload.Tags, ct);
 
         await dbContext.SaveChangesAsync(ct);
         return link.FwToken;
+    }
+
+    private async Task UpdateLinkTagsAsync(LinkEntity link, string[] newTags, CancellationToken ct)
+    {
+        // Clear existing tags
+        link.Tags.Clear();
+        
+        if (newTags is null or { Length: 0 })
+            return;
+
+        // Get all existing tags that match the new tag names in a single query
+        var existingTags = await dbContext.Tag
+            .Where(t => newTags.Contains(t.Name))
+            .ToDictionaryAsync(t => t.Name, t => t, ct);
+
+        // Identify new tags that need to be created
+        var newTagNames = newTags.Except(existingTags.Keys).ToArray();
+        
+        if (newTagNames.Length > 0)
+        {
+            var tagsToAdd = newTagNames.Select(name => new TagEntity { Name = name }).ToArray();
+            await dbContext.Tag.AddRangeAsync(tagsToAdd, ct);
+            await dbContext.SaveChangesAsync(ct);
+            
+            // Add newly created tags to the dictionary
+            foreach (var tag in tagsToAdd)
+            {
+                existingTags[tag.Name] = tag;
+            }
+        }
+
+        // Add all tags to the link
+        foreach (var tagName in newTags)
+        {
+            if (existingTags.TryGetValue(tagName, out var tag))
+            {
+                link.Tags.Add(tag);
+            }
+        }
     }
 }
