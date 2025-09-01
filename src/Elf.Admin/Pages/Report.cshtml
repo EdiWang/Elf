@@ -3,108 +3,125 @@
     ViewData["Title"] = "Report";
 }
 
-<section class="date-range-selector">
-    <form id="dateRangeForm">
-        <div class="row align-items-end">
-            <div class="col">
-                <div class="mb-3">
-                    <label for="startDate" class="form-label">Start Date</label>
-                    <input type="date" class="form-control" id="startDate" name="startDate" required>
-                    <div class="invalid-feedback" id="startDateError"></div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="mb-3">
-                    <label for="endDate" class="form-label">End Date</label>
-                    <input type="date" class="form-control" id="endDate" name="endDate" required>
-                    <div class="invalid-feedback" id="endDateError"></div>
-                </div>
-            </div>
-            <div class="col-auto">
-                <div class="mb-3">
-                    <button type="button" class="btn btn-outline-primary w-100" id="refreshChartBtn">
-                        <span class="spinner-border spinner-border-sm d-none" id="refreshSpinner" role="status" aria-hidden="true"></span>
-                        <i class="bi bi-arrow-clockwise"></i>
-                        Refresh Chart
-                    </button>
-                </div>
-            </div>
-        </div>
-    </form>
-</section>
 
-<!-- Chart Container -->
-<section class="chart-container mb-2">
-    <div class="row g-2">
-        <div class="col-4">
-            <div class="card bg-white">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-3 text-secondary">
-                        Requests
-                    </h6>
-                    <div class="requests-line-chart-container">
-                        <canvas id="requestsLineChart" width="400" height="300"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-4">
-            <div class="card bg-white">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-3 text-secondary">
-                        Client Types
-                    </h6>
-                    <div class="client-types-line-chart-container">
-                        <canvas id="clientTypesPieChart" width="400" height="300"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="accordion" id="accordionExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                Charts
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <section class="date-range-selector">
+                    <form id="dateRangeForm">
+                        <div class="row align-items-end">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="startDate" class="form-label">Start Date</label>
+                                    <input type="date" class="form-control" id="startDate" name="startDate" required>
+                                    <div class="invalid-feedback" id="startDateError"></div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="endDate" class="form-label">End Date</label>
+                                    <input type="date" class="form-control" id="endDate" name="endDate" required>
+                                    <div class="invalid-feedback" id="endDateError"></div>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-outline-primary w-100" id="refreshChartBtn">
+                                        <span class="spinner-border spinner-border-sm d-none" id="refreshSpinner" role="status" aria-hidden="true"></span>
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                        Refresh Chart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+                <section class="chart-container mb-2">
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <div class="card bg-white">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-3 text-secondary">
+                                        Requests
+                                    </h6>
+                                    <div class="requests-line-chart-container">
+                                        <canvas id="requestsLineChart" width="400" height="300"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-        <div class="col-4">
-            <div class="card bg-white">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-3 text-secondary">
-                        Most Requested Links
-                    </h6>
-                    <div class="most-requested-links-doughnut-chart-container">
-                        <canvas id="mostRequestedLinksDoughnutChart" width="400" height="300"></canvas>
+                        <div class="col-4">
+                            <div class="card bg-white">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-3 text-secondary">
+                                        Client Types
+                                    </h6>
+                                    <div class="client-types-line-chart-container">
+                                        <canvas id="clientTypesPieChart" width="400" height="300"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="card bg-white">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-3 text-secondary">
+                                        Most Requested Links
+                                    </h6>
+                                    <div class="most-requested-links-doughnut-chart-container">
+                                        <canvas id="mostRequestedLinksDoughnutChart" width="400" height="300"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </section>
             </div>
         </div>
     </div>
-</section>
 
-<section class="recent-requests-container">
-    <div class="card bg-white">
-        <div class="card-body">
-            <h6 class="card-subtitle mb-3 text-secondary">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                 Recent Requests
-            </h6>
-            <div class="table-responsive">
-                <table class="table table-hover" id="recentRequestsTable">
-                    <thead>
-                        <tr>
-                            <th scope="col">Token</th>
-                            <th scope="col">Note</th>
-                            <th scope="col">User Agent</th>
-                            <th scope="col">IP Address</th>
-                            <th scope="col">Location</th>
-                            <th scope="col">ASN</th>
-                            <th scope="col">Organization</th>
-                            <th scope="col">Request Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Recent requests will be populated here -->
-                    </tbody>
-                </table>
+            </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <section class="recent-requests-container">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="recentRequestsTable">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Token</th>
+                                    <th scope="col">Note</th>
+                                    <th scope="col">User Agent</th>
+                                    <th scope="col">IP Address</th>
+                                    <th scope="col">Location</th>
+                                    <th scope="col">ASN</th>
+                                    <th scope="col">Organization</th>
+                                    <th scope="col">Request Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Recent requests will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
-</section>
+</div>
 
 @section scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js" integrity="sha512-Y51n9mtKTVBh3Jbx5pZSJNDDMyY+yGe77DGtBPzRlgsf/YLCh13kSZ3JmfHGzYFCmOndraf0sQgfM654b7dJ3w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
