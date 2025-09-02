@@ -41,14 +41,14 @@ Forward Link, Create/Manage/Share Link, View Report.
 
 > If you use Azure, we provides an automatic deployment script. You need to install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest&WT.mc_id=AZ-MVP-5002809) and login to Azure first.
 
-> Note: The deployment script is not fully ready yet.
+The deployment script will deploy both Forwarder API and Admin UI to Azure App Service using Linux + Docker. You need to provide a strong password for the SQL Server admin account.
 
 ```powershell
 # Login to Azure
 az login
 
 # Create a resource group
-az group create --name elf-rg --location eastus
+az group create --name elf-rg --location westus2
 
 # Create resources with Bicep
 az deployment group create --resource-group elf-rg --template-file https://raw.githubusercontent.com/EdiWang/Elf/refs/heads/master/deployment/main.bicep --parameters sqlAdminPassword=<Your Strong Password>
