@@ -54,6 +54,10 @@ az group create --name elf-rg --location westus2
 az deployment group create --resource-group elf-rg --template-file https://raw.githubusercontent.com/EdiWang/Elf/refs/heads/master/deployment/main.bicep --parameters sqlAdminPassword=<Your Strong Password>
 ```
 
+Visit the Forwarder API URL for the first time to initialize the database. Then visit the Admin UI URL to create your first forward link. 
+
+You may need to add authentication for the Admin UI, see "Setup Authentication" section below.
+
 #### Manually Deploy Forwarder API
 
 ```bash
