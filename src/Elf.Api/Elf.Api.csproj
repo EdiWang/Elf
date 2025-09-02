@@ -6,6 +6,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Setup\SQL\schema.sql" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Using Include="System.Text" />
         <Using Include="Microsoft.AspNetCore.Mvc" />
     </ItemGroup>
@@ -27,6 +31,10 @@
     <ItemGroup>
         <ProjectReference Include="..\Elf.Shared\Elf.Shared.csproj" />
         <ProjectReference Include="..\Elf.TokenGenerator\Elf.TokenGenerator.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Setup\SQL\schema.sql" />
     </ItemGroup>
 
 </Project>

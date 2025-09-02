@@ -44,8 +44,6 @@ public enum InitStartUpResult
 {
     Success = 0,
     FailedCreateDatabase,
-    FailedSeedingDatabase,
-    FailedInitConfig,
     FailedDatabaseMigration,
     FailedCancellation,
     UnexpectedError
