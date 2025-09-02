@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Reflection;
 
 namespace Elf.Shared;
 
@@ -22,30 +21,6 @@ public static class Utils
         }
 
         return (T)data;
-    }
-
-    public static string AppVersion
-    {
-        get
-        {
-            var asm = Assembly.GetEntryAssembly();
-            if (null == asm) return "N/A";
-
-            var fileVersion = asm.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
-            var version = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-            if (!string.IsNullOrWhiteSpace(version) && version.IndexOf('+') > 0)
-            {
-                var gitHash = version[(version.IndexOf('+') + 1)..];
-                var prefix = version[..version.IndexOf('+')];
-
-                if (gitHash.Length <= 6) return version;
-
-                var gitHashShort = gitHash.Substring(gitHash.Length - 6, 6);
-                return !string.IsNullOrWhiteSpace(gitHashShort) ? $"{prefix} ({gitHashShort})" : fileVersion;
-            }
-
-            return version ?? fileVersion;
-        }
     }
 
     public static bool IsPrivateIP(string ip) => IPAddress.Parse(ip).GetAddressBytes() switch

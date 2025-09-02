@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Moonglade.Utils;
 using System.Text.Json;
 
 namespace Elf.Shared;
@@ -33,7 +34,7 @@ public class PingEndpoint
             ClientIP = ClientIPHelper.GetClientIP(context),
             Duration = result.TotalDuration.TotalMilliseconds,
             Timestamp = DateTimeOffset.UtcNow,
-            Version = Utils.AppVersion,
+            Version = VersionHelper.AppVersion,
             GeoMatch = context.Request.Headers["x-geo-match"].ToString(),
             Checks = result.Entries.ToDictionary(
                 entry => entry.Key,
