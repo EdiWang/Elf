@@ -113,7 +113,7 @@ resource webAppConnectionString 'Microsoft.Web/sites/config@2022-09-01' = {
   parent: webApp
   name: 'connectionstrings'
   properties: {
-    DefaultConnection: {
+    ElfDatabase: {
       value: connectionString
       type: 'SQLAzure'
     }
