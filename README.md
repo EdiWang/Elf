@@ -29,7 +29,9 @@ will be translate to `https://yourdomain/fw/token` or `https://yourdomain/aka/na
 
 > You need to install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest&WT.mc_id=AZ-MVP-5002809) and login to Azure first.
 
-The deployment script will deploy both Forwarder API and Admin UI to Azure App Service using Linux + Docker. You need to provide a strong password for the SQL Server admin account.
+The [deployment script](./deployment/main.bicep) will deploy both Forwarder API and Admin UI to Azure App Service using Linux + Docker. You need to provide a strong password for the SQL Server admin account.
+
+First, clone this repo and `cd` to `deployment` directory. Run:
 
 ```powershell
 # Login to Azure
@@ -39,7 +41,7 @@ az login
 az group create --name elf-rg --location westus2
 
 # Create resources with Bicep
-az deployment group create --resource-group elf-rg --template-file https://raw.githubusercontent.com/EdiWang/Elf/refs/heads/master/deployment/main.bicep --parameters sqlAdminPassword=<Your Strong Password>
+az deployment group create --resource-group elf-rg --template-file main.bicep --parameters sqlAdminPassword=<Your Strong Password>
 ```
 
 Visit the Forwarder API URL for the first time to initialize the database. Then visit the Admin UI URL to create your first forward link. 
