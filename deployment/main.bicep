@@ -46,7 +46,9 @@ resource webApp 'Microsoft.Web/sites@2024-11-01' = {
       acrUseManagedIdentityCreds: false
       alwaysOn: true
       http20Enabled: true
+      ftpsState: 'Disabled'
     }
+    clientAffinityEnabled: false
     httpsOnly: true
     ipMode: 'IPv4AndIPv6'
     containerSize: 0
