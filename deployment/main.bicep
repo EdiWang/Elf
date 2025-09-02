@@ -1,6 +1,9 @@
 @description('Forwarder API Name')
 param forwarderApiName string = 'elf-forwarder-${uniqueString(resourceGroup().id)}'
 
+@description('Admin UI Name')
+param adminUiName string = 'elf-admin-${uniqueString(resourceGroup().id)}'
+
 @description('SQL Server administrator username')
 param sqlAdminUsername string = 'elf'
 
@@ -35,7 +38,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2024-11-01' = {
 }
 
 // Create Forwarder API Web App
-resource webApp 'Microsoft.Web/sites@2024-11-01' = {
+resource forwarderApp 'Microsoft.Web/sites@2024-11-01' = {
   name: forwarderApiName
   location: location
   kind: 'app,linux,container'
@@ -43,6 +46,32 @@ resource webApp 'Microsoft.Web/sites@2024-11-01' = {
     serverFarmId: appServicePlan.id
     siteConfig: {
       linuxFxVersion: 'DOCKER|ediwang/elf:latest'
+      acrUseManagedIdentityCreds: false
+      alwaysOn: true
+      http20Enabled: true
+      ftpsState: 'Disabled'
+    }
+    clientAffinityEnabled: false
+    httpsOnly: true
+    ipMode: 'IPv4AndIPv6'
+    containerSize: 0
+    dailyMemoryTimeQuota: 0
+    endToEndEncryptionEnabled: false
+    redundancyMode: 'None'
+    publicNetworkAccess: 'Enabled'
+    sshEnabled: true
+  }
+}
+
+// Create Admin UI Web App
+resource adminApp 'Microsoft.Web/sites@2024-11-01' = {
+  name: adminUiName
+  location: location
+  kind: 'app,linux,container'
+  properties: {
+    serverFarmId: appServicePlan.id
+    siteConfig: {
+      linuxFxVersion: 'DOCKER|ediwang/elf-admin:latest'
       acrUseManagedIdentityCreds: false
       alwaysOn: true
       http20Enabled: true
@@ -106,11 +135,11 @@ resource allowAzureServices 'Microsoft.Sql/servers/firewallRules@2024-11-01-prev
 }
 
 // Build database connection string
-var connectionString = 'Server=tcp:${sqlServer.name}.database.windows.net,1433;Initial Catalog=${sqlDatabase.name};Persist Security Info=False;User ID=${sqlAdminUsername};Password=${sqlAdminPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+var connectionString = 'Server=tcp:${sqlServer.name}.${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlDatabase.name};Persist Security Info=False;User ID=${sqlAdminUsername};Password=${sqlAdminPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
 
 // Add the connection string to the Web App's application settings
-resource webAppConnectionString 'Microsoft.Web/sites/config@2022-09-01' = {
-  parent: webApp
+resource forwarderConnectionString 'Microsoft.Web/sites/config@2022-09-01' = {
+  parent: forwarderApp
   name: 'connectionstrings'
   properties: {
     ElfDatabase: {
@@ -120,6 +149,18 @@ resource webAppConnectionString 'Microsoft.Web/sites/config@2022-09-01' = {
   }
 }
 
-output webAppUrl string = webApp.properties.defaultHostName
+resource adminConnectionString 'Microsoft.Web/sites/config@2022-09-01' = {
+  parent: adminApp
+  name: 'connectionstrings'
+  properties: {
+    ElfDatabase: {
+      value: connectionString
+      type: 'SQLAzure'
+    }
+  }
+}
+
+output forwarderAppUrl string = forwarderApp.properties.defaultHostName
+output adminAppUrl string = adminApp.properties.defaultHostName
 output sqlServerName string = sqlServer.name
 output sqlDbName string = sqlDatabase.name
