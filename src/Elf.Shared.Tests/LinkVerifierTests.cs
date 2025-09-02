@@ -70,7 +70,7 @@ public class LinkVerifierTests
         // Arrange
         var url = "https://example.com/fw/some-link";
         var mockHostString = new HostString("example.com");
-        
+
         _mockUrlHelper.Setup(x => x.IsLocalUrl(url)).Returns(false);
         _mockHttpRequest.Setup(x => x.Host).Returns(mockHostString);
         _mockHttpRequest.Setup(x => x.Scheme).Returns("https");
@@ -88,7 +88,7 @@ public class LinkVerifierTests
         // Arrange
         var url = "https://example.com/fw/some-link";
         var mockHostString = new HostString("example.com");
-        
+
         _mockUrlHelper.Setup(x => x.IsLocalUrl(url)).Returns(false);
         _mockHttpRequest.Setup(x => x.Host).Returns(mockHostString);
         _mockHttpRequest.Setup(x => x.Scheme).Returns("https");
@@ -124,7 +124,7 @@ public class LinkVerifierTests
         // Arrange
         var url = "https://example.com/regular-path";
         var mockHostString = new HostString("example.com");
-        
+
         _mockUrlHelper.Setup(x => x.IsLocalUrl(url)).Returns(false);
         _mockHttpRequest.Setup(x => x.Host).Returns(mockHostString);
         _mockHttpRequest.Setup(x => x.Scheme).Returns("https");
@@ -144,7 +144,7 @@ public class LinkVerifierTests
         // Arrange
         var uri = new Uri(requestHost);
         var mockHostString = new HostString(uri.Host);
-        
+
         _mockUrlHelper.Setup(x => x.IsLocalUrl(url)).Returns(false);
         _mockHttpRequest.Setup(x => x.Host).Returns(mockHostString);
         _mockHttpRequest.Setup(x => x.Scheme).Returns(uri.Scheme);

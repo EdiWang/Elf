@@ -1,5 +1,4 @@
-﻿using Elf.Shared;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Moonglade.Utils;
 
 namespace Elf.Api.Filters;

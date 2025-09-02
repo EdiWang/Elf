@@ -1,5 +1,5 @@
-﻿using System.Data;
-using Dapper;
+﻿using Dapper;
+using System.Data;
 
 namespace Elf.Api.Setup;
 
@@ -26,7 +26,7 @@ public class StartUpInitializer(
         {
             // Step 1: Try to connect to the database
             logger.LogInformation("Testing database connection...");
-            
+
             try
             {
                 await dbConnection.ExecuteScalarAsync<int>("SELECT 1", cancellationToken);
@@ -40,7 +40,7 @@ public class StartUpInitializer(
 
             // Step 2: Check if database has been initialized
             logger.LogInformation("Checking database initialization status...");
-            
+
             var existingTables = await GetExistingTablesAsync(cancellationToken);
             var missingTables = RequiredTables.Except(existingTables, StringComparer.OrdinalIgnoreCase).ToList();
 
@@ -58,7 +58,7 @@ public class StartUpInitializer(
             {
                 // No tables exist - execute schema script
                 logger.LogInformation("Database has no tables. Executing schema script...");
-                
+
                 var schemaResult = await schemaRunner.ExecuteSchemaScriptAsync(cancellationToken);
                 if (!schemaResult)
                 {
@@ -74,7 +74,7 @@ public class StartUpInitializer(
             }
 
             // Some tables exist but not all - this is an inconsistent state
-            logger.LogError("Database is in an inconsistent state. Missing tables: {MissingTables}", 
+            logger.LogError("Database is in an inconsistent state. Missing tables: {MissingTables}",
                 string.Join(", ", missingTables));
             throw new InvalidOperationException(
                 $"Database is partially initialized. Missing tables: {string.Join(", ", missingTables)}");

@@ -55,7 +55,7 @@ public class LinkVerifier : ILinkVerifier
 
         var isSameHost = string.Equals(uri.Authority, currentRequest.Host.ToString(), StringComparison.OrdinalIgnoreCase);
         var isSameScheme = string.Equals(uri.Scheme, currentRequest.Scheme, StringComparison.OrdinalIgnoreCase);
-        
+
         return isSameHost && isSameScheme && IsForwardEndpoint(uri);
     }
 

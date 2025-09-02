@@ -17,7 +17,7 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
         var link = await dbContext.Link
             .Include(l => l.Tags)
             .FirstOrDefaultAsync(l => l.Id == id, ct);
-            
+
         if (link is null) return null;
 
         // Update link properties
@@ -39,7 +39,7 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
     {
         // Clear existing tags
         link.Tags.Clear();
-        
+
         if (newTags is null or { Length: 0 })
             return;
 
@@ -50,13 +50,13 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
 
         // Identify new tags that need to be created
         var newTagNames = newTags.Except(existingTags.Keys).ToArray();
-        
+
         if (newTagNames.Length > 0)
         {
             var tagsToAdd = newTagNames.Select(name => new TagEntity { Name = name }).ToArray();
             await dbContext.Tag.AddRangeAsync(tagsToAdd, ct);
             await dbContext.SaveChangesAsync(ct);
-            
+
             // Add newly created tags to the dictionary
             foreach (var tag in tagsToAdd)
             {

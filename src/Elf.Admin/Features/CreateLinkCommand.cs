@@ -18,7 +18,7 @@ public class CreateLinkCommandHandler(
         // Check if link already exists and handle early return
         var existingLink = await dbContext.Link
             .FirstOrDefaultAsync(p => p.OriginUrl == request.Payload.OriginUrl, ct);
-        
+
         if (existingLink is not null)
         {
             if (tokenGenerator.TryParseToken(existingLink.FwToken, out var validToken))
@@ -27,7 +27,7 @@ public class CreateLinkCommandHandler(
                 return;
             }
 
-            logger.LogError("Invalid token '{Token}' found for existing url '{Url}'", 
+            logger.LogError("Invalid token '{Token}' found for existing url '{Url}'",
                 existingLink.FwToken, request.Payload.OriginUrl);
         }
 
@@ -69,12 +69,12 @@ public class CreateLinkCommandHandler(
         {
             token = tokenGenerator.GenerateToken();
             attempts++;
-            
+
             if (attempts > maxAttempts)
             {
                 throw new InvalidOperationException("Failed to generate unique token after maximum attempts");
             }
-        } 
+        }
         while (await dbContext.Link.AnyAsync(p => p.FwToken == token, ct));
 
         return token;
