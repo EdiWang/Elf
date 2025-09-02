@@ -17,6 +17,8 @@ https://www.somewebsite.com/a-very-long-and-complicated-link-that-can-also-chang
 
 will be translate to `https://yourdomain/fw/token` or `https://yourdomain/aka/name`
 
+![image](./docs/screenshot.png)
+
 ## Forwarder Logic
 
 ![image](https://cdn.edi.wang/web-assets/lf/LinkForwarder-FW.png)
