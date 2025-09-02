@@ -39,9 +39,20 @@ Forward Link, Create/Manage/Share Link, View Report.
 
 #### Quick Deploy on Azure
 
-> If you use Azure, we provides an automatic deployment script.
+> If you use Azure, we provides an automatic deployment script. You need to install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest&WT.mc_id=AZ-MVP-5002809) and login to Azure first.
 
-TODO
+> Note: The deployment script is not fully ready yet.
+
+```powershell
+# Login to Azure
+az login
+
+# Create a resource group
+az group create --name elf-rg --location eastus
+
+# Create resources with Bicep
+az deployment group create --resource-group elf-rg --template-file https://raw.githubusercontent.com/EdiWang/Elf/refs/heads/master/deployment/main.bicep --parameters sqlAdminPassword=<Your Strong Password>
+```
 
 #### Manually Deploy Forwarder API
 
