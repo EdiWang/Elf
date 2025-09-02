@@ -31,7 +31,7 @@ will be translate to `https://yourdomain/fw/token` or `https://yourdomain/aka/na
 
 The [deployment script](./deployment/main.bicep) will deploy both Forwarder API and Admin UI to Azure App Service using Linux + Docker. You need to provide a strong password for the SQL Server admin account.
 
-First, clone this repo and `cd` to `deployment` directory. Run:
+First, clone this repo and `cd` to `deployment` directory. Or you can just download the [deployment script](./deployment/main.bicep) to your machine. And run:
 
 ```powershell
 # Login to Azure
