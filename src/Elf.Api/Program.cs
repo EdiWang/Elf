@@ -71,6 +71,7 @@ void ConfigureServices(IServiceCollection services)
     // Elf
     services.AddSingleton<CannonService>();
 
+    services.AddScoped<IDatabaseSchemaRunner, DatabaseSchemaRunner>();
     services.AddScoped<IStartUpInitializer, StartUpInitializer>();
     services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
     services.AddScoped<ILinkVerifier, LinkVerifier>();

@@ -5,8 +5,6 @@ public static class WebApplicationExtensions
     private static readonly Dictionary<InitStartUpResult, string> ErrorMessages = new()
     {
         { InitStartUpResult.FailedCreateDatabase, "Database connection test failed, please check your connection string and firewall settings, then RESTART Elf manually." },
-        { InitStartUpResult.FailedSeedingDatabase, "Error seeding database, please check error log, then RESTART Elf manually." },
-        { InitStartUpResult.FailedInitConfig, "Error initializing blog configuration, please check error log, then RESTART Elf manually." },
         { InitStartUpResult.FailedDatabaseMigration, "Error migrating database, please check error log, then RESTART Elf manually." }
     };
 
