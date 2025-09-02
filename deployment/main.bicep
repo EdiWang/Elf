@@ -19,9 +19,12 @@ param location string = resourceGroup().location
 
 // Create App Service Plan
 resource appServicePlan 'Microsoft.Web/serverfarms@2024-11-01' = {
-  name: 'elf-plan'
+  name: 'elf-plan-${uniqueString(resourceGroup().id)}'
   location: location
-  kind: 'linux'
+  kind: 'app,linux,container'
+  properties: {
+    reserved: true
+  }
   sku: {
     name: 'P0v3'
     tier: 'Premium0V3'
@@ -39,13 +42,10 @@ resource webApp 'Microsoft.Web/sites@2024-11-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
-      numberOfWorkers: 1
       linuxFxVersion: 'DOCKER|ediwang/elf:latest'
       acrUseManagedIdentityCreds: false
       alwaysOn: true
       http20Enabled: true
-      functionAppScaleLimit: 0
-      minimumElasticInstanceCount: 1
     }
     httpsOnly: true
     ipMode: 'IPv4AndIPv6'
