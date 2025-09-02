@@ -17,29 +17,15 @@ https://www.somewebsite.com/a-very-long-and-complicated-link-that-can-also-chang
 
 will be translate to `https://yourdomain/fw/token` or `https://yourdomain/aka/name`
 
-## Features
-
-Forward Link, Create/Manage/Share Link, View Report.
-
-![list](https://github.com/EdiWang/Elf/assets/3304703/2f3f3691-fa24-4d24-9a8f-562b0cab8261)
-
-![report](https://github.com/EdiWang/Elf/assets/3304703/09eab5b0-0749-4d41-a4a9-56da4eb5aeb5)
-
-## Forward Logic
+## Forwarder Logic
 
 ![image](https://cdn.edi.wang/web-assets/lf/LinkForwarder-FW.png)
 
 ## Deployment
 
-### Setup Database
+### Automated Deployment on Azure (Recommended)
 
-[Create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started?WT.mc_id=AZ-MVP-5002809) or a SQL Server 2019+ database on premises.
-
-### Docker Deployment (Recommended)
-
-#### Quick Deploy on Azure
-
-> If you use Azure, we provides an automatic deployment script. You need to install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest&WT.mc_id=AZ-MVP-5002809) and login to Azure first.
+> You need to install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest&WT.mc_id=AZ-MVP-5002809) and login to Azure first.
 
 The deployment script will deploy both Forwarder API and Admin UI to Azure App Service using Linux + Docker. You need to provide a strong password for the SQL Server admin account.
 
@@ -58,7 +44,13 @@ Visit the Forwarder API URL for the first time to initialize the database. Then 
 
 You may need to add authentication for the Admin UI, see "Setup Authentication" section below.
 
-#### Manually Deploy Forwarder API
+### Manual Deployment by Docker
+
+#### Setup Database
+
+[Create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started?WT.mc_id=AZ-MVP-5002809) or a SQL Server 2019+ database on premises.
+
+#### Forwarder API
 
 ```bash
 docker run -d -p 80:8080 -e ConnectionStrings__ElfDatabase="<Your SQL Server Connection String>" --name elf-api ediwang/elf:latest
@@ -71,18 +63,6 @@ docker run -d -p 80:8080 -e ConnectionStrings__ElfDatabase="<Your SQL Server Con
 ```
 
 If you deploy both `elf-api` and `elf-admin` on the same server, make sure to use different ports. You may [work 996](https://996.icu/) to figure out the correct network setup yourself. I am rich, I choose Azure!
-
-### Code Deployment
-
-Update the connection string "**ElfDatabase**" in **Elf.Api/appsettings.json** and **Elf.Admin/appsettings.json**. Example:
-
-```json
-"ConnectionStrings": {
-  "ElfDatabase": "Server=(localdb)\\MSSQLLocalDB;Database=elf;Trusted_Connection=True;"
-}
-```
-
-Build `./src/Elf.sln`, deploy both `Elf.Api` and `Elf.Admin` project.
 
 ### Setup Authentication
 
@@ -111,11 +91,3 @@ To use Redis, follow these steps:
 2. Copy the connection string in "Access keys"
 3. Set the connection string in `ConnectionStrings:RedisConnection` in `Elf.Api/appsettings.json` or environment variable
 4. Restart the application
-
-## Development
-
-Tools | Alternative
---- | ---
-[.NET 9 SDK](http://dot.net) | N/A
-[Visual Studio 2022](https://visualstudio.microsoft.com/) | [Visual Studio Code](https://code.visualstudio.com/)
-[Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/) | [SQL Server 2022](https://www.microsoft.com/en-us/sql-server/sql-server-2022) / LocalDB (Dev Only)
