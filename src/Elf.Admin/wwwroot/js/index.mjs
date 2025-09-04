@@ -2,7 +2,7 @@ import { loadLinks } from './index.links.mjs';
 import { setupSearchEventListeners } from './index.search.mjs';
 import { setupDeleteEventListeners } from './index.delete.mjs';
 import { setupRefreshEventListeners } from './index.refresh.mjs';
-import { setupLinkEditEventListeners } from './index.linkEdit.js';
+import { setupLinkEditEventListeners } from './index.linkEdit.mjs';
 import { setupTagSearchEventListeners } from './index.tagSearch.mjs';
 
 // Initialize page

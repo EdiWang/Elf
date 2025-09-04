@@ -3,7 +3,7 @@ import { elements } from './index.dom.mjs';
 import { state, updateState, getOffset } from './index.state.mjs';
 import { updatePagination } from './index.pagination.mjs';
 import { showDeleteModal } from './index.delete.mjs';
-import { showLinkEditModal } from './index.linkEdit.js';
+import { showLinkEditModal } from './index.linkEdit.mjs';
 import { escapeHtml } from './index.utils.mjs';
 import { success as showSuccessToast, error as showErrorToast } from './toastService.mjs';
 
