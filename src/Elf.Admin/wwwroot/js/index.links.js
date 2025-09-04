@@ -1,8 +1,8 @@
 import { getLinks, setLinkEnabled } from '/js/links.apiclient.mjs';
 import { elements } from './index.dom.js';
 import { state, updateState, getOffset } from './index.state.js';
-import { updatePagination } from './index.pagination.js';
-import { showDeleteModal } from './index.delete.js';
+import { updatePagination } from './index.pagination.mjs';
+import { showDeleteModal } from './index.delete.mjs';
 import { showLinkEditModal } from './index.linkEdit.js';
 import { escapeHtml } from './index.utils.js';
 import { success as showSuccessToast, error as showErrorToast } from './toastService.mjs';

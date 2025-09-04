@@ -3,7 +3,7 @@ import { getTags } from '/js/tags.apiclient.mjs';
 import { elements } from './index.dom.js';
 import { state, updateState, resetPage, getOffset } from './index.state.js';
 import { displayLinks, showLoading, showNoData } from './index.links.js';
-import { updatePagination } from './index.pagination.js';
+import { updatePagination } from './index.pagination.mjs';
 
 let tagSearchTagify = null;
 
