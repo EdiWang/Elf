@@ -1,5 +1,5 @@
 import { getLinks, setLinkEnabled } from '/js/links.apiclient.mjs';
-import { elements } from './index.dom.js';
+import { elements } from './index.dom.mjs';
 import { state, updateState, getOffset } from './index.state.js';
 import { updatePagination } from './index.pagination.mjs';
 import { showDeleteModal } from './index.delete.mjs';

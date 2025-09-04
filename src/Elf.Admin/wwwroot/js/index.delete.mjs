@@ -1,5 +1,5 @@
 import { deleteLink } from '/js/links.apiclient.mjs';
-import { elements } from './index.dom.js';
+import { elements } from './index.dom.mjs';
 import { state, updateState } from './index.state.js';
 import { loadLinks } from './index.links.js';
 

@@ -1,4 +1,4 @@
-import { elements } from './index.dom.js';
+import { elements } from './index.dom.mjs';
 import { state, updateState, resetPage } from './index.state.js';
 import { loadLinks } from './index.links.js';
 

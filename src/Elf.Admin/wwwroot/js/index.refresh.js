@@ -1,5 +1,5 @@
 import { loadLinks } from './index.links.js';
-import { elements } from './index.dom.js';
+import { elements } from './index.dom.mjs';
 
 export function setupRefreshEventListeners() {
     elements.refreshBtn.addEventListener('click', handleRefresh);
