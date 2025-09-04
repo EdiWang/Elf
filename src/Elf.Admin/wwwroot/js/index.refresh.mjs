@@ -1,4 +1,4 @@
-import { loadLinks } from './index.links.js';
+import { loadLinks } from './index.links.mjs';
 import { elements } from './index.dom.mjs';
 
 export function setupRefreshEventListeners() {

@@ -1,6 +1,6 @@
 import { elements } from './index.dom.mjs';
 import { state, updateState, resetPage } from './index.state.mjs';
-import { loadLinks } from './index.links.js';
+import { loadLinks } from './index.links.mjs';
 
 export function setupSearchEventListeners() {
     elements.searchBtn.addEventListener('click', handleSearch);

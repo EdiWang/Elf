@@ -1,7 +1,7 @@
 import { deleteLink } from '/js/links.apiclient.mjs';
 import { elements } from './index.dom.mjs';
 import { state, updateState } from './index.state.mjs';
-import { loadLinks } from './index.links.js';
+import { loadLinks } from './index.links.mjs';
 
 export function setupDeleteEventListeners() {
     elements.confirmDeleteBtn.addEventListener('click', handleConfirmDelete);
