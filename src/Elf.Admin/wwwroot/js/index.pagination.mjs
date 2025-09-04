@@ -1,5 +1,5 @@
 import { elements } from './index.dom.mjs';
-import { state, updateState } from './index.state.js';
+import { state, updateState } from './index.state.mjs';
 import { loadLinks } from './index.links.js';
 
 export function updatePagination(totalRowsCount) {

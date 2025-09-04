@@ -1,7 +1,7 @@
 import { getLinksByTags } from '/js/links.apiclient.mjs';
 import { getTags } from '/js/tags.apiclient.mjs';
 import { elements } from './index.dom.mjs';
-import { state, updateState, resetPage, getOffset } from './index.state.js';
+import { state, updateState, resetPage, getOffset } from './index.state.mjs';
 import { displayLinks, showLoading, showNoData } from './index.links.js';
 import { updatePagination } from './index.pagination.mjs';
 

@@ -1,5 +1,5 @@
 import { elements } from './index.dom.mjs';
-import { state, updateState, resetPage } from './index.state.js';
+import { state, updateState, resetPage } from './index.state.mjs';
 import { loadLinks } from './index.links.js';
 
 export function setupSearchEventListeners() {
