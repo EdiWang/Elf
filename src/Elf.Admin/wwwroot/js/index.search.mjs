@@ -53,7 +53,7 @@ export function handlePageSizeChange() {
 
 function clearTagSearchUI() {
     // Import and clear tag search if available
-    import('./index.tagSearch.js').then(() => {
+    import('./index.tagSearch.mjs').then(() => {
         const tagFilterElement = elements.tagFilter;
         if (tagFilterElement && tagFilterElement.tagify) {
             tagFilterElement.tagify.removeAllTags();

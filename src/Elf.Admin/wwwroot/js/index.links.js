@@ -4,13 +4,13 @@ import { state, updateState, getOffset } from './index.state.mjs';
 import { updatePagination } from './index.pagination.mjs';
 import { showDeleteModal } from './index.delete.mjs';
 import { showLinkEditModal } from './index.linkEdit.js';
-import { escapeHtml } from './index.utils.js';
+import { escapeHtml } from './index.utils.mjs';
 import { success as showSuccessToast, error as showErrorToast } from './toastService.mjs';
 
 export async function loadLinks() {
     // Check if we should use tag search instead
     if (state.searchMode === 'tags' && state.selectedTagIds && state.selectedTagIds.length > 0) {
-        const { loadLinksByTags } = await import('./index.tagSearch.js');
+        const { loadLinksByTags } = await import('./index.tagSearch.mjs');
         await loadLinksByTags();
         return;
     }
