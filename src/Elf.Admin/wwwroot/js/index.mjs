@@ -1,7 +1,7 @@
 import { loadLinks } from './index.links.js';
-import { setupSearchEventListeners } from './index.search.js';
+import { setupSearchEventListeners } from './index.search.mjs';
 import { setupDeleteEventListeners } from './index.delete.mjs';
-import { setupRefreshEventListeners } from './index.refresh.js';
+import { setupRefreshEventListeners } from './index.refresh.mjs';
 import { setupLinkEditEventListeners } from './index.linkEdit.js';
 import { setupTagSearchEventListeners } from './index.tagSearch.js';
 
