@@ -1,4 +1,4 @@
-import { getLinks } from '/js/links.apiclient.mjs';
+import { getLinks, setLinkEnabled } from '/js/links.apiclient.mjs';
 import { elements } from './index.dom.js';
 import { state, updateState, getOffset } from './index.state.js';
 import { updatePagination } from './index.pagination.js';
@@ -55,9 +55,16 @@ function createLinkRow(link) {
     row.className = 'bg-white py-3 px-2 rounded-3 border mb-1 link-row';
     row.setAttribute('data-link-id', link.id);
 
-    const statusBadge = link.isEnabled
-        ? '<span class="badge bg-success"><i class="bi bi-check-lg"></i></span>'
-        : '<span class="badge bg-danger"><i class="bi bi-dash-circle"></i></span>';
+    const statusToggle = `
+        <div class="form-check form-switch">
+            <input class="form-check-input status-toggle" type="checkbox" role="switch" 
+                   id="status-${link.id}" ${link.isEnabled ? 'checked' : ''} 
+                   data-link-id="${link.id}" title="${link.isEnabled ? 'Enabled' : 'Disabled'}">
+            <label class="form-check-label visually-hidden" for="status-${link.id}">
+                Toggle link status
+            </label>
+        </div>
+    `;
 
     const updateDate = new Date(link.updateTimeUtc).toLocaleDateString('en-US', {
         month: '2-digit',
@@ -98,7 +105,7 @@ function createLinkRow(link) {
                     <div class="col-md-1">
                         ${tagsBadges}
                     </div>
-                    <div class="col-auto">${statusBadge}</div>
+                    <div class="col-auto">${statusToggle}</div>
                     <div class="col-auto">
                         <span class="ttl-container">
                             <i class="bi bi-clock"></i> ${link.ttl}
@@ -129,7 +136,7 @@ function createLinkRow(link) {
                 </div>
             `;
 
-    // Use event delegation for QR, copy, edit and delete buttons
+    // Use event delegation for QR, copy, edit, delete buttons and status toggle
     row.addEventListener('click', function (e) {
         if (e.target.closest('.qr-btn')) {
             const qrBtn = e.target.closest('.qr-btn');
@@ -149,6 +156,32 @@ function createLinkRow(link) {
             const token = deleteBtn.getAttribute('data-token');
             const url = deleteBtn.getAttribute('data-url');
             showDeleteModal(linkId, token, url);
+        }
+    });
+
+    // Add event listener for status toggle
+    row.addEventListener('change', async function (e) {
+        if (e.target.classList.contains('status-toggle')) {
+            const toggle = e.target;
+            const linkId = parseInt(toggle.getAttribute('data-link-id'));
+            const isEnabled = toggle.checked;
+            
+            // Disable the toggle while processing
+            toggle.disabled = true;
+            
+            try {
+                await setLinkEnabled(linkId, isEnabled);
+                // Update the title attribute to reflect the new state
+                toggle.title = isEnabled ? 'Enabled' : 'Disabled';
+            } catch (error) {
+                console.error('Failed to update link status:', error);
+                // Revert the toggle state on failure
+                toggle.checked = !isEnabled;
+                showErrorToast('Failed to update link status');
+            } finally {
+                // Re-enable the toggle
+                toggle.disabled = false;
+            }
         }
     });
 
