@@ -140,6 +140,8 @@ static void AddRateLimit(WebApplicationBuilder builder)
             }
 
             context.HttpContext.Response.Headers["x-ratelimit-limit"] = rateLimitOptions.PermitLimit.ToString();
+            context.HttpContext.Response.Headers["x-ratelimit-remaining"] = "0";
+            context.HttpContext.Response.Headers["x-ratelimit-reset"] = DateTimeOffset.UtcNow.AddSeconds(rateLimitOptions.WindowSeconds).ToUnixTimeSeconds().ToString();
 
             context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
             await context.HttpContext.Response.WriteAsync("Too Many Requests", ct);
@@ -150,18 +152,42 @@ static void AddRateLimit(WebApplicationBuilder builder)
             var remoteIpAddress = context.Connection.RemoteIpAddress;
             if (remoteIpAddress != null && !IPAddress.IsLoopback(remoteIpAddress))
             {
+                // For IPv6, consider using subnet prefix instead of full address
+                var partitionKey = remoteIpAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6
+                    ? GetIPv6Subnet(remoteIpAddress)
+                    : remoteIpAddress.ToString();
+
                 return RateLimitPartition.GetFixedWindowLimiter
-                    (remoteIpAddress!, _ =>
-                        new()
-                        {
-                            AutoReplenishment = rateLimitOptions.AutoReplenishment,
-                            PermitLimit = rateLimitOptions.PermitLimit,
-                            Window = TimeSpan.FromSeconds(rateLimitOptions.WindowSeconds),
-                            QueueLimit = rateLimitOptions.QueueLimit
-                        });
+                    (partitionKey, _ => new()
+                    {
+                        AutoReplenishment = rateLimitOptions.AutoReplenishment,
+                        PermitLimit = rateLimitOptions.PermitLimit,
+                        Window = TimeSpan.FromSeconds(rateLimitOptions.WindowSeconds),
+                        QueueLimit = rateLimitOptions.QueueLimit
+                    });
             }
 
-            return RateLimitPartition.GetNoLimiter(IPAddress.Loopback);
+            return RateLimitPartition.GetNoLimiter(IPAddress.Loopback.ToString());
         });
     });
+}
+
+static string GetIPv6Subnet(IPAddress ipv6Address)
+{
+    if (ipv6Address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetworkV6)
+    {
+        throw new ArgumentException("Address must be IPv6", nameof(ipv6Address));
+    }
+
+    var addressBytes = ipv6Address.GetAddressBytes();
+    
+    // Use /64 subnet for rate limiting (first 8 bytes)
+    // This is a common IPv6 subnet boundary that groups related addresses
+    // while still providing reasonable granularity for rate limiting
+    var subnetBytes = new byte[16];
+    Array.Copy(addressBytes, 0, subnetBytes, 0, 8);
+    // Fill remaining bytes with zeros (already done by default)
+    
+    var subnetAddress = new IPAddress(subnetBytes);
+    return $"{subnetAddress}/64";
 }
