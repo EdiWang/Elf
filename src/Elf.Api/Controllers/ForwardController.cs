@@ -1,4 +1,5 @@
-﻿using Elf.Api.Features;
+﻿using Elf.Api.Data;
+using Elf.Api.Features;
 using Elf.Api.Filters;
 using Elf.Api.Services;
 using Elf.Shared;
@@ -34,18 +35,14 @@ public class ForwardController(
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Aka(string akaName)
     {
-        if (string.IsNullOrWhiteSpace(akaName)) return BadRequest();
-
-        var ip = ClientIPHelper.GetClientIP(HttpContext) ?? "N/A";
-        if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
+        var validationResult = ValidateRequest(akaName);
+        if (validationResult != null) return validationResult;
 
         var token = await queryMediator.QueryAsync(new GetTokenByAkaNameQuery(akaName));
-
-        // can not redirect to default url because it will confuse user that the aka points to that default url.
         if (token is null) return NotFound();
 
-        // Do not use RedirectToAction() because another 302 will happen.
-        return await PerformTokenRedirection(token, ip);
+        var ip = ClientIPHelper.GetClientIP(HttpContext) ?? "N/A";
+        return await PerformTokenRedirectionAsync(token, ip);
     }
 
     [AddElfHeader]
@@ -53,97 +50,133 @@ public class ForwardController(
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Forward(string token)
     {
-        if (string.IsNullOrWhiteSpace(token)) return BadRequest();
+        var validationResult = ValidateRequest(token);
+        if (validationResult != null) return validationResult;
 
         var ip = ClientIPHelper.GetClientIP(HttpContext) ?? "N/A";
-        if (string.IsNullOrWhiteSpace(UserAgent)) return BadRequest();
-
-        return await PerformTokenRedirection(token, ip);
+        return await PerformTokenRedirectionAsync(token, ip);
     }
 
-    private async Task<IActionResult> PerformTokenRedirection(string token, string ip)
+    private BadRequestObjectResult ValidateRequest(string identifier)
     {
-        var isValid = tokenGenerator.TryParseToken(token, out var validatedToken);
-        if (!isValid) return BadRequest();
+        if (string.IsNullOrWhiteSpace(identifier))
+            return BadRequest("Invalid identifier");
 
-        var linkEntry = await cache.GetLink(token);
-        if (null == linkEntry)
+        if (string.IsNullOrWhiteSpace(UserAgent))
+            return BadRequest("User agent is required");
+
+        return null;
+    }
+
+    private async Task<IActionResult> PerformTokenRedirectionAsync(string token, string ip)
+    {
+        if (!tokenGenerator.TryParseToken(token, out var validatedToken))
         {
-            var flag = await featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
-            var link = await queryMediator.QueryAsync(new GetLinkByTokenQuery(validatedToken));
-
-            if (link is null) return TryDefaultRedirect(flag);
-            if (!link.IsEnabled) return BadRequest("This link is disabled.");
-
-            var verifyOriginUrl = linkVerifier.Verify(link.OriginUrl, Url, Request, flag);
-            switch (verifyOriginUrl)
-            {
-                case LinkVerifyResult.Valid:
-                    // cache valid link entity only.
-                    if (link.TTL is not null)
-                    {
-                        await cache.SetLink(token, link, TimeSpan.FromSeconds(link.TTL.GetValueOrDefault()));
-                    }
-                    else
-                    {
-                        await cache.SetLink(token, link);
-                    }
-                    break;
-                case LinkVerifyResult.InvalidFormat:
-                    throw new UriFormatException(
-                        $"OriginUrl '{link.OriginUrl}' is not a valid URL, link ID: {link.Id}.");
-                case LinkVerifyResult.InvalidLocal:
-                    logger.LogWarning($"Local redirection is blocked. link: {JsonSerializer.Serialize(link)}");
-                    return BadRequest("Local redirection is blocked");
-                case LinkVerifyResult.InvalidSelfReference:
-                    logger.LogWarning(
-                        $"Self reference redirection is blocked. link: {JsonSerializer.Serialize(link)}");
-                    return BadRequest("Self reference redirection is blocked");
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            return BadRequest("Invalid token format");
         }
 
-        linkEntry ??= await cache.GetLink(token);
-
-        if (await featureManager.IsEnabledAsync(nameof(FeatureFlags.EnableTracking)))
+        var linkEntry = await GetOrCacheLinkAsync(token, validatedToken);
+        if (linkEntry is null)
         {
-            TrackLinkRequest(ip, linkEntry.Id);
+            return await HandleNotFoundLinkAsync();
         }
 
+        await TrackLinkRequestIfEnabledAsync(ip, linkEntry.Id);
         return Redirect(linkEntry.OriginUrl);
     }
 
-    private IActionResult TryDefaultRedirect(bool flag)
+    private async Task<LinkEntity> GetOrCacheLinkAsync(string token, string validatedToken)
     {
-        var dru = configuration["DefaultRedirectionUrl"];
-        if (string.IsNullOrWhiteSpace(dru)) return NotFound();
+        var linkEntry = await cache.GetLink(token);
+        if (linkEntry != null) return linkEntry;
 
-        var result = linkVerifier.Verify(dru, Url, Request, flag);
-        if (result == LinkVerifyResult.Valid) return Redirect(dru);
+        var link = await queryMediator.QueryAsync(new GetLinkByTokenQuery(validatedToken));
+        if (link is null) return null;
 
-        throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
+        if (!link.IsEnabled)
+        {
+            logger.LogWarning("Attempted to access disabled link with token: {Token}", token);
+            return null;
+        }
+
+        var allowSelfRedirection = await featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
+        var verificationResult = linkVerifier.Verify(link.OriginUrl, Url, Request, allowSelfRedirection);
+
+        switch (verificationResult)
+        {
+            case LinkVerifyResult.Valid:
+                await CacheLinkAsync(token, link);
+                return link;
+
+            case LinkVerifyResult.InvalidFormat:
+                logger.LogError("Invalid URL format for link ID {LinkId}: {OriginUrl}", link.Id, link.OriginUrl);
+                throw new UriFormatException($"OriginUrl '{link.OriginUrl}' is not a valid URL, link ID: {link.Id}");
+
+            case LinkVerifyResult.InvalidLocal:
+                logger.LogWarning("Local redirection blocked for link: {Link}", JsonSerializer.Serialize(link));
+                return null;
+
+            case LinkVerifyResult.InvalidSelfReference:
+                logger.LogWarning("Self reference redirection blocked for link: {Link}", JsonSerializer.Serialize(link));
+                return null;
+
+            default:
+                logger.LogError("Unexpected link verification result: {Result} for link ID: {LinkId}", verificationResult, link.Id);
+                throw new ArgumentOutOfRangeException(nameof(verificationResult), verificationResult, "Unexpected verification result");
+        }
     }
 
-    private void TrackLinkRequest(string ip, int id)
+    private async Task CacheLinkAsync(string token, LinkEntity link)
     {
+        var cacheExpiration = link.TTL.HasValue
+            ? TimeSpan.FromSeconds(link.TTL.Value)
+            : (TimeSpan?)null;
+
+        await cache.SetLink(token, link, cacheExpiration);
+    }
+
+    private async Task<IActionResult> HandleNotFoundLinkAsync()
+    {
+        var defaultRedirectionUrl = configuration["DefaultRedirectionUrl"];
+        if (string.IsNullOrWhiteSpace(defaultRedirectionUrl))
+        {
+            return NotFound();
+        }
+
+        var allowSelfRedirection = await featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
+        var verificationResult = linkVerifier.Verify(defaultRedirectionUrl, Url, Request, allowSelfRedirection);
+
+        return verificationResult == LinkVerifyResult.Valid
+            ? Redirect(defaultRedirectionUrl)
+            : throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
+    }
+
+    private async Task TrackLinkRequestIfEnabledAsync(string ip, int linkId)
+    {
+        if (!await featureManager.IsEnabledAsync(nameof(FeatureFlags.EnableTracking)))
+        {
+            return;
+        }
+
         Response.Headers.Append("X-Elf-Tracking-For", ip);
-        var ua = UserAgent;
+        var userAgent = UserAgent;
 
         cannonService.Fire(async (ICommandMediator commandMediator) =>
         {
-            IPLocation location;
             try
             {
-                location = await ipLocationService.GetLocationAsync(ip, ua);
+                var location = await ipLocationService.GetLocationAsync(ip, userAgent);
+                var request = new LinkTrackingRequest(ip, userAgent, linkId);
+                await commandMediator.SendAsync(new TrackSucessRedirectionCommand(request, location));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                location = null;
-            }
+                logger.LogWarning(ex, "Failed to track link request for IP: {IP}, LinkId: {LinkId}", ip, linkId);
 
-            var req = new LinkTrackingRequest(ip, ua, id);
-            await commandMediator.SendAsync(new TrackSucessRedirectionCommand(req, location));
+                // Send tracking without location data if location service fails
+                var request = new LinkTrackingRequest(ip, userAgent, linkId);
+                await commandMediator.SendAsync(new TrackSucessRedirectionCommand(request, null));
+            }
         });
     }
 }
