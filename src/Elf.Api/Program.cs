@@ -14,8 +14,6 @@ using System.Globalization;
 using System.Net;
 using System.Threading.RateLimiting;
 
-Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddAzureWebAppDiagnostics();
 
