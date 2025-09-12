@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D816E8F0
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elf.Shared.Tests", "Elf.Shared.Tests\Elf.Shared.Tests.csproj", "{880E9D6A-216E-4308-B79B-312A1CABDF85}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elf.TokenGenerator.Tests", "Elf.TokenGenerator.Tests\Elf.TokenGenerator.Tests.csproj", "{7FBCDED4-CEA4-4F7E-9829-2A7EE4710215}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{880E9D6A-216E-4308-B79B-312A1CABDF85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{880E9D6A-216E-4308-B79B-312A1CABDF85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{880E9D6A-216E-4308-B79B-312A1CABDF85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FBCDED4-CEA4-4F7E-9829-2A7EE4710215}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FBCDED4-CEA4-4F7E-9829-2A7EE4710215}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FBCDED4-CEA4-4F7E-9829-2A7EE4710215}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FBCDED4-CEA4-4F7E-9829-2A7EE4710215}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,6 +69,7 @@ Global
 		{5AA30F9C-BEAA-4989-84BF-6FD89E0DB3E6} = {C5BDE151-1440-4224-9DDB-A66CBDAFEEBA}
 		{B0D2E5CF-B088-40FF-80DB-26BFB26DB306} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{880E9D6A-216E-4308-B79B-312A1CABDF85} = {D816E8F0-92D9-497A-818B-B707DFC02335}
+		{7FBCDED4-CEA4-4F7E-9829-2A7EE4710215} = {D816E8F0-92D9-497A-818B-B707DFC02335}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {348533E6-2375-4327-91CD-50A621E3B7BA}
