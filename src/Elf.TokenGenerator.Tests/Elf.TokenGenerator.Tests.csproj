@@ -21,7 +21,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Elf.Shared\Elf.Shared.csproj" />
+		<ProjectReference Include="..\Elf.TokenGenerator\Elf.TokenGenerator.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
