@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Edi.AspNetCore.Utils;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -41,7 +42,7 @@ public static class WebApplicationExtensions
             else
             {
                 fho.ForwardedForHeaderName = headerName;
-                Utils.SetAppDomainData("ForwardedHeaders_HeaderName", headerName);
+                DomainDataHelper.SetAppDomainData("ForwardedHeaders_HeaderName", headerName);
             }
         }
     }
@@ -54,7 +55,7 @@ public static class WebApplicationExtensions
             // Fix docker deployments on Azure App Service blows up with Entra ID authentication
             // https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-6.0
             // "Outside of using IIS Integration when hosting out-of-process, Forwarded Headers Middleware isn't enabled by default."
-            if (Utils.IsRunningInDocker())
+            if (EnvironmentHelper.IsRunningInDocker())
             {
                 // Fix #712
                 // Adding KnownProxies will make Azure App Service boom boom with Entra ID redirect URL

@@ -1,3 +1,4 @@
+using Edi.AspNetCore.Utils;
 using Elf.Admin.Data;
 using Elf.Shared;
 using Elf.TokenGenerator;
@@ -27,7 +28,7 @@ public class Program
 
     private static void ConfigureLogging(WebApplicationBuilder builder)
     {
-        if (Utils.IsRunningOnAzureAppService())
+        if (EnvironmentHelper.IsRunningOnAzureAppService())
         {
             builder.Logging.AddAzureWebAppDiagnostics();
         }

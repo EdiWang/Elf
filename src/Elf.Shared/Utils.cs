@@ -4,25 +4,6 @@ namespace Elf.Shared;
 
 public static class Utils
 {
-    public static bool IsRunningInDocker() => Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-    public static bool IsRunningOnAzureAppService() => !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME"));
-
-    public static void SetAppDomainData(string key, object value)
-    {
-        AppDomain.CurrentDomain.SetData(key, value);
-    }
-
-    public static T GetAppDomainData<T>(string key, T defaultValue = default(T))
-    {
-        object data = AppDomain.CurrentDomain.GetData(key);
-        if (data == null)
-        {
-            return defaultValue;
-        }
-
-        return (T)data;
-    }
-
     public static bool IsPrivateIP(string ip) => IPAddress.Parse(ip).GetAddressBytes() switch
     {
         // Regex.IsMatch(ip, @"(^127\.)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)")
