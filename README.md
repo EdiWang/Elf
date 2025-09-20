@@ -21,8 +21,41 @@ will be translate to `https://yourdomain/fw/token` or `https://yourdomain/aka/na
 
 ## Forwarder Logic
 
-![image](https://cdn.edi.wang/web-assets/lf/LinkForwarder-FW.png)
-
+```mermaid
+flowchart TD
+    A[Request] --> B[Token]
+    B --> C{Request Rate Limit}
+    C -->|Allow| D{Parse}
+    C -->|Rejected| E[Too Many Requests 429]
+    D -->|Valid| F{Cache Lookup}
+    D -->|Invalid| G[Bad Request 400]
+    F -->|Found| H{Verify Origin URL}
+    F -->|Not Found| I[Search Link Repository]
+    I --> J{Link Exists}
+    J -->|Yes| K{Link Enabled}
+    J -->|No| L[Get Default Redirection URL]
+    K --> M[Add to Cache]
+    M --> H
+    L --> N{URL Present}
+    N -->|Yes| O{Verify Default URL}
+    N -->|No| P[Not Found 404]
+    H -->|Safe| Q[Track Redirection<br/>IP / User Agent]
+    H -->|Unsafe| G
+    Q --> R[Redirect to Origin URL]
+    O -->|Valid| S[Redirect to Default URL]
+    O -->|Invalid| T[Server Error 500]
+    
+    %% Style the terminal nodes
+    E:::error
+    G:::error
+    P:::error
+    T:::error
+    R:::success
+    S:::success
+    
+    classDef error fill:#ff6b35
+    classDef success fill:#4CAF50
+```
 ## Deployment
 
 ### Automated Deployment on Azure (Recommended)
