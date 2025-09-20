@@ -1,9 +1,9 @@
 using Elf.Admin.Data;
 using Elf.Shared;
 using Elf.TokenGenerator;
-using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
-using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
-using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
+using LiteBus.Commands;
+using LiteBus.Extensions.Microsoft.DependencyInjection;
+using LiteBus.Queries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
 
