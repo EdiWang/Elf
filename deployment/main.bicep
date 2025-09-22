@@ -160,6 +160,14 @@ resource adminConnectionString 'Microsoft.Web/sites/config@2022-09-01' = {
   }
 }
 
+resource adminForwarderBaseUrl 'Microsoft.Web/sites/config@2022-09-01' = {
+  parent: adminApp
+  name: 'appsettings'
+  properties: {
+    ForwarderBaseUrl: 'https://${forwarderApp.properties.defaultHostName}'
+  }
+}
+
 output forwarderAppUrl string = forwarderApp.properties.defaultHostName
 output adminAppUrl string = adminApp.properties.defaultHostName
 output sqlServerName string = sqlServer.name
