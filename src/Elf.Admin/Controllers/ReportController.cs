@@ -16,9 +16,10 @@ public class ReportController(
     [ProducesResponseType<PagedRequestTrack>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Requests(
         [Range(1, int.MaxValue)] int take,
-        [Range(0, int.MaxValue)] int offset)
+        [Range(0, int.MaxValue)] int offset,
+        [Range(1, int.MaxValue)] int? linkId = null)
     {
-        var (requests, totalRows) = await queryMediator.QueryAsync(new GetRecentRequestsQuery(offset, take));
+        var (requests, totalRows) = await queryMediator.QueryAsync(new GetRecentRequestsQuery(offset, take, linkId));
 
         var result = new PagedRequestTrack
         {
@@ -40,18 +41,35 @@ public class ReportController(
 
     [HttpPost("requests/clienttype")]
     [ProducesResponseType<List<ClientTypeCount>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> ClientType(DateRangeRequest request)
+    public async Task<IActionResult> ClientType(DateRangeRequest request, [Range(1, int.MaxValue)] int? linkId = null)
     {
-        var types = await queryMediator.QueryAsync(new GetClientTypeCountsQuery(request,
-            int.Parse(configuration["TopClientTypes"]!)));
-        return Ok(types);
+        var topTypes = int.Parse(configuration["TopClientTypes"]!);
+
+        if (linkId == null)
+        {
+            var types = await queryMediator.QueryAsync(new GetClientTypeCountsQuery(request, topTypes));
+            return Ok(types);
+        }
+        else
+        {
+            var types = await queryMediator.QueryAsync(new GetClientTypeCountsByLinkIdQuery(linkId.Value, request, topTypes));
+            return Ok(types);
+        }
     }
 
     [HttpPost("tracking")]
     [ProducesResponseType<List<LinkTrackingDateCount>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> TrackingCount(DateRangeRequest request)
+    public async Task<IActionResult> TrackingCount(DateRangeRequest request, [Range(1, int.MaxValue)] int? linkId = null)
     {
-        var dateCounts = await queryMediator.QueryAsync(new GetLinkTrackingDateCountQuery(request));
-        return Ok(dateCounts);
+        if (linkId == null)
+        {
+            var dateCounts = await queryMediator.QueryAsync(new GetLinkTrackingDateCountQuery(request));
+            return Ok(dateCounts);
+        }
+        else
+        {
+            var dateCountsByLink = await queryMediator.QueryAsync(new GetLinkTrackingDateCountByLinkIdQuery(linkId.Value, request));
+            return Ok(dateCountsByLink);
+        }
     }
 }
