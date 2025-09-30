@@ -40,41 +40,35 @@ public class ReportController(
 
     [HttpPost("requests/clienttype")]
     [ProducesResponseType<List<ClientTypeCount>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> ClientType(DateRangeRequest request)
-    {
-        var types = await queryMediator.QueryAsync(new GetClientTypeCountsQuery(request,
-            int.Parse(configuration["TopClientTypes"]!)));
-        return Ok(types);
-    }
-
-    [HttpPost("requests/clienttype/link/{linkId:int}")]
-    [ProducesResponseType<List<ClientTypeCount>>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ClientTypeByLink(
-        [Range(1, int.MaxValue)] int linkId,
-        DateRangeRequest request = null)
+    public async Task<IActionResult> ClientType(DateRangeRequest request, [Range(1, int.MaxValue)] int? linkId = null)
     {
         var topTypes = int.Parse(configuration["TopClientTypes"]!);
-        var types = await queryMediator.QueryAsync(new GetClientTypeCountsByLinkIdQuery(linkId, request, topTypes));
-        return Ok(types);
+
+        if (linkId == null)
+        {
+            var types = await queryMediator.QueryAsync(new GetClientTypeCountsQuery(request, topTypes));
+            return Ok(types);
+        }
+        else
+        {
+            var types = await queryMediator.QueryAsync(new GetClientTypeCountsByLinkIdQuery(linkId.Value, request, topTypes));
+            return Ok(types);
+        }
     }
 
     [HttpPost("tracking")]
     [ProducesResponseType<List<LinkTrackingDateCount>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> TrackingCount(DateRangeRequest request)
+    public async Task<IActionResult> TrackingCount(DateRangeRequest request, [Range(1, int.MaxValue)] int? linkId = null)
     {
-        var dateCounts = await queryMediator.QueryAsync(new GetLinkTrackingDateCountQuery(request));
-        return Ok(dateCounts);
-    }
-
-    [HttpPost("tracking/link/{linkId:int}")]
-    [ProducesResponseType<List<LinkTrackingDateCount>>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> TrackingCountByLink(
-        [Range(1, int.MaxValue)] int linkId,
-        DateRangeRequest request = null)
-    {
-        var dateCounts = await queryMediator.QueryAsync(new GetLinkTrackingDateCountByLinkIdQuery(linkId, request));
-        return Ok(dateCounts);
+        if (linkId == null)
+        {
+            var dateCounts = await queryMediator.QueryAsync(new GetLinkTrackingDateCountQuery(request));
+            return Ok(dateCounts);
+        }
+        else
+        {
+            var dateCountsByLink = await queryMediator.QueryAsync(new GetLinkTrackingDateCountByLinkIdQuery(linkId.Value, request));
+            return Ok(dateCountsByLink);
+        }
     }
 }
