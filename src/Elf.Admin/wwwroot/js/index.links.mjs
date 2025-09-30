@@ -120,6 +120,9 @@ function createLinkRow(link) {
                         <span class="text-muted">${updateDate}</span>
                     </div>
                     <div class="col-auto">
+                        <button class="btn btn-sm btn-outline-success me-1 report-btn" data-link-id="${link.id}" title="View Report">
+                            <i class="bi bi-graph-up"></i>
+                        </button>
                         <button class="btn btn-sm btn-outline-secondary me-1 qr-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Show QR Code">
                             <i class="bi bi-qr-code"></i>
                         </button>
@@ -138,7 +141,11 @@ function createLinkRow(link) {
 
     // Use event delegation for QR, copy, edit, delete buttons and status toggle
     row.addEventListener('click', function (e) {
-        if (e.target.closest('.qr-btn')) {
+        if (e.target.closest('.report-btn')) {
+            const reportBtn = e.target.closest('.report-btn');
+            const linkId = reportBtn.getAttribute('data-link-id');
+            window.open(`/Report?linkId=${linkId}`, '_blank');
+        } else if (e.target.closest('.qr-btn')) {
             const qrBtn = e.target.closest('.qr-btn');
             const fwToken = qrBtn.getAttribute('data-fw-token');
             showQRCodeModal(fwToken);
