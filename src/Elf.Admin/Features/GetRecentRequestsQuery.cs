@@ -5,14 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Admin.Features;
 
-public record GetRecentRequestsQuery(int Offset, int Take) : IQuery<(List<RequestTrack>, int TotalRows)>;
+public record GetRecentRequestsQuery(int Offset, int Take, int? LinkId) : IQuery<(List<RequestTrack>, int TotalRows)>;
 
 public class GetRecentRequestsQueryHandler(ElfDbContext dbContext) : IQueryHandler<GetRecentRequestsQuery, (List<RequestTrack>, int TotalRows)>
 {
     public async Task<(List<RequestTrack>, int TotalRows)> HandleAsync(GetRecentRequestsQuery request, CancellationToken ct)
     {
-        var (offset, take) = request;
-        var query = dbContext.LinkTracking;
+        var (offset, take, id) = request;
+        var query = dbContext.LinkTracking.Where(p => id == null || p.Link.Id == id.Value);
+
         var totalRows = query.Count();
 
         var result = await query

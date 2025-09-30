@@ -16,9 +16,10 @@ public class ReportController(
     [ProducesResponseType<PagedRequestTrack>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Requests(
         [Range(1, int.MaxValue)] int take,
-        [Range(0, int.MaxValue)] int offset)
+        [Range(0, int.MaxValue)] int offset,
+        [Range(1, int.MaxValue)] int? linkId = null)
     {
-        var (requests, totalRows) = await queryMediator.QueryAsync(new GetRecentRequestsQuery(offset, take));
+        var (requests, totalRows) = await queryMediator.QueryAsync(new GetRecentRequestsQuery(offset, take, linkId));
 
         var result = new PagedRequestTrack
         {
