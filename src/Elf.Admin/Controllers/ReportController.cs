@@ -66,4 +66,15 @@ public class ReportController(
         var dateCounts = await queryMediator.QueryAsync(new GetLinkTrackingDateCountQuery(request));
         return Ok(dateCounts);
     }
+
+    [HttpPost("tracking/link/{linkId:int}")]
+    [ProducesResponseType<List<LinkTrackingDateCount>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> TrackingCountByLink(
+        [Range(1, int.MaxValue)] int linkId,
+        DateRangeRequest request = null)
+    {
+        var dateCounts = await queryMediator.QueryAsync(new GetLinkTrackingDateCountByLinkIdQuery(linkId, request));
+        return Ok(dateCounts);
+    }
 }
