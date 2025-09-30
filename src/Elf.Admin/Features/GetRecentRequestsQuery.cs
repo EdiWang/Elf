@@ -12,7 +12,7 @@ public class GetRecentRequestsQueryHandler(ElfDbContext dbContext) : IQueryHandl
     public async Task<(List<RequestTrack>, int TotalRows)> HandleAsync(GetRecentRequestsQuery request, CancellationToken ct)
     {
         var (offset, take, id) = request;
-        var query = dbContext.LinkTracking.Where(p => id == null || p.Link.Id == id.Value);
+        var query = dbContext.LinkTracking.Where(p => id == null || p.LinkId == id.Value);
 
         var totalRows = query.Count();
 

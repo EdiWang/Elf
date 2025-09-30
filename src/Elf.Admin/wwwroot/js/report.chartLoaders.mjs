@@ -23,7 +23,7 @@ export async function loadRequestsChart(startDateInput, endDateInput, refreshBtn
         const dateRangeRequest = createDateRangeRequest(startDateInput.value, endDateInput.value);
 
         // Get tracking data
-        const trackingData = await getTrackingCounts(dateRangeRequest);
+        const trackingData = await getTrackingCounts(dateRangeRequest, window.reportPageData?.linkId);
 
         // Create chart
         createRequestsLineChart(trackingData);
@@ -47,7 +47,7 @@ export async function loadClientTypesChart(startDateInput, endDateInput) {
         const dateRangeRequest = createDateRangeRequest(startDateInput.value, endDateInput.value);
 
         // Get client type data
-        const clientTypeData = await getClientTypeCounts(dateRangeRequest);
+        const clientTypeData = await getClientTypeCounts(dateRangeRequest, window.reportPageData?.linkId);
 
         // Create chart
         createClientTypesPieChart(clientTypeData);
