@@ -69,18 +69,21 @@
                             </div>
                         </div>
 
-                        <div class="col-4">
-                            <div class="card bg-white">
-                                <div class="card-body">
-                                    <h6 class="card-subtitle mb-3 text-secondary">
-                                        Most Requested Links
-                                    </h6>
-                                    <div class="most-requested-links-doughnut-chart-container">
-                                        <canvas id="mostRequestedLinksDoughnutChart" width="400" height="300"></canvas>
+                        @if (LinkId == null)
+                        {
+                            <div class="col-4">
+                                <div class="card bg-white">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-3 text-secondary">
+                                            Most Requested Links
+                                        </h6>
+                                        <div class="most-requested-links-doughnut-chart-container">
+                                            <canvas id="mostRequestedLinksDoughnutChart" width="400" height="300"></canvas>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </section>
             </div>
@@ -123,5 +126,16 @@
 
 @section scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js" integrity="sha512-Y51n9mtKTVBh3Jbx5pZSJNDDMyY+yGe77DGtBPzRlgsf/YLCh13kSZ3JmfHGzYFCmOndraf0sQgfM654b7dJ3w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        // Make linkId available to JavaScript modules
+        window.reportPageData = {
+            linkId: @(LinkId?.ToString() ?? "null")
+        };
+    </script>
     <script src="~/js/report.mjs" type="module" asp-append-version="true"></script>
+}
+
+@functions {
+    [BindProperty(SupportsGet = true)]
+    public int? LinkId { get; set; }
 }
