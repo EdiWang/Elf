@@ -148,7 +148,7 @@ export async function loadRecentRequestsTable(page = 1) {
         const offset = (page - 1) * pageSize;
 
         // Fetch data
-        const response = await getRequests(pageSize, offset);
+        const response = await getRequests(pageSize, offset, window.reportPageData?.linkId);
 
         if (!response || !response.requestTracks) {
             throw new Error('Invalid response format');
