@@ -47,6 +47,18 @@ public class ReportController(
         return Ok(types);
     }
 
+    [HttpPost("requests/clienttype/link/{linkId:int}")]
+    [ProducesResponseType<List<ClientTypeCount>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ClientTypeByLink(
+        [Range(1, int.MaxValue)] int linkId,
+        DateRangeRequest request = null)
+    {
+        var topTypes = int.Parse(configuration["TopClientTypes"]!);
+        var types = await queryMediator.QueryAsync(new GetClientTypeCountsByLinkIdQuery(linkId, request, topTypes));
+        return Ok(types);
+    }
+
     [HttpPost("tracking")]
     [ProducesResponseType<List<LinkTrackingDateCount>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> TrackingCount(DateRangeRequest request)
