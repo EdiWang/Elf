@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize charts and table on page load
     loadRequestsChart(startDateInput, endDateInput, refreshBtn, refreshSpinner);
     loadClientTypesChart(startDateInput, endDateInput);
-    loadMostRequestedLinksChart(startDateInput, endDateInput);
+    window.reportPageData?.linkId ?? loadMostRequestedLinksChart(startDateInput, endDateInput);
     loadRecentRequestsTable();
 
     // Refresh chart button click handler
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (validateDateRange(startDateInput, endDateInput)) {
             loadRequestsChart(startDateInput, endDateInput, refreshBtn, refreshSpinner);
             loadClientTypesChart(startDateInput, endDateInput);
-            loadMostRequestedLinksChart(startDateInput, endDateInput);
+            window.reportPageData?.linkId ?? loadMostRequestedLinksChart(startDateInput, endDateInput);
             loadRecentRequestsTable();
         }
     });
