@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 LABEL maintainer="edi.wang@outlook.com"
 LABEL repo="https://github.com/EdiWang/Elf"
 USER $APP_UID
@@ -7,7 +7,7 @@ EXPOSE 8080
 EXPOSE 8081
 
 # This stage is used to build the service project
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Elf.Admin/Elf.Admin.csproj", "Elf.Admin/"]
