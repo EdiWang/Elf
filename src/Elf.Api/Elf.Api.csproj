@@ -16,8 +16,8 @@
 
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.1.66" />
-        <PackageReference Include="LiteBus" Version="4.0.0" />
-		<PackageReference Include="LiteBus.Extensions.Microsoft.DependencyInjection" Version="4.0.0" />
+        <PackageReference Include="LiteBus" Version="4.2.0" />
+		<PackageReference Include="LiteBus.Extensions.Microsoft.DependencyInjection" Version="4.2.0" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
         <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="1.2.0" />
 
