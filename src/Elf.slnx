@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/App/">
+    <Project Path="Elf.Admin/Elf.Admin.csproj" />
+    <Project Path="Elf.Api/Elf.Api.csproj" />
+  </Folder>
+  <Folder Name="/Shared/">
+    <Project Path="Elf.Shared/Elf.Shared.csproj" />
+    <Project Path="Elf.TokenGenerator/Elf.TokenGenerator.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="../.github/workflows/docker-admin.yml" />
+    <File Path="../.github/workflows/docker-api.yml" />
+    <File Path="../deployment/main.bicep" />
+    <File Path="../README.md" />
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Elf.Shared.Tests/Elf.Shared.Tests.csproj" />
+    <Project Path="Elf.TokenGenerator.Tests/Elf.TokenGenerator.Tests.csproj" />
+  </Folder>
+</Solution>
