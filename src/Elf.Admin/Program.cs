@@ -5,8 +5,10 @@ using Elf.TokenGenerator;
 using LiteBus.Commands;
 using LiteBus.Extensions.Microsoft.DependencyInjection;
 using LiteBus.Queries;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
+using System.IO.Compression;
 
 namespace Elf.Admin;
 
@@ -61,6 +63,18 @@ public class Program
         services.AddDbContext<ElfDbContext>(options => options.UseLazyLoadingProxies()
             .UseSqlServer(configuration.GetConnectionString("ElfDatabase"))
             .EnableDetailedErrors());
+
+        // Add response compression with GZIP
+        services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true;
+            options.Providers.Add<GzipCompressionProvider>();
+        });
+
+        services.Configure<GzipCompressionProviderOptions>(options =>
+        {
+            options.Level = CompressionLevel.Fastest;
+        });
     }
 
     private static void ConfigureMiddleware(WebApplication app)
@@ -73,6 +87,9 @@ public class Program
         {
             app.UseExceptionHandler("/Error");
         }
+
+        // Use response compression (must be before UseStaticFiles)
+        app.UseResponseCompression();
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
