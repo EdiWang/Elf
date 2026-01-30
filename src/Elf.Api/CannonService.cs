@@ -40,7 +40,7 @@ public class CannonService(ILogger<CannonService> logger, IServiceProvider servi
             }
             finally
             {
-                ArrayPool<object>.Shared.Return(parameters, true);
+                ArrayPool<object>.Shared.Return(parameters, clearArray: true);
             }
         });
     }
