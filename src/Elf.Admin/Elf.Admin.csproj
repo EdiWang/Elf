@@ -9,9 +9,9 @@
 		<PackageReference Include="LiteBus" Version="4.2.0" />
 		<PackageReference Include="LiteBus.Extensions.Microsoft.DependencyInjection" Version="4.2.0" />
 		<PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.4.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="10.0.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="10.0.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="10.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="10.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
 	</ItemGroup>
 
 	<ItemGroup>
