@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapper" Version="2.1.66" />
+        <PackageReference Include="Dapper" Version="2.1.72" />
         <PackageReference Include="LiteBus" Version="4.3.0" />
 		<PackageReference Include="LiteBus.Extensions.Microsoft.DependencyInjection" Version="4.3.0" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
