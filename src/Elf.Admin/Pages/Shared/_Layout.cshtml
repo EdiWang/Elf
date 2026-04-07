@@ -36,12 +36,12 @@
         </nav>
     </header>
     <div class="container-fluid">
-        <div class="row">
-            <aside class="col-auto">
+        <div class="d-flex gap-3">
+            <aside class="aside-container">
                 <partial name="_Aside" />
             </aside>
 
-            <main role="main" class="col">
+            <main role="main">
                 @RenderBody()
             </main>
         </div>

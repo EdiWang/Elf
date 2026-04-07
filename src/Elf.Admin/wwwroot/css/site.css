@@ -26,8 +26,20 @@ a {
     background-color: var(--gray-1);
 }
 
+.aside-container {
+    flex-basis: 200px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    max-width: 200px;
+}
+
 .aside-nav {
-    width: 200px;
+}
+
+main {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .col-overflow-ellipsis {
@@ -49,29 +61,29 @@ a {
     font-size: 0.875rem;
 }
 
-#recentRequestsTable th {
-    font-weight: 600;
-    border-top: none;
-    background-color: #f8f9fa;
-}
+    #recentRequestsTable th {
+        font-weight: 600;
+        border-top: none;
+        background-color: #f8f9fa;
+    }
 
-#recentRequestsTable td {
-    vertical-align: middle;
-}
+    #recentRequestsTable td {
+        vertical-align: middle;
+    }
 
-#recentRequestsTable code {
-    color: #6f42c1;
-    background-color: #f8f9fa;
-    padding: 0.2rem 0.4rem;
-    border-radius: 0.25rem;
-}
+    #recentRequestsTable code {
+        color: #6f42c1;
+        background-color: #f8f9fa;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+    }
 
-#recentRequestsTable .text-truncate {
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+    #recentRequestsTable .text-truncate {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
 /* Pagination styling */
 .pagination-sm .page-link {
@@ -84,10 +96,10 @@ a {
     #recentRequestsTable {
         font-size: 0.75rem;
     }
-    
-    #recentRequestsTable .text-truncate {
-        max-width: 120px;
-    }
+
+        #recentRequestsTable .text-truncate {
+            max-width: 120px;
+        }
 }
 
 /* Loading and error states */
