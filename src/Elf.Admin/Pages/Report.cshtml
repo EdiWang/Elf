@@ -3,104 +3,69 @@
     ViewData["Title"] = "Report";
 }
 
-<div class="accordion" id="reportAccordion">
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCharts" aria-expanded="true" aria-controls="collapseCharts">
-                Charts
-            </button>
-        </h2>
-        <div id="collapseCharts" class="accordion-collapse collapse show" data-bs-parent="#reportAccordion">
-            <div class="accordion-body">
+<div class="report-sections" id="reportSections">
+    <details class="elf-disclosure" id="chartsDisclosure" open>
+        <summary>Charts</summary>
+        <div class="disclosure-body">
                 <section class="date-range-selector">
                     <form id="dateRangeForm">
-                        <div class="row align-items-end">
-                            <div class="col">
-                                <div class="mb-3">
-                                    <label for="startDate" class="form-label">Start Date</label>
-                                    <input type="date" class="form-control" id="startDate" name="startDate" required>
-                                    <div class="invalid-feedback" id="startDateError"></div>
-                                </div>
+                        <div class="date-command-bar">
+                            <div class="form-field">
+                                <label for="startDate">Start Date</label>
+                                <input type="date" class="elf-input" id="startDate" name="startDate" required>
+                                <div class="invalid-feedback" id="startDateError"></div>
                             </div>
-                            <div class="col">
-                                <div class="mb-3">
-                                    <label for="endDate" class="form-label">End Date</label>
-                                    <input type="date" class="form-control" id="endDate" name="endDate" required>
-                                    <div class="invalid-feedback" id="endDateError"></div>
-                                </div>
+                            <div class="form-field">
+                                <label for="endDate">End Date</label>
+                                <input type="date" class="elf-input" id="endDate" name="endDate" required>
+                                <div class="invalid-feedback" id="endDateError"></div>
                             </div>
-                            <div class="col-auto">
-                                <div class="mb-3">
-                                    <button type="button" class="btn btn-outline-primary w-100" id="refreshChartBtn">
-                                        <span class="spinner-border spinner-border-sm d-none" id="refreshSpinner" role="status" aria-hidden="true"></span>
-                                        <i class="bi bi-arrow-clockwise"></i>
-                                        Refresh Chart
-                                    </button>
-                                </div>
+                            <div class="form-field command-align-end">
+                                <fluent-button appearance="primary" type="button" id="refreshChartBtn">
+                                    <fluent-progress-ring class="inline-progress d-none" id="refreshSpinner" aria-hidden="true"></fluent-progress-ring>
+                                    <span class="elf-icon" aria-hidden="true">↻</span>
+                                    Refresh Chart
+                                </fluent-button>
                             </div>
                         </div>
                     </form>
                 </section>
-                <section class="chart-container mb-2">
-                    <div class="row g-2">
-                        <div class="col-4">
-                            <div class="card bg-white">
-                                <div class="card-body">
-                                    <h6 class="card-subtitle mb-3 text-secondary">
-                                        Requests
-                                    </h6>
+                <section class="chart-container">
+                    <div class="chart-grid">
+                        <fluent-card class="chart-card">
+                                    <h2>Requests</h2>
                                     <div class="requests-line-chart-container">
                                         <canvas id="requestsLineChart" width="400" height="300"></canvas>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
+                        </fluent-card>
 
-                        <div class="col-4">
-                            <div class="card bg-white">
-                                <div class="card-body">
-                                    <h6 class="card-subtitle mb-3 text-secondary">
-                                        Client Types
-                                    </h6>
+                        <fluent-card class="chart-card">
+                                    <h2>Client Types</h2>
                                     <div class="client-types-line-chart-container">
                                         <canvas id="clientTypesPieChart" width="400" height="300"></canvas>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
+                        </fluent-card>
 
                         @if (LinkId == null)
                         {
-                            <div class="col-4">
-                                <div class="card bg-white">
-                                    <div class="card-body">
-                                        <h6 class="card-subtitle mb-3 text-secondary">
-                                            Most Requested Links
-                                        </h6>
+                            <fluent-card class="chart-card">
+                                        <h2>Most Requested Links</h2>
                                         <div class="most-requested-links-doughnut-chart-container">
                                             <canvas id="mostRequestedLinksDoughnutChart" width="400" height="300"></canvas>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
+                            </fluent-card>
                         }
                     </div>
                 </section>
-            </div>
         </div>
-    </div>
+    </details>
 
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRequestsTable" aria-expanded="false" aria-controls="collapseRequestsTable">
-                Recent Requests
-            </button>
-        </h2>
-        <div id="collapseRequestsTable" class="accordion-collapse collapse" data-bs-parent="#reportAccordion">
-            <div class="accordion-body">
+    <details class="elf-disclosure" id="requestsTableDisclosure">
+        <summary>Recent Requests</summary>
+        <div class="disclosure-body">
                 <section class="recent-requests-container">
-                    <div class="table-responsive">
-                        <table class="table table-hover" id="recentRequestsTable">
+                    <div class="table-scroll">
+                        <table class="elf-table" id="recentRequestsTable">
                             <thead>
                                 <tr>
                                     <th scope="col">Token</th>
@@ -119,9 +84,8 @@
                         </table>
                     </div>
                 </section>
-            </div>
         </div>
-    </div>
+    </details>
 </div>
 
 @section scripts {

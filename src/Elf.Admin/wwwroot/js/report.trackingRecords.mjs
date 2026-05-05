@@ -53,11 +53,11 @@ function createTableRow(request) {
         <tr>
             <td><code>${escapeHtml(request.fwToken)}</code></td>
             <td>${escapeHtml(request.note)}</td>
-            <td class="text-truncate" style="max-width: 200px;" title="${escapeHtml(request.userAgent)}">${escapeHtml(request.userAgent)}</td>
+            <td class="truncate-cell" title="${escapeHtml(request.userAgent)}">${escapeHtml(request.userAgent)}</td>
             <td><code>${escapeHtml(request.ipAddress)}</code></td>
-            <td class="text-truncate">${escapeHtml(location)}</td>
+            <td class="truncate-cell">${escapeHtml(location)}</td>
             <td>${escapeHtml(request.ipasn)}</td>
-            <td class="text-truncate">${escapeHtml(request.ipOrg)}</td>
+            <td class="truncate-cell">${escapeHtml(request.ipOrg)}</td>
             <td>${escapeHtml(localDateTime)}</td>
         </tr>
     `;
@@ -72,52 +72,42 @@ function createTableRow(request) {
 function createPaginationHtml(currentPage, totalPages) {
     if (totalPages <= 1) return '';
 
-    let paginationHtml = '<nav aria-label="Recent requests pagination"><ul class="pagination pagination-sm justify-content-end mt-3">';
+    let paginationHtml = '<nav class="pagination-actions table-pagination" aria-label="Recent requests pagination">';
 
-    // Previous button
     const prevDisabled = currentPage === 1 ? 'disabled' : '';
     paginationHtml += `
-        <li class="page-item ${prevDisabled}">
-            <a class="page-link" href="#" data-page="${currentPage - 1}" ${prevDisabled ? 'tabindex="-1" aria-disabled="true"' : ''}>Previous</a>
-        </li>
+        <fluent-button appearance="secondary" data-page="${currentPage - 1}" ${prevDisabled}>Previous</fluent-button>
     `;
 
-    // Page numbers
     const startPage = Math.max(1, currentPage - 2);
     const endPage = Math.min(totalPages, currentPage + 2);
 
     if (startPage > 1) {
-        paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>`;
+        paginationHtml += `<fluent-button appearance="secondary" data-page="1">1</fluent-button>`;
         if (startPage > 2) {
-            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            paginationHtml += `<span class="pagination-ellipsis">...</span>`;
         }
     }
 
     for (let i = startPage; i <= endPage; i++) {
-        const active = i === currentPage ? 'active' : '';
         paginationHtml += `
-            <li class="page-item ${active}">
-                <a class="page-link" href="#" data-page="${i}">${i}</a>
-            </li>
+            <fluent-button appearance="${i === currentPage ? 'primary' : 'secondary'}" data-page="${i}" ${i === currentPage ? 'aria-current="page"' : ''}>${i}</fluent-button>
         `;
     }
 
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
-            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            paginationHtml += `<span class="pagination-ellipsis">...</span>`;
         }
-        paginationHtml += `<li class="page-item"><a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a></li>`;
+        paginationHtml += `<fluent-button appearance="secondary" data-page="${totalPages}">${totalPages}</fluent-button>`;
     }
 
-    // Next button
     const nextDisabled = currentPage === totalPages ? 'disabled' : '';
     paginationHtml += `
-        <li class="page-item ${nextDisabled}">
-            <a class="page-link" href="#" data-page="${currentPage + 1}" ${nextDisabled ? 'tabindex="-1" aria-disabled="true"' : ''}>Next</a>
-        </li>
+        <fluent-button appearance="secondary" data-page="${currentPage + 1}" ${nextDisabled}>Next</fluent-button>
     `;
 
-    paginationHtml += '</ul></nav>';
+    paginationHtml += '</nav>';
     return paginationHtml;
 }
 
@@ -136,7 +126,7 @@ export async function loadRecentRequestsTable(page = 1) {
         }
 
         // Show loading state
-        tableBody.innerHTML = '<tr><td colspan="8" class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Loading recent requests...</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8" class="table-message"><fluent-progress-ring class="inline-progress"></fluent-progress-ring> Loading recent requests...</td></tr>';
 
         // Remove existing pagination
         const existingPagination = tableContainer.querySelector('nav[aria-label="Recent requests pagination"]');
@@ -162,7 +152,7 @@ export async function loadRecentRequestsTable(page = 1) {
         tableBody.innerHTML = '';
 
         if (requests.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No recent requests found</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="8" class="table-message muted-text">No recent requests found</td></tr>';
             return;
         }
 
@@ -179,10 +169,10 @@ export async function loadRecentRequestsTable(page = 1) {
             tableContainer.insertAdjacentHTML('beforeend', paginationHtml);
 
             // Add click handlers for pagination
-            const paginationLinks = tableContainer.querySelectorAll('.page-link[data-page]');
+            const paginationLinks = tableContainer.querySelectorAll('[data-page]');
             paginationLinks.forEach(link => {
                 link.addEventListener('click', function (e) {
-                    e.preventDefault();
+                    if (this.disabled) return;
                     const targetPage = parseInt(this.getAttribute('data-page'));
                     if (targetPage >= 1 && targetPage <= totalPages && targetPage !== currentPage) {
                         loadRecentRequestsTable(targetPage);
@@ -195,7 +185,7 @@ export async function loadRecentRequestsTable(page = 1) {
         console.error('Error loading recent requests:', error);
         const tableBody = document.querySelector('#recentRequestsTable tbody');
         if (tableBody) {
-            tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error loading recent requests. Please try again.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="8" class="table-message danger-text">Error loading recent requests. Please try again.</td></tr>';
         }
     }
 }

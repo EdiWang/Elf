@@ -4,6 +4,7 @@ import { elements } from './index.dom.mjs';
 import { state, updateState, resetPage, getOffset } from './index.state.mjs';
 import { displayLinks, showLoading, showNoData } from './index.links.mjs';
 import { updatePagination } from './index.pagination.mjs';
+import { warning } from './toastService.mjs';
 
 let tagSearchTagify = null;
 
@@ -53,7 +54,7 @@ export async function handleTagSearch() {
     const selectedTags = tagSearchTagify.value;
     
     if (selectedTags.length === 0) {
-        alert('Please select at least one tag to search.');
+        warning('Please select at least one tag to search.');
         return;
     }
     
@@ -66,7 +67,7 @@ export async function handleTagSearch() {
     }).filter(id => id !== null);
     
     if (tagIds.length === 0) {
-        alert('No valid tags selected.');
+        warning('No valid tags selected.');
         return;
     }
     

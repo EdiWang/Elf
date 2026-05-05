@@ -51,19 +51,12 @@ export function displayLinks(links) {
 }
 
 function createLinkRow(link) {
-    const row = document.createElement('div');
-    row.className = 'bg-white py-3 px-2 rounded-3 border mb-1 link-row';
+    const row = document.createElement('fluent-card');
+    row.className = 'link-row';
     row.setAttribute('data-link-id', link.id);
 
     const statusToggle = `
-        <div class="form-check form-switch">
-            <input class="form-check-input status-toggle" type="checkbox" role="switch" 
-                   id="status-${link.id}" ${link.isEnabled ? 'checked' : ''} 
-                   data-link-id="${link.id}" title="${link.isEnabled ? 'Enabled' : 'Disabled'}">
-            <label class="form-check-label visually-hidden" for="status-${link.id}">
-                Toggle link status
-            </label>
-        </div>
+        <fluent-switch class="status-toggle" id="status-${link.id}" ${link.isEnabled ? 'checked' : ''} data-link-id="${link.id}" title="${link.isEnabled ? 'Enabled' : 'Disabled'}" aria-label="Toggle link status"></fluent-switch>
     `;
 
     const updateDate = new Date(link.updateTimeUtc).toLocaleDateString('en-US', {
@@ -74,67 +67,57 @@ function createLinkRow(link) {
 
     // Create tags badges
     const tagsBadges = link.tags && link.tags.length > 0
-        ? link.tags.map(tag => `<span class="badge bg-primary me-1">${escapeHtml(tag.name)}</span>`).join('')
-        : '<span class="text-muted small">(no tags)</span>';
+        ? link.tags.map(tag => `<fluent-badge appearance="filled">${escapeHtml(tag.name)}</fluent-badge>`).join('')
+        : '<span class="muted-text">(no tags)</span>';
 
     row.innerHTML = `
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <a href="${getForwarderUrl(link.fwToken)}" target="_blank" class="code-link-token ms-2">
+                <div class="link-row-grid">
+                    <div class="token-cell">
+                        <a href="${getForwarderUrl(link.fwToken)}" target="_blank" class="code-link-token">
                             <code>
                                 ${escapeHtml(link.fwToken)}
                             </code>
                         </a>
                     </div>
-                    <div class="col-md-1">
+                    <div class="aka-cell">
                         ${link.akaName 
                             ? `<a href="${getAkaForwarderUrl(link.akaName)}" target="_blank">
                                     <code>${escapeHtml(link.akaName)}</code>
                                </a>` 
-                            : `<span class="text-muted small">(none)</span>`
+                            : `<span class="muted-text">(none)</span>`
                         }
                     </div>
-                    <div class="col col-overflow-ellipsis">
+                    <div class="overflow-cell">
                         <a href="${escapeHtml(link.originUrl)}" target="_blank" title="${escapeHtml(link.originUrl)}">
                             ${escapeHtml(link.originUrl)}
                         </a>
                     </div>
-                    <div class="col col-overflow-ellipsis">
+                    <div class="overflow-cell">
                         <span title="${escapeHtml(link.note || 'No note')}">${escapeHtml(link.note || 'No note')}</span>
                     </div>
-                    <div class="col-md-1">
+                    <div class="tag-list">
                         ${tagsBadges}
                     </div>
-                    <div class="col-auto">${statusToggle}</div>
-                    <div class="col-auto">
+                    <div class="status-cell">${statusToggle}</div>
+                    <div class="metric-cell">
                         <span class="ttl-container">
-                            <i class="bi bi-clock"></i> ${link.ttl}
+                            <span class="elf-icon" aria-hidden="true">◷</span> ${link.ttl}
                         </span>
                     </div>
-                    <div class="col-auto">
+                    <div class="metric-cell">
                         <div class="link-hits-container">
-                            <i class="bi bi-eye"></i> ${link.hits}
+                            <span class="elf-icon" aria-hidden="true">◎</span> ${link.hits}
                         </div>
                     </div>
-                    <div class="col-auto">
-                        <span class="text-muted">${updateDate}</span>
+                    <div class="date-cell">
+                        <span class="muted-text">${updateDate}</span>
                     </div>
-                    <div class="col-auto">
-                        <button class="btn btn-sm btn-outline-success me-1 report-btn" data-link-id="${link.id}" title="View Report">
-                            <i class="bi bi-graph-up"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary me-1 qr-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Show QR Code">
-                            <i class="bi bi-qr-code"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary me-1 copy-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Copy link URL">
-                            <i class="bi bi-clipboard"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-primary me-1 edit-btn" data-link-id="${link.id}" title="Edit link">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger delete-btn" data-link-id="${link.id}" data-token="${escapeHtml(link.fwToken)}" data-url="${escapeHtml(link.originUrl)}" title="Delete link">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                    <div class="row-actions">
+                        <fluent-button appearance="subtle" class="report-btn" data-link-id="${link.id}" title="View Report"><span class="elf-icon" aria-hidden="true">⌁</span></fluent-button>
+                        <fluent-button appearance="subtle" class="qr-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Show QR Code"><span class="elf-icon" aria-hidden="true">▦</span></fluent-button>
+                        <fluent-button appearance="subtle" class="copy-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Copy link URL"><span class="elf-icon" aria-hidden="true">⧉</span></fluent-button>
+                        <fluent-button appearance="subtle" class="edit-btn" data-link-id="${link.id}" title="Edit link"><span class="elf-icon" aria-hidden="true">✎</span></fluent-button>
+                        <fluent-button appearance="subtle" class="delete-btn danger-action" data-link-id="${link.id}" data-token="${escapeHtml(link.fwToken)}" data-url="${escapeHtml(link.originUrl)}" title="Delete link"><span class="elf-icon" aria-hidden="true">⌫</span></fluent-button>
                     </div>
                 </div>
             `;
@@ -197,7 +180,7 @@ function createLinkRow(link) {
 
 export function showQRCodeModal(fwToken) {
     const url = getForwarderUrl(fwToken);
-    const modal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
+    const modal = document.getElementById('qrCodeModal');
     
     // Update the URL text
     document.getElementById('qrCodeUrl').textContent = url;
@@ -212,7 +195,7 @@ export function showQRCodeModal(fwToken) {
         background: '#ffffff'
     });
     
-    modal.show();
+    if (!modal.open) modal.showModal();
 }
 
 async function copyLinkToClipboard(fwToken) {

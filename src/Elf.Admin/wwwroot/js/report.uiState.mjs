@@ -11,9 +11,11 @@
 export function setLoadingState(isLoading, refreshBtn, refreshSpinner) {
     if (isLoading) {
         refreshSpinner.classList.remove('d-none');
+        refreshSpinner.removeAttribute('aria-hidden');
         refreshBtn.disabled = true;
     } else {
         refreshSpinner.classList.add('d-none');
+        refreshSpinner.setAttribute('aria-hidden', 'true');
         refreshBtn.disabled = false;
     }
 }

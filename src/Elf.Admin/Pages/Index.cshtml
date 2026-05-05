@@ -3,77 +3,63 @@
     ViewData["Title"] = "Links";
 }
 
-<div class="row mb-3">
-    <div class="col">
-        <div class="input-group">
-            <input type="text" class="form-control" id="searchTerm" placeholder="Search links by note or token...">
-            <button class="btn btn-outline-secondary" type="button" id="searchBtn">
-                <i class="bi bi-search"></i>
-            </button>
-            <button class="btn btn-outline-secondary" type="button" id="clearBtn">
-                <i class="bi bi-eraser"></i>
-            </button>
-        </div>
+<section class="command-bar">
+    <div class="command-group">
+        <fluent-text-input type="text" id="searchTerm" placeholder="Search links by note or token..."></fluent-text-input>
+        <fluent-button appearance="subtle" type="button" id="searchBtn" title="Search">
+            <span class="elf-icon" aria-hidden="true">⌕</span>
+        </fluent-button>
+        <fluent-button appearance="subtle" type="button" id="clearBtn" title="Clear search">
+            <span class="elf-icon" aria-hidden="true">⌫</span>
+        </fluent-button>
     </div>
-    <div class="col">
-        <div class="input-group">
-            <span class="input-group-text">
-                <i class="bi bi-tags"></i>
-            </span>
-            <input type="text" class="form-control" id="tagFilter" placeholder="Select tags to filter...">
-            <button class="btn btn-outline-secondary" type="button" id="tagSearchBtn">
-                <i class="bi bi-search"></i>
-            </button>
-            <button class="btn btn-outline-secondary" type="button" id="clearTagFilterBtn">
-                <i class="bi bi-x-lg"></i>
-            </button>
-        </div>
+    <div class="command-group tag-search-group">
+        <span class="command-prefix" aria-hidden="true">#</span>
+        <input type="text" class="elf-input" id="tagFilter" placeholder="Select tags to filter...">
+        <fluent-button appearance="subtle" type="button" id="tagSearchBtn" title="Search tags">
+            <span class="elf-icon" aria-hidden="true">⌕</span>
+        </fluent-button>
+        <fluent-button appearance="subtle" type="button" id="clearTagFilterBtn" title="Clear tag filter">
+            <span class="elf-icon" aria-hidden="true">×</span>
+        </fluent-button>
     </div>
-    <div class="col-auto text-end">
-        <button class="btn btn-outline-secondary me-2" id="refreshBtn" title="Refresh links">
-            <i class="bi bi-arrow-clockwise"></i>
-        </button>
-        <button class="btn btn-outline-primary" id="addLinkBtn">
-            <i class="bi bi-plus"></i>
+    <div class="command-actions">
+        <fluent-button appearance="subtle" id="refreshBtn" title="Refresh links">
+            <span class="elf-icon" aria-hidden="true">↻</span>
+        </fluent-button>
+        <fluent-button appearance="primary" id="addLinkBtn">
+            <span class="elf-icon" aria-hidden="true">+</span>
             New
-        </button>
+        </fluent-button>
     </div>
-</div>
+</section>
 
-<div id="loadingSpinner" class="text-center d-none">
-    <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
+<div id="loadingSpinner" class="loading-panel d-none">
+    <fluent-progress-ring></fluent-progress-ring>
+    <span class="sr-only">Loading...</span>
 </div>
 
 <div id="linksContainer">
     <div id="linksData"></div>
 </div>
 
-<div id="noDataMessage" class="text-center py-5 d-none">
-    <h5 class="text-muted">No links found</h5>
-    <p class="text-muted">Try adjusting your search criteria or add a new link.</p>
+<div id="noDataMessage" class="empty-state d-none">
+    <h2>No links found</h2>
+    <p>Try adjusting your search criteria or add a new link.</p>
 </div>
 
-<nav aria-label="Links pagination" id="paginationContainer" class="mt-4">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <div class="d-flex align-items-center">
-                <label for="pageSize" class="form-label me-2 mb-0">Show:</label>
-                <select class="form-select form-select-sm me-3" id="pageSize" style="width: auto;">
-                    <option value="10" selected>10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
-                <span id="recordsInfo" class="text-muted small"></span>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <ul class="pagination pagination-sm justify-content-end mb-0" id="pagination">
-            </ul>
-        </div>
+<nav aria-label="Links pagination" id="paginationContainer" class="pagination-shell">
+    <div class="pagination-size">
+        <label for="pageSize">Show</label>
+        <fluent-select id="pageSize">
+            <fluent-option value="10" selected>10</fluent-option>
+            <fluent-option value="25">25</fluent-option>
+            <fluent-option value="50">50</fluent-option>
+            <fluent-option value="100">100</fluent-option>
+        </fluent-select>
+        <span id="recordsInfo" class="muted-text"></span>
     </div>
+    <div class="pagination-actions" id="pagination"></div>
 </nav>
 
 <partial name="_DeleteModal" />

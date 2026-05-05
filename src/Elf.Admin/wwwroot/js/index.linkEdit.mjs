@@ -14,11 +14,9 @@ export function setupLinkEditEventListeners() {
         handleSaveLink();
     });
     
-    // Clear form when modal is hidden
-    elements.linkEditModal._element.addEventListener('hidden.bs.modal', clearForm);
+    elements.linkEditModal.element.addEventListener('close', clearForm);
     
-    // Initialize Tagify when modal is shown
-    elements.linkEditModal._element.addEventListener('shown.bs.modal', initializeTagify);
+    elements.linkEditModal.element.addEventListener('shown.elf.dialog', initializeTagify);
 }
 
 async function initializeTagify() {
@@ -209,6 +207,7 @@ function showFieldError(fieldName, message) {
     const errorElement = document.getElementById(fieldName + 'Error');
     
     field.classList.add('is-invalid');
+    field.setAttribute('aria-invalid', 'true');
     if (errorElement) {
         errorElement.textContent = message;
     }
@@ -220,7 +219,10 @@ function clearValidationErrors() {
         const field = elements[fieldName];
         const errorElement = document.getElementById(fieldName + 'Error');
         
-        if (field) field.classList.remove('is-invalid');
+        if (field) {
+            field.classList.remove('is-invalid');
+            field.removeAttribute('aria-invalid');
+        }
         if (errorElement) errorElement.textContent = '';
     });
 }
@@ -242,6 +244,10 @@ function showSaveSpinner(show) {
 
 function clearForm() {
     elements.linkEditForm.reset();
+    elements.originUrl.value = '';
+    elements.note.value = '';
+    elements.akaName.value = '';
+    elements.tags.value = '';
     elements.ttl.value = 0;
     elements.isEnabled.checked = true;
     clearValidationErrors();

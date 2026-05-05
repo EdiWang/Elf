@@ -1,22 +1,13 @@
-<!-- QR Code Modal -->
-<div class="modal fade" id="qrCodeModal" tabindex="-1" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="qrCodeModalLabel">QR Code</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <div class="mb-3">
-                    <canvas id="qrCodeCanvas" class="mx-auto"></canvas>
-                </div>
-                <div class="text-center">
-                    <code id="qrCodeUrl" class="text-break"></code>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
+<dialog class="elf-dialog qr-dialog" id="qrCodeModal" aria-labelledby="qrCodeModalLabel">
+    <div class="dialog-header">
+        <h2 id="qrCodeModalLabel">QR Code</h2>
+        <fluent-button appearance="subtle" type="button" data-dialog-close aria-label="Close">×</fluent-button>
     </div>
-</div>
+    <div class="dialog-body qr-dialog-body">
+        <canvas id="qrCodeCanvas"></canvas>
+        <code id="qrCodeUrl" class="break-text"></code>
+    </div>
+    <div class="dialog-footer">
+        <fluent-button appearance="secondary" type="button" data-dialog-close>Close</fluent-button>
+    </div>
+</dialog>

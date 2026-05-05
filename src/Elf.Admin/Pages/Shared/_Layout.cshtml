@@ -10,46 +10,39 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Elf Admin</title>
-    <link rel="stylesheet" href="~/lib/twitter-bootstrap/css/bootstrap.min.css" asp-append-version="true" />
-    <link href="~/lib/bootstrap-icons/bootstrap-icons.min.css" rel="stylesheet" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("head", required: false)
 </head>
-<body class="bg-body-tertiary">
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand mb-0 h1" asp-area="" asp-page="/Index">Elf Admin</a>
+<body>
+    <header class="app-header">
+        <nav class="app-topbar">
+            <a class="app-brand" asp-area="" asp-page="/Index">Elf Admin</a>
 
-                <div class="nav-appversion align-items-end text-muted">
-                    <a href="@forwarderBaseUrl" target="_blank" class="me-3">
-                        <i class="bi bi-box-arrow-up-right"></i>
-                        Forwarder API
-                    </a>
+            <div class="app-links">
+                <a href="@forwarderBaseUrl" target="_blank">
+                    <span class="elf-icon" aria-hidden="true">↗</span>
+                    Forwarder API
+                </a>
 
-                    <a href="https://github.com/EdiWang/Elf" target="_blank">
-                        <i class="bi bi-github"></i>
-                        @VersionHelper.AppVersionBasic
-                    </a>
-                </div>
+                <a href="https://github.com/EdiWang/Elf" target="_blank">
+                    <span class="elf-icon" aria-hidden="true">◎</span>
+                    @VersionHelper.AppVersionBasic
+                </a>
             </div>
         </nav>
     </header>
-    <div class="container-fluid">
-        <div class="d-flex gap-3">
-            <aside class="aside-container">
-                <partial name="_Aside" />
-            </aside>
+    <div class="app-layout">
+        <aside class="aside-container">
+            <partial name="_Aside" />
+        </aside>
 
-            <main role="main">
-                @RenderBody()
-            </main>
-        </div>
+        <main role="main">
+            @RenderBody()
+        </main>
     </div>
 
     <partial name="_Toast" />
 
-    <script src="~/lib/twitter-bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/main.mjs" type="module" asp-append-version="true"></script>
 
     @await RenderSectionAsync("scripts", required: false)

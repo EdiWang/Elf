@@ -1,3 +1,5 @@
+import { createDialogController } from './dialogService.mjs';
+
 // DOM element references
 export const elements = {
     linksData: document.getElementById('linksData'),
@@ -12,7 +14,7 @@ export const elements = {
     refreshBtn: document.getElementById('refreshBtn'),
     addLinkBtn: document.getElementById('addLinkBtn'),
     pageSizeSelect: document.getElementById('pageSize'),
-    deleteModal: new bootstrap.Modal(document.getElementById('deleteModal')),
+    deleteModal: createDialogController(document.getElementById('deleteModal')),
     deleteTokenPreview: document.getElementById('deleteTokenPreview'),
     deleteUrlPreview: document.getElementById('deleteUrlPreview'),
     confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
@@ -23,7 +25,7 @@ export const elements = {
     clearTagFilterBtn: document.getElementById('clearTagFilterBtn'),
 
     // Link Edit Modal elements
-    linkEditModal: new bootstrap.Modal(document.getElementById('linkEditModal')),
+    linkEditModal: createDialogController(document.getElementById('linkEditModal')),
     linkEditModalLabel: document.getElementById('linkEditModalLabel'),
     linkEditForm: document.getElementById('linkEditForm'),
     originUrl: document.getElementById('originUrl'),

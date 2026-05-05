@@ -1,5 +1,6 @@
 import { getTags, createTag, updateTag, deleteTag } from './tags.apiclient.mjs';
 import { success, error } from './toastService.mjs';
+import { createDialogController } from './dialogService.mjs';
 
 // DOM elements
 const elements = {
@@ -30,7 +31,7 @@ let deleteModal = null;
 // Initialize the page
 document.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
-    deleteModal = new bootstrap.Modal(elements.deleteTagModal);
+    deleteModal = createDialogController(elements.deleteTagModal);
     await loadTags();
 });
 
@@ -67,19 +68,13 @@ function renderTags() {
     elements.tagsGridContainer.style.display = 'block';
 
     elements.tagsGrid.innerHTML = tags.map(tag => `
-        <div class="tag-pill d-inline-flex align-items-center gap-1 bg-white border rounded ps-2 pe-1 py-1">
-            <span class="tag-name me-2">
+        <fluent-card class="tag-pill">
+            <span class="tag-name">
                 ${escapeHtml(tag.name)}
             </span>
-            <button type="button" class="btn btn-sm btn-outline-primary" 
-                    onclick="editTag(${tag.id})" title="Edit">
-                <i class="bi bi-pencil"></i>
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-danger" 
-                    onclick="showDeleteConfirmation(${tag.id}, '${escapeHtml(tag.name)}')" title="Delete">
-                <i class="bi bi-trash"></i>
-            </button>
-        </div>
+            <fluent-button type="button" appearance="subtle" onclick="editTag(${tag.id})" title="Edit"><span class="elf-icon" aria-hidden="true">✎</span></fluent-button>
+            <fluent-button type="button" appearance="subtle" class="danger-action" onclick="showDeleteConfirmation(${tag.id}, '${escapeHtml(tag.name)}')" title="Delete"><span class="elf-icon" aria-hidden="true">⌫</span></fluent-button>
+        </fluent-card>
     `).join('');
 }
 
@@ -124,7 +119,7 @@ async function handleSaveTag(event) {
 
     try {
         elements.saveTagBtn.disabled = true;
-        elements.saveTagBtn.innerHTML = '<i class="spinner-border spinner-border-sm"></i> Saving...';
+        elements.saveTagBtn.innerHTML = '<fluent-progress-ring class="inline-progress"></fluent-progress-ring> Saving...';
 
         if (editingTagId) {
             await updateTag(editingTagId, { name });
@@ -142,7 +137,7 @@ async function handleSaveTag(event) {
         error('Failed to save tag. Please try again.');
     } finally {
         elements.saveTagBtn.disabled = false;
-        elements.saveTagBtn.innerHTML = '<i class="bi bi-check-circle"></i> Save';
+        elements.saveTagBtn.innerHTML = '<span class="elf-icon" aria-hidden="true">✓</span> Save';
     }
 }
 
@@ -175,11 +170,13 @@ function validateTagName(name) {
 
 function showValidationError(message) {
     elements.tagName.classList.add('is-invalid');
+    elements.tagName.setAttribute('aria-invalid', 'true');
     elements.tagNameError.textContent = message;
 }
 
 function clearValidationError() {
     elements.tagName.classList.remove('is-invalid');
+    elements.tagName.removeAttribute('aria-invalid');
     elements.tagNameError.textContent = '';
 }
 
@@ -194,7 +191,7 @@ async function handleConfirmDelete() {
 
     try {
         elements.confirmDeleteBtn.disabled = true;
-        elements.confirmDeleteBtn.innerHTML = '<i class="spinner-border spinner-border-sm"></i> Deleting...';
+        elements.confirmDeleteBtn.innerHTML = '<fluent-progress-ring class="inline-progress"></fluent-progress-ring> Deleting...';
 
         await deleteTag(tagToDeleteId);
         deleteModal.hide();
@@ -206,7 +203,7 @@ async function handleConfirmDelete() {
         error('Failed to delete tag. Please try again.');
     } finally {
         elements.confirmDeleteBtn.disabled = false;
-        elements.confirmDeleteBtn.innerHTML = '<i class="bi bi-trash"></i> Delete';
+        elements.confirmDeleteBtn.innerHTML = '<span class="elf-icon" aria-hidden="true">⌫</span> Delete';
         tagToDeleteId = null;
     }
 }
