@@ -1,18 +1,15 @@
-﻿<dialog class="elf-dialog" id="deleteModal" aria-labelledby="deleteModalLabel">
-    <div class="dialog-header">
-        <h2 id="deleteModalLabel">Confirm Delete</h2>
-        <fluent-button appearance="subtle" type="button" data-dialog-close aria-label="Close">×</fluent-button>
-    </div>
-    <div class="dialog-body">
+﻿<fluent-dialog class="elf-dialog" id="deleteModal" type="modal" aria-labelledby="deleteModalLabel">
+    <fluent-dialog-body>
+        <span slot="title" id="deleteModalLabel">Confirm Delete</span>
         <p>Are you sure you want to delete this link?</p>
         <div class="inline-alert warning">
             <strong>Token:</strong> <span id="deleteTokenPreview"></span><br>
             <strong>URL:</strong> <span id="deleteUrlPreview"></span>
         </div>
         <p class="danger-text">This action cannot be undone.</p>
-    </div>
-    <div class="dialog-footer">
-        <fluent-button appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
-        <fluent-button appearance="primary" type="button" id="confirmDeleteBtn">Delete</fluent-button>
-    </div>
-</dialog>
+        <div slot="action" class="dialog-footer">
+            <fluent-button appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
+            <fluent-button appearance="primary" type="button" id="confirmDeleteBtn">Delete</fluent-button>
+        </div>
+    </fluent-dialog-body>
+</fluent-dialog>

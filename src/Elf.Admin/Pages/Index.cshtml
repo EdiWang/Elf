@@ -39,8 +39,26 @@
     <span class="sr-only">Loading...</span>
 </div>
 
-<div id="linksContainer">
-    <div id="linksData"></div>
+<div id="linksContainer" class="fluent-table-surface links-table-surface">
+    <div class="fluent-table-scroll">
+        <table class="fluent-data-table links-data-table" id="linksTable">
+            <thead>
+                <tr>
+                    <th scope="col" class="column-token">Token</th>
+                    <th scope="col" class="column-aka">Aka</th>
+                    <th scope="col" class="column-url">Origin URL</th>
+                    <th scope="col" class="column-note">Note</th>
+                    <th scope="col" class="column-tags">Tags</th>
+                    <th scope="col" class="column-status">Enabled</th>
+                    <th scope="col" class="column-ttl">TTL</th>
+                    <th scope="col" class="column-hits">Hits</th>
+                    <th scope="col" class="column-updated">Updated</th>
+                    <th scope="col" class="column-actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="linksData"></tbody>
+        </table>
+    </div>
 </div>
 
 <div id="noDataMessage" class="empty-state d-none">

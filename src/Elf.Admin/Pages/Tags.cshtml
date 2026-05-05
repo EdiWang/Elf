@@ -48,23 +48,20 @@
     </div>
 </div>
 
-<dialog class="elf-dialog" id="deleteTagModal" aria-labelledby="deleteTagModalLabel">
-    <div class="dialog-header">
-        <h2 id="deleteTagModalLabel">Confirm Delete</h2>
-        <fluent-button appearance="subtle" type="button" data-dialog-close aria-label="Close">×</fluent-button>
-    </div>
-    <div class="dialog-body">
+<fluent-dialog class="elf-dialog" id="deleteTagModal" type="modal" aria-labelledby="deleteTagModalLabel">
+    <fluent-dialog-body>
+        <span slot="title" id="deleteTagModalLabel">Confirm Delete</span>
         <p>Are you sure you want to delete the tag "<strong id="deleteTagName"></strong>"?</p>
         <p class="danger-text"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> This action cannot be undone.</p>
-    </div>
-    <div class="dialog-footer">
-        <fluent-button appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
-        <fluent-button appearance="primary" type="button" id="confirmDeleteBtn">
-            <i class="bi bi-trash" aria-hidden="true"></i>
-            Delete
-        </fluent-button>
-    </div>
-</dialog>
+        <div slot="action" class="dialog-footer">
+            <fluent-button appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
+            <fluent-button appearance="primary" type="button" id="confirmDeleteBtn">
+                <i class="bi bi-trash" aria-hidden="true"></i>
+                Delete
+            </fluent-button>
+        </div>
+    </fluent-dialog-body>
+</fluent-dialog>
 
 @section scripts {
     <script type="module" src="~/js/tags.mjs" asp-append-version="true"></script>

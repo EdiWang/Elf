@@ -1,13 +1,12 @@
-<dialog class="elf-dialog qr-dialog" id="qrCodeModal" aria-labelledby="qrCodeModalLabel">
-    <div class="dialog-header">
-        <h2 id="qrCodeModalLabel">QR Code</h2>
-        <fluent-button appearance="subtle" type="button" data-dialog-close aria-label="Close">×</fluent-button>
-    </div>
-    <div class="dialog-body qr-dialog-body">
-        <canvas id="qrCodeCanvas"></canvas>
-        <code id="qrCodeUrl" class="break-text"></code>
-    </div>
-    <div class="dialog-footer">
-        <fluent-button appearance="secondary" type="button" data-dialog-close>Close</fluent-button>
-    </div>
-</dialog>
+<fluent-dialog class="elf-dialog qr-dialog" id="qrCodeModal" type="modal" aria-labelledby="qrCodeModalLabel">
+    <fluent-dialog-body>
+        <span slot="title" id="qrCodeModalLabel">QR Code</span>
+        <div class="qr-dialog-body">
+            <canvas id="qrCodeCanvas"></canvas>
+            <code id="qrCodeUrl" class="break-text"></code>
+        </div>
+        <div slot="action" class="dialog-footer">
+            <fluent-button appearance="secondary" type="button" data-dialog-close>Close</fluent-button>
+        </div>
+    </fluent-dialog-body>
+</fluent-dialog>

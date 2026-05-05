@@ -51,8 +51,8 @@ export function displayLinks(links) {
 }
 
 function createLinkRow(link) {
-    const row = document.createElement('fluent-card');
-    row.className = 'link-row';
+    const row = document.createElement('tr');
+    row.className = 'fluent-table-row link-table-row';
     row.setAttribute('data-link-id', link.id);
 
     const statusToggle = `
@@ -71,55 +71,57 @@ function createLinkRow(link) {
         : '<span class="muted-text">(no tags)</span>';
 
     row.innerHTML = `
-                <div class="link-row-grid">
-                    <div class="token-cell">
+                    <td class="token-cell">
                         <a href="${getForwarderUrl(link.fwToken)}" target="_blank" class="code-link-token">
                             <code>
                                 ${escapeHtml(link.fwToken)}
                             </code>
                         </a>
-                    </div>
-                    <div class="aka-cell">
+                    </td>
+                    <td class="aka-cell">
                         ${link.akaName 
                             ? `<a href="${getAkaForwarderUrl(link.akaName)}" target="_blank">
                                     <code>${escapeHtml(link.akaName)}</code>
                                </a>` 
                             : `<span class="muted-text">(none)</span>`
                         }
-                    </div>
-                    <div class="overflow-cell">
-                        <a href="${escapeHtml(link.originUrl)}" target="_blank" title="${escapeHtml(link.originUrl)}">
+                    </td>
+                    <td>
+                        <a class="fluent-table-text-cell" href="${escapeHtml(link.originUrl)}" target="_blank" title="${escapeHtml(link.originUrl)}">
                             ${escapeHtml(link.originUrl)}
                         </a>
-                    </div>
-                    <div class="overflow-cell">
-                        <span title="${escapeHtml(link.note || 'No note')}">${escapeHtml(link.note || 'No note')}</span>
-                    </div>
-                    <div class="tag-list">
+                    </td>
+                    <td>
+                        <span class="fluent-table-text-cell" title="${escapeHtml(link.note || 'No note')}">${escapeHtml(link.note || 'No note')}</span>
+                    </td>
+                    <td>
+                        <div class="tag-list">
                         ${tagsBadges}
-                    </div>
-                    <div class="status-cell">${statusToggle}</div>
-                    <div class="metric-cell">
+                        </div>
+                    </td>
+                    <td class="status-cell">${statusToggle}</td>
+                    <td class="metric-cell">
                         <span class="ttl-container">
                             <i class="bi bi-hourglass-split" aria-hidden="true"></i> ${link.ttl}
                         </span>
-                    </div>
-                    <div class="metric-cell">
+                    </td>
+                    <td class="metric-cell">
                         <div class="link-hits-container">
                             <i class="bi bi-activity" aria-hidden="true"></i> ${link.hits}
                         </div>
-                    </div>
-                    <div class="date-cell">
+                    </td>
+                    <td class="date-cell">
                         <span class="muted-text">${updateDate}</span>
-                    </div>
-                    <div class="row-actions">
+                    </td>
+                    <td>
+                        <div class="row-actions">
                         <fluent-button appearance="subtle" class="report-btn" data-link-id="${link.id}" title="View Report"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></fluent-button>
                         <fluent-button appearance="subtle" class="qr-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Show QR Code"><i class="bi bi-qr-code" aria-hidden="true"></i></fluent-button>
                         <fluent-button appearance="subtle" class="copy-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Copy link URL"><i class="bi bi-clipboard" aria-hidden="true"></i></fluent-button>
                         <fluent-button appearance="subtle" class="edit-btn" data-link-id="${link.id}" title="Edit link"><i class="bi bi-pencil-square" aria-hidden="true"></i></fluent-button>
                         <fluent-button appearance="subtle" class="delete-btn danger-action" data-link-id="${link.id}" data-token="${escapeHtml(link.fwToken)}" data-url="${escapeHtml(link.originUrl)}" title="Delete link"><i class="bi bi-trash" aria-hidden="true"></i></fluent-button>
-                    </div>
-                </div>
+                        </div>
+                    </td>
             `;
 
     // Use event delegation for QR, copy, edit, delete buttons and status toggle
@@ -195,7 +197,7 @@ export function showQRCodeModal(fwToken) {
         background: '#ffffff'
     });
     
-    if (!modal.open) modal.showModal();
+    modal.show();
 }
 
 async function copyLinkToClipboard(fwToken) {

@@ -1,9 +1,6 @@
-<dialog class="elf-dialog wide-dialog" id="linkEditModal" aria-labelledby="linkEditModalLabel">
-    <div class="dialog-header">
-        <h2 id="linkEditModalLabel">Create Link</h2>
-        <fluent-button appearance="subtle" type="button" data-dialog-close aria-label="Close">×</fluent-button>
-    </div>
-    <div class="dialog-body">
+<fluent-dialog class="elf-dialog wide-dialog" id="linkEditModal" type="modal" aria-labelledby="linkEditModalLabel">
+    <fluent-dialog-body>
+        <span slot="title" id="linkEditModalLabel">Create Link</span>
         <form id="linkEditForm">
             <div class="form-grid two-one">
                 <div class="form-field">
@@ -47,12 +44,12 @@
                 <span id="modalErrorMessage"></span>
             </div>
         </form>
-    </div>
-    <div class="dialog-footer">
-        <fluent-button appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
-        <fluent-button appearance="primary" type="button" id="saveLinkBtn">
-            <fluent-progress-ring class="inline-progress d-none" id="saveSpinner" aria-hidden="true"></fluent-progress-ring>
-            Save
-        </fluent-button>
-    </div>
-</dialog>
+        <div slot="action" class="dialog-footer">
+            <fluent-button appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
+            <fluent-button appearance="primary" type="button" id="saveLinkBtn">
+                <fluent-progress-ring class="inline-progress d-none" id="saveSpinner" aria-hidden="true"></fluent-progress-ring>
+                Save
+            </fluent-button>
+        </div>
+    </fluent-dialog-body>
+</fluent-dialog>

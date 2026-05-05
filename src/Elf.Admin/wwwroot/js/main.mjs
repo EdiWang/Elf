@@ -7,6 +7,16 @@ document.addEventListener('click', event => {
 	const closeButton = event.target.closest('[data-dialog-close]');
 	if (!closeButton) return;
 
+	const fluentDialog = closeButton.closest('fluent-dialog');
+	if (fluentDialog) {
+		if (fluentDialog.dataset.dialogOpen === 'false') return;
+
+		fluentDialog.hide();
+		fluentDialog.dataset.dialogOpen = 'false';
+		fluentDialog.dispatchEvent(new CustomEvent('close'));
+		return;
+	}
+
 	closeButton.closest('dialog')?.close();
 });
 
