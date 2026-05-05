@@ -115,11 +115,11 @@ function createLinkRow(link) {
                     </td>
                     <td>
                         <div class="row-actions">
-                        <fluent-button appearance="subtle" class="report-btn" data-link-id="${link.id}" title="View Report"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></fluent-button>
-                        <fluent-button appearance="subtle" class="qr-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Show QR Code"><i class="bi bi-qr-code" aria-hidden="true"></i></fluent-button>
-                        <fluent-button appearance="subtle" class="copy-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Copy link URL"><i class="bi bi-clipboard" aria-hidden="true"></i></fluent-button>
-                        <fluent-button appearance="subtle" class="edit-btn" data-link-id="${link.id}" title="Edit link"><i class="bi bi-pencil-square" aria-hidden="true"></i></fluent-button>
-                        <fluent-button appearance="subtle" class="delete-btn danger-action" data-link-id="${link.id}" data-token="${escapeHtml(link.fwToken)}" data-url="${escapeHtml(link.originUrl)}" title="Delete link"><i class="bi bi-trash" aria-hidden="true"></i></fluent-button>
+                        <fluent-button class="report-btn" data-link-id="${link.id}" title="View Report"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></fluent-button>
+                        <fluent-button class="qr-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Show QR Code"><i class="bi bi-qr-code" aria-hidden="true"></i></fluent-button>
+                        <fluent-button class="copy-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Copy link URL"><i class="bi bi-clipboard" aria-hidden="true"></i></fluent-button>
+                        <fluent-button class="edit-btn" data-link-id="${link.id}" title="Edit link"><i class="bi bi-pencil-square" aria-hidden="true"></i></fluent-button>
+                        <fluent-button class="delete-btn danger-action" data-link-id="${link.id}" data-token="${escapeHtml(link.fwToken)}" data-url="${escapeHtml(link.originUrl)}" title="Delete link"><i class="bi bi-trash" aria-hidden="true"></i></fluent-button>
                         </div>
                     </td>
             `;
