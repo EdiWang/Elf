@@ -72,8 +72,8 @@ function renderTags() {
             <span class="tag-name">
                 ${escapeHtml(tag.name)}
             </span>
-            <fluent-button type="button" appearance="subtle" onclick="editTag(${tag.id})" title="Edit"><i class="bi bi-pencil-square" aria-hidden="true"></i></fluent-button>
-            <fluent-button type="button" appearance="subtle" class="danger-action" onclick="showDeleteConfirmation(${tag.id}, '${escapeHtml(tag.name)}')" title="Delete"><i class="bi bi-trash" aria-hidden="true"></i></fluent-button>
+            <fluent-button type="button" onclick="editTag(${tag.id})" title="Edit"><i class="bi bi-pencil-square" aria-hidden="true"></i></fluent-button>
+            <fluent-button type="button" class="danger-action" onclick="showDeleteConfirmation(${tag.id}, '${escapeHtml(tag.name)}')" title="Delete"><i class="bi bi-trash" aria-hidden="true"></i></fluent-button>
         </fluent-card>
     `).join('');
 }
