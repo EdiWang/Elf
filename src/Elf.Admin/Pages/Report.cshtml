@@ -23,7 +23,7 @@
                             <div class="form-field command-align-end">
                                 <fluent-button appearance="primary" type="button" id="refreshChartBtn">
                                     <fluent-progress-ring class="inline-progress d-none" id="refreshSpinner" aria-hidden="true"></fluent-progress-ring>
-                                    <span class="elf-icon" aria-hidden="true">↻</span>
+                                    <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                                     Refresh Chart
                                 </fluent-button>
                             </div>
@@ -64,8 +64,9 @@
         <summary>Recent Requests</summary>
         <div class="disclosure-body">
                 <section class="recent-requests-container">
-                    <div class="table-scroll">
-                        <table class="elf-table" id="recentRequestsTable">
+                    <div class="fluent-table-surface">
+                        <div class="fluent-table-scroll">
+                        <table class="fluent-data-table" id="recentRequestsTable">
                             <thead>
                                 <tr>
                                     <th scope="col">Token</th>
@@ -82,6 +83,7 @@
                                 <!-- Recent requests will be populated here -->
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </section>
         </div>

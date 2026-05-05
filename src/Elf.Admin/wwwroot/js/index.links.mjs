@@ -101,23 +101,23 @@ function createLinkRow(link) {
                     <div class="status-cell">${statusToggle}</div>
                     <div class="metric-cell">
                         <span class="ttl-container">
-                            <span class="elf-icon" aria-hidden="true">◷</span> ${link.ttl}
+                            <i class="bi bi-hourglass-split" aria-hidden="true"></i> ${link.ttl}
                         </span>
                     </div>
                     <div class="metric-cell">
                         <div class="link-hits-container">
-                            <span class="elf-icon" aria-hidden="true">◎</span> ${link.hits}
+                            <i class="bi bi-activity" aria-hidden="true"></i> ${link.hits}
                         </div>
                     </div>
                     <div class="date-cell">
                         <span class="muted-text">${updateDate}</span>
                     </div>
                     <div class="row-actions">
-                        <fluent-button appearance="subtle" class="report-btn" data-link-id="${link.id}" title="View Report"><span class="elf-icon" aria-hidden="true">⌁</span></fluent-button>
-                        <fluent-button appearance="subtle" class="qr-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Show QR Code"><span class="elf-icon" aria-hidden="true">▦</span></fluent-button>
-                        <fluent-button appearance="subtle" class="copy-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Copy link URL"><span class="elf-icon" aria-hidden="true">⧉</span></fluent-button>
-                        <fluent-button appearance="subtle" class="edit-btn" data-link-id="${link.id}" title="Edit link"><span class="elf-icon" aria-hidden="true">✎</span></fluent-button>
-                        <fluent-button appearance="subtle" class="delete-btn danger-action" data-link-id="${link.id}" data-token="${escapeHtml(link.fwToken)}" data-url="${escapeHtml(link.originUrl)}" title="Delete link"><span class="elf-icon" aria-hidden="true">⌫</span></fluent-button>
+                        <fluent-button appearance="subtle" class="report-btn" data-link-id="${link.id}" title="View Report"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></fluent-button>
+                        <fluent-button appearance="subtle" class="qr-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Show QR Code"><i class="bi bi-qr-code" aria-hidden="true"></i></fluent-button>
+                        <fluent-button appearance="subtle" class="copy-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Copy link URL"><i class="bi bi-clipboard" aria-hidden="true"></i></fluent-button>
+                        <fluent-button appearance="subtle" class="edit-btn" data-link-id="${link.id}" title="Edit link"><i class="bi bi-pencil-square" aria-hidden="true"></i></fluent-button>
+                        <fluent-button appearance="subtle" class="delete-btn danger-action" data-link-id="${link.id}" data-token="${escapeHtml(link.fwToken)}" data-url="${escapeHtml(link.originUrl)}" title="Delete link"><i class="bi bi-trash" aria-hidden="true"></i></fluent-button>
                     </div>
                 </div>
             `;

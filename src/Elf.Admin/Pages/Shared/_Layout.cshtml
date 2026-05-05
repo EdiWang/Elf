@@ -10,26 +10,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Elf Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("head", required: false)
 </head>
 <body>
-    <header class="app-header">
-        <nav class="app-topbar">
-            <a class="app-brand" asp-area="" asp-page="/Index">Elf Admin</a>
-
-            <div class="app-links">
-                <a href="@forwarderBaseUrl" target="_blank">
-                    <span class="elf-icon" aria-hidden="true">↗</span>
-                    Forwarder API
-                </a>
-
-                <a href="https://github.com/EdiWang/Elf" target="_blank">
-                    <span class="elf-icon" aria-hidden="true">◎</span>
-                    @VersionHelper.AppVersionBasic
-                </a>
-            </div>
-        </nav>
+    <header class="navbar">
+        <div class="navbar-left">
+            <a class="navbar-brand" asp-area="" asp-page="/Index">Elf Admin</a>
+        </div>
+        <div class="navbar-center"></div>
+        <div class="navbar-right">
+            <span class="navbar-time" id="navbarTime"></span>
+            <a class="edi-btn" href="@forwarderBaseUrl" target="_blank">
+                <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+                Forwarder API
+            </a>
+            <a class="edi-btn" href="https://github.com/EdiWang/Elf" target="_blank">
+                <i class="bi bi-github" aria-hidden="true"></i>
+                @VersionHelper.AppVersionBasic
+            </a>
+        </div>
     </header>
     <div class="app-layout">
         <aside class="aside-container">

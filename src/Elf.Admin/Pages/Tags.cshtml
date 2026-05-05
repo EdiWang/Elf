@@ -5,7 +5,7 @@
 
 <section class="page-actions">
     <fluent-button appearance="primary" type="button" id="addTagBtn">
-        <span class="elf-icon" aria-hidden="true">+</span>
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
         New Tag
     </fluent-button>
 </section>
@@ -21,11 +21,11 @@
         </div>
         <div class="button-row">
             <fluent-button appearance="primary" type="submit" id="saveTagBtn">
-                <span class="elf-icon" aria-hidden="true">✓</span>
+                <i class="bi bi-check-lg" aria-hidden="true"></i>
                 Save
             </fluent-button>
             <fluent-button appearance="secondary" type="button" id="cancelTagBtn">
-                <span class="elf-icon" aria-hidden="true">×</span>
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
                 Cancel
             </fluent-button>
         </div>
@@ -55,12 +55,12 @@
     </div>
     <div class="dialog-body">
         <p>Are you sure you want to delete the tag "<strong id="deleteTagName"></strong>"?</p>
-        <p class="danger-text"><span class="elf-icon" aria-hidden="true">!</span> This action cannot be undone.</p>
+        <p class="danger-text"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> This action cannot be undone.</p>
     </div>
     <div class="dialog-footer">
         <fluent-button appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
         <fluent-button appearance="primary" type="button" id="confirmDeleteBtn">
-            <span class="elf-icon" aria-hidden="true">⌫</span>
+            <i class="bi bi-trash" aria-hidden="true"></i>
             Delete
         </fluent-button>
     </div>

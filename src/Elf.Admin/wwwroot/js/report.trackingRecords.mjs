@@ -50,14 +50,14 @@ function createTableRow(request) {
     const localDateTime = formatLocalDateTime(request.requestTimeUtc);
 
     return `
-        <tr>
+        <tr class="fluent-table-row">
             <td><code>${escapeHtml(request.fwToken)}</code></td>
             <td>${escapeHtml(request.note)}</td>
-            <td class="truncate-cell" title="${escapeHtml(request.userAgent)}">${escapeHtml(request.userAgent)}</td>
+            <td><span class="fluent-table-text-cell" title="${escapeHtml(request.userAgent)}">${escapeHtml(request.userAgent)}</span></td>
             <td><code>${escapeHtml(request.ipAddress)}</code></td>
-            <td class="truncate-cell">${escapeHtml(location)}</td>
+            <td><span class="fluent-table-text-cell">${escapeHtml(location)}</span></td>
             <td>${escapeHtml(request.ipasn)}</td>
-            <td class="truncate-cell">${escapeHtml(request.ipOrg)}</td>
+            <td><span class="fluent-table-text-cell">${escapeHtml(request.ipOrg)}</span></td>
             <td>${escapeHtml(localDateTime)}</td>
         </tr>
     `;
@@ -126,7 +126,7 @@ export async function loadRecentRequestsTable(page = 1) {
         }
 
         // Show loading state
-        tableBody.innerHTML = '<tr><td colspan="8" class="table-message"><fluent-progress-ring class="inline-progress"></fluent-progress-ring> Loading recent requests...</td></tr>';
+        tableBody.innerHTML = '<tr class="fluent-table-state-row"><td colspan="8" class="table-message"><fluent-progress-ring class="inline-progress"></fluent-progress-ring> Loading recent requests...</td></tr>';
 
         // Remove existing pagination
         const existingPagination = tableContainer.querySelector('nav[aria-label="Recent requests pagination"]');
@@ -152,7 +152,7 @@ export async function loadRecentRequestsTable(page = 1) {
         tableBody.innerHTML = '';
 
         if (requests.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="8" class="table-message muted-text">No recent requests found</td></tr>';
+            tableBody.innerHTML = '<tr class="fluent-table-state-row"><td colspan="8" class="table-message muted-text">No recent requests found</td></tr>';
             return;
         }
 
@@ -185,7 +185,7 @@ export async function loadRecentRequestsTable(page = 1) {
         console.error('Error loading recent requests:', error);
         const tableBody = document.querySelector('#recentRequestsTable tbody');
         if (tableBody) {
-            tableBody.innerHTML = '<tr><td colspan="8" class="table-message danger-text">Error loading recent requests. Please try again.</td></tr>';
+            tableBody.innerHTML = '<tr class="fluent-table-state-row"><td colspan="8" class="table-message danger-text">Error loading recent requests. Please try again.</td></tr>';
         }
     }
 }

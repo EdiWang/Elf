@@ -72,8 +72,8 @@ function renderTags() {
             <span class="tag-name">
                 ${escapeHtml(tag.name)}
             </span>
-            <fluent-button type="button" appearance="subtle" onclick="editTag(${tag.id})" title="Edit"><span class="elf-icon" aria-hidden="true">✎</span></fluent-button>
-            <fluent-button type="button" appearance="subtle" class="danger-action" onclick="showDeleteConfirmation(${tag.id}, '${escapeHtml(tag.name)}')" title="Delete"><span class="elf-icon" aria-hidden="true">⌫</span></fluent-button>
+            <fluent-button type="button" appearance="subtle" onclick="editTag(${tag.id})" title="Edit"><i class="bi bi-pencil-square" aria-hidden="true"></i></fluent-button>
+            <fluent-button type="button" appearance="subtle" class="danger-action" onclick="showDeleteConfirmation(${tag.id}, '${escapeHtml(tag.name)}')" title="Delete"><i class="bi bi-trash" aria-hidden="true"></i></fluent-button>
         </fluent-card>
     `).join('');
 }
@@ -137,7 +137,7 @@ async function handleSaveTag(event) {
         error('Failed to save tag. Please try again.');
     } finally {
         elements.saveTagBtn.disabled = false;
-        elements.saveTagBtn.innerHTML = '<span class="elf-icon" aria-hidden="true">✓</span> Save';
+        elements.saveTagBtn.innerHTML = '<i class="bi bi-check-lg" aria-hidden="true"></i> Save';
     }
 }
 
@@ -203,7 +203,7 @@ async function handleConfirmDelete() {
         error('Failed to delete tag. Please try again.');
     } finally {
         elements.confirmDeleteBtn.disabled = false;
-        elements.confirmDeleteBtn.innerHTML = '<span class="elf-icon" aria-hidden="true">⌫</span> Delete';
+        elements.confirmDeleteBtn.innerHTML = '<i class="bi bi-trash" aria-hidden="true"></i> Delete';
         tagToDeleteId = null;
     }
 }

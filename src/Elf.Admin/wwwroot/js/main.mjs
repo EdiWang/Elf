@@ -9,3 +9,16 @@ document.addEventListener('click', event => {
 
 	closeButton.closest('dialog')?.close();
 });
+
+const navbarTime = document.getElementById('navbarTime');
+if (navbarTime) {
+	const updateNavbarTime = () => {
+		const now = new Date();
+		const date = now.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+		const time = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+		navbarTime.textContent = `${date} · ${time}`;
+	};
+
+	updateNavbarTime();
+	setInterval(updateNavbarTime, 60_000);
+}
