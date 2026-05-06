@@ -1,31 +1,34 @@
 ﻿@{
     var currentPage = ViewContext.RouteData.Values["Page"]?.ToString();
+    var indexPageUrl = Url.Page("./Index");
+    var tagsPageUrl = Url.Page("./Tags");
+    var reportPageUrl = Url.Page("./Report");
 }
 
 <nav class="sidebar-main-menu-wrapper" aria-label="Admin navigation">
     <fluent-tree class="main-menu" size="medium" tabindex="0" aria-label="Admin menu">
-        <fluent-tree-item empty size="medium" tabindex="-1" @(currentPage is "/Index" ? "selected" : null)>
-            <a class="tree-link" asp-page="./Index">
+        <fluent-tree-item empty size="medium" tabindex="-1" onclick="location.href='@indexPageUrl'" @(currentPage is "/Index" ? "selected" : null)>
+            <span class="tree-link">
                 <i class="bi bi-link-45deg tree-link__icon" aria-hidden="true"></i>
                 <span class="tree-link__label">Links</span>
-            </a>
+            </span>
         </fluent-tree-item>
-        <fluent-tree-item empty size="medium" tabindex="-1" @(currentPage is "/Tags" ? "selected" : null)>
-            <a class="tree-link" asp-page="./Tags">
+        <fluent-tree-item empty size="medium" tabindex="-1" onclick="location.href='@tagsPageUrl'" @(currentPage is "/Tags" ? "selected" : null)>
+            <span class="tree-link">
                 <i class="bi bi-tags tree-link__icon" aria-hidden="true"></i>
                 <span class="tree-link__label">Tags</span>
-            </a>
+            </span>
         </fluent-tree-item>
         <fluent-tree-item expanded size="medium" tabindex="-1" @(currentPage is "/Report" ? "selected" : null)>
             <span class="tree-link">
                 <i class="bi bi-bar-chart-line tree-link__icon" aria-hidden="true"></i>
                 <span class="tree-link__label">Analytics</span>
             </span>
-            <fluent-tree-item slot="item" empty size="medium" tabindex="-1" data-indent="1" @(currentPage is "/Report" ? "selected" : null)>
-                <a class="tree-link" asp-page="./Report">
+            <fluent-tree-item slot="item" empty size="medium" tabindex="-1" data-indent="1" onclick="location.href='@reportPageUrl'" @(currentPage is "/Report" ? "selected" : null)>
+                <span class="tree-link">
                     <i class="bi bi-clipboard-data tree-link__icon" aria-hidden="true"></i>
                     <span class="tree-link__label">Report</span>
-                </a>
+                </span>
             </fluent-tree-item>
         </fluent-tree-item>
     </fluent-tree>
