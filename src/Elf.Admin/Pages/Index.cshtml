@@ -69,12 +69,14 @@
 <nav aria-label="Links pagination" id="paginationContainer" class="pagination-shell">
     <div class="pagination-size">
         <label for="pageSize">Show</label>
-        <fluent-select id="pageSize">
-            <fluent-option value="10" selected>10</fluent-option>
-            <fluent-option value="25">25</fluent-option>
-            <fluent-option value="50">50</fluent-option>
-            <fluent-option value="100">100</fluent-option>
-        </fluent-select>
+        <fluent-dropdown id="pageSize" class="page-size-dropdown" aria-label="Page size" value="10">
+            <fluent-listbox>
+                <fluent-option value="10" selected>10</fluent-option>
+                <fluent-option value="25">25</fluent-option>
+                <fluent-option value="50">50</fluent-option>
+                <fluent-option value="100">100</fluent-option>
+            </fluent-listbox>
+        </fluent-dropdown>
         <span id="recordsInfo" class="muted-text"></span>
     </div>
     <div class="pagination-actions" id="pagination"></div>

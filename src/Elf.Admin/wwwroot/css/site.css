@@ -41,6 +41,12 @@ code {
 }
 
 fluent-button::part(control) { min-width: 32px; }
+fluent-text-input, fluent-dropdown, .command-group fluent-button, .command-actions fluent-button {
+    align-self: center;
+}
+fluent-text-input::part(root), fluent-dropdown::part(control) {
+    min-height: 32px;
+}
 
 fluent-button .bi, .edi-btn .bi, .metric-cell .bi, .danger-text .bi {
     display: inline-flex;
@@ -164,7 +170,7 @@ main { flex: 1; min-width: 0; max-width: 100%; overflow-y: auto; padding: 20px 2
     display: grid;
     grid-template-columns: minmax(240px, 1fr) minmax(260px, 1fr) auto;
     gap: 12px;
-    align-items: end;
+    align-items: center;
     margin-bottom: 16px;
 }
 
@@ -184,6 +190,7 @@ main { flex: 1; min-width: 0; max-width: 100%; overflow-y: auto; padding: 20px 2
 
 .command-actions, .button-row, .dialog-footer, .pagination-actions { display: flex; align-items: center; gap: 8px; }
 .command-actions, .dialog-footer, .pagination-actions { justify-content: flex-end; }
+.command-actions { align-self: center; }
 .page-actions { margin-bottom: 16px; }
 
 .elf-input, .elf-textarea {
@@ -199,6 +206,9 @@ main { flex: 1; min-width: 0; max-width: 100%; overflow-y: auto; padding: 20px 2
 .elf-input { min-height: 32px; padding: 5px 10px; }
 .elf-textarea { min-height: 64px; resize: vertical; padding: 8px 10px; }
 .elf-input:focus, .elf-textarea:focus { border-color: var(--accent); box-shadow: inset 0 -1px 0 var(--accent); }
+.page-size-dropdown {
+    min-width: 72px;
+}
 
 .form-grid { display: grid; gap: 16px; margin-bottom: 16px; }
 .form-grid.two-one { grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr); }
@@ -250,6 +260,7 @@ main { flex: 1; min-width: 0; max-width: 100%; overflow-y: auto; padding: 20px 2
 
 .pagination-shell { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; }
 .pagination-size { display: flex; align-items: center; gap: 8px; }
+.pagination-size label { align-self: center; }
 .pagination-ellipsis { color: var(--text-muted); padding: 0 4px; }
 
 .elf-dialog::part(dialog) { width: min(520px, calc(100vw - 32px)); max-height: calc(100vh - 48px); color: var(--text); }

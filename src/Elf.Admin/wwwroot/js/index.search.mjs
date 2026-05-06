@@ -46,7 +46,13 @@ export function handleClear() {
 }
 
 export function handlePageSizeChange() {
-    updateState({ pageSize: parseInt(elements.pageSizeSelect.value) });
+    const pageSizeValue = (elements.pageSizeSelect?.value ?? '').toString();
+    const pageSize = Number.parseInt(pageSizeValue, 10);
+    if (Number.isNaN(pageSize)) {
+        return;
+    }
+
+    updateState({ pageSize });
     resetPage();
     loadLinks();
 }
