@@ -53,7 +53,7 @@ export async function getClientTypeCounts(dateRangeRequest, linkId = null) {
             params.linkId = linkId.toString();
         }
         
-        return await reportClient.post('/requests/clienttype', dateRangeRequest, params);
+        return await reportClient.post('/requests/clienttype', dateRangeRequest, params, null);
     }, 'Failed to get client type counts');
 }
 
@@ -73,7 +73,7 @@ export async function getTrackingCounts(dateRangeRequest, linkId = null) {
             params.linkId = linkId.toString();
         }
         
-        return await reportClient.post('/tracking', dateRangeRequest, params);
+        return await reportClient.post('/tracking', dateRangeRequest, params, null);
     }, 'Failed to get tracking counts');
 }
 

@@ -1,5 +1,30 @@
 import { success, error } from './toastService.mjs';
 
+function buildUrl(apiBase, endpoint = '', params = null) {
+    let url = `${apiBase}${endpoint}`;
+
+    if (params && Object.keys(params).length > 0) {
+        const searchParams = new URLSearchParams(params);
+        url += `?${searchParams}`;
+    }
+
+    return url;
+}
+
+function normalizeRequestOptions(paramsOrSuccessMessage = null, successMessage = null) {
+    if (typeof paramsOrSuccessMessage === 'string' || paramsOrSuccessMessage === null || paramsOrSuccessMessage === undefined) {
+        return {
+            params: null,
+            successMessage: paramsOrSuccessMessage ?? successMessage
+        };
+    }
+
+    return {
+        params: paramsOrSuccessMessage,
+        successMessage
+    };
+}
+
 // Helper function to handle API responses
 export async function handleResponse(response, successMessage = null) {
     if (response.ok) {
@@ -51,33 +76,33 @@ export class ApiClient {
 
     async get(endpoint = '', params = null) {
         return apiOperation(async () => {
-            let url = `${this.apiBase}${endpoint}`;
-            if (params) {
-                const searchParams = new URLSearchParams(params);
-                url += `?${searchParams}`;
-            }
+            const url = buildUrl(this.apiBase, endpoint, params);
             const response = await apiRequest(url);
             return await handleResponse(response);
         }, `Failed to get from ${endpoint}`);
     }
 
-    async post(endpoint = '', data = null, successMessage = null) {
+    async post(endpoint = '', data = null, paramsOrSuccessMessage = null, successMessage = null) {
         return apiOperation(async () => {
-            const response = await apiRequest(`${this.apiBase}${endpoint}`, {
+            const requestOptions = normalizeRequestOptions(paramsOrSuccessMessage, successMessage);
+            const url = buildUrl(this.apiBase, endpoint, requestOptions.params);
+            const response = await apiRequest(url, {
                 method: 'POST',
                 body: data ? JSON.stringify(data) : undefined
             });
-            return await handleResponse(response, successMessage);
+            return await handleResponse(response, requestOptions.successMessage);
         }, `Failed to post to ${endpoint}`);
     }
 
-    async put(endpoint = '', data = null, successMessage = null) {
+    async put(endpoint = '', data = null, paramsOrSuccessMessage = null, successMessage = null) {
         return apiOperation(async () => {
-            const response = await apiRequest(`${this.apiBase}${endpoint}`, {
+            const requestOptions = normalizeRequestOptions(paramsOrSuccessMessage, successMessage);
+            const url = buildUrl(this.apiBase, endpoint, requestOptions.params);
+            const response = await apiRequest(url, {
                 method: 'PUT',
                 body: data ? JSON.stringify(data) : undefined
             });
-            return await handleResponse(response, successMessage);
+            return await handleResponse(response, requestOptions.successMessage);
         }, `Failed to put to ${endpoint}`);
     }
 
