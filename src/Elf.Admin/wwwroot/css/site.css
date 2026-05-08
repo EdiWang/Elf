@@ -290,17 +290,6 @@ main {
     position-anchor: --tag-filter-anchor;
 }
 
-.command-prefix {
-    display: grid;
-    place-items: center;
-    height: 32px;
-    min-width: 32px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: var(--surface);
-    color: var(--text-muted);
-}
-
 .command-actions, .button-row, .dialog-footer, .pagination-actions {
     display: flex;
     align-items: center;
