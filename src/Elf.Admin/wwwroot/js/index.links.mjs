@@ -282,22 +282,18 @@ function handleDeleteAction() {
 
 export function showQRCodeModal(fwToken) {
     const url = getForwarderUrl(fwToken);
-    const modal = document.getElementById('qrCodeModal');
-    
-    // Update the URL text
-    document.getElementById('qrCodeUrl').textContent = url;
-    
-    // Generate QR code
-    const canvas = document.getElementById('qrCodeCanvas');
+
+    elements.qrCodeUrl.textContent = url;
+
     const qr = new QRious({
-        element: canvas,
+        element: elements.qrCodeCanvas,
         value: url,
         size: 256,
         foreground: '#000000',
         background: '#ffffff'
     });
-    
-    modal.show();
+
+    elements.qrCodeModal.show();
 }
 
 async function copyLinkToClipboard(fwToken) {
