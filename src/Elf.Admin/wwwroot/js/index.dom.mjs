@@ -47,7 +47,6 @@ export const elements = {
     tagInput: document.getElementById('tagInput'),
     tagSuggestions: document.getElementById('tagSuggestions'),
     tagSuggestionsList: document.getElementById('tagSuggestionsList'),
-    selectedTags: document.getElementById('selectedTags'),
     saveLinkBtn: document.getElementById('saveLinkBtn'),
     saveSpinner: document.getElementById('saveSpinner'),
     modalErrorAlert: document.getElementById('modalErrorAlert'),

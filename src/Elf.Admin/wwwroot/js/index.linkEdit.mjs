@@ -10,6 +10,7 @@ let availableTagNames = [];
 let selectedTags = [];
 let tagSuggestions = [];
 let activeTagSuggestionIndex = -1;
+let draftTagName = '';
 
 export function setupLinkEditEventListeners() {
     elements.addLinkBtn.addEventListener('click', () => {
@@ -72,56 +73,62 @@ function getUniqueTagNames(tagNames) {
 
 function setSelectedTags(tagNames) {
     selectedTags = getUniqueTagNames(tagNames);
+    draftTagName = '';
     syncTagEditor();
 }
 
 function syncTagEditor() {
-    renderSelectedTags();
+    renderTagInputValue();
     updateTagSuggestions();
 }
 
-function renderSelectedTags() {
-    const container = elements.selectedTags;
-    if (!container) {
+function renderTagInputValue({ appendSeparator = false } = {}) {
+    if (!elements.tagInput) {
         return;
     }
 
-    container.replaceChildren();
-
-    if (selectedTags.length === 0) {
-        container.classList.add('d-none');
-        return;
+    const parts = [...selectedTags];
+    if (draftTagName) {
+        parts.push(draftTagName);
     }
 
-    const fragment = document.createDocumentFragment();
-
-    for (const tagName of selectedTags) {
-        const chip = document.createElement('div');
-        chip.className = 'tag-editor-chip';
-
-        const badge = document.createElement('fluent-badge');
-        badge.textContent = tagName;
-
-        const removeButton = document.createElement('fluent-button');
-        removeButton.type = 'button';
-        removeButton.appearance = 'stealth';
-        removeButton.className = 'button-icon-only tag-editor-chip-remove';
-        removeButton.title = `Remove ${tagName}`;
-        removeButton.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
-        removeButton.addEventListener('click', () => removeSelectedTag(tagName));
-
-        chip.appendChild(badge);
-        chip.appendChild(removeButton);
-        fragment.appendChild(chip);
+    let value = parts.join(', ');
+    if (appendSeparator && !draftTagName && selectedTags.length > 0) {
+        value = `${value}, `;
     }
 
-    container.appendChild(fragment);
-    container.classList.remove('d-none');
+    elements.tagInput.value = value;
 }
 
-function removeSelectedTag(tagName) {
-    setSelectedTags(selectedTags.filter(currentTag => currentTag !== tagName));
-    queueMicrotask(() => elements.tagInput?.focus());
+function parseTagEditorValue(value) {
+    const rawValue = value ?? '';
+    const hasTrailingSeparator = /[\r\n,;]\s*$/.test(rawValue);
+    const tagNames = rawValue
+        .split(/[\r\n,;]+/)
+        .map(normalizeTagName)
+        .filter(Boolean);
+
+    if (tagNames.length === 0) {
+        return {
+            committedTagNames: [],
+            draftTagName: '',
+            hasTrailingSeparator
+        };
+    }
+
+    if (hasTrailingSeparator) {
+        return {
+            committedTagNames: getUniqueTagNames(tagNames),
+            draftTagName: '',
+            hasTrailingSeparator: true
+        };
+    }
+
+    return {
+        committedTagNames: getUniqueTagNames(tagNames.slice(0, -1)),
+        draftTagName: tagNames[tagNames.length - 1] ?? '',
+        hasTrailingSeparator: false
+    };
 }
 
 function getFilteredTagSuggestions(query) {
@@ -152,29 +159,26 @@ function getFilteredTagSuggestions(query) {
     return suggestions.slice(0, MAX_TAG_SUGGESTIONS);
 }
 
-function parseTagInput(value) {
-    return value
-        .split(/[\r\n,;]+/)
-        .map(normalizeTagName)
-        .filter(Boolean);
-}
-
 function addTagNames(tagNames) {
     const normalizedTagNames = getUniqueTagNames(tagNames);
     if (normalizedTagNames.length === 0) {
         return;
     }
 
-    setSelectedTags([...selectedTags, ...normalizedTagNames]);
-    elements.tagInput.value = '';
+    selectedTags = getUniqueTagNames([...selectedTags, ...normalizedTagNames]);
+    draftTagName = '';
+    renderTagInputValue({ appendSeparator: true });
+    updateTagSuggestions();
     hideTagSuggestions();
 }
 
 function handleTagInput() {
+    syncTagStateFromInput();
     updateTagSuggestions();
 }
 
 function handleTagInputFocus() {
+    syncTagStateFromInput();
     updateTagSuggestions();
 }
 
@@ -216,7 +220,7 @@ function handleDocumentPointerDown(event) {
 }
 
 function updateTagSuggestions() {
-    const query = elements.tagInput.value;
+    const query = draftTagName;
     const shouldShowSuggestions = document.activeElement === elements.tagInput || Boolean(query.trim());
     if (!shouldShowSuggestions) {
         tagSuggestions = [];
@@ -227,6 +231,12 @@ function updateTagSuggestions() {
     tagSuggestions = getFilteredTagSuggestions(query);
     activeTagSuggestionIndex = tagSuggestions.length > 0 ? 0 : -1;
     renderTagSuggestions();
+}
+
+function syncTagStateFromInput() {
+    const parsedValue = parseTagEditorValue(elements.tagInput?.value);
+    selectedTags = parsedValue.committedTagNames;
+    draftTagName = parsedValue.draftTagName;
 }
 
 function renderTagSuggestions() {
@@ -302,18 +312,19 @@ function selectTagSuggestionByIndex(index) {
 }
 
 function commitTagInput() {
-    const newTagNames = parseTagInput(elements.tagInput.value);
-    if (newTagNames.length === 0) {
+    syncTagStateFromInput();
+
+    if (!draftTagName) {
         hideTagSuggestions();
         return;
     }
 
-    if (newTagNames.length === 1 && activeTagSuggestionIndex >= 0 && tagSuggestions[activeTagSuggestionIndex]) {
+    if (activeTagSuggestionIndex >= 0 && tagSuggestions[activeTagSuggestionIndex]) {
         selectTagSuggestionByIndex(activeTagSuggestionIndex);
         return;
     }
 
-    addTagNames(newTagNames);
+    addTagNames([draftTagName]);
 }
 
 function handleTagInputKeyDown(event) {
@@ -334,12 +345,6 @@ function handleTagInputKeyDown(event) {
         case ';':
             event.preventDefault();
             commitTagInput();
-            return;
-        case 'Backspace':
-            if (!elements.tagInput.value.trim() && selectedTags.length > 0) {
-                event.preventDefault();
-                removeSelectedTag(selectedTags[selectedTags.length - 1]);
-            }
             return;
         default:
             return;
@@ -411,13 +416,17 @@ async function handleSaveLink() {
 }
 
 function getFormData() {
+    const parsedValue = parseTagEditorValue(elements.tagInput.value);
     return {
         originUrl: elements.originUrl.value.trim(),
         note: elements.note.value.trim(),
         akaName: elements.akaName.value.trim() || null,
         isEnabled: elements.isEnabled.checked,
         ttl: parseInt(elements.ttl.value) || 0,
-        tags: selectedTags
+        tags: getUniqueTagNames([
+            ...parsedValue.committedTagNames,
+            parsedValue.draftTagName
+        ])
     };
 }
 
@@ -503,6 +512,7 @@ function clearForm({ resetEditingLinkId = true } = {}) {
     elements.ttl.value = 0;
     elements.isEnabled.checked = true;
     elements.tagInput.value = '';
+    draftTagName = '';
     tagSuggestions = [];
     activeTagSuggestionIndex = -1;
     hideTagSuggestions();
