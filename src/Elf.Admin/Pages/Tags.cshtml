@@ -10,9 +10,9 @@
     </fluent-button>
 </section>
 
-<fluent-dialog class="elf-dialog" id="tagEditModal" type="modal" aria-labelledby="tagEditModalLabel">
+<fluent-dialog id="tagEditModal" type="modal" aria-labelledby="tagEditModalLabel">
     <fluent-dialog-body>
-        <h2 slot="title" id="tagEditModalLabel">Create Tag</h2>
+        <span slot="title" id="tagEditModalLabel">Create Tag</span>
         <form id="tagEditForm">
             <input type="hidden" id="tagId" />
             <div class="form-field short-field">
@@ -20,13 +20,13 @@
                 <div class="invalid-feedback" id="tagNameError"></div>
                 <div class="form-help">Maximum 32 characters</div>
             </div>
-            <fluent-button slot="action" appearance="secondary" type="button" id="cancelTagBtn">
-                Cancel
-            </fluent-button>
-            <fluent-button slot="action" appearance="primary" type="submit" id="saveTagBtn">
-                Save
-            </fluent-button>
         </form>
+        <fluent-button slot="action" appearance="secondary" type="button" id="cancelTagBtn">
+            Cancel
+        </fluent-button>
+        <fluent-button slot="action" appearance="primary" type="submit" form="tagEditForm" id="saveTagBtn">
+            Save
+        </fluent-button>
     </fluent-dialog-body>
 </fluent-dialog>
 
@@ -46,18 +46,16 @@
     </div>
 </div>
 
-<fluent-dialog class="elf-dialog" id="deleteTagModal" type="modal" aria-labelledby="deleteTagModalLabel">
+<fluent-dialog id="deleteTagModal" type="modal" aria-labelledby="deleteTagModalLabel">
     <fluent-dialog-body>
+        <span slot="title" id="deleteTagModalLabel">Confirm Delete</span>
+        <p>Are you sure you want to delete the tag "<strong id="deleteTagName"></strong>"?</p>
+        <p class="danger-text"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> This action cannot be undone.</p>
         <fluent-button slot="action" appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
         <fluent-button slot="action" appearance="primary" type="button" id="confirmDeleteBtn">
             <i class="bi bi-trash" aria-hidden="true"></i>
             Delete
         </fluent-button>
-        
-        <p>Are you sure you want to delete the tag "<strong id="deleteTagName"></strong>"?</p>
-        <p class="danger-text"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> This action cannot be undone.</p>
-        
-        <h2 slot="title" id="deleteTagModalLabel">Confirm Delete</h2>
     </fluent-dialog-body>
 </fluent-dialog>
 

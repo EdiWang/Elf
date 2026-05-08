@@ -1,4 +1,4 @@
-﻿<fluent-dialog class="elf-dialog" id="deleteModal" type="modal" aria-labelledby="deleteModalLabel">
+﻿<fluent-dialog id="deleteModal" type="modal" aria-labelledby="deleteModalLabel">
     <fluent-dialog-body>
         <span slot="title" id="deleteModalLabel">Confirm Delete</span>
         <p>Are you sure you want to delete this link?</p>
@@ -7,9 +7,7 @@
             <strong>URL:</strong> <span id="deleteUrlPreview"></span>
         </div>
         <p class="danger-text">This action cannot be undone.</p>
-        <div slot="action" class="dialog-footer">
-            <fluent-button appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
-            <fluent-button appearance="primary" type="button" id="confirmDeleteBtn">Delete</fluent-button>
-        </div>
+        <fluent-button slot="action" appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
+        <fluent-button slot="action" appearance="primary" type="button" id="confirmDeleteBtn">Delete</fluent-button>
     </fluent-dialog-body>
 </fluent-dialog>

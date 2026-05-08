@@ -303,13 +303,13 @@ main {
     position-anchor: --tag-filter-anchor;
 }
 
-.command-actions, .button-row, .dialog-footer, .pagination-actions {
+.command-actions, .button-row, .pagination-actions {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.command-actions, .dialog-footer, .pagination-actions {
+.command-actions, .pagination-actions {
     justify-content: flex-end;
 }
 
@@ -692,26 +692,6 @@ main {
     padding: 0 4px;
 }
 
-.elf-dialog::part(dialog) {
-    width: min(520px, calc(100vw - 32px));
-    max-height: calc(100vh - 48px);
-    color: var(--text);
-}
-
-.wide-dialog::part(dialog) {
-    width: min(900px, calc(100vw - 32px));
-}
-
-.dialog-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-.elf-dialog fluent-dialog-body {
-    max-height: calc(100vh - 88px);
-}
-
 .inline-alert {
     border: 1px solid var(--border-subtle);
     border-radius: 6px;
@@ -749,7 +729,7 @@ main {
     gap: 14px;
 }
 
-.qr-dialog canvas {
+#qrCodeCanvas {
     max-width: 100%;
 }
 
@@ -955,7 +935,7 @@ main {
         width: 100%;
     }
 
-    .command-actions, .dialog-footer, .pagination-actions {
+    .command-actions, .pagination-actions {
         justify-content: flex-start;
     }
 
@@ -1012,7 +992,7 @@ main {
         padding: 16px;
     }
 
-    .pagination-size, .pagination-actions, .button-row, .dialog-footer {
+    .pagination-size, .pagination-actions, .button-row {
         flex-wrap: wrap;
     }
 }
