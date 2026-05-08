@@ -258,6 +258,27 @@ main {
     margin-bottom: 16px;
 }
 
+.date-command-bar {
+    grid-template-columns: repeat(3, max-content);
+    justify-content: flex-start;
+    align-items: end;
+    gap: 12px;
+}
+
+    .date-command-bar .form-field {
+        min-width: 0;
+    }
+
+    .date-command-bar fluent-text-input {
+        width: 300px;
+        max-width: 100%;
+    }
+
+    .date-command-bar .command-align-end {
+        justify-self: start;
+        align-self: end;
+    }
+
 .command-group {
     display: grid;
     grid-template-columns: 1fr auto auto;
@@ -461,10 +482,6 @@ main {
 
     .form-grid.two-even {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .date-command-bar {
-        grid-template-columns: repeat(2, minmax(220px, 1fr)) auto;
     }
 
 .form-field {
