@@ -21,9 +21,29 @@
                     <div class="invalid-feedback" id="akaNameError"></div>
                 </div>
                 <div class="form-field">
-                    <label for="tags">Tags</label>
-                    <input type="text" class="elf-input" id="tags" name="tags" placeholder="Type to search or add tags..." />
-                    <div class="form-help">Type to search existing tags or create new ones</div>
+                    <label for="tags" id="tagsLabel">Tags</label>
+                    <fluent-dropdown id="tags"
+                                     class="tag-editor-dropdown"
+                                     multiple
+                                     type="dropdown"
+                                     appearance="outline"
+                                     aria-labelledby="tagsLabel">
+                        <fluent-listbox id="tagsListbox" class="tag-editor-listbox" popover="manual" tabindex="-1"></fluent-listbox>
+                        <button slot="control"
+                                id="tagsControl"
+                                class="tag-editor-control is-placeholder"
+                                type="button"
+                                aria-haspopup="listbox"
+                                aria-controls="tagsListbox">
+                            Select existing tags...
+                        </button>
+                    </fluent-dropdown>
+                    <div class="tag-editor-input-row">
+                        <fluent-text-input type="text" id="tagInput" placeholder="Type a new tag and press Enter"></fluent-text-input>
+                        <fluent-button type="button" id="addTagBtn">Add</fluent-button>
+                    </div>
+                    <div id="selectedTags" class="tag-editor-selected d-none"></div>
+                    <div class="form-help">Select existing tags from the dropdown, or add new ones below</div>
                     <div class="invalid-feedback" id="tagsError"></div>
                 </div>
             </div>
