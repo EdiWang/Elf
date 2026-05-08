@@ -86,12 +86,12 @@ function createLinkRow(link) {
                             : `<span class="muted-text">(none)</span>`
                         }
                     </td>
-                    <td>
+                    <td class="url-cell">
                         <a class="fluent-table-text-cell" href="${escapeHtml(link.originUrl)}" target="_blank" title="${escapeHtml(link.originUrl)}">
                             ${escapeHtml(link.originUrl)}
                         </a>
                     </td>
-                    <td>
+                    <td class="note-cell">
                         <span class="fluent-table-text-cell" title="${escapeHtml(link.note || 'No note')}">${escapeHtml(link.note || 'No note')}</span>
                     </td>
                     <td>
@@ -113,7 +113,7 @@ function createLinkRow(link) {
                     <td class="date-cell">
                         <span class="muted-text">${updateDate}</span>
                     </td>
-                    <td>
+                    <td class="actions-cell">
                         <div class="row-actions">
                         <fluent-button class="report-btn" data-link-id="${link.id}" title="View Report"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></fluent-button>
                         <fluent-button class="qr-btn" data-fw-token="${escapeHtml(link.fwToken)}" title="Show QR Code"><i class="bi bi-qr-code" aria-hidden="true"></i></fluent-button>

@@ -549,47 +549,52 @@ main {
 }
 
 .links-data-table {
-    min-width: 1280px;
+    min-width: 1180px;
 }
 
+    .links-data-table th,
+    .links-data-table td {
+        padding: 0 12px;
+    }
+
     .links-data-table .column-token {
-        width: 92px;
+        width: 96px;
     }
 
     .links-data-table .column-aka {
-        width: 96px;
+        width: 92px;
     }
 
     .links-data-table .column-url {
-        width: 22%;
+        width: 19%;
     }
 
     .links-data-table .column-note {
-        width: 16%;
+        width: 14%;
     }
 
     .links-data-table .column-tags {
-        width: 180px;
+        width: 176px;
     }
 
     .links-data-table .column-status {
-        width: 86px;
+        width: 92px;
     }
 
     .links-data-table .column-ttl {
-        width: 72px;
+        width: 60px;
     }
 
     .links-data-table .column-hits {
-        width: 72px;
+        width: 60px;
     }
 
     .links-data-table .column-updated {
-        width: 96px;
+        width: 104px;
     }
 
     .links-data-table .column-actions {
-        width: 212px;
+        width: 200px;
     }
 
 .link-table-row td {
@@ -601,6 +606,20 @@ main {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.token-cell,
+.aka-cell,
+.status-cell,
+.metric-cell,
+.date-cell,
+.actions-cell {
+    white-space: nowrap;
+}
+
+.url-cell,
+.note-cell {
+    overflow: hidden;
 }
 
 .tag-list {
@@ -629,17 +648,21 @@ main {
     display: flex;
     justify-content: flex-end;
     gap: 4px;
-    min-width: 188px;
-    padding-left: 6px;
+    min-width: 176px;
 }
 
 .row-actions fluent-button {
     flex: 0 0 auto;
 }
 
+.actions-cell {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+
 .row-actions fluent-button::part(control) {
     min-width: 32px;
-    padding-inline: 8px;
+    padding-inline: 6px;
 }
 
 .danger-action::part(control) {
