@@ -2,16 +2,11 @@
     <fluent-dialog-body>
         <span slot="title" id="linkEditModalLabel">Create Link</span>
         <form id="linkEditForm">
-            <div class="form-grid two-one">
+            <div class="form-grid">
                 <div class="form-field">
                     <fluent-text-input type="url" id="originUrl" name="originUrl" required maxlength="256"
                                        placeholder="https://example.com">Origin URL *</fluent-text-input>
                     <div class="invalid-feedback" id="originUrlError"></div>
-                </div>
-                <div class="form-field">
-                    <fluent-text-input type="number" id="ttl" name="ttl" min="0" max="86400" value="0"
-                                       placeholder="0 = no expiration, max 24 hours">TTL (seconds)</fluent-text-input>
-                    <div class="invalid-feedback" id="ttlError"></div>
                 </div>
             </div>
 
@@ -19,9 +14,16 @@
                 <div class="form-field">
                     <fluent-text-input type="text" id="akaName" name="akaName" maxlength="32" placeholder="custom-alias"
                                        pattern="(?!-)([a-z0-9-]+)">Aka Name</fluent-text-input>
-                    <div class="form-help">Only lowercase letters, numbers, and hyphens (not at start/end)</div>
                     <div class="invalid-feedback" id="akaNameError"></div>
                 </div>
+                <div class="form-field">
+                    <fluent-text-input type="number" id="ttl" name="ttl" min="0" max="86400" value="0"
+                                       placeholder="0 = no expiration, max 24 hours">TTL (seconds)</fluent-text-input>
+                    <div class="invalid-feedback" id="ttlError"></div>
+                </div>
+            </div>
+            
+            <div class="form-grid">
                 <div class="form-field">
                     <label for="tags" id="tagsLabel">Tags</label>
                     <fluent-dropdown id="tags" class="tag-editor-dropdown" multiple type="dropdown" appearance="outline"
