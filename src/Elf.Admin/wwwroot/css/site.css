@@ -772,21 +772,46 @@ main {
     flex: 1;
 }
 
+.tags-grid-shell {
+    margin-top: 4px;
+    padding: 4px 0;
+}
+
 .tag-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
 }
 
-.tag-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 6px 6px 12px;
+.tag-badge {
+    cursor: pointer;
+    user-select: none;
 }
 
-.tag-name {
-    font-weight: 600;
+.tag-badge::part(control) {
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.tag-badge:hover::part(control) {
+    transform: translateY(-1px);
+}
+
+.tag-badge:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.tag-badge[appearance="outline"]::part(control) {
+    opacity: 0.9;
+}
+
+.tag-badge.is-selected::part(control) {
+    box-shadow: 0 0 0 1px rgba(15, 108, 189, 0.18), 0 6px 14px rgba(15, 108, 189, 0.16);
+}
+
+.tag-selection-status {
+    margin-right: 4px;
+    white-space: nowrap;
 }
 
 .report-sections {

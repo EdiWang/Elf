@@ -2,9 +2,18 @@ import { getTags, createTag, updateTag, deleteTag } from './tags.apiclient.mjs';
 import { success, error } from './toastService.mjs';
 import { createDialogController } from './dialogService.mjs';
 
+const TOOLBAR_ACTION_BUTTONS = [
+    'editTagActionBtn',
+    'deleteTagActionBtn'
+];
+
 // DOM elements
 const elements = {
     addTagBtn: document.getElementById('addTagBtn'),
+    refreshTagBtn: document.getElementById('refreshTagBtn'),
+    editTagActionBtn: document.getElementById('editTagActionBtn'),
+    deleteTagActionBtn: document.getElementById('deleteTagActionBtn'),
+    selectedTagStatus: document.getElementById('selectedTagStatus'),
     tagEditModal: document.getElementById('tagEditModal'),
     tagEditModalLabel: document.getElementById('tagEditModalLabel'),
     tagEditForm: document.getElementById('tagEditForm'),
@@ -26,6 +35,7 @@ const elements = {
 let tags = [];
 let editingTagId = null;
 let tagToDeleteId = null;
+let selectedTagId = null;
 let tagEditModal = null;
 let deleteModal = null;
 
@@ -39,47 +49,157 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function setupEventListeners() {
     elements.addTagBtn.addEventListener('click', showCreateDialog);
+    elements.refreshTagBtn.addEventListener('click', () => {
+        void loadTags(selectedTagId);
+    });
+    elements.editTagActionBtn.addEventListener('click', handleEditAction);
+    elements.deleteTagActionBtn.addEventListener('click', handleDeleteAction);
     elements.tagEditForm.addEventListener('submit', handleSaveTag);
     elements.cancelTagBtn.addEventListener('click', hideTagEditDialog);
     elements.confirmDeleteBtn.addEventListener('click', handleConfirmDelete);
     elements.tagName.addEventListener('input', clearValidationError);
     elements.tagEditModal.addEventListener('shown.elf.dialog', focusTagNameInput);
     elements.tagEditModal.addEventListener('close', resetTagEditState);
+    elements.deleteTagModal.addEventListener('close', resetDeleteState);
+
+    syncToolbarActionState();
 }
 
-async function loadTags() {
+async function loadTags(preferredSelectedTagId = selectedTagId) {
     try {
         showLoading();
         const response = await getTags();
         tags = response.sort((a, b) => a.name.localeCompare(b.name));
-        renderTags();
+        renderTags(preferredSelectedTagId);
     } catch (err) {
+        hideLoading();
+        clearSelectedTag();
         console.error('Error loading tags:', err);
         error('Failed to load tags. Please try again.');
     }
 }
 
-function renderTags() {
+function renderTags(preferredSelectedTagId = null) {
     hideLoading();
-    
+
     if (tags.length === 0) {
-        elements.noTagsMessage.style.display = 'block';
-        elements.tagsGridContainer.style.display = 'none';
+        clearSelectedTag();
+        elements.noTagsMessage.classList.remove('d-none');
+        elements.tagsGridContainer.classList.add('d-none');
         return;
     }
 
-    elements.noTagsMessage.style.display = 'none';
-    elements.tagsGridContainer.style.display = 'block';
+    clearSelectedTag();
+    elements.noTagsMessage.classList.add('d-none');
+    elements.tagsGridContainer.classList.remove('d-none');
+    elements.tagsGrid.innerHTML = '';
 
-    elements.tagsGrid.innerHTML = tags.map(tag => `
-        <fluent-card class="tag-pill">
-            <span class="tag-name">
-                ${escapeHtml(tag.name)}
-            </span>
-            <fluent-button type="button" onclick="editTag(${tag.id})" title="Edit"><i class="bi bi-pencil-square" aria-hidden="true"></i></fluent-button>
-            <fluent-button type="button" class="danger-action" onclick="showDeleteConfirmation(${tag.id}, '${escapeHtml(tag.name)}')" title="Delete"><i class="bi bi-trash" aria-hidden="true"></i></fluent-button>
-        </fluent-card>
-    `).join('');
+    for (const tag of tags) {
+        elements.tagsGrid.appendChild(createTagBadge(tag));
+    }
+
+    if (preferredSelectedTagId) {
+        const selectedBadge = elements.tagsGrid.querySelector(`[data-tag-id="${preferredSelectedTagId}"]`);
+        const selectedTag = tags.find(tag => tag.id === preferredSelectedTagId);
+
+        if (selectedBadge && selectedTag) {
+            selectTag(selectedBadge, selectedTag);
+        }
+    }
+}
+
+function createTagBadge(tag) {
+    const badge = document.createElement('fluent-badge');
+    badge.className = 'tag-badge';
+    badge.setAttribute('appearance', 'outline');
+    badge.setAttribute('size', 'large');
+    badge.setAttribute('data-tag-id', tag.id);
+    badge.setAttribute('title', tag.name);
+    badge.setAttribute('role', 'option');
+    badge.setAttribute('aria-selected', 'false');
+    badge.tabIndex = 0;
+    badge.textContent = tag.name;
+
+    badge.addEventListener('click', event => {
+        if (isInteractiveTarget(event.target)) {
+            return;
+        }
+
+        selectTag(badge, tag);
+    });
+
+    badge.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' && event.key !== ' ') {
+            return;
+        }
+
+        if (isInteractiveTarget(event.target)) {
+            return;
+        }
+
+        event.preventDefault();
+        selectTag(badge, tag);
+    });
+
+    return badge;
+}
+
+function isInteractiveTarget(target) {
+    if (!(target instanceof Element)) {
+        return false;
+    }
+
+    return Boolean(target.closest('a, button, input, textarea, select, fluent-button, [role="button"], [role="link"]'));
+}
+
+function selectTag(badge, tag) {
+    const selectedBadges = elements.tagsGrid.querySelectorAll('.tag-badge.is-selected');
+    for (const selectedBadge of selectedBadges) {
+        selectedBadge.classList.remove('is-selected');
+        selectedBadge.setAttribute('appearance', 'outline');
+        selectedBadge.setAttribute('aria-selected', 'false');
+    }
+
+    badge.classList.add('is-selected');
+    badge.setAttribute('appearance', 'filled');
+    badge.setAttribute('aria-selected', 'true');
+    selectedTagId = tag.id;
+    syncToolbarActionState(tag);
+}
+
+function clearSelectedTag() {
+    const selectedBadges = elements.tagsGrid.querySelectorAll('.tag-badge.is-selected');
+    for (const selectedBadge of selectedBadges) {
+        selectedBadge.classList.remove('is-selected');
+        selectedBadge.setAttribute('appearance', 'outline');
+        selectedBadge.setAttribute('aria-selected', 'false');
+    }
+
+    selectedTagId = null;
+    syncToolbarActionState(null);
+}
+
+function syncToolbarActionState(selectedTag = getSelectedTag()) {
+    const hasSelection = Boolean(selectedTag);
+
+    for (const buttonName of TOOLBAR_ACTION_BUTTONS) {
+        const button = elements[buttonName];
+        if (button) {
+            button.disabled = !hasSelection;
+        }
+    }
+
+    elements.selectedTagStatus.textContent = hasSelection
+        ? `Selected: ${selectedTag.name}`
+        : 'No tag selected';
+}
+
+function getSelectedTag() {
+    if (!selectedTagId) {
+        return null;
+    }
+
+    return tags.find(tag => tag.id === selectedTagId) ?? null;
 }
 
 function showCreateDialog() {
@@ -93,7 +213,9 @@ function showCreateDialog() {
 
 function editTag(id) {
     const tag = tags.find(t => t.id === id);
-    if (!tag) return;
+    if (!tag) {
+        return;
+    }
 
     editingTagId = id;
     elements.tagEditModalLabel.textContent = 'Edit Tag';
@@ -109,12 +231,14 @@ function hideTagEditDialog() {
 
 async function handleSaveTag(event) {
     event.preventDefault();
-    
+
     const name = elements.tagName.value.trim();
-    
+
     if (!validateTagName(name)) {
         return;
     }
+
+    const preferredSelectedTagId = editingTagId;
 
     try {
         elements.saveTagBtn.disabled = true;
@@ -129,8 +253,8 @@ async function handleSaveTag(event) {
         }
 
         hideTagEditDialog();
-        await loadTags();
-        
+        await loadTags(preferredSelectedTagId);
+
     } catch (err) {
         console.error('Error saving tag:', err);
         error('Failed to save tag. Please try again.');
@@ -167,6 +291,14 @@ function validateTagName(name) {
     return true;
 }
 
+function handleEditAction() {
+    if (!selectedTagId) {
+        return;
+    }
+
+    editTag(selectedTagId);
+}
+
 function showValidationError(message) {
     elements.tagName.classList.add('is-invalid');
     elements.tagName.setAttribute('aria-invalid', 'true');
@@ -182,7 +314,7 @@ function clearValidationError() {
 function focusTagNameInput() {
     elements.tagName.focus();
 
-    if (editingTagId) {
+    if (editingTagId && typeof elements.tagName.select === 'function') {
         elements.tagName.select();
     }
 }
@@ -201,8 +333,19 @@ function showDeleteConfirmation(id, name) {
     deleteModal.show();
 }
 
+function handleDeleteAction() {
+    const selectedTag = getSelectedTag();
+    if (!selectedTag) {
+        return;
+    }
+
+    showDeleteConfirmation(selectedTag.id, selectedTag.name);
+}
+
 async function handleConfirmDelete() {
     if (!tagToDeleteId) return;
+
+    const deletedTagId = tagToDeleteId;
 
     try {
         elements.confirmDeleteBtn.disabled = true;
@@ -211,26 +354,36 @@ async function handleConfirmDelete() {
         await deleteTag(tagToDeleteId);
         deleteModal.hide();
         success('Tag deleted successfully.');
+
+        if (selectedTagId === deletedTagId) {
+            clearSelectedTag();
+        }
+
         await loadTags();
-        
+
     } catch (err) {
         console.error('Error deleting tag:', err);
         error('Failed to delete tag. Please try again.');
     } finally {
-        elements.confirmDeleteBtn.disabled = false;
-        elements.confirmDeleteBtn.innerHTML = '<i class="bi bi-trash" aria-hidden="true"></i> Delete';
-        tagToDeleteId = null;
+        resetDeleteState();
     }
 }
 
 function showLoading() {
-    elements.loadingSpinner.style.display = 'block';
-    elements.noTagsMessage.style.display = 'none';
-    elements.tagsGridContainer.style.display = 'none';
+    elements.loadingSpinner.classList.remove('d-none');
+    elements.noTagsMessage.classList.add('d-none');
+    elements.tagsGridContainer.classList.add('d-none');
 }
 
 function hideLoading() {
-    elements.loadingSpinner.style.display = 'none';
+    elements.loadingSpinner.classList.add('d-none');
+}
+
+function resetDeleteState() {
+    tagToDeleteId = null;
+    elements.deleteTagName.textContent = '';
+    elements.confirmDeleteBtn.disabled = false;
+    elements.confirmDeleteBtn.innerHTML = '<i class="bi bi-trash" aria-hidden="true"></i> Delete';
 }
 
 function escapeHtml(text) {
@@ -238,7 +391,3 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
-
-// Expose functions to global scope for onclick handlers
-window.editTag = editTag;
-window.showDeleteConfirmation = showDeleteConfirmation;

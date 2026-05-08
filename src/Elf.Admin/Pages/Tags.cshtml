@@ -3,11 +3,25 @@
     ViewData["Title"] = "Tags";
 }
 
-<section class="page-actions">
-    <fluent-button appearance="primary" type="button" id="addTagBtn">
-        <i class="bi bi-plus-lg" aria-hidden="true"></i>
-        New Tag
-    </fluent-button>
+<section class="command-bar">
+    <div class="command-actions">
+        <fluent-button appearance="primary" type="button" id="addTagBtn">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
+            New
+        </fluent-button>
+        <fluent-button type="button" id="refreshTagBtn" title="Refresh tags">
+            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+        </fluent-button>
+        <div class="toolbar-selection-actions" aria-label="Selected tag actions">
+            <span id="selectedTagStatus" class="muted-text tag-selection-status" role="status" aria-live="polite">No tag selected</span>
+            <fluent-button type="button" id="editTagActionBtn" title="Edit tag" disabled>
+                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+            </fluent-button>
+            <fluent-button type="button" id="deleteTagActionBtn" class="danger-action" title="Delete tag" disabled>
+                <i class="bi bi-trash" aria-hidden="true"></i>
+            </fluent-button>
+        </div>
+    </div>
 </section>
 
 <fluent-dialog id="tagEditModal" type="modal" aria-labelledby="tagEditModalLabel">
@@ -31,19 +45,18 @@
 </fluent-dialog>
 
 <!-- Tags List -->
-<div id="loadingSpinner" class="loading-panel">
+<div id="loadingSpinner" class="loading-panel d-none">
     <fluent-progress-ring></fluent-progress-ring>
     <span class="sr-only">Loading...</span>
 </div>
 
-<div id="noTagsMessage" class="empty-state" style="display: none;">
+<div id="noTagsMessage" class="empty-state d-none">
     <span class="empty-state-icon" aria-hidden="true">#</span>
     <p class="mt-2">No tags found. Create your first tag to get started.</p>
 </div>
 
-<div id="tagsGridContainer" style="display: none;">
-    <div id="tagsGrid" class="tag-grid">
-    </div>
+<div id="tagsGridContainer" class="tags-grid-shell d-none">
+    <div id="tagsGrid" class="tag-grid" role="listbox" aria-label="Tags" aria-orientation="horizontal"></div>
 </div>
 
 <fluent-dialog id="deleteTagModal" type="modal" aria-labelledby="deleteTagModalLabel">
