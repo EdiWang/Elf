@@ -1,6 +1,7 @@
 ﻿@page "/Report"
 @{
     ViewData["Title"] = "Report";
+    var recentRequestsPageUrl = Url.Page("./RecentRequests", LinkId == null ? null : new { linkId = LinkId });
 }
 
 <div class="report-sections" id="reportSections">
@@ -21,11 +22,17 @@
                                 <div class="invalid-feedback" id="endDateError"></div>
                             </div>
                             <div class="form-field command-align-end">
-                                <fluent-button appearance="primary" type="button" id="refreshChartBtn">
-                                    <fluent-progress-ring class="inline-progress d-none" id="refreshSpinner" aria-hidden="true"></fluent-progress-ring>
-                                    <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
-                                    Refresh Chart
-                                </fluent-button>
+                                <div class="command-actions">
+                                    <fluent-button appearance="stealth" type="button" onclick="location.href='@recentRequestsPageUrl'">
+                                        <i class="bi bi-table" aria-hidden="true"></i>
+                                        Recent Requests
+                                    </fluent-button>
+                                    <fluent-button appearance="primary" type="button" id="refreshChartBtn">
+                                        <fluent-progress-ring class="inline-progress d-none" id="refreshSpinner" aria-hidden="true"></fluent-progress-ring>
+                                        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                                        Refresh Chart
+                                    </fluent-button>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -55,35 +62,6 @@
                                         </div>
                             </fluent-card>
                         }
-                    </div>
-                </section>
-        </div>
-    </details>
-
-    <details class="elf-disclosure" id="requestsTableDisclosure">
-        <summary>Recent Requests</summary>
-        <div class="disclosure-body">
-                <section class="recent-requests-container">
-                    <div class="fluent-table-surface">
-                        <div class="fluent-table-scroll">
-                        <table class="fluent-data-table" id="recentRequestsTable">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Token</th>
-                                    <th scope="col">Note</th>
-                                    <th scope="col">User Agent</th>
-                                    <th scope="col">IP Address</th>
-                                    <th scope="col">Location</th>
-                                    <th scope="col">ASN</th>
-                                    <th scope="col">Organization</th>
-                                    <th scope="col">Request Time</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Recent requests will be populated here -->
-                            </tbody>
-                        </table>
-                        </div>
                     </div>
                 </section>
         </div>

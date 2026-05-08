@@ -1,9 +1,11 @@
 ﻿@{
     var currentPage = ViewContext.RouteData.Values["Page"]?.ToString();
-    var isReportPage = currentPage?.StartsWith("/Report", StringComparison.OrdinalIgnoreCase) == true;
+    var isReportPage = string.Equals(currentPage, "/Report", StringComparison.OrdinalIgnoreCase);
+    var isRecentRequestsPage = string.Equals(currentPage, "/RecentRequests", StringComparison.OrdinalIgnoreCase);
     var indexPageUrl = Url.Page("./Index");
     var tagsPageUrl = Url.Page("./Tags");
     var reportPageUrl = Url.Page("./Report");
+    var recentRequestsPageUrl = Url.Page("./RecentRequests");
 }
 
 <nav class="sidebar-main-menu-wrapper" aria-label="Admin navigation">
@@ -29,6 +31,12 @@
                 <span class="tree-link">
                     <i class="bi bi-clipboard-data tree-link__icon" aria-hidden="true"></i>
                     <span class="tree-link__label">Report</span>
+                </span>
+            </fluent-tree-item>
+            <fluent-tree-item slot="item" empty size="medium" tabindex="-1" data-indent="1" onclick="location.href='@recentRequestsPageUrl'" @(isRecentRequestsPage ? "selected" : null)>
+                <span class="tree-link">
+                    <i class="bi bi-table tree-link__icon" aria-hidden="true"></i>
+                    <span class="tree-link__label">Recent Requests</span>
                 </span>
             </fluent-tree-item>
         </fluent-tree-item>
