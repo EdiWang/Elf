@@ -50,7 +50,11 @@
                 </fluent-textarea>
                 <div class="invalid-feedback" id="noteError"></div>
                 <div class="form-field switch-field">
-                    <fluent-switch id="isEnabled" name="isEnabled" checked>Enable Link</fluent-switch>
+                    <fluent-field label-position="after">
+                        <label slot="label">Enable Link</label>
+                        <fluent-switch slot="input" id="isEnabled" name="isEnabled" checked>
+                        </fluent-switch>
+                    </fluent-field>
                 </div>
             </div>
 
