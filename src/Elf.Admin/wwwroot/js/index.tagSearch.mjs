@@ -6,71 +6,92 @@ import { displayLinks, showLoading, showNoData } from './index.links.mjs';
 import { updatePagination } from './index.pagination.mjs';
 import { warning } from './toastService.mjs';
 
-let tagSearchTagify = null;
+const TAG_FILTER_PLACEHOLDER = 'Select tags to filter...';
 
 export function setupTagSearchEventListeners() {
     elements.tagSearchBtn.addEventListener('click', handleTagSearch);
     elements.clearTagFilterBtn.addEventListener('click', clearTagSearch);
-    
-    // Initialize Tagify for tag search
-    initializeTagSearchTagify();
+    elements.tagFilter.addEventListener('change', handleTagFilterChange);
+
+    initializeTagSearchDropdown();
 }
 
-async function initializeTagSearchTagify() {
+async function initializeTagSearchDropdown() {
     try {
-        // Fetch existing tags from API
         const tagsResponse = await getTags();
-        const existingTags = tagsResponse.map(tag => ({ value: tag.name, id: tag.id }));
-        
-        // Initialize Tagify
-        tagSearchTagify = new Tagify(elements.tagFilter, {
-            whitelist: existingTags,
-            maxTags: 20, // Allow multiple tags for filtering
-            dropdown: {
-                maxItems: 20,
-                classname: 'tags-dropdown',
-                enabled: 0, // Show dropdown immediately when typing
-                closeOnSelect: false
-            },
-            editTags: false, // Don't allow editing for search
-            placeholder: 'Select tags to filter...',
-            transformTag: transformTag
-        });
-        
+        renderTagOptions(tagsResponse);
+        updateTagFilterControlText();
     } catch (error) {
-        console.error('Error initializing tag search Tagify:', error);
-        // Fallback to basic text input behavior
+        console.error('Error initializing tag search dropdown:', error);
     }
 }
 
-function transformTag(tagData) {
-    // Ensure tag names are properly formatted
-    tagData.value = tagData.value.toLowerCase().trim();
+function renderTagOptions(tags) {
+    const listbox = elements.tagFilterListbox;
+    if (!listbox) {
+        return;
+    }
+
+    listbox.replaceChildren();
+
+    const fragment = document.createDocumentFragment();
+    const orderedTags = [...tags].sort((left, right) => left.name.localeCompare(right.name));
+
+    for (const tag of orderedTags) {
+        const option = document.createElement('fluent-option');
+        option.setAttribute('value', tag.id.toString());
+        option.textContent = tag.name;
+        fragment.appendChild(option);
+    }
+
+    listbox.appendChild(fragment);
+}
+
+function handleTagFilterChange() {
+    updateTagFilterControlText();
+}
+
+function getSelectedTagOptions() {
+    if (!elements.tagFilter?.selectedOptions) {
+        return [];
+    }
+
+    return Array.from(elements.tagFilter.selectedOptions);
+}
+
+function updateTagFilterControlText() {
+    const control = elements.tagFilterControl;
+    if (!control) {
+        return;
+    }
+
+    const selectedNames = getSelectedTagOptions()
+        .map(option => option.textContent?.trim())
+        .filter(Boolean);
+
+    if (selectedNames.length === 0) {
+        control.textContent = TAG_FILTER_PLACEHOLDER;
+        control.title = '';
+        control.classList.add('is-placeholder');
+        return;
+    }
+
+    const label = selectedNames.join(', ');
+    control.textContent = label;
+    control.title = label;
+    control.classList.remove('is-placeholder');
 }
 
 export async function handleTagSearch() {
-    if (!tagSearchTagify) return;
-    
-    const selectedTags = tagSearchTagify.value;
-    
-    if (selectedTags.length === 0) {
+    const tagIds = getSelectedTagOptions()
+        .map(option => Number.parseInt(option.value || option.getAttribute('value') || '', 10))
+        .filter(tagId => !Number.isNaN(tagId));
+
+    if (tagIds.length === 0) {
         warning('Please select at least one tag to search.');
         return;
     }
-    
-    const tagIds = selectedTags.map(tag => {
-        // Find the tag ID from the whitelist
-        const whitelistTag = tagSearchTagify.whitelist.find(wt => 
-            wt.value.toLowerCase() === tag.value.toLowerCase()
-        );
-        return whitelistTag ? whitelistTag.id : null;
-    }).filter(id => id !== null);
-    
-    if (tagIds.length === 0) {
-        warning('No valid tags selected.');
-        return;
-    }
-    
+
     updateState({ 
         selectedTagIds: tagIds,
         searchMode: 'tags',
@@ -112,10 +133,26 @@ export async function loadLinksByTags() {
     }
 }
 
-function clearTagSearch() {
-    if (tagSearchTagify) {
-        tagSearchTagify.removeAllTags();
+export function clearTagSearchSelection() {
+    const options = elements.tagFilter?.querySelectorAll('fluent-option') ?? [];
+
+    for (const option of options) {
+        option.selected = false;
+        if ('currentSelected' in option) {
+            option.currentSelected = false;
+        }
+        option.removeAttribute('selected');
     }
+
+    if (elements.tagFilter) {
+        elements.tagFilter.value = '';
+    }
+
+    updateTagFilterControlText();
+}
+
+function clearTagSearch() {
+    clearTagSearchSelection();
     
     updateState({ 
         selectedTagIds: [],

@@ -15,7 +15,27 @@
     </div>
     <div class="command-group tag-search-group">
         <span class="command-prefix" aria-hidden="true">#</span>
-        <input type="text" class="elf-input" id="tagFilter" placeholder="Select tags to filter...">
+        <span id="tagFilterLabel" class="sr-only">Filter links by tags</span>
+        <fluent-dropdown
+            id="tagFilter"
+            class="tag-filter-dropdown"
+            multiple
+            type="dropdown"
+            appearance="outline"
+            aria-labelledby="tagFilterLabel"
+            placeholder="Select tags to filter...">
+            <fluent-listbox id="tagFilterListbox" class="tag-filter-listbox" popover="manual" tabindex="-1"></fluent-listbox>
+            <button
+                aria-controls="tagFilterListbox"
+                aria-haspopup="listbox"
+                class="tag-filter-control is-placeholder"
+                id="tagFilterControl"
+                role="combobox"
+                slot="control"
+                type="button">
+                Select tags to filter...
+            </button>
+        </fluent-dropdown>
         <fluent-button type="button" id="tagSearchBtn" title="Search tags">
             <i class="bi bi-search" aria-hidden="true"></i>
         </fluent-button>

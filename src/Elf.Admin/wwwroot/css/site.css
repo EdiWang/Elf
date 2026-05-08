@@ -255,6 +255,41 @@ main {
     grid-template-columns: auto 1fr auto auto;
 }
 
+.tag-filter-dropdown {
+    width: 100%;
+    min-width: 0;
+    anchor-name: --tag-filter-anchor;
+}
+
+    .tag-filter-dropdown::part(control) {
+        width: 100%;
+    }
+
+.tag-filter-control {
+    width: 100%;
+    min-height: 30px;
+    padding: 0 10px;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+    .tag-filter-control.is-placeholder {
+        color: var(--text-muted);
+    }
+
+.tag-filter-listbox {
+    max-height: 320px;
+    overflow-y: auto;
+    position-anchor: --tag-filter-anchor;
+}
+
 .command-prefix {
     display: grid;
     place-items: center;

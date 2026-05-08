@@ -21,6 +21,8 @@ export const elements = {
 
     // Tag search elements
     tagFilter: document.getElementById('tagFilter'),
+    tagFilterListbox: document.getElementById('tagFilterListbox'),
+    tagFilterControl: document.getElementById('tagFilterControl'),
     tagSearchBtn: document.getElementById('tagSearchBtn'),
     clearTagFilterBtn: document.getElementById('clearTagFilterBtn'),
 

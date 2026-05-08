@@ -1,6 +1,7 @@
 import { elements } from './index.dom.mjs';
 import { state, updateState, resetPage } from './index.state.mjs';
 import { loadLinks } from './index.links.mjs';
+import { clearTagSearchSelection } from './index.tagSearch.mjs';
 
 export function setupSearchEventListeners() {
     elements.searchBtn.addEventListener('click', handleSearch);
@@ -58,13 +59,5 @@ export function handlePageSizeChange() {
 }
 
 function clearTagSearchUI() {
-    // Import and clear tag search if available
-    import('./index.tagSearch.mjs').then(() => {
-        const tagFilterElement = elements.tagFilter;
-        if (tagFilterElement && tagFilterElement.tagify) {
-            tagFilterElement.tagify.removeAllTags();
-        }
-    }).catch(() => {
-        // Tag search module might not be loaded yet
-    });
+    clearTagSearchSelection();
 }
