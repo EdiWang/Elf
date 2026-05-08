@@ -4,42 +4,38 @@
         <form id="linkEditForm">
             <div class="form-grid two-one">
                 <div class="form-field">
-                    <fluent-text-input type="url" id="originUrl" name="originUrl" required maxlength="256" placeholder="https://example.com">Origin URL *</fluent-text-input>
+                    <fluent-text-input type="url" id="originUrl" name="originUrl" required maxlength="256"
+                                       placeholder="https://example.com">Origin URL *</fluent-text-input>
                     <div class="invalid-feedback" id="originUrlError"></div>
                 </div>
                 <div class="form-field">
-                    <fluent-text-input type="number" id="ttl" name="ttl" min="0" max="86400" value="0" placeholder="0">TTL (seconds)</fluent-text-input>
-                    <div class="form-help">0 = no expiration, max 24 hours</div>
+                    <fluent-text-input type="number" id="ttl" name="ttl" min="0" max="86400" value="0"
+                                       placeholder="0 = no expiration, max 24 hours">TTL (seconds)</fluent-text-input>
                     <div class="invalid-feedback" id="ttlError"></div>
                 </div>
             </div>
 
             <div class="form-grid two-even">
                 <div class="form-field">
-                    <fluent-text-input type="text" id="akaName" name="akaName" maxlength="32" placeholder="custom-alias" pattern="(?!-)([a-z0-9-]+)">Aka Name</fluent-text-input>
+                    <fluent-text-input type="text" id="akaName" name="akaName" maxlength="32" placeholder="custom-alias"
+                                       pattern="(?!-)([a-z0-9-]+)">Aka Name</fluent-text-input>
                     <div class="form-help">Only lowercase letters, numbers, and hyphens (not at start/end)</div>
                     <div class="invalid-feedback" id="akaNameError"></div>
                 </div>
                 <div class="form-field">
                     <label for="tags" id="tagsLabel">Tags</label>
-                    <fluent-dropdown id="tags"
-                                     class="tag-editor-dropdown"
-                                     multiple
-                                     type="dropdown"
-                                     appearance="outline"
+                    <fluent-dropdown id="tags" class="tag-editor-dropdown" multiple type="dropdown" appearance="outline"
                                      aria-labelledby="tagsLabel">
-                        <fluent-listbox id="tagsListbox" class="tag-editor-listbox" popover="manual" tabindex="-1"></fluent-listbox>
-                        <button slot="control"
-                                id="tagsControl"
-                                class="tag-editor-control is-placeholder"
-                                type="button"
-                                aria-haspopup="listbox"
-                                aria-controls="tagsListbox">
+                        <fluent-listbox id="tagsListbox" class="tag-editor-listbox" popover="manual"
+                                        tabindex="-1"></fluent-listbox>
+                        <button slot="control" id="tagsControl" class="tag-editor-control is-placeholder" type="button"
+                                aria-haspopup="listbox" aria-controls="tagsListbox">
                             Select existing tags...
                         </button>
                     </fluent-dropdown>
                     <div class="tag-editor-input-row">
-                        <fluent-text-input type="text" id="tagInput" placeholder="Type a new tag and press Enter"></fluent-text-input>
+                        <fluent-text-input type="text" id="tagInput"
+                                           placeholder="Type a new tag and press Enter"></fluent-text-input>
                         <fluent-button type="button" id="addTagBtn">Add</fluent-button>
                     </div>
                     <div id="selectedTags" class="tag-editor-selected d-none"></div>
@@ -48,12 +44,11 @@
                 </div>
             </div>
 
-            <div class="form-grid two-one">
-                <div class="form-field">
-                    <label for="note">Note</label>
-                    <textarea class="elf-textarea" id="note" name="note" rows="2" placeholder="Optional description or note about this link"></textarea>
-                    <div class="invalid-feedback" id="noteError"></div>
-                </div>
+            <div class="form-grid">
+                <fluent-textarea block id="note" name="note" placeholder="Optional description or note about this link">
+                    <fluent-label slot="label">Note</fluent-label>
+                </fluent-textarea>
+                <div class="invalid-feedback" id="noteError"></div>
                 <div class="form-field switch-field">
                     <fluent-switch id="isEnabled" name="isEnabled" checked>Enable Link</fluent-switch>
                 </div>
@@ -66,7 +61,8 @@
         </form>
         <fluent-button slot="action" appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
         <fluent-button slot="action" appearance="primary" type="button" id="saveLinkBtn">
-            <fluent-progress-ring class="inline-progress d-none" id="saveSpinner" aria-hidden="true"></fluent-progress-ring>
+            <fluent-progress-ring class="inline-progress d-none" id="saveSpinner"
+                                  aria-hidden="true"></fluent-progress-ring>
             Save
         </fluent-button>
     </fluent-dialog-body>
