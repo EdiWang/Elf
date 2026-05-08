@@ -13,7 +13,6 @@ const elements = {
     refreshTagBtn: document.getElementById('refreshTagBtn'),
     editTagActionBtn: document.getElementById('editTagActionBtn'),
     deleteTagActionBtn: document.getElementById('deleteTagActionBtn'),
-    selectedTagStatus: document.getElementById('selectedTagStatus'),
     tagEditModal: document.getElementById('tagEditModal'),
     tagEditModalLabel: document.getElementById('tagEditModalLabel'),
     tagEditForm: document.getElementById('tagEditForm'),
@@ -188,10 +187,6 @@ function syncToolbarActionState(selectedTag = getSelectedTag()) {
             button.disabled = !hasSelection;
         }
     }
-
-    elements.selectedTagStatus.textContent = hasSelection
-        ? `Selected: ${selectedTag.name}`
-        : 'No tag selected';
 }
 
 function getSelectedTag() {

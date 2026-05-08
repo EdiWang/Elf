@@ -849,11 +849,6 @@ main {
         box-shadow: 0 0 0 1px rgba(15, 108, 189, 0.18), 0 6px 14px rgba(15, 108, 189, 0.16);
     }
 
-.tag-selection-status {
-    margin-right: 4px;
-    white-space: nowrap;
-}
-
 .report-sections {
     display: grid;
     gap: 12px;
