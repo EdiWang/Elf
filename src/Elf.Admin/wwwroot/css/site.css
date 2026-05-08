@@ -459,7 +459,10 @@ main {
         grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
     }
 
-    .form-grid.two-even,
+    .form-grid.two-even {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .date-command-bar {
         grid-template-columns: repeat(2, minmax(220px, 1fr)) auto;
     }
