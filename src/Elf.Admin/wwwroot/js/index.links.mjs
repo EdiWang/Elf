@@ -102,12 +102,12 @@ function createLinkRow(link) {
                     <td class="status-cell">${statusToggle}</td>
                     <td class="metric-cell">
                         <span class="ttl-container">
-                            <i class="bi bi-hourglass-split" aria-hidden="true"></i> ${link.ttl}
+                            ${link.ttl}
                         </span>
                     </td>
                     <td class="metric-cell">
                         <div class="link-hits-container">
-                            <i class="bi bi-activity" aria-hidden="true"></i> ${link.hits}
+                            ${link.hits}
                         </div>
                     </td>
                     <td class="date-cell">
