@@ -25,23 +25,20 @@
             
             <div class="form-grid">
                 <div class="form-field">
-                    <label for="tags" id="tagsLabel">Tags</label>
-                    <fluent-dropdown id="tags" class="tag-editor-dropdown" multiple type="dropdown" appearance="outline"
-                                     aria-labelledby="tagsLabel">
-                        <fluent-listbox id="tagsListbox" class="tag-editor-listbox" popover="manual"
-                                        tabindex="-1"></fluent-listbox>
-                        <button slot="control" id="tagsControl" class="tag-editor-control is-placeholder" type="button"
-                                aria-haspopup="listbox" aria-controls="tagsListbox">
-                            Select existing tags...
-                        </button>
-                    </fluent-dropdown>
-                    <div class="tag-editor-input-row">
-                        <fluent-text-input type="text" id="tagInput"
-                                           placeholder="Type a new tag and press Enter"></fluent-text-input>
-                        <fluent-button type="button" id="addTagBtn">Add</fluent-button>
+                    <label for="tagInput" id="tagsLabel">Tags</label>
+                    <div id="tags" class="tag-editor" aria-labelledby="tagsLabel">
+                        <div id="selectedTags" class="tag-editor-selected d-none"></div>
+                        <fluent-text-input block class="full-width-field tag-editor-input" type="text" id="tagInput"
+                                           placeholder="Type to search or create tags"
+                                           autocomplete="off"
+                                           aria-controls="tagSuggestions"
+                                           aria-expanded="false"></fluent-text-input>
+                        <div id="tagSuggestions" class="tag-editor-suggestions d-none">
+                            <fluent-menu-list id="tagSuggestionsList" class="tag-editor-menu" focusgroup="menu">
+                            </fluent-menu-list>
+                        </div>
                     </div>
-                    <div id="selectedTags" class="tag-editor-selected d-none"></div>
-                    <div class="form-help">Select existing tags from the dropdown, or add new ones below</div>
+                    <div class="form-help" id="tagsHelp">Type to search existing tags, or press Enter to add a new one</div>
                     <div class="invalid-feedback" id="tagsError"></div>
                 </div>
             </div>

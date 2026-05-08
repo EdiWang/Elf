@@ -403,64 +403,59 @@ main {
     min-width: 72px;
 }
 
-.tag-editor-dropdown {
-    width: 100%;
-    anchor-name: --tag-editor-anchor;
-}
-
-    .tag-editor-dropdown::part(control) {
-        width: 100%;
-    }
-
-    .tag-editor-dropdown[aria-invalid="true"]::part(control) {
-        border-color: var(--danger);
-        box-shadow: inset 0 -1px 0 var(--danger);
-    }
-
-.tag-editor-listbox {
-    max-height: 280px;
-    overflow-y: auto;
-    position-anchor: --tag-editor-anchor;
-}
-
-.tag-editor-control {
-    width: 100%;
-    min-height: 30px;
-    padding: 0 10px;
-    border: 0;
-    background: transparent;
-    color: var(--text);
-    font: inherit;
-    text-align: left;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: pointer;
-}
-
-    .tag-editor-control.is-placeholder {
-        color: var(--text-muted);
-    }
-
-.tag-editor-input-row {
+.tag-editor {
+    position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
-    align-items: center;
-    margin-top: 8px;
+}
+
+.tag-editor[aria-invalid="true"] .tag-editor-input::part(root) {
+    border-color: var(--danger);
+    box-shadow: inset 0 -1px 0 var(--danger);
 }
 
 .tag-editor-selected {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 10px;
 }
 
 .tag-editor-chip {
     display: inline-flex;
     align-items: center;
     gap: 4px;
+}
+
+.tag-editor-input {
+    width: 100%;
+}
+
+.tag-editor-suggestions {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.tag-editor-menu {
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.tag-editor-menu fluent-menu-item.is-active,
+.tag-editor-menu fluent-menu-item:focus {
+    background: #f0f6ff;
+}
+
+.tag-editor-menu-item-create {
+    color: var(--accent);
+    font-weight: 600;
 }
 
 .tag-editor-chip-remove::part(control) {

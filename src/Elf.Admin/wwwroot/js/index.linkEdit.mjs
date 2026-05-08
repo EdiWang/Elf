@@ -4,10 +4,12 @@ import { elements } from './index.dom.mjs';
 import { state, updateState } from './index.state.mjs';
 import { loadLinks } from './index.links.mjs';
 
-const EXISTING_TAGS_PLACEHOLDER = 'Select existing tags...';
+const MAX_TAG_SUGGESTIONS = 8;
 
 let availableTagNames = [];
 let selectedTags = [];
+let tagSuggestions = [];
+let activeTagSuggestionIndex = -1;
 
 export function setupLinkEditEventListeners() {
     elements.addLinkBtn.addEventListener('click', () => {
@@ -21,9 +23,13 @@ export function setupLinkEditEventListeners() {
         void handleSaveLink();
     });
 
-    elements.tags.addEventListener('change', handleTagsDropdownChange);
-    elements.addTagBtn.addEventListener('click', handleAddTag);
+    elements.tagInput.addEventListener('input', handleTagInput);
+    elements.tagInput.addEventListener('focus', handleTagInputFocus);
     elements.tagInput.addEventListener('keydown', handleTagInputKeyDown);
+    elements.tagInput.addEventListener('blur', handleTagInputBlur);
+    elements.tagSuggestionsList?.addEventListener('mousedown', handleTagSuggestionMouseDown);
+    elements.tagSuggestionsList?.addEventListener('click', handleTagSuggestionClick);
+    document.addEventListener('pointerdown', handleDocumentPointerDown);
     elements.linkEditModal.element.addEventListener('close', () => clearForm());
 }
 
@@ -35,34 +41,12 @@ async function refreshAvailableTags() {
             .filter(Boolean))]
             .sort((left, right) => left.localeCompare(right));
 
-        renderTagOptions();
         syncTagEditor();
     } catch (error) {
         console.error('Error loading available tags:', error);
         availableTagNames = [];
-        renderTagOptions();
         syncTagEditor();
     }
-}
-
-function renderTagOptions() {
-    const listbox = elements.tagsListbox;
-    if (!listbox) {
-        return;
-    }
-
-    listbox.replaceChildren();
-
-    const fragment = document.createDocumentFragment();
-
-    for (const tagName of availableTagNames) {
-        const option = document.createElement('fluent-option');
-        option.setAttribute('value', tagName);
-        option.textContent = tagName;
-        fragment.appendChild(option);
-    }
-
-    listbox.appendChild(fragment);
 }
 
 function normalizeTagName(tagName) {
@@ -86,108 +70,14 @@ function getUniqueTagNames(tagNames) {
     return uniqueTagNames;
 }
 
-function getSelectedDropdownTagNames() {
-    if (!elements.tags?.selectedOptions) {
-        return [];
-    }
-
-    return Array.from(elements.tags.selectedOptions)
-        .map(option => normalizeTagName(option.value || option.getAttribute('value')))
-        .filter(Boolean);
-}
-
-function setDropdownOptionSelected(option, isSelected) {
-    option.selected = isSelected;
-
-    if ('currentSelected' in option) {
-        option.currentSelected = isSelected;
-    }
-
-    if (isSelected) {
-        option.setAttribute('selected', '');
-    } else {
-        option.removeAttribute('selected');
-    }
-}
-
 function setSelectedTags(tagNames) {
     selectedTags = getUniqueTagNames(tagNames);
     syncTagEditor();
 }
 
-function getTagsDropdownControl() {
-    if (elements.tagsControl?.isConnected) {
-        return elements.tagsControl;
-    }
-
-    const existingControl = elements.tags?.querySelector('[slot="control"]');
-    if (existingControl) {
-        elements.tagsControl = existingControl;
-        return existingControl;
-    }
-
-    if (!elements.tags) {
-        return null;
-    }
-
-    const control = document.createElement('button');
-    control.type = 'button';
-    control.id = 'tagsControl';
-    control.slot = 'control';
-    control.className = 'tag-editor-control is-placeholder';
-    control.setAttribute('aria-haspopup', 'listbox');
-    control.setAttribute('aria-controls', 'tagsListbox');
-    control.textContent = EXISTING_TAGS_PLACEHOLDER;
-
-    elements.tags.appendChild(control);
-    elements.tagsControl = control;
-    return control;
-}
-
 function syncTagEditor() {
-    syncTagsDropdownSelection();
-    updateTagsDropdownControlText();
     renderSelectedTags();
-}
-
-function syncTagsDropdownSelection() {
-    const existingTagNameSet = new Set(availableTagNames);
-    const selectedExistingTagSet = new Set(selectedTags.filter(tagName => existingTagNameSet.has(tagName)));
-    const options = elements.tagsListbox?.querySelectorAll('fluent-option') ?? [];
-
-    for (const option of options) {
-        const optionValue = normalizeTagName(option.value || option.getAttribute('value'));
-        setDropdownOptionSelected(option, selectedExistingTagSet.has(optionValue));
-    }
-
-    if (!selectedExistingTagSet.size) {
-        elements.tags.value = '';
-    }
-}
-
-function updateTagsDropdownControlText() {
-    const existingTagNameSet = new Set(availableTagNames);
-    const selectedExistingTagNames = selectedTags.filter(tagName => existingTagNameSet.has(tagName));
-    const tagsControl = getTagsDropdownControl();
-
-    if (!tagsControl) {
-        return;
-    }
-
-    if (selectedExistingTagNames.length === 0) {
-        tagsControl.textContent = EXISTING_TAGS_PLACEHOLDER;
-        tagsControl.title = '';
-        tagsControl.classList.add('is-placeholder');
-        return;
-    }
-
-    const controlText = selectedExistingTagNames.length <= 2
-        ? selectedExistingTagNames.join(', ')
-        : `${selectedExistingTagNames.length} tags selected`;
-
-    tagsControl.textContent = controlText;
-    tagsControl.title = selectedExistingTagNames.join(', ');
-    tagsControl.classList.remove('is-placeholder');
+    updateTagSuggestions();
 }
 
 function renderSelectedTags() {
@@ -231,12 +121,35 @@ function renderSelectedTags() {
 
 function removeSelectedTag(tagName) {
     setSelectedTags(selectedTags.filter(currentTag => currentTag !== tagName));
+    queueMicrotask(() => elements.tagInput?.focus());
 }
 
-function handleTagsDropdownChange() {
-    const existingTagNameSet = new Set(availableTagNames);
-    const customTagNames = selectedTags.filter(tagName => !existingTagNameSet.has(tagName));
-    setSelectedTags([...getSelectedDropdownTagNames(), ...customTagNames]);
+function getFilteredTagSuggestions(query) {
+    const normalizedQuery = normalizeTagName(query);
+    const selectedTagSet = new Set(selectedTags);
+    const matchingExistingTags = availableTagNames
+        .filter(tagName => !selectedTagSet.has(tagName))
+        .filter(tagName => !normalizedQuery || tagName.includes(normalizedQuery));
+
+    const prefixMatches = matchingExistingTags.filter(tagName => tagName.startsWith(normalizedQuery));
+    const partialMatches = matchingExistingTags.filter(tagName => !tagName.startsWith(normalizedQuery));
+    const suggestions = [...prefixMatches, ...partialMatches]
+        .slice(0, MAX_TAG_SUGGESTIONS)
+        .map(tagName => ({
+            value: tagName,
+            label: tagName,
+            kind: 'existing'
+        }));
+
+    if (normalizedQuery && !selectedTagSet.has(normalizedQuery) && !availableTagNames.includes(normalizedQuery)) {
+        suggestions.unshift({
+            value: normalizedQuery,
+            label: `Add "${normalizedQuery}"`,
+            kind: 'create'
+        });
+    }
+
+    return suggestions.slice(0, MAX_TAG_SUGGESTIONS);
 }
 
 function parseTagInput(value) {
@@ -246,23 +159,191 @@ function parseTagInput(value) {
         .filter(Boolean);
 }
 
-function handleAddTag() {
-    const newTagNames = parseTagInput(elements.tagInput.value);
-    if (newTagNames.length === 0) {
+function addTagNames(tagNames) {
+    const normalizedTagNames = getUniqueTagNames(tagNames);
+    if (normalizedTagNames.length === 0) {
         return;
     }
 
-    setSelectedTags([...selectedTags, ...newTagNames]);
+    setSelectedTags([...selectedTags, ...normalizedTagNames]);
     elements.tagInput.value = '';
+    hideTagSuggestions();
+}
+
+function handleTagInput() {
+    updateTagSuggestions();
+}
+
+function handleTagInputFocus() {
+    updateTagSuggestions();
+}
+
+function handleTagInputBlur() {
+    window.setTimeout(() => {
+        if (!elements.tags?.contains(document.activeElement)) {
+            hideTagSuggestions();
+        }
+    }, 0);
+}
+
+function handleTagSuggestionMouseDown(event) {
+    event.preventDefault();
+}
+
+function handleTagSuggestionClick(event) {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+        return;
+    }
+
+    const menuItem = target.closest('fluent-menu-item');
+    if (!menuItem) {
+        return;
+    }
+
+    selectTagSuggestionByIndex(Number.parseInt(menuItem.dataset.index ?? '-1', 10));
+}
+
+function handleDocumentPointerDown(event) {
+    const target = event.target;
+    if (!(target instanceof Node)) {
+        return;
+    }
+
+    if (!elements.tags?.contains(target)) {
+        hideTagSuggestions();
+    }
+}
+
+function updateTagSuggestions() {
+    const query = elements.tagInput.value;
+    const shouldShowSuggestions = document.activeElement === elements.tagInput || Boolean(query.trim());
+    if (!shouldShowSuggestions) {
+        tagSuggestions = [];
+        hideTagSuggestions();
+        return;
+    }
+
+    tagSuggestions = getFilteredTagSuggestions(query);
+    activeTagSuggestionIndex = tagSuggestions.length > 0 ? 0 : -1;
+    renderTagSuggestions();
+}
+
+function renderTagSuggestions() {
+    const menuList = elements.tagSuggestionsList;
+    if (!menuList) {
+        return;
+    }
+
+    menuList.replaceChildren();
+
+    if (tagSuggestions.length === 0) {
+        hideTagSuggestions();
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    tagSuggestions.forEach((suggestion, index) => {
+        const item = document.createElement('fluent-menu-item');
+        item.dataset.index = index.toString();
+        item.dataset.value = suggestion.value;
+        item.dataset.kind = suggestion.kind;
+        item.setAttribute('role', 'menuitem');
+        item.tabIndex = index === activeTagSuggestionIndex ? 0 : -1;
+        item.textContent = suggestion.label;
+
+        if (suggestion.kind === 'create') {
+            item.classList.add('tag-editor-menu-item-create');
+        }
+
+        if (index === activeTagSuggestionIndex) {
+            item.classList.add('is-active');
+        }
+
+        fragment.appendChild(item);
+    });
+
+    menuList.appendChild(fragment);
+    showTagSuggestions();
+}
+
+function showTagSuggestions() {
+    elements.tagSuggestions?.classList.remove('d-none');
+    elements.tagInput?.setAttribute('aria-expanded', 'true');
+}
+
+function hideTagSuggestions() {
+    elements.tagSuggestions?.classList.add('d-none');
+    elements.tagInput?.setAttribute('aria-expanded', 'false');
+    activeTagSuggestionIndex = -1;
+}
+
+function moveActiveTagSuggestion(offset) {
+    if (tagSuggestions.length === 0) {
+        return;
+    }
+
+    const nextIndex = activeTagSuggestionIndex < 0
+        ? 0
+        : (activeTagSuggestionIndex + offset + tagSuggestions.length) % tagSuggestions.length;
+
+    activeTagSuggestionIndex = nextIndex;
+    renderTagSuggestions();
+}
+
+function selectTagSuggestionByIndex(index) {
+    if (index < 0 || index >= tagSuggestions.length) {
+        return;
+    }
+
+    addTagNames([tagSuggestions[index].value]);
+    elements.tagInput.focus();
+}
+
+function commitTagInput() {
+    const newTagNames = parseTagInput(elements.tagInput.value);
+    if (newTagNames.length === 0) {
+        hideTagSuggestions();
+        return;
+    }
+
+    if (newTagNames.length === 1 && activeTagSuggestionIndex >= 0 && tagSuggestions[activeTagSuggestionIndex]) {
+        selectTagSuggestionByIndex(activeTagSuggestionIndex);
+        return;
+    }
+
+    addTagNames(newTagNames);
 }
 
 function handleTagInputKeyDown(event) {
-    if (event.key !== 'Enter') {
-        return;
+    switch (event.key) {
+        case 'ArrowDown':
+            event.preventDefault();
+            moveActiveTagSuggestion(1);
+            return;
+        case 'ArrowUp':
+            event.preventDefault();
+            moveActiveTagSuggestion(-1);
+            return;
+        case 'Escape':
+            hideTagSuggestions();
+            return;
+        case 'Enter':
+        case ',':
+        case ';':
+            event.preventDefault();
+            commitTagInput();
+            return;
+        case 'Backspace':
+            if (!elements.tagInput.value.trim() && selectedTags.length > 0) {
+                event.preventDefault();
+                removeSelectedTag(selectedTags[selectedTags.length - 1]);
+            }
+            return;
+        default:
+            return;
     }
-
-    event.preventDefault();
-    handleAddTag();
 }
 
 export async function showLinkEditModal(linkId = null) {
@@ -422,6 +503,9 @@ function clearForm({ resetEditingLinkId = true } = {}) {
     elements.ttl.value = 0;
     elements.isEnabled.checked = true;
     elements.tagInput.value = '';
+    tagSuggestions = [];
+    activeTagSuggestionIndex = -1;
+    hideTagSuggestions();
     setSelectedTags([]);
     clearValidationErrors();
     hideModalError();
