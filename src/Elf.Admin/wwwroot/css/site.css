@@ -238,7 +238,7 @@ main {
 
 .command-bar, .date-command-bar {
     display: grid;
-    grid-template-columns: minmax(240px, 1fr) minmax(260px, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr);
     gap: 12px;
     align-items: center;
     margin-bottom: 16px;
@@ -251,8 +251,21 @@ main {
     gap: 4px;
 }
 
+.command-filters {
+    display: grid;
+    grid-template-columns: minmax(280px, 1.3fr) minmax(320px, 1fr);
+    justify-self: end;
+    width: min(100%, 920px);
+    gap: 12px;
+}
+
+.search-group {
+    min-width: 0;
+}
+
 .tag-search-group {
-    grid-template-columns: auto 1fr auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    min-width: 0;
 }
 
 .tag-filter-dropdown {
@@ -302,6 +315,12 @@ main {
 
 .command-actions {
     align-self: center;
+    justify-content: flex-start;
+    white-space: nowrap;
+}
+
+.command-actions fluent-button[appearance="primary"] {
+    min-width: 86px;
 }
 
 .page-actions {
@@ -570,7 +589,7 @@ main {
     }
 
     .links-data-table .column-actions {
-        width: 176px;
+        width: 212px;
     }
 
 .link-table-row td {
@@ -609,7 +628,18 @@ main {
 .row-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 2px;
+    gap: 4px;
+    min-width: 188px;
+    padding-left: 6px;
+}
+
+.row-actions fluent-button {
+    flex: 0 0 auto;
+}
+
+.row-actions fluent-button::part(control) {
+    min-width: 32px;
+    padding-inline: 8px;
 }
 
 .danger-action::part(control) {
@@ -888,6 +918,12 @@ main {
 @media (max-width: 1180px) {
     .command-bar, .date-command-bar, .form-grid.two-one, .form-grid.two-even {
         grid-template-columns: 1fr;
+    }
+
+    .command-filters {
+        grid-template-columns: 1fr;
+        justify-self: stretch;
+        width: 100%;
     }
 
     .command-actions, .dialog-footer, .pagination-actions {

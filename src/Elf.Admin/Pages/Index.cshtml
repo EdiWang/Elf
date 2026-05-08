@@ -4,44 +4,6 @@
 }
 
 <section class="command-bar">
-    <div class="command-group">
-        <fluent-text-input type="text" id="searchTerm" placeholder="Search links by note or token..."></fluent-text-input>
-        <fluent-button type="button" id="searchBtn" title="Search">
-            <i class="bi bi-search" aria-hidden="true"></i>
-        </fluent-button>
-        <fluent-button type="button" id="clearBtn" title="Clear search">
-            <i class="bi bi-x-lg" aria-hidden="true"></i>
-        </fluent-button>
-    </div>
-    <div class="command-group tag-search-group">
-        <span id="tagFilterLabel" class="sr-only">Filter links by tags</span>
-        <fluent-dropdown
-            id="tagFilter"
-            class="tag-filter-dropdown"
-            multiple
-            type="dropdown"
-            appearance="outline"
-            aria-labelledby="tagFilterLabel"
-            placeholder="Select tags to filter...">
-            <fluent-listbox id="tagFilterListbox" class="tag-filter-listbox" popover="manual" tabindex="-1"></fluent-listbox>
-            <button
-                aria-controls="tagFilterListbox"
-                aria-haspopup="listbox"
-                class="tag-filter-control is-placeholder"
-                id="tagFilterControl"
-                role="combobox"
-                slot="control"
-                type="button">
-                Select tags to filter...
-            </button>
-        </fluent-dropdown>
-        <fluent-button type="button" id="tagSearchBtn" title="Search tags">
-            <i class="bi bi-search" aria-hidden="true"></i>
-        </fluent-button>
-        <fluent-button type="button" id="clearTagFilterBtn" title="Clear tag filter">
-            <i class="bi bi-x-lg" aria-hidden="true"></i>
-        </fluent-button>
-    </div>
     <div class="command-actions">
         <fluent-button id="refreshBtn" title="Refresh links">
             <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
@@ -50,6 +12,46 @@
             <i class="bi bi-plus-lg" aria-hidden="true"></i>
             New
         </fluent-button>
+    </div>
+    <div class="command-filters">
+        <div class="command-group search-group">
+            <fluent-text-input type="text" id="searchTerm" placeholder="Search links by note or token..."></fluent-text-input>
+            <fluent-button type="button" id="searchBtn" title="Search">
+                <i class="bi bi-search" aria-hidden="true"></i>
+            </fluent-button>
+            <fluent-button type="button" id="clearBtn" title="Clear search">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </fluent-button>
+        </div>
+        <div class="command-group tag-search-group">
+            <span id="tagFilterLabel" class="sr-only">Filter links by tags</span>
+            <fluent-dropdown
+                id="tagFilter"
+                class="tag-filter-dropdown"
+                multiple
+                type="dropdown"
+                appearance="outline"
+                aria-labelledby="tagFilterLabel"
+                placeholder="Select tags to filter...">
+                <fluent-listbox id="tagFilterListbox" class="tag-filter-listbox" popover="manual" tabindex="-1"></fluent-listbox>
+                <button
+                    aria-controls="tagFilterListbox"
+                    aria-haspopup="listbox"
+                    class="tag-filter-control is-placeholder"
+                    id="tagFilterControl"
+                    role="combobox"
+                    slot="control"
+                    type="button">
+                    Select tags to filter...
+                </button>
+            </fluent-dropdown>
+            <fluent-button type="button" id="tagSearchBtn" title="Search tags">
+                <i class="bi bi-search" aria-hidden="true"></i>
+            </fluent-button>
+            <fluent-button type="button" id="clearTagFilterBtn" title="Clear tag filter">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </fluent-button>
+        </div>
     </div>
 </section>
 
