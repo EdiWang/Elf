@@ -5,8 +5,8 @@ import { createDialogController } from './dialogService.mjs';
 // DOM elements
 const elements = {
     addTagBtn: document.getElementById('addTagBtn'),
-    tagForm: document.getElementById('tagForm'),
-    formTitle: document.getElementById('formTitle'),
+    tagEditModal: document.getElementById('tagEditModal'),
+    tagEditModalLabel: document.getElementById('tagEditModalLabel'),
     tagEditForm: document.getElementById('tagEditForm'),
     tagId: document.getElementById('tagId'),
     tagName: document.getElementById('tagName'),
@@ -26,21 +26,25 @@ const elements = {
 let tags = [];
 let editingTagId = null;
 let tagToDeleteId = null;
+let tagEditModal = null;
 let deleteModal = null;
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
+    tagEditModal = createDialogController(elements.tagEditModal);
     deleteModal = createDialogController(elements.deleteTagModal);
     await loadTags();
 });
 
 function setupEventListeners() {
-    elements.addTagBtn.addEventListener('click', showCreateForm);
+    elements.addTagBtn.addEventListener('click', showCreateDialog);
     elements.tagEditForm.addEventListener('submit', handleSaveTag);
-    elements.cancelTagBtn.addEventListener('click', hideForm);
+    elements.cancelTagBtn.addEventListener('click', hideTagEditDialog);
     elements.confirmDeleteBtn.addEventListener('click', handleConfirmDelete);
     elements.tagName.addEventListener('input', clearValidationError);
+    elements.tagEditModal.addEventListener('shown.elf.dialog', focusTagNameInput);
+    elements.tagEditModal.addEventListener('close', resetTagEditState);
 }
 
 async function loadTags() {
@@ -78,14 +82,13 @@ function renderTags() {
     `).join('');
 }
 
-function showCreateForm() {
+function showCreateDialog() {
     editingTagId = null;
-    elements.formTitle.textContent = 'Create Tag';
+    elements.tagEditModalLabel.textContent = 'Create Tag';
     elements.tagId.value = '';
     elements.tagName.value = '';
     clearValidationError();
-    elements.tagForm.style.display = 'block';
-    elements.tagName.focus();
+    tagEditModal.show();
 }
 
 function editTag(id) {
@@ -93,19 +96,15 @@ function editTag(id) {
     if (!tag) return;
 
     editingTagId = id;
-    elements.formTitle.textContent = 'Edit Tag';
+    elements.tagEditModalLabel.textContent = 'Edit Tag';
     elements.tagId.value = id;
     elements.tagName.value = tag.name;
     clearValidationError();
-    elements.tagForm.style.display = 'block';
-    elements.tagName.focus();
-    elements.tagName.select();
+    tagEditModal.show();
 }
 
-function hideForm() {
-    elements.tagForm.style.display = 'none';
-    editingTagId = null;
-    clearValidationError();
+function hideTagEditDialog() {
+    tagEditModal.hide();
 }
 
 async function handleSaveTag(event) {
@@ -129,7 +128,7 @@ async function handleSaveTag(event) {
             success('Tag created successfully.');
         }
 
-        hideForm();
+        hideTagEditDialog();
         await loadTags();
         
     } catch (err) {
@@ -178,6 +177,22 @@ function clearValidationError() {
     elements.tagName.classList.remove('is-invalid');
     elements.tagName.removeAttribute('aria-invalid');
     elements.tagNameError.textContent = '';
+}
+
+function focusTagNameInput() {
+    elements.tagName.focus();
+
+    if (editingTagId) {
+        elements.tagName.select();
+    }
+}
+
+function resetTagEditState() {
+    editingTagId = null;
+    elements.tagEditForm.reset();
+    elements.tagId.value = '';
+    elements.tagEditModalLabel.textContent = 'Create Tag';
+    clearValidationError();
 }
 
 function showDeleteConfirmation(id, name) {
