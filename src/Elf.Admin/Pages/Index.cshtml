@@ -12,6 +12,23 @@
         <fluent-button id="refreshBtn" title="Refresh links">
             <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
         </fluent-button>
+        <div class="toolbar-selection-actions" aria-label="Selected link actions">
+            <fluent-button id="reportActionBtn" title="View report" disabled>
+                <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+            </fluent-button>
+            <fluent-button id="qrActionBtn" title="Show QR Code" disabled>
+                <i class="bi bi-qr-code" aria-hidden="true"></i>
+            </fluent-button>
+            <fluent-button id="copyActionBtn" title="Copy link URL" disabled>
+                <i class="bi bi-clipboard" aria-hidden="true"></i>
+            </fluent-button>
+            <fluent-button id="editActionBtn" title="Edit link" disabled>
+                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+            </fluent-button>
+            <fluent-button id="deleteActionBtn" class="danger-action" title="Delete link" disabled>
+                <i class="bi bi-trash" aria-hidden="true"></i>
+            </fluent-button>
+        </div>
     </div>
     <div class="command-filters">
         <div class="command-group search-group">
@@ -74,7 +91,6 @@
                     <th scope="col" class="column-ttl">TTL</th>
                     <th scope="col" class="column-hits">Hits</th>
                     <th scope="col" class="column-updated">Updated</th>
-                    <th scope="col" class="column-actions">Actions</th>
                 </tr>
             </thead>
             <tbody id="linksData"></tbody>

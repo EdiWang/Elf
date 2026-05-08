@@ -7,7 +7,8 @@ export let state = {
     searchMode: 'text', // 'text' or 'tags'
     totalRows: 0,
     linkToDelete: null,
-    editingLinkId: null
+    editingLinkId: null,
+    selectedLink: null
 };
 
 export function updateState(updates) {

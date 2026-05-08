@@ -1,4 +1,4 @@
-import { loadLinks } from './index.links.mjs';
+import { loadLinks, setupToolbarActionEventListeners } from './index.links.mjs';
 import { setupSearchEventListeners } from './index.search.mjs';
 import { setupDeleteEventListeners } from './index.delete.mjs';
 import { setupRefreshEventListeners } from './index.refresh.mjs';
@@ -17,4 +17,5 @@ function setupEventListeners() {
     setupRefreshEventListeners();
     setupLinkEditEventListeners();
     setupTagSearchEventListeners();
+    setupToolbarActionEventListeners();
 }

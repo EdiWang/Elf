@@ -316,11 +316,25 @@ main {
 .command-actions {
     align-self: center;
     justify-content: flex-start;
-    white-space: nowrap;
+    flex-wrap: wrap;
+    white-space: normal;
 }
 
 .command-actions fluent-button[appearance="primary"] {
     min-width: 86px;
+}
+
+.toolbar-selection-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 4px;
+    padding-left: 12px;
+    border-left: 1px solid var(--border-subtle);
+}
+
+.toolbar-selection-actions fluent-button {
+    flex: 0 0 auto;
 }
 
 .page-actions {
@@ -549,7 +563,7 @@ main {
 }
 
 .links-data-table {
-    min-width: 1180px;
+    min-width: 980px;
 }
 
     .links-data-table th,
@@ -558,47 +572,55 @@ main {
     }
 
     .links-data-table .column-token {
-        width: 96px;
+        width: 110px;
     }
 
     .links-data-table .column-aka {
-        width: 92px;
+        width: 96px;
     }
 
     .links-data-table .column-url {
-        width: 19%;
+        width: 23%;
     }
 
     .links-data-table .column-note {
-        width: 14%;
+        width: 18%;
     }
 
     .links-data-table .column-tags {
-        width: 176px;
+        width: 190px;
     }
 
     .links-data-table .column-status {
-        width: 92px;
+        width: 96px;
     }
 
     .links-data-table .column-ttl {
-        width: 60px;
+        width: 64px;
     }
 
     .links-data-table .column-hits {
-        width: 60px;
+        width: 62px;
     }
 
     .links-data-table .column-updated {
-        width: 104px;
-    }
-
-    .links-data-table .column-actions {
-        width: 200px;
+        width: 108px;
     }
 
 .link-table-row td {
     vertical-align: middle;
+}
+
+.link-table-row {
+    cursor: pointer;
+}
+
+.link-table-row.is-selected td {
+    background: #edf5fd;
+}
+
+.link-table-row.is-selected:hover td {
+    background: #e5f1fc;
 }
 
 .token-cell, .aka-cell, .date-cell, .tag-list {
@@ -612,8 +634,7 @@ main {
 .aka-cell,
 .status-cell,
 .metric-cell,
-.date-cell,
-.actions-cell {
+.date-cell {
     white-space: nowrap;
 }
 
@@ -642,27 +663,6 @@ main {
     align-items: center;
     gap: 4px;
     color: var(--text-muted);
-}
-
-.row-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 4px;
-    min-width: 176px;
-}
-
-.row-actions fluent-button {
-    flex: 0 0 auto;
-}
-
-.actions-cell {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-}
-
-.row-actions fluent-button::part(control) {
-    min-width: 32px;
-    padding-inline: 6px;
 }
 
 .danger-action::part(control) {
@@ -941,6 +941,12 @@ main {
 @media (max-width: 1180px) {
     .command-bar, .date-command-bar, .form-grid.two-one, .form-grid.two-even {
         grid-template-columns: 1fr;
+    }
+
+    .toolbar-selection-actions {
+        margin-left: 0;
+        padding-left: 0;
+        border-left: 0;
     }
 
     .command-filters {
