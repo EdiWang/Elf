@@ -1,0 +1,177 @@
+import { __decorate } from "tslib";
+import { attr, FASTElement, Observable, observable } from '@microsoft/fast-element';
+import { waitForConnectedDescendants } from '../utils/request-idle-callback.js';
+import { isAccordionItem } from '../accordion-item/accordion-item.options.js';
+import { AccordionExpandMode } from './accordion.options.js';
+/**
+ * An Accordion Custom HTML Element
+ * Implements {@link https://www.w3.org/TR/wai-aria-practices-1.1/#accordion | ARIA Accordion}.
+ *
+ * @tag fluent-accordion
+ *
+ * @slot - The default slot for the accordion items
+ * @fires change - Fires a custom 'change' event when the active item changes
+ *
+ * @public
+ */
+export class Accordion extends FASTElement {
+    constructor() {
+        super(...arguments);
+        /**
+         * Guard flag to prevent re-entrant calls to setSingleExpandMode.
+         * @internal
+         */
+        this._isAdjusting = false;
+        this.activeItemIndex = 0;
+        /**
+         * Resets event listeners and sets the `accordionItems` property
+         * then rebinds event listeners to each non-disabled item
+         */
+        this.setItems = () => {
+            waitForConnectedDescendants(this, () => {
+                if (this.slottedAccordionItems.length === 0) {
+                    return;
+                }
+                // Get all existing children and remove event listeners
+                const children = Array.from(this.children);
+                this.removeItemListeners(children);
+                // Resubscribe to the `disabled` attribute of all children
+                children.forEach((child) => Observable.getNotifier(child).subscribe(this, 'disabled'));
+                // Add event listeners to each non-disabled AccordionItem
+                this.accordionItems = children.filter(child => !child.hasAttribute('disabled'));
+                this.accordionItems.forEach((item, index) => {
+                    item.addEventListener('click', this.expandedChangedHandler);
+                    // Subscribe to the expanded attribute of the item
+                    Observable.getNotifier(item).subscribe(this, 'expanded');
+                });
+                if (this.isSingleExpandMode()) {
+                    const expandedItem = this.findExpandedItem();
+                    this.setSingleExpandMode(expandedItem);
+                }
+            });
+        };
+        /**
+         * Removes event listeners from the previous accordion items
+         * @param oldValue - An array of the previous accordion items
+         */
+        this.removeItemListeners = (oldValue) => {
+            oldValue.forEach((item, index) => {
+                Observable.getNotifier(item).unsubscribe(this, 'disabled');
+                Observable.getNotifier(item).unsubscribe(this, 'expanded');
+                item.removeEventListener('click', this.expandedChangedHandler);
+            });
+        };
+        /**
+         * Changes the expanded state of the accordion item
+         * @param evt - Click event
+         * @returns
+         */
+        this.expandedChangedHandler = (evt) => {
+            const item = evt.target;
+            if (isAccordionItem(item)) {
+                if (!this.isSingleExpandMode()) {
+                    item.expanded = !item.expanded;
+                    // setSingleExpandMode sets activeItemIndex on its own
+                    this.activeItemIndex = this.accordionItems.indexOf(item);
+                }
+                else {
+                    this.setSingleExpandMode(item);
+                }
+                this.$emit('change');
+            }
+        };
+    }
+    expandmodeChanged(prev, next) {
+        if (!this.$fastController.isConnected) {
+            return;
+        }
+        const expandedItem = this.findExpandedItem();
+        if (!expandedItem) {
+            return;
+        }
+        if (next === AccordionExpandMode.single) {
+            this.setSingleExpandMode(expandedItem);
+            return;
+        }
+        // Clean up single expand mode behavior
+        expandedItem?.expandbutton?.removeAttribute('aria-disabled');
+    }
+    /**
+     * @internal
+     */
+    slottedAccordionItemsChanged(oldValue, newValue) {
+        this.setItems();
+    }
+    /**
+     * Watch for changes to the slotted accordion items `disabled` and `expanded` attributes
+     * @internal
+     */
+    handleChange(source, propertyName) {
+        if (propertyName === 'disabled') {
+            this.setItems();
+        }
+        else if (propertyName === 'expanded') {
+            // we only need to manage single expanded instances
+            // such as scenarios where a child is programatically expanded
+            if (source.expanded && this.isSingleExpandMode() && !this._isAdjusting) {
+                this._isAdjusting = true;
+                this.setSingleExpandMode(source);
+                this._isAdjusting = false;
+            }
+        }
+    }
+    /**
+     * Find the first expanded item in the accordion
+     */
+    findExpandedItem() {
+        if (!this.accordionItems || this.accordionItems?.length === 0) {
+            return null;
+        }
+        return (this.accordionItems.find((item) => isAccordionItem(item) && item.expanded) ??
+            this.accordionItems[0]);
+    }
+    /**
+     * Checks if the accordion is in single expand mode
+     * @returns true if the accordion is in single expand mode.
+     */
+    isSingleExpandMode() {
+        return this.expandmode === AccordionExpandMode.single;
+    }
+    /**
+     * Controls the behavior of the accordion in single expand mode
+     * @param expandedItem - The item to expand in single expand mode
+     */
+    setSingleExpandMode(expandedItem) {
+        if (this.accordionItems.length === 0) {
+            return;
+        }
+        const currentItems = Array.from(this.accordionItems);
+        this.activeItemIndex = currentItems.indexOf(expandedItem);
+        currentItems.forEach((item, index) => {
+            if (isAccordionItem(item)) {
+                if (this.activeItemIndex === index) {
+                    item.expanded = true;
+                    item.expandbutton?.setAttribute('aria-disabled', 'true');
+                }
+                else {
+                    item.expanded = false;
+                    if (!item.hasAttribute('disabled')) {
+                        item.expandbutton?.removeAttribute('aria-disabled');
+                    }
+                }
+            }
+        });
+    }
+    connectedCallback() {
+        super.connectedCallback();
+        this.expandmode = this.expandmode || AccordionExpandMode.multi;
+        this.setItems();
+    }
+}
+__decorate([
+    attr({ attribute: 'expand-mode' })
+], Accordion.prototype, "expandmode", void 0);
+__decorate([
+    observable
+], Accordion.prototype, "slottedAccordionItems", void 0);
+//# sourceMappingURL=accordion.js.map

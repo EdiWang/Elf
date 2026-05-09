@@ -1,4 +1,4 @@
-﻿import { setTheme } from 'https://unpkg.com/@fluentui/web-components@3.0.0-rc.17/dist/web-components.min.js';
+﻿import { setTheme } from '/lib/fluentui/web-components/dist/web-components.min.js';
 import { webLightTheme } from '/lib/fluentui/tokens/lib/index.js';
 
 setTheme(webLightTheme);

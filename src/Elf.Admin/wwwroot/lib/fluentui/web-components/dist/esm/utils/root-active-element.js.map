@@ -1,0 +1,1 @@
+{"version":3,"file":"root-active-element.js","sourceRoot":"","sources":["../../../src/utils/root-active-element.ts"],"names":[],"mappings":"AAAA,+EAA+E;AAC/E,MAAM,UAAU,oBAAoB,CAAC,OAAgB;IACnD,MAAM,QAAQ,GAAG,OAAO,CAAC,WAAW,EAAE,CAAC;IAEvC,IAAI,QAAQ,YAAY,UAAU,EAAE,CAAC;QACnC,OAAO,QAAQ,CAAC,aAAa,CAAC;IAChC,CAAC;IAED,OAAO,QAAQ,CAAC,aAAa,CAAC;AAChC,CAAC"}

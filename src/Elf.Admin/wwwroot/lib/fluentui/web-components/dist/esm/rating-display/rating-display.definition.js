@@ -1,0 +1,17 @@
+import { tagName } from './rating-display.options.js';
+import { RatingDisplay } from './rating-display.js';
+import { styles } from './rating-display.styles.js';
+import { template } from './rating-display.template.js';
+/**
+ * The definition for the Fluent Rating Display component.
+ *
+ * @public
+ * @remarks
+ * HTML Element: `<fluent-rating-display>`
+ */
+export const definition = RatingDisplay.compose({
+    name: tagName,
+    template,
+    styles,
+});
+//# sourceMappingURL=rating-display.definition.js.map

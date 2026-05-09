@@ -1,0 +1,50 @@
+import { FluentDesignSystem } from '../fluent-design-system.js';
+import { ButtonAppearance, ButtonShape, ButtonSize } from '../button/button.options.js';
+/**
+ * Anchor Button Appearance constants
+ * @public
+ */
+export const AnchorButtonAppearance = ButtonAppearance;
+/**
+ * An Anchor Button can be square, circular or rounded.
+ * @public
+ */
+export const AnchorButtonShape = ButtonShape;
+/**
+ * An Anchor Button can be a size of small, medium or large.
+ * @public
+ */
+export const AnchorButtonSize = ButtonSize;
+/**
+ * Anchor target values.
+ *
+ * @public
+ */
+export const AnchorTarget = {
+    _self: '_self',
+    _blank: '_blank',
+    _parent: '_parent',
+    _top: '_top',
+};
+/**
+ * Reflected anchor attributes.
+ *
+ * @public
+ */
+export const AnchorAttributes = {
+    download: 'download',
+    href: 'href',
+    hreflang: 'hreflang',
+    ping: 'ping',
+    referrerpolicy: 'referrerpolicy',
+    rel: 'rel',
+    target: 'target',
+    type: 'type',
+};
+/**
+ * The tag name for the anchor button element.
+ *
+ * @public
+ */
+export const tagName = `${FluentDesignSystem.prefix}-anchor-button`;
+//# sourceMappingURL=anchor-button.options.js.map

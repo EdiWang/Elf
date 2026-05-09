@@ -1,0 +1,17 @@
+import { tagName } from './checkbox.options.js';
+import { Checkbox } from './checkbox.js';
+import { styles } from './checkbox.styles.js';
+import { template } from './checkbox.template.js';
+/**
+ * The Fluent Checkbox Element
+ *
+ * @public
+ * @remarks
+ * HTML Element: \<fluent-checkbox\>
+ */
+export const definition = Checkbox.compose({
+    name: tagName,
+    template,
+    styles,
+});
+//# sourceMappingURL=checkbox.definition.js.map

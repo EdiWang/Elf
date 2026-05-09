@@ -1,0 +1,15 @@
+import type { StaticallyComposableHTML } from '../utils/template-helpers.js';
+import { BaseCheckbox } from '../checkbox/checkbox.base.js';
+export type SwitchOptions = {
+    switch?: StaticallyComposableHTML<Switch>;
+};
+/**
+ * A Switch Custom HTML Element.
+ * Based on BaseCheckbox and includes style and layout specific attributes
+ *
+ * @tag fluent-switch
+ *
+ */
+export declare class Switch extends BaseCheckbox {
+    constructor();
+}

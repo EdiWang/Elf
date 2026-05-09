@@ -5,6 +5,10 @@
     {
       "library": "@fluentui/tokens@1.0.0-alpha.23",
       "destination": "wwwroot/lib/fluentui/tokens/"
+    },
+    {
+      "library": "@fluentui/web-components@3.0.0-rc.17",
+      "destination": "wwwroot/lib/fluentui/web-components/"
     }
   ]
 }

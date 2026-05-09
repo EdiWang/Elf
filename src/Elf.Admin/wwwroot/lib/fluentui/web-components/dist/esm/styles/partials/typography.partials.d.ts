@@ -1,0 +1,18 @@
+import { CSSDirective } from '@microsoft/fast-element';
+export declare const typographyBody1Styles: CSSDirective;
+export declare const typographyBody1StrongStyles: CSSDirective;
+export declare const typographyBody1StrongerStyles: CSSDirective;
+export declare const typographyBody2Styles: CSSDirective;
+export declare const typographyCaption1Styles: CSSDirective;
+export declare const typographyCaption1StrongStyles: CSSDirective;
+export declare const typographyCaption1StrongerStyles: CSSDirective;
+export declare const typographyCaption2Styles: CSSDirective;
+export declare const typographyCaption2StrongStyles: CSSDirective;
+export declare const typographySubtitle1Styles: CSSDirective;
+export declare const typographySubtitle2Styles: CSSDirective;
+export declare const typographySubtitle2StrongerStyles: CSSDirective;
+export declare const typographyTitle1Styles: CSSDirective;
+export declare const typographyTitle2Styles: CSSDirective;
+export declare const typographyTitle3Styles: CSSDirective;
+export declare const typographyLargeTitleStyles: CSSDirective;
+export declare const typographyDisplayStyles: CSSDirective;
