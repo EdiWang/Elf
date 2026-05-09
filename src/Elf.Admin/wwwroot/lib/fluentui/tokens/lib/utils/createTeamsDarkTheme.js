@@ -1,0 +1,27 @@
+import { colorPaletteTokens, colorStatusTokens } from "../alias/darkColorPalette.js";
+import { generateColorTokens } from "../alias/teamsDarkColor.js";
+import { borderRadius, fontSizes, lineHeights, fontFamilies, strokeWidths, fontWeights } from "../global/index.js";
+import { createShadowTokens } from "./shadows.js";
+import { durations } from "../global/durations.js";
+import { curves } from "../global/curves.js";
+import { horizontalSpacings, verticalSpacings } from "../global/spacings.js";
+export const createTeamsDarkTheme = (brand)=>{
+    const colorTokens = generateColorTokens(brand);
+    return {
+        ...borderRadius,
+        ...fontSizes,
+        ...lineHeights,
+        ...fontFamilies,
+        ...fontWeights,
+        ...strokeWidths,
+        ...horizontalSpacings,
+        ...verticalSpacings,
+        ...durations,
+        ...curves,
+        ...colorTokens,
+        ...colorPaletteTokens,
+        ...colorStatusTokens,
+        ...createShadowTokens(colorTokens.colorNeutralShadowAmbient, colorTokens.colorNeutralShadowKey),
+        ...createShadowTokens(colorTokens.colorBrandShadowAmbient, colorTokens.colorBrandShadowKey, 'Brand')
+    };
+};

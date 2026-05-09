@@ -1,0 +1,10 @@
+{
+  "version": "3.0",
+  "defaultProvider": "unpkg",
+  "libraries": [
+    {
+      "library": "@fluentui/tokens@1.0.0-alpha.23",
+      "destination": "wwwroot/lib/fluentui/tokens/"
+    }
+  ]
+}

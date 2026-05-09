@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/themes/web/index.ts"],"sourcesContent":["export { webLightTheme } from './lightTheme';\nexport { webDarkTheme } from './darkTheme';\n"],"names":["webDarkTheme","webLightTheme"],"mappings":";;;;;;;;;;;IACSA,YAAY;eAAZA,uBAAY;;IADZC,aAAa;eAAbA,yBAAa;;;4BAAQ;2BACD"}
