@@ -40,7 +40,7 @@ export { BaseTextArea, TextArea, TextAreaAppearance, TextAreaAppearancesForDispl
 export { BaseTextInput, TextInput, TextInputAppearance, TextInputControlSize, TextInputDefinition, TextInputStyles, TextInputTemplate, TextInputType, } from './text-input/index.js';
 export { Text, TextAlign, TextDefinition, TextFont, TextSize, TextStyles, TextTemplate, TextWeight, } from './text/index.js';
 export * from './theme/design-tokens.js';
-export { setTheme, setThemeFor } from './theme/index.js';
+export { setTheme } from './theme/index.js';
 export { ToggleButton, ToggleButtonAppearance, ToggleButtonDefinition, ToggleButtonShape, ToggleButtonSize, ToggleButtonStyles, ToggleButtonTemplate, } from './toggle-button/index.js';
 export { Tooltip, TooltipDefinition, TooltipPositioningOption, TooltipStyles, TooltipTemplate, } from './tooltip/index.js';
 export { BaseTree, Tree, TreeDefinition, TreeTemplate, TreeStyles } from './tree/index.js';

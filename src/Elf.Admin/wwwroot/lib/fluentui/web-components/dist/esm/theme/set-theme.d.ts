@@ -22,8 +22,3 @@ export type Theme = Record<string, string | number>;
  * @public
  */
 export declare function setTheme(theme: Theme | null, node?: Document | HTMLElement): void;
-/**
- * @internal
- * @deprecated Use `setTheme(theme, element)` instead.
- */
-export declare function setThemeFor(element: HTMLElement, theme: Theme | null): void;

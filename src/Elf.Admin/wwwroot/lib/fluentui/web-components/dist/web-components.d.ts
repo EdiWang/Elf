@@ -9408,12 +9408,6 @@ export declare const roleForMenuItem: {
 export declare function setTheme(theme: Theme | null, node?: Document | HTMLElement): void;
 
 /**
- * @internal
- * @deprecated Use `setTheme(theme, element)` instead.
- */
-export declare function setThemeFor(element: HTMLElement, theme: Theme | null): void;
-
-/**
  * CSS custom property value for the {@link @fluentui/tokens#shadow16 | `shadow16`} design token.
  * @public
  */

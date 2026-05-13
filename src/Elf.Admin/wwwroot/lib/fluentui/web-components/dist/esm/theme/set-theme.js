@@ -180,11 +180,4 @@ function forceRepaint(element) {
     Updates.process();
     element.style.setProperty(name, currentValue);
 }
-/**
- * @internal
- * @deprecated Use `setTheme(theme, element)` instead.
- */
-export function setThemeFor(element, theme) {
-    setThemePropertiesOnElement(theme, element);
-}
 //# sourceMappingURL=set-theme.js.map

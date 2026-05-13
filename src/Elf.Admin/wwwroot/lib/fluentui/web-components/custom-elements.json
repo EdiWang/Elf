@@ -27954,6 +27954,12 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/define-all.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/theme/set-theme.ts",
       "declarations": [
         {
@@ -27993,18 +27999,24 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/index-rollup.ts",
+      "path": "src/index-all-rollup.ts",
       "declarations": [],
       "exports": [
         {
           "kind": "js",
-          "name": "setTheme",
+          "name": "*",
           "declaration": {
-            "name": "setTheme",
-            "module": "./theme/set-theme.js"
+            "name": "*",
+            "module": "src/index.js"
           }
         }
       ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/index-rollup.ts",
+      "declarations": [],
+      "exports": []
     },
     {
       "kind": "javascript-module",

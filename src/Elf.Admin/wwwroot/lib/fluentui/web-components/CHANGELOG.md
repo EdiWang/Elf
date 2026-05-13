@@ -1,12 +1,21 @@
 # Change Log - @fluentui/web-components
 
-This log was last generated on Wed, 06 May 2026 19:08:27 GMT and should not be manually modified.
+This log was last generated on Mon, 11 May 2026 04:08:54 GMT and should not be manually modified.
 
 <!-- Start content -->
 
+## [3.0.0-rc.18](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.18)
+
+Mon, 11 May 2026 04:08:54 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.17..@fluentui/web-components_v3.0.0-rc.18)
+
+### Changes
+
+- fix: migrate to esbuild for CDN bundle, enable setTheme on globalThis ([PR #36113](https://github.com/microsoft/fluentui/pull/36113) by 13071055+chrisdholt@users.noreply.github.com)
+
 ## [3.0.0-rc.17](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.17)
 
-Wed, 06 May 2026 19:08:27 GMT 
+Wed, 06 May 2026 19:08:42 GMT 
 [Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.16..@fluentui/web-components_v3.0.0-rc.17)
 
 ### Changes

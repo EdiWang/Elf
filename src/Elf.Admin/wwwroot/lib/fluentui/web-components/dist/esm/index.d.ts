@@ -50,7 +50,7 @@ export { BaseTextInput, TextInput, TextInputAppearance, TextInputControlSize, Te
 export type { TextInputOptions } from './text-input/index.js';
 export { Text, TextAlign, TextDefinition, TextFont, TextSize, TextStyles, TextTemplate, TextWeight, } from './text/index.js';
 export * from './theme/design-tokens.js';
-export { setTheme, setThemeFor, type Theme } from './theme/index.js';
+export { setTheme, type Theme } from './theme/index.js';
 export { ToggleButton, ToggleButtonAppearance, ToggleButtonDefinition, ToggleButtonShape, ToggleButtonSize, ToggleButtonStyles, ToggleButtonTemplate, } from './toggle-button/index.js';
 export type { ToggleButtonOptions } from './toggle-button/index.js';
 export { Tooltip, TooltipDefinition, TooltipPositioningOption, TooltipStyles, TooltipTemplate, } from './tooltip/index.js';

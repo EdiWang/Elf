@@ -16,6 +16,16 @@ function isHTMLElement(...args) {
   return args.every((arg) => arg instanceof HTMLElement);
 }
 
+const AccordionItemSize = {
+  small: "small",
+  medium: "medium",
+  large: "large",
+  extraLarge: "extra-large"
+};
+const AccordionItemMarkerPosition = {
+  start: "start",
+  end: "end"
+};
 function isAccordionItem(element, tagName2 = "-accordion-item") {
   return isCustomElement(tagName2)(element);
 }
@@ -4145,6 +4155,7 @@ function display(displayValue) {
 const colorNeutralForeground1 = "var(--colorNeutralForeground1)";
 const colorNeutralForeground1Hover = "var(--colorNeutralForeground1Hover)";
 const colorNeutralForeground1Pressed = "var(--colorNeutralForeground1Pressed)";
+const colorNeutralForeground1Selected = "var(--colorNeutralForeground1Selected)";
 const colorNeutralForeground2 = "var(--colorNeutralForeground2)";
 const colorNeutralForeground2Hover = "var(--colorNeutralForeground2Hover)";
 const colorNeutralForeground2Pressed = "var(--colorNeutralForeground2Pressed)";
@@ -4156,33 +4167,83 @@ const colorNeutralForeground3 = "var(--colorNeutralForeground3)";
 const colorNeutralForeground3Hover = "var(--colorNeutralForeground3Hover)";
 const colorNeutralForeground3Pressed = "var(--colorNeutralForeground3Pressed)";
 const colorNeutralForeground3Selected = "var(--colorNeutralForeground3Selected)";
+const colorNeutralForeground3BrandHover = "var(--colorNeutralForeground3BrandHover)";
+const colorNeutralForeground3BrandPressed = "var(--colorNeutralForeground3BrandPressed)";
+const colorNeutralForeground3BrandSelected = "var(--colorNeutralForeground3BrandSelected)";
 const colorNeutralForeground4 = "var(--colorNeutralForeground4)";
+const colorNeutralForeground5 = "var(--colorNeutralForeground5)";
+const colorNeutralForeground5Hover = "var(--colorNeutralForeground5Hover)";
+const colorNeutralForeground5Pressed = "var(--colorNeutralForeground5Pressed)";
+const colorNeutralForeground5Selected = "var(--colorNeutralForeground5Selected)";
 const colorNeutralForegroundDisabled = "var(--colorNeutralForegroundDisabled)";
 const colorBrandForegroundLink = "var(--colorBrandForegroundLink)";
 const colorBrandForegroundLinkHover = "var(--colorBrandForegroundLinkHover)";
 const colorBrandForegroundLinkPressed = "var(--colorBrandForegroundLinkPressed)";
+const colorBrandForegroundLinkSelected = "var(--colorBrandForegroundLinkSelected)";
 const colorNeutralForeground2Link = "var(--colorNeutralForeground2Link)";
 const colorNeutralForeground2LinkHover = "var(--colorNeutralForeground2LinkHover)";
 const colorNeutralForeground2LinkPressed = "var(--colorNeutralForeground2LinkPressed)";
+const colorNeutralForeground2LinkSelected = "var(--colorNeutralForeground2LinkSelected)";
+const colorCompoundBrandForeground1 = "var(--colorCompoundBrandForeground1)";
 const colorCompoundBrandForeground1Hover = "var(--colorCompoundBrandForeground1Hover)";
 const colorCompoundBrandForeground1Pressed = "var(--colorCompoundBrandForeground1Pressed)";
 const colorNeutralForegroundOnBrand = "var(--colorNeutralForegroundOnBrand)";
 const colorNeutralForegroundInverted = "var(--colorNeutralForegroundInverted)";
 const colorNeutralForegroundInvertedHover = "var(--colorNeutralForegroundInvertedHover)";
 const colorNeutralForegroundInvertedPressed = "var(--colorNeutralForegroundInvertedPressed)";
+const colorNeutralForegroundInvertedSelected = "var(--colorNeutralForegroundInvertedSelected)";
+const colorNeutralForegroundInverted2 = "var(--colorNeutralForegroundInverted2)";
 const colorNeutralForegroundStaticInverted = "var(--colorNeutralForegroundStaticInverted)";
+const colorNeutralForegroundInvertedLink = "var(--colorNeutralForegroundInvertedLink)";
+const colorNeutralForegroundInvertedLinkHover = "var(--colorNeutralForegroundInvertedLinkHover)";
+const colorNeutralForegroundInvertedLinkPressed = "var(--colorNeutralForegroundInvertedLinkPressed)";
+const colorNeutralForegroundInvertedLinkSelected = "var(--colorNeutralForegroundInvertedLinkSelected)";
+const colorNeutralForegroundInvertedDisabled = "var(--colorNeutralForegroundInvertedDisabled)";
 const colorBrandForeground1 = "var(--colorBrandForeground1)";
 const colorBrandForeground2 = "var(--colorBrandForeground2)";
+const colorBrandForeground2Hover = "var(--colorBrandForeground2Hover)";
+const colorBrandForeground2Pressed = "var(--colorBrandForeground2Pressed)";
 const colorNeutralForeground1Static = "var(--colorNeutralForeground1Static)";
+const colorBrandForegroundInverted = "var(--colorBrandForegroundInverted)";
+const colorBrandForegroundInvertedHover = "var(--colorBrandForegroundInvertedHover)";
+const colorBrandForegroundInvertedPressed = "var(--colorBrandForegroundInvertedPressed)";
+const colorBrandForegroundOnLight = "var(--colorBrandForegroundOnLight)";
+const colorBrandForegroundOnLightHover = "var(--colorBrandForegroundOnLightHover)";
+const colorBrandForegroundOnLightPressed = "var(--colorBrandForegroundOnLightPressed)";
+const colorBrandForegroundOnLightSelected = "var(--colorBrandForegroundOnLightSelected)";
 const colorNeutralBackground1 = "var(--colorNeutralBackground1)";
 const colorNeutralBackground1Hover = "var(--colorNeutralBackground1Hover)";
 const colorNeutralBackground1Pressed = "var(--colorNeutralBackground1Pressed)";
 const colorNeutralBackground1Selected = "var(--colorNeutralBackground1Selected)";
+const colorNeutralBackground2 = "var(--colorNeutralBackground2)";
+const colorNeutralBackground2Hover = "var(--colorNeutralBackground2Hover)";
+const colorNeutralBackground2Pressed = "var(--colorNeutralBackground2Pressed)";
+const colorNeutralBackground2Selected = "var(--colorNeutralBackground2Selected)";
 const colorNeutralBackground3 = "var(--colorNeutralBackground3)";
+const colorNeutralBackground3Hover = "var(--colorNeutralBackground3Hover)";
+const colorNeutralBackground3Pressed = "var(--colorNeutralBackground3Pressed)";
+const colorNeutralBackground3Selected = "var(--colorNeutralBackground3Selected)";
 const colorNeutralBackground4 = "var(--colorNeutralBackground4)";
+const colorNeutralBackground4Hover = "var(--colorNeutralBackground4Hover)";
+const colorNeutralBackground4Pressed = "var(--colorNeutralBackground4Pressed)";
+const colorNeutralBackground4Selected = "var(--colorNeutralBackground4Selected)";
 const colorNeutralBackground5 = "var(--colorNeutralBackground5)";
+const colorNeutralBackground5Hover = "var(--colorNeutralBackground5Hover)";
+const colorNeutralBackground5Pressed = "var(--colorNeutralBackground5Pressed)";
+const colorNeutralBackground5Selected = "var(--colorNeutralBackground5Selected)";
 const colorNeutralBackground6 = "var(--colorNeutralBackground6)";
+const colorNeutralBackground7 = "var(--colorNeutralBackground7)";
+const colorNeutralBackground7Hover = "var(--colorNeutralBackground7Hover)";
+const colorNeutralBackground7Pressed = "var(--colorNeutralBackground7Pressed)";
+const colorNeutralBackground7Selected = "var(--colorNeutralBackground7Selected)";
+const colorNeutralBackground8 = "var(--colorNeutralBackground8)";
 const colorNeutralBackgroundInverted = "var(--colorNeutralBackgroundInverted)";
+const colorNeutralBackgroundInvertedHover = "var(--colorNeutralBackgroundInvertedHover)";
+const colorNeutralBackgroundInvertedPressed = "var(--colorNeutralBackgroundInvertedPressed)";
+const colorNeutralBackgroundInvertedSelected = "var(--colorNeutralBackgroundInvertedSelected)";
+const colorNeutralBackgroundStatic = "var(--colorNeutralBackgroundStatic)";
+const colorNeutralBackgroundAlpha = "var(--colorNeutralBackgroundAlpha)";
+const colorNeutralBackgroundAlpha2 = "var(--colorNeutralBackgroundAlpha2)";
 const colorSubtleBackground = "var(--colorSubtleBackground)";
 const colorSubtleBackgroundHover = "var(--colorSubtleBackgroundHover)";
 const colorSubtleBackgroundPressed = "var(--colorSubtleBackgroundPressed)";
@@ -4190,12 +4251,23 @@ const colorSubtleBackgroundSelected = "var(--colorSubtleBackgroundSelected)";
 const colorSubtleBackgroundLightAlphaHover = "var(--colorSubtleBackgroundLightAlphaHover)";
 const colorSubtleBackgroundLightAlphaPressed = "var(--colorSubtleBackgroundLightAlphaPressed)";
 const colorSubtleBackgroundLightAlphaSelected = "var(--colorSubtleBackgroundLightAlphaSelected)";
+const colorSubtleBackgroundInverted = "var(--colorSubtleBackgroundInverted)";
+const colorSubtleBackgroundInvertedHover = "var(--colorSubtleBackgroundInvertedHover)";
+const colorSubtleBackgroundInvertedPressed = "var(--colorSubtleBackgroundInvertedPressed)";
+const colorSubtleBackgroundInvertedSelected = "var(--colorSubtleBackgroundInvertedSelected)";
 const colorTransparentBackground = "var(--colorTransparentBackground)";
 const colorTransparentBackgroundHover = "var(--colorTransparentBackgroundHover)";
 const colorTransparentBackgroundPressed = "var(--colorTransparentBackgroundPressed)";
 const colorTransparentBackgroundSelected = "var(--colorTransparentBackgroundSelected)";
 const colorNeutralBackgroundDisabled = "var(--colorNeutralBackgroundDisabled)";
+const colorNeutralBackgroundDisabled2 = "var(--colorNeutralBackgroundDisabled2)";
+const colorNeutralBackgroundInvertedDisabled = "var(--colorNeutralBackgroundInvertedDisabled)";
+const colorNeutralStencil1 = "var(--colorNeutralStencil1)";
+const colorNeutralStencil2 = "var(--colorNeutralStencil2)";
+const colorNeutralStencil1Alpha = "var(--colorNeutralStencil1Alpha)";
+const colorNeutralStencil2Alpha = "var(--colorNeutralStencil2Alpha)";
 const colorBackgroundOverlay = "var(--colorBackgroundOverlay)";
+const colorScrollbarOverlay = "var(--colorScrollbarOverlay)";
 const colorBrandBackground = "var(--colorBrandBackground)";
 const colorBrandBackgroundHover = "var(--colorBrandBackgroundHover)";
 const colorBrandBackgroundPressed = "var(--colorBrandBackgroundPressed)";
@@ -4205,115 +4277,257 @@ const colorCompoundBrandBackgroundHover = "var(--colorCompoundBrandBackgroundHov
 const colorCompoundBrandBackgroundPressed = "var(--colorCompoundBrandBackgroundPressed)";
 const colorBrandBackgroundStatic = "var(--colorBrandBackgroundStatic)";
 const colorBrandBackground2 = "var(--colorBrandBackground2)";
+const colorBrandBackground2Hover = "var(--colorBrandBackground2Hover)";
+const colorBrandBackground2Pressed = "var(--colorBrandBackground2Pressed)";
+const colorBrandBackground3Static = "var(--colorBrandBackground3Static)";
+const colorBrandBackground4Static = "var(--colorBrandBackground4Static)";
+const colorBrandBackgroundInverted = "var(--colorBrandBackgroundInverted)";
+const colorBrandBackgroundInvertedHover = "var(--colorBrandBackgroundInvertedHover)";
+const colorBrandBackgroundInvertedPressed = "var(--colorBrandBackgroundInvertedPressed)";
+const colorBrandBackgroundInvertedSelected = "var(--colorBrandBackgroundInvertedSelected)";
+const colorNeutralCardBackground = "var(--colorNeutralCardBackground)";
+const colorNeutralCardBackgroundHover = "var(--colorNeutralCardBackgroundHover)";
+const colorNeutralCardBackgroundPressed = "var(--colorNeutralCardBackgroundPressed)";
+const colorNeutralCardBackgroundSelected = "var(--colorNeutralCardBackgroundSelected)";
+const colorNeutralCardBackgroundDisabled = "var(--colorNeutralCardBackgroundDisabled)";
 const colorNeutralStrokeAccessible = "var(--colorNeutralStrokeAccessible)";
 const colorNeutralStrokeAccessibleHover = "var(--colorNeutralStrokeAccessibleHover)";
 const colorNeutralStrokeAccessiblePressed = "var(--colorNeutralStrokeAccessiblePressed)";
+const colorNeutralStrokeAccessibleSelected = "var(--colorNeutralStrokeAccessibleSelected)";
 const colorNeutralStroke1 = "var(--colorNeutralStroke1)";
 const colorNeutralStroke1Hover = "var(--colorNeutralStroke1Hover)";
 const colorNeutralStroke1Pressed = "var(--colorNeutralStroke1Pressed)";
+const colorNeutralStroke1Selected = "var(--colorNeutralStroke1Selected)";
 const colorNeutralStroke2 = "var(--colorNeutralStroke2)";
 const colorNeutralStroke3 = "var(--colorNeutralStroke3)";
+const colorNeutralStroke4 = "var(--colorNeutralStroke4)";
+const colorNeutralStroke4Hover = "var(--colorNeutralStroke4Hover)";
+const colorNeutralStroke4Pressed = "var(--colorNeutralStroke4Pressed)";
+const colorNeutralStroke4Selected = "var(--colorNeutralStroke4Selected)";
+const colorNeutralStrokeSubtle = "var(--colorNeutralStrokeSubtle)";
+const colorNeutralStrokeOnBrand = "var(--colorNeutralStrokeOnBrand)";
 const colorNeutralStrokeOnBrand2 = "var(--colorNeutralStrokeOnBrand2)";
+const colorNeutralStrokeOnBrand2Hover = "var(--colorNeutralStrokeOnBrand2Hover)";
+const colorNeutralStrokeOnBrand2Pressed = "var(--colorNeutralStrokeOnBrand2Pressed)";
+const colorNeutralStrokeOnBrand2Selected = "var(--colorNeutralStrokeOnBrand2Selected)";
 const colorBrandStroke1 = "var(--colorBrandStroke1)";
 const colorBrandStroke2 = "var(--colorBrandStroke2)";
+const colorBrandStroke2Hover = "var(--colorBrandStroke2Hover)";
+const colorBrandStroke2Pressed = "var(--colorBrandStroke2Pressed)";
+const colorBrandStroke2Contrast = "var(--colorBrandStroke2Contrast)";
 const colorCompoundBrandStroke = "var(--colorCompoundBrandStroke)";
 const colorCompoundBrandStrokeHover = "var(--colorCompoundBrandStrokeHover)";
 const colorCompoundBrandStrokePressed = "var(--colorCompoundBrandStrokePressed)";
 const colorNeutralStrokeDisabled = "var(--colorNeutralStrokeDisabled)";
+const colorNeutralStrokeDisabled2 = "var(--colorNeutralStrokeDisabled2)";
+const colorNeutralStrokeInvertedDisabled = "var(--colorNeutralStrokeInvertedDisabled)";
 const colorTransparentStroke = "var(--colorTransparentStroke)";
 const colorTransparentStrokeInteractive = "var(--colorTransparentStrokeInteractive)";
+const colorTransparentStrokeDisabled = "var(--colorTransparentStrokeDisabled)";
+const colorNeutralStrokeAlpha = "var(--colorNeutralStrokeAlpha)";
+const colorNeutralStrokeAlpha2 = "var(--colorNeutralStrokeAlpha2)";
 const colorStrokeFocus1 = "var(--colorStrokeFocus1)";
 const colorStrokeFocus2 = "var(--colorStrokeFocus2)";
 const colorNeutralShadowAmbient = "var(--colorNeutralShadowAmbient)";
 const colorNeutralShadowKey = "var(--colorNeutralShadowKey)";
+const colorNeutralShadowAmbientLighter = "var(--colorNeutralShadowAmbientLighter)";
+const colorNeutralShadowKeyLighter = "var(--colorNeutralShadowKeyLighter)";
+const colorNeutralShadowAmbientDarker = "var(--colorNeutralShadowAmbientDarker)";
+const colorNeutralShadowKeyDarker = "var(--colorNeutralShadowKeyDarker)";
+const colorBrandShadowAmbient = "var(--colorBrandShadowAmbient)";
+const colorBrandShadowKey = "var(--colorBrandShadowKey)";
 const colorPaletteRedBackground1 = "var(--colorPaletteRedBackground1)";
 const colorPaletteRedBackground2 = "var(--colorPaletteRedBackground2)";
 const colorPaletteRedBackground3 = "var(--colorPaletteRedBackground3)";
+const colorPaletteRedBorderActive = "var(--colorPaletteRedBorderActive)";
 const colorPaletteRedBorder1 = "var(--colorPaletteRedBorder1)";
 const colorPaletteRedBorder2 = "var(--colorPaletteRedBorder2)";
 const colorPaletteRedForeground1 = "var(--colorPaletteRedForeground1)";
 const colorPaletteRedForeground2 = "var(--colorPaletteRedForeground2)";
 const colorPaletteRedForeground3 = "var(--colorPaletteRedForeground3)";
+const colorPaletteRedForegroundInverted = "var(--colorPaletteRedForegroundInverted)";
 const colorPaletteGreenBackground1 = "var(--colorPaletteGreenBackground1)";
+const colorPaletteGreenBackground2 = "var(--colorPaletteGreenBackground2)";
 const colorPaletteGreenBackground3 = "var(--colorPaletteGreenBackground3)";
+const colorPaletteGreenBorderActive = "var(--colorPaletteGreenBorderActive)";
 const colorPaletteGreenBorder1 = "var(--colorPaletteGreenBorder1)";
 const colorPaletteGreenBorder2 = "var(--colorPaletteGreenBorder2)";
 const colorPaletteGreenForeground1 = "var(--colorPaletteGreenForeground1)";
 const colorPaletteGreenForeground2 = "var(--colorPaletteGreenForeground2)";
 const colorPaletteGreenForeground3 = "var(--colorPaletteGreenForeground3)";
+const colorPaletteGreenForegroundInverted = "var(--colorPaletteGreenForegroundInverted)";
 const colorPaletteDarkOrangeBackground1 = "var(--colorPaletteDarkOrangeBackground1)";
+const colorPaletteDarkOrangeBackground2 = "var(--colorPaletteDarkOrangeBackground2)";
 const colorPaletteDarkOrangeBackground3 = "var(--colorPaletteDarkOrangeBackground3)";
+const colorPaletteDarkOrangeBorderActive = "var(--colorPaletteDarkOrangeBorderActive)";
 const colorPaletteDarkOrangeBorder1 = "var(--colorPaletteDarkOrangeBorder1)";
+const colorPaletteDarkOrangeBorder2 = "var(--colorPaletteDarkOrangeBorder2)";
 const colorPaletteDarkOrangeForeground1 = "var(--colorPaletteDarkOrangeForeground1)";
+const colorPaletteDarkOrangeForeground2 = "var(--colorPaletteDarkOrangeForeground2)";
 const colorPaletteDarkOrangeForeground3 = "var(--colorPaletteDarkOrangeForeground3)";
 const colorPaletteYellowBackground1 = "var(--colorPaletteYellowBackground1)";
+const colorPaletteYellowBackground2 = "var(--colorPaletteYellowBackground2)";
 const colorPaletteYellowBackground3 = "var(--colorPaletteYellowBackground3)";
+const colorPaletteYellowBorderActive = "var(--colorPaletteYellowBorderActive)";
 const colorPaletteYellowBorder1 = "var(--colorPaletteYellowBorder1)";
+const colorPaletteYellowBorder2 = "var(--colorPaletteYellowBorder2)";
+const colorPaletteYellowForeground1 = "var(--colorPaletteYellowForeground1)";
 const colorPaletteYellowForeground2 = "var(--colorPaletteYellowForeground2)";
+const colorPaletteYellowForeground3 = "var(--colorPaletteYellowForeground3)";
+const colorPaletteYellowForegroundInverted = "var(--colorPaletteYellowForegroundInverted)";
+const colorPaletteBerryBackground1 = "var(--colorPaletteBerryBackground1)";
+const colorPaletteBerryBackground2 = "var(--colorPaletteBerryBackground2)";
+const colorPaletteBerryBackground3 = "var(--colorPaletteBerryBackground3)";
+const colorPaletteBerryBorderActive = "var(--colorPaletteBerryBorderActive)";
+const colorPaletteBerryBorder1 = "var(--colorPaletteBerryBorder1)";
+const colorPaletteBerryBorder2 = "var(--colorPaletteBerryBorder2)";
+const colorPaletteBerryForeground1 = "var(--colorPaletteBerryForeground1)";
+const colorPaletteBerryForeground2 = "var(--colorPaletteBerryForeground2)";
+const colorPaletteBerryForeground3 = "var(--colorPaletteBerryForeground3)";
+const colorPaletteMarigoldBackground1 = "var(--colorPaletteMarigoldBackground1)";
 const colorPaletteMarigoldBackground2 = "var(--colorPaletteMarigoldBackground2)";
+const colorPaletteMarigoldBackground3 = "var(--colorPaletteMarigoldBackground3)";
 const colorPaletteMarigoldBorderActive = "var(--colorPaletteMarigoldBorderActive)";
+const colorPaletteMarigoldBorder1 = "var(--colorPaletteMarigoldBorder1)";
+const colorPaletteMarigoldBorder2 = "var(--colorPaletteMarigoldBorder2)";
+const colorPaletteMarigoldForeground1 = "var(--colorPaletteMarigoldForeground1)";
 const colorPaletteMarigoldForeground2 = "var(--colorPaletteMarigoldForeground2)";
+const colorPaletteMarigoldForeground3 = "var(--colorPaletteMarigoldForeground3)";
+const colorPaletteLightGreenBackground1 = "var(--colorPaletteLightGreenBackground1)";
+const colorPaletteLightGreenBackground2 = "var(--colorPaletteLightGreenBackground2)";
+const colorPaletteLightGreenBackground3 = "var(--colorPaletteLightGreenBackground3)";
+const colorPaletteLightGreenBorderActive = "var(--colorPaletteLightGreenBorderActive)";
+const colorPaletteLightGreenBorder1 = "var(--colorPaletteLightGreenBorder1)";
+const colorPaletteLightGreenBorder2 = "var(--colorPaletteLightGreenBorder2)";
+const colorPaletteLightGreenForeground1 = "var(--colorPaletteLightGreenForeground1)";
+const colorPaletteLightGreenForeground2 = "var(--colorPaletteLightGreenForeground2)";
+const colorPaletteLightGreenForeground3 = "var(--colorPaletteLightGreenForeground3)";
 const colorPaletteAnchorBackground2 = "var(--colorPaletteAnchorBackground2)";
+const colorPaletteAnchorBorderActive = "var(--colorPaletteAnchorBorderActive)";
 const colorPaletteAnchorForeground2 = "var(--colorPaletteAnchorForeground2)";
 const colorPaletteBeigeBackground2 = "var(--colorPaletteBeigeBackground2)";
+const colorPaletteBeigeBorderActive = "var(--colorPaletteBeigeBorderActive)";
 const colorPaletteBeigeForeground2 = "var(--colorPaletteBeigeForeground2)";
 const colorPaletteBlueBackground2 = "var(--colorPaletteBlueBackground2)";
+const colorPaletteBlueBorderActive = "var(--colorPaletteBlueBorderActive)";
 const colorPaletteBlueForeground2 = "var(--colorPaletteBlueForeground2)";
 const colorPaletteBrassBackground2 = "var(--colorPaletteBrassBackground2)";
+const colorPaletteBrassBorderActive = "var(--colorPaletteBrassBorderActive)";
 const colorPaletteBrassForeground2 = "var(--colorPaletteBrassForeground2)";
 const colorPaletteBrownBackground2 = "var(--colorPaletteBrownBackground2)";
+const colorPaletteBrownBorderActive = "var(--colorPaletteBrownBorderActive)";
 const colorPaletteBrownForeground2 = "var(--colorPaletteBrownForeground2)";
 const colorPaletteCornflowerBackground2 = "var(--colorPaletteCornflowerBackground2)";
+const colorPaletteCornflowerBorderActive = "var(--colorPaletteCornflowerBorderActive)";
 const colorPaletteCornflowerForeground2 = "var(--colorPaletteCornflowerForeground2)";
 const colorPaletteCranberryBackground2 = "var(--colorPaletteCranberryBackground2)";
+const colorPaletteCranberryBorderActive = "var(--colorPaletteCranberryBorderActive)";
 const colorPaletteCranberryForeground2 = "var(--colorPaletteCranberryForeground2)";
 const colorPaletteDarkGreenBackground2 = "var(--colorPaletteDarkGreenBackground2)";
+const colorPaletteDarkGreenBorderActive = "var(--colorPaletteDarkGreenBorderActive)";
 const colorPaletteDarkGreenForeground2 = "var(--colorPaletteDarkGreenForeground2)";
 const colorPaletteDarkRedBackground2 = "var(--colorPaletteDarkRedBackground2)";
+const colorPaletteDarkRedBorderActive = "var(--colorPaletteDarkRedBorderActive)";
 const colorPaletteDarkRedForeground2 = "var(--colorPaletteDarkRedForeground2)";
 const colorPaletteForestBackground2 = "var(--colorPaletteForestBackground2)";
+const colorPaletteForestBorderActive = "var(--colorPaletteForestBorderActive)";
 const colorPaletteForestForeground2 = "var(--colorPaletteForestForeground2)";
 const colorPaletteGoldBackground2 = "var(--colorPaletteGoldBackground2)";
+const colorPaletteGoldBorderActive = "var(--colorPaletteGoldBorderActive)";
 const colorPaletteGoldForeground2 = "var(--colorPaletteGoldForeground2)";
 const colorPaletteGrapeBackground2 = "var(--colorPaletteGrapeBackground2)";
+const colorPaletteGrapeBorderActive = "var(--colorPaletteGrapeBorderActive)";
 const colorPaletteGrapeForeground2 = "var(--colorPaletteGrapeForeground2)";
 const colorPaletteLavenderBackground2 = "var(--colorPaletteLavenderBackground2)";
+const colorPaletteLavenderBorderActive = "var(--colorPaletteLavenderBorderActive)";
 const colorPaletteLavenderForeground2 = "var(--colorPaletteLavenderForeground2)";
 const colorPaletteLightTealBackground2 = "var(--colorPaletteLightTealBackground2)";
+const colorPaletteLightTealBorderActive = "var(--colorPaletteLightTealBorderActive)";
 const colorPaletteLightTealForeground2 = "var(--colorPaletteLightTealForeground2)";
 const colorPaletteLilacBackground2 = "var(--colorPaletteLilacBackground2)";
+const colorPaletteLilacBorderActive = "var(--colorPaletteLilacBorderActive)";
 const colorPaletteLilacForeground2 = "var(--colorPaletteLilacForeground2)";
 const colorPaletteMagentaBackground2 = "var(--colorPaletteMagentaBackground2)";
+const colorPaletteMagentaBorderActive = "var(--colorPaletteMagentaBorderActive)";
 const colorPaletteMagentaForeground2 = "var(--colorPaletteMagentaForeground2)";
 const colorPaletteMinkBackground2 = "var(--colorPaletteMinkBackground2)";
+const colorPaletteMinkBorderActive = "var(--colorPaletteMinkBorderActive)";
 const colorPaletteMinkForeground2 = "var(--colorPaletteMinkForeground2)";
 const colorPaletteNavyBackground2 = "var(--colorPaletteNavyBackground2)";
+const colorPaletteNavyBorderActive = "var(--colorPaletteNavyBorderActive)";
 const colorPaletteNavyForeground2 = "var(--colorPaletteNavyForeground2)";
 const colorPalettePeachBackground2 = "var(--colorPalettePeachBackground2)";
+const colorPalettePeachBorderActive = "var(--colorPalettePeachBorderActive)";
 const colorPalettePeachForeground2 = "var(--colorPalettePeachForeground2)";
 const colorPalettePinkBackground2 = "var(--colorPalettePinkBackground2)";
+const colorPalettePinkBorderActive = "var(--colorPalettePinkBorderActive)";
 const colorPalettePinkForeground2 = "var(--colorPalettePinkForeground2)";
 const colorPalettePlatinumBackground2 = "var(--colorPalettePlatinumBackground2)";
+const colorPalettePlatinumBorderActive = "var(--colorPalettePlatinumBorderActive)";
 const colorPalettePlatinumForeground2 = "var(--colorPalettePlatinumForeground2)";
 const colorPalettePlumBackground2 = "var(--colorPalettePlumBackground2)";
+const colorPalettePlumBorderActive = "var(--colorPalettePlumBorderActive)";
 const colorPalettePlumForeground2 = "var(--colorPalettePlumForeground2)";
 const colorPalettePumpkinBackground2 = "var(--colorPalettePumpkinBackground2)";
+const colorPalettePumpkinBorderActive = "var(--colorPalettePumpkinBorderActive)";
 const colorPalettePumpkinForeground2 = "var(--colorPalettePumpkinForeground2)";
 const colorPalettePurpleBackground2 = "var(--colorPalettePurpleBackground2)";
+const colorPalettePurpleBorderActive = "var(--colorPalettePurpleBorderActive)";
 const colorPalettePurpleForeground2 = "var(--colorPalettePurpleForeground2)";
 const colorPaletteRoyalBlueBackground2 = "var(--colorPaletteRoyalBlueBackground2)";
+const colorPaletteRoyalBlueBorderActive = "var(--colorPaletteRoyalBlueBorderActive)";
 const colorPaletteRoyalBlueForeground2 = "var(--colorPaletteRoyalBlueForeground2)";
 const colorPaletteSeafoamBackground2 = "var(--colorPaletteSeafoamBackground2)";
+const colorPaletteSeafoamBorderActive = "var(--colorPaletteSeafoamBorderActive)";
 const colorPaletteSeafoamForeground2 = "var(--colorPaletteSeafoamForeground2)";
 const colorPaletteSteelBackground2 = "var(--colorPaletteSteelBackground2)";
+const colorPaletteSteelBorderActive = "var(--colorPaletteSteelBorderActive)";
 const colorPaletteSteelForeground2 = "var(--colorPaletteSteelForeground2)";
 const colorPaletteTealBackground2 = "var(--colorPaletteTealBackground2)";
+const colorPaletteTealBorderActive = "var(--colorPaletteTealBorderActive)";
 const colorPaletteTealForeground2 = "var(--colorPaletteTealForeground2)";
+const colorStatusSuccessBackground1 = "var(--colorStatusSuccessBackground1)";
+const colorStatusSuccessBackground2 = "var(--colorStatusSuccessBackground2)";
+const colorStatusSuccessBackground3 = "var(--colorStatusSuccessBackground3)";
+const colorStatusSuccessForeground1 = "var(--colorStatusSuccessForeground1)";
+const colorStatusSuccessForeground2 = "var(--colorStatusSuccessForeground2)";
+const colorStatusSuccessForeground3 = "var(--colorStatusSuccessForeground3)";
+const colorStatusSuccessForegroundInverted = "var(--colorStatusSuccessForegroundInverted)";
+const colorStatusSuccessBorderActive = "var(--colorStatusSuccessBorderActive)";
+const colorStatusSuccessBorder1 = "var(--colorStatusSuccessBorder1)";
+const colorStatusSuccessBorder2 = "var(--colorStatusSuccessBorder2)";
+const colorStatusWarningBackground1 = "var(--colorStatusWarningBackground1)";
+const colorStatusWarningBackground2 = "var(--colorStatusWarningBackground2)";
+const colorStatusWarningBackground3 = "var(--colorStatusWarningBackground3)";
+const colorStatusWarningForeground1 = "var(--colorStatusWarningForeground1)";
+const colorStatusWarningForeground2 = "var(--colorStatusWarningForeground2)";
+const colorStatusWarningForeground3 = "var(--colorStatusWarningForeground3)";
+const colorStatusWarningForegroundInverted = "var(--colorStatusWarningForegroundInverted)";
+const colorStatusWarningBorderActive = "var(--colorStatusWarningBorderActive)";
+const colorStatusWarningBorder1 = "var(--colorStatusWarningBorder1)";
+const colorStatusWarningBorder2 = "var(--colorStatusWarningBorder2)";
+const colorStatusDangerBackground1 = "var(--colorStatusDangerBackground1)";
+const colorStatusDangerBackground2 = "var(--colorStatusDangerBackground2)";
+const colorStatusDangerBackground3 = "var(--colorStatusDangerBackground3)";
+const colorStatusDangerBackground3Hover = "var(--colorStatusDangerBackground3Hover)";
+const colorStatusDangerBackground3Pressed = "var(--colorStatusDangerBackground3Pressed)";
+const colorStatusDangerForeground1 = "var(--colorStatusDangerForeground1)";
+const colorStatusDangerForeground2 = "var(--colorStatusDangerForeground2)";
+const colorStatusDangerForeground3 = "var(--colorStatusDangerForeground3)";
+const colorStatusDangerForegroundInverted = "var(--colorStatusDangerForegroundInverted)";
+const colorStatusDangerBorderActive = "var(--colorStatusDangerBorderActive)";
+const colorStatusDangerBorder1 = "var(--colorStatusDangerBorder1)";
+const colorStatusDangerBorder2 = "var(--colorStatusDangerBorder2)";
 const borderRadiusNone = "var(--borderRadiusNone)";
 const borderRadiusSmall = "var(--borderRadiusSmall)";
 const borderRadiusMedium = "var(--borderRadiusMedium)";
 const borderRadiusLarge = "var(--borderRadiusLarge)";
 const borderRadiusXLarge = "var(--borderRadiusXLarge)";
+const borderRadius2XLarge = "var(--borderRadius2XLarge)";
+const borderRadius3XLarge = "var(--borderRadius3XLarge)";
+const borderRadius4XLarge = "var(--borderRadius4XLarge)";
+const borderRadius5XLarge = "var(--borderRadius5XLarge)";
+const borderRadius6XLarge = "var(--borderRadius6XLarge)";
 const borderRadiusCircular = "var(--borderRadiusCircular)";
 const fontFamilyBase = "var(--fontFamilyBase)";
 const fontFamilyMonospace = "var(--fontFamilyMonospace)";
@@ -4348,10 +4562,17 @@ const shadow8 = "var(--shadow8)";
 const shadow16 = "var(--shadow16)";
 const shadow28 = "var(--shadow28)";
 const shadow64 = "var(--shadow64)";
+const shadow2Brand = "var(--shadow2Brand)";
+const shadow4Brand = "var(--shadow4Brand)";
+const shadow8Brand = "var(--shadow8Brand)";
+const shadow16Brand = "var(--shadow16Brand)";
+const shadow28Brand = "var(--shadow28Brand)";
+const shadow64Brand = "var(--shadow64Brand)";
 const strokeWidthThin = "var(--strokeWidthThin)";
 const strokeWidthThick = "var(--strokeWidthThick)";
 const strokeWidthThicker = "var(--strokeWidthThicker)";
 const strokeWidthThickest = "var(--strokeWidthThickest)";
+const spacingHorizontalNone = "var(--spacingHorizontalNone)";
 const spacingHorizontalXXS = "var(--spacingHorizontalXXS)";
 const spacingHorizontalXS = "var(--spacingHorizontalXS)";
 const spacingHorizontalSNudge = "var(--spacingHorizontalSNudge)";
@@ -4361,6 +4582,7 @@ const spacingHorizontalM = "var(--spacingHorizontalM)";
 const spacingHorizontalL = "var(--spacingHorizontalL)";
 const spacingHorizontalXL = "var(--spacingHorizontalXL)";
 const spacingHorizontalXXL = "var(--spacingHorizontalXXL)";
+const spacingHorizontalXXXL = "var(--spacingHorizontalXXXL)";
 const spacingVerticalNone = "var(--spacingVerticalNone)";
 const spacingVerticalXXS = "var(--spacingVerticalXXS)";
 const spacingVerticalXS = "var(--spacingVerticalXS)";
@@ -4369,10 +4591,12 @@ const spacingVerticalS = "var(--spacingVerticalS)";
 const spacingVerticalMNudge = "var(--spacingVerticalMNudge)";
 const spacingVerticalM = "var(--spacingVerticalM)";
 const spacingVerticalL = "var(--spacingVerticalL)";
+const spacingVerticalXL = "var(--spacingVerticalXL)";
 const spacingVerticalXXL = "var(--spacingVerticalXXL)";
 const spacingVerticalXXXL = "var(--spacingVerticalXXXL)";
 const durationUltraFast = "var(--durationUltraFast)";
 const durationFaster = "var(--durationFaster)";
+const durationFast = "var(--durationFast)";
 const durationNormal = "var(--durationNormal)";
 const durationGentle = "var(--durationGentle)";
 const durationSlow = "var(--durationSlow)";
@@ -4387,6 +4611,14 @@ const curveDecelerateMin = "var(--curveDecelerateMin)";
 const curveEasyEaseMax = "var(--curveEasyEaseMax)";
 const curveEasyEase = "var(--curveEasyEase)";
 const curveLinear = "var(--curveLinear)";
+const zIndexBackground = "var(--zIndexBackground)";
+const zIndexContent = "var(--zIndexContent)";
+const zIndexOverlay = "var(--zIndexOverlay)";
+const zIndexPopup = "var(--zIndexPopup)";
+const zIndexMessages = "var(--zIndexMessages)";
+const zIndexFloating = "var(--zIndexFloating)";
+const zIndexPriority = "var(--zIndexPriority)";
+const zIndexDebug = "var(--zIndexDebug)";
 
 const styles$E = css`${display("block")} :host{max-width:fit-content;contain:content}.heading{height:44px;display:grid;position:relative;padding-inline:${spacingHorizontalM} ${spacingHorizontalMNudge};border-radius:${borderRadiusMedium};font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};grid-template-columns:auto auto 1fr auto}.button{appearance:none;background:${colorTransparentBackground};border:none;box-sizing:border-box;color:${colorNeutralForeground1};cursor:pointer;font:inherit;grid-column:auto/span 2;grid-row:1;height:44px;outline:none;padding:0;text-align:start}.button::before{content:'';position:absolute;inset:0px;cursor:pointer;border-radius:${borderRadiusSmall}}:where(.default-marker-collapsed,.default-marker-expanded),::slotted(:is([slot='marker-collapsed'],[slot='marker-expanded'])){display:flex;align-items:center;justify-content:center;pointer-events:none;position:relative;height:100%;padding-inline-end:${spacingHorizontalS};grid-column:1/span 1;grid-row:1}.content{margin:0 ${spacingHorizontalM}}::slotted([slot='start']){display:flex;justify-content:center;align-items:center;padding-right:${spacingHorizontalS};grid-column:2/span 1;grid-row:1}button:focus-visible::after{content:'';position:absolute;inset:0px;cursor:pointer;border-radius:${borderRadiusSmall};outline:none;border:2px solid ${colorStrokeFocus1};box-shadow:inset 0 0 0 1px ${colorStrokeFocus2}}:host([disabled]) .button{color:${colorNeutralForegroundDisabled}}:host([disabled]) svg{filter:invert(89%) sepia(0%) saturate(569%) hue-rotate(155deg) brightness(88%) contrast(87%)}:host([expanded]) .content{display:block}:host([expanded]) .default-marker-collapsed,:host([expanded]) ::slotted([slot='marker-collapsed']),:host(:not([expanded])) :is(.default-marker-expanded,.content),:host(:not([expanded])) ::slotted([slot='marker-expanded']){display:none}:host([expanded]) ::slotted([slot='marker-expanded']),:host(:not([expanded])) ::slotted([slot='marker-collapsed']){display:flex}.heading{font-size:${fontSizeBase300};line-height:${lineHeightBase300}}:host([size='small']) .heading{font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']) .heading{font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='extra-large']) .heading{font-size:${fontSizeBase500};line-height:${lineHeightBase500}}:host([marker-position='end']) ::slotted([slot='start']){grid-column:1/span 1}:host([marker-position='end']) :is(.default-marker-collapsed,.default-marker-expanded){grid-column:4/span 1;padding-inline-start:${spacingHorizontalS};padding-inline-end:0}:host([marker-position='end']) .button{grid-column:2/span 3}:host([block]){max-width:100%}:host([marker-position='end']) .heading{grid-template-columns:auto auto 28px;padding-inline:${spacingHorizontalM}}:host([marker-position='end']:has([slot='start'])) .heading{padding-inline:${spacingHorizontalMNudge} ${spacingHorizontalM}}:host([block][marker-position='end']) .heading{grid-template-columns:auto 1fr}:host([marker-position='end']) :is(.default-marker-collapsed,.default-marker-expanded){grid-column:5/span 1}`;
 
@@ -4640,11 +4872,23 @@ const ButtonType = {
   reset: "reset",
   button: "button"
 };
+const ButtonFormTarget = {
+  blank: "_blank",
+  self: "_self",
+  parent: "_parent",
+  top: "_top"
+};
 const tagName$D = `${FluentDesignSystem.prefix}-button`;
 
 const AnchorButtonAppearance = ButtonAppearance;
 const AnchorButtonShape = ButtonShape;
 const AnchorButtonSize = ButtonSize;
+const AnchorTarget = {
+  _self: "_self",
+  _blank: "_blank",
+  _parent: "_parent",
+  _top: "_top"
+};
 const AnchorAttributes = {
   download: "download",
   href: "href",
@@ -4922,6 +5166,19 @@ const definition$D = AnchorButton.compose({
 
 definition$D.define(FluentDesignSystem.registry);
 
+const AvatarActive = {
+  active: "active",
+  inactive: "inactive"
+};
+const AvatarShape = {
+  circular: "circular",
+  square: "square"
+};
+const AvatarAppearance = {
+  ring: "ring",
+  shadow: "shadow",
+  ringShadow: "ring-shadow"
+};
 const AvatarNamedColor = {
   darkRed: "dark-red",
   cranberry: "cranberry",
@@ -4959,6 +5216,22 @@ const AvatarColor = {
   brand: "brand",
   colorful: "colorful",
   ...AvatarNamedColor
+};
+const AvatarSize = {
+  _16: 16,
+  _20: 20,
+  _24: 24,
+  _28: 28,
+  _32: 32,
+  _36: 36,
+  _40: 40,
+  _48: 48,
+  _56: 56,
+  _64: 64,
+  _72: 72,
+  _96: 96,
+  _120: 120,
+  _128: 128
 };
 const tagName$B = `${FluentDesignSystem.prefix}-avatar`;
 
@@ -5268,6 +5541,19 @@ const BadgeColor = {
   subtle: "subtle",
   success: "success",
   warning: "warning"
+};
+const BadgeShape = {
+  circular: "circular",
+  rounded: "rounded",
+  square: "square"
+};
+const BadgeSize = {
+  tiny: "tiny",
+  extraSmall: "extra-small",
+  small: "small",
+  medium: "medium",
+  large: "large",
+  extraLarge: "extra-large"
 };
 const tagName$A = `${FluentDesignSystem.prefix}-badge`;
 
@@ -5639,6 +5925,14 @@ const definition$A = Button.compose({
 
 definition$A.define(FluentDesignSystem.registry);
 
+const CheckboxShape = {
+  circular: "circular",
+  square: "square"
+};
+const CheckboxSize = {
+  medium: "medium",
+  large: "large"
+};
 const tagName$z = `${FluentDesignSystem.prefix}-checkbox`;
 
 var __defProp$E = Object.defineProperty;
@@ -6138,6 +6432,9 @@ const definition$z = Checkbox.compose({
 
 definition$z.define(FluentDesignSystem.registry);
 
+const CompoundButtonAppearance = ButtonAppearance;
+const CompoundButtonShape = ButtonShape;
+const CompoundButtonSize = ButtonSize;
 const tagName$y = `${FluentDesignSystem.prefix}-compound-button`;
 
 class CompoundButton extends Button {
@@ -6158,6 +6455,32 @@ const definition$y = CompoundButton.compose({
 
 definition$y.define(FluentDesignSystem.registry);
 
+const CounterBadgeAppearance = {
+  filled: "filled",
+  ghost: "ghost"
+};
+const CounterBadgeColor = {
+  brand: "brand",
+  danger: "danger",
+  important: "important",
+  informative: "informative",
+  severe: "severe",
+  subtle: "subtle",
+  success: "success",
+  warning: "warning"
+};
+const CounterBadgeShape = {
+  circular: "circular",
+  rounded: "rounded"
+};
+const CounterBadgeSize = {
+  tiny: "tiny",
+  extraSmall: "extra-small",
+  small: "small",
+  medium: "medium",
+  large: "large",
+  extraLarge: "extra-large"
+};
 const tagName$x = `${FluentDesignSystem.prefix}-counter-badge`;
 
 var __defProp$C = Object.defineProperty;
@@ -6442,6 +6765,16 @@ const DividerRole = {
   presentation: "presentation"
 };
 const DividerOrientation = Orientation;
+const DividerAlignContent = {
+  center: "center",
+  start: "start",
+  end: "end"
+};
+const DividerAppearance = {
+  strong: "strong",
+  brand: "brand",
+  subtle: "subtle"
+};
 const tagName$u = `${FluentDesignSystem.prefix}-divider`;
 
 var __defProp$A = Object.defineProperty;
@@ -6742,22 +7075,22 @@ class DrawerBody extends FASTElement {
 }
 
 const typographyBody1Styles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase300};line-height:${lineHeightBase300};font-weight:${fontWeightRegular};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase300};line-height:${lineHeightBase300};font-weight:${fontWeightSemibold};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase300};line-height:${lineHeightBase300};font-weight:${fontWeightBold};`;
+const typographyBody1StrongStyles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase300};line-height:${lineHeightBase300};font-weight:${fontWeightSemibold};`;
+const typographyBody1StrongerStyles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase300};line-height:${lineHeightBase300};font-weight:${fontWeightBold};`;
 const typographyBody2Styles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase400};line-height:${lineHeightBase400};font-weight:${fontWeightRegular};`;
 const typographyCaption1Styles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase200};line-height:${lineHeightBase200};font-weight:${fontWeightRegular};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase200};line-height:${lineHeightBase200};font-weight:${fontWeightSemibold};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase200};line-height:${lineHeightBase200};font-weight:${fontWeightBold};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase100};line-height:${lineHeightBase100};font-weight:${fontWeightRegular};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase100};line-height:${lineHeightBase100};font-weight:${fontWeightSemibold};`;
+const typographyCaption1StrongStyles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase200};line-height:${lineHeightBase200};font-weight:${fontWeightSemibold};`;
+const typographyCaption1StrongerStyles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase200};line-height:${lineHeightBase200};font-weight:${fontWeightBold};`;
+const typographyCaption2Styles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase100};line-height:${lineHeightBase100};font-weight:${fontWeightRegular};`;
+const typographyCaption2StrongStyles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase100};line-height:${lineHeightBase100};font-weight:${fontWeightSemibold};`;
 const typographySubtitle1Styles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase500};line-height:${lineHeightBase500};font-weight:${fontWeightSemibold};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase400};line-height:${lineHeightBase400};font-weight:${fontWeightSemibold};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase400};line-height:${lineHeightBase400};font-weight:${fontWeightBold};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeHero800};line-height:${lineHeightHero800};font-weight:${fontWeightSemibold};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeHero700};line-height:${lineHeightHero700};font-weight:${fontWeightSemibold};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase600};line-height:${lineHeightBase600};font-weight:${fontWeightSemibold};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeHero900};line-height:${lineHeightHero900};font-weight:${fontWeightSemibold};`;
-css.partial`font-family:${fontFamilyBase};font-size:${fontSizeHero1000};line-height:${lineHeightHero1000};font-weight:${fontWeightSemibold};`;
+const typographySubtitle2Styles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase400};line-height:${lineHeightBase400};font-weight:${fontWeightSemibold};`;
+const typographySubtitle2StrongerStyles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase400};line-height:${lineHeightBase400};font-weight:${fontWeightBold};`;
+const typographyTitle1Styles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeHero800};line-height:${lineHeightHero800};font-weight:${fontWeightSemibold};`;
+const typographyTitle2Styles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeHero700};line-height:${lineHeightHero700};font-weight:${fontWeightSemibold};`;
+const typographyTitle3Styles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase600};line-height:${lineHeightBase600};font-weight:${fontWeightSemibold};`;
+const typographyLargeTitleStyles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeHero900};line-height:${lineHeightHero900};font-weight:${fontWeightSemibold};`;
+const typographyDisplayStyles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeHero1000};line-height:${lineHeightHero1000};font-weight:${fontWeightSemibold};`;
 
 const styles$r = css`${display("grid")} :host{box-sizing:border-box;grid-template-rows:min-content auto min-content;position:relative;height:100%;padding:${spacingHorizontalXL};max-height:100svh}.header{display:flex;justify-content:space-between;align-items:center;${typographySubtitle1Styles}}.footer{display:flex;justify-content:flex-start;gap:${spacingHorizontalM}}::slotted([slot='title']){font:inherit;padding:0;margin:0}`;
 
@@ -6774,11 +7107,22 @@ const definition$s = DrawerBody.compose({
 
 definition$s.define(FluentDesignSystem.registry);
 
+function isDropdown(element, tagName2 = "-dropdown") {
+  if (element?.nodeType !== Node.ELEMENT_NODE) {
+    return false;
+  }
+  return element.tagName.toLowerCase().endsWith(tagName2);
+}
 const DropdownAppearance = {
   filledDarker: "filled-darker",
   filledLighter: "filled-lighter",
   outline: "outline",
   transparent: "transparent"
+};
+const DropdownSize = {
+  small: "small",
+  medium: "medium",
+  large: "large"
 };
 const DropdownType = {
   combobox: "combobox",
@@ -7910,6 +8254,17 @@ const definition$q = Field.compose({
 
 definition$q.define(FluentDesignSystem.registry);
 
+const ImageFit = {
+  none: "none",
+  center: "center",
+  contain: "contain",
+  cover: "cover"
+};
+const ImageShape = {
+  circular: "circular",
+  rounded: "rounded",
+  square: "square"
+};
 const tagName$n = `${FluentDesignSystem.prefix}-image`;
 
 var __defProp$t = Object.defineProperty;
@@ -7952,6 +8307,15 @@ const definition$p = Image.compose({
 
 definition$p.define(FluentDesignSystem.registry);
 
+const LabelSize = {
+  small: "small",
+  medium: "medium",
+  large: "large"
+};
+const LabelWeight = {
+  regular: "regular",
+  semibold: "semibold"
+};
 const tagName$m = `${FluentDesignSystem.prefix}-label`;
 
 var __defProp$s = Object.defineProperty;
@@ -7999,6 +8363,10 @@ const definition$o = Label.compose({
 
 definition$o.define(FluentDesignSystem.registry);
 
+const LinkAppearance = {
+  subtle: "subtle"
+};
+const LinkTarget = AnchorTarget;
 const tagName$l = `${FluentDesignSystem.prefix}-link`;
 
 var __defProp$r = Object.defineProperty;
@@ -8244,6 +8612,9 @@ const definition$m = Listbox.compose({
 
 definition$m.define(FluentDesignSystem.registry);
 
+const MenuButtonAppearance = ButtonAppearance;
+const MenuButtonShape = ButtonShape;
+const MenuButtonSize = ButtonSize;
 const tagName$k = `${FluentDesignSystem.prefix}-menu-button`;
 
 class MenuButton extends Button {
@@ -8278,11 +8649,11 @@ const MenuItemRole = {
    */
   menuitemradio: "menuitemradio"
 };
-({
+const roleForMenuItem = {
   [MenuItemRole.menuitem]: "menuitem",
   [MenuItemRole.menuitemcheckbox]: "menuitemcheckbox",
   [MenuItemRole.menuitemradio]: "menuitemradio"
-});
+};
 function isMenuItem(element, tagName2 = "-menu-item") {
   if (element?.nodeType !== Node.ELEMENT_NODE) {
     return false;
@@ -9523,6 +9894,20 @@ const definition$i = Menu.compose({
 
 definition$i.define(FluentDesignSystem.registry);
 
+const MessageBarLayout = {
+  multiline: "multiline",
+  singleline: "singleline"
+};
+const MessageBarShape = {
+  rounded: "rounded",
+  square: "square"
+};
+const MessageBarIntent = {
+  success: "success",
+  warning: "warning",
+  error: "error",
+  info: "info"
+};
 const tagName$g = `${FluentDesignSystem.prefix}-message-bar`;
 
 var __defProp$m = Object.defineProperty;
@@ -9865,6 +10250,14 @@ const definition$g = DropdownOption.compose({
 
 definition$g.define(FluentDesignSystem.registry);
 
+const ProgressBarThickness = {
+  medium: "medium",
+  large: "large"
+};
+const ProgressBarShape = {
+  rounded: "rounded",
+  square: "square"
+};
 const ProgressBarValidationState = {
   success: "success",
   warning: "warning",
@@ -10577,6 +10970,16 @@ const definition$d = Radio.compose({
 
 definition$d.define(FluentDesignSystem.registry);
 
+const RatingDisplayColor = {
+  neutral: "neutral",
+  brand: "brand",
+  marigold: "marigold"
+};
+const RatingDisplaySize = {
+  small: "small",
+  medium: "medium",
+  large: "large"
+};
 const tagName$c = `${FluentDesignSystem.prefix}-rating-display`;
 
 var __defProp$h = Object.defineProperty;
@@ -10751,6 +11154,10 @@ const definition$c = RatingDisplay.compose({
 
 definition$c.define(FluentDesignSystem.registry);
 
+const SliderSize = {
+  small: "small",
+  medium: "medium"
+};
 const SliderOrientation = Orientation;
 const SliderMode = {
   singleValue: "single-value"
@@ -11396,6 +11803,19 @@ const definition$b = Slider.compose({
 
 definition$b.define(FluentDesignSystem.registry);
 
+const SpinnerAppearance = {
+  primary: "primary",
+  inverted: "inverted"
+};
+const SpinnerSize = {
+  tiny: "tiny",
+  extraSmall: "extra-small",
+  small: "small",
+  medium: "medium",
+  large: "large",
+  extraLarge: "extra-large",
+  huge: "huge"
+};
 const tagName$a = `${FluentDesignSystem.prefix}-spinner`;
 
 class BaseSpinner extends FASTElement {
@@ -11442,6 +11862,11 @@ const definition$a = Spinner.compose({
 
 definition$a.define(FluentDesignSystem.registry);
 
+const SwitchLabelPosition = {
+  above: "above",
+  after: "after",
+  before: "before"
+};
 const tagName$9 = `${FluentDesignSystem.prefix}-switch`;
 
 class Switch extends BaseCheckbox {
@@ -11542,6 +11967,11 @@ definition$8.define(FluentDesignSystem.registry);
 const TablistAppearance = {
   subtle: "subtle",
   transparent: "transparent"
+};
+const TablistSize = {
+  small: "small",
+  medium: "medium",
+  large: "large"
 };
 const TablistOrientation = Orientation;
 const tagName$7 = `${FluentDesignSystem.prefix}-tablist`;
@@ -11768,10 +12198,23 @@ const definition$7 = Tablist.compose({
 
 definition$7.define(FluentDesignSystem.registry);
 
+const TextAreaSize = {
+  small: "small",
+  medium: "medium",
+  large: "large"
+};
 const TextAreaAppearance = {
   outline: "outline",
   filledLighter: "filled-lighter",
   filledDarker: "filled-darker"
+};
+const TextAreaAppearancesForDisplayShadow = [
+  TextAreaAppearance.filledLighter,
+  TextAreaAppearance.filledDarker
+];
+const TextAreaAutocomplete = {
+  on: "on",
+  off: "off"
 };
 const TextAreaResize = {
   none: "none",
@@ -12304,6 +12747,17 @@ const definition$6 = TextArea.compose({
 
 definition$6.define(FluentDesignSystem.registry);
 
+const TextInputControlSize = {
+  small: "small",
+  medium: "medium",
+  large: "large"
+};
+const TextInputAppearance = {
+  outline: "outline",
+  underline: "underline",
+  filledLighter: "filled-lighter",
+  filledDarker: "filled-darker"
+};
 const TextInputType = {
   email: "email",
   password: "password",
@@ -12789,6 +13243,35 @@ const definition$5 = TextInput.compose({
 
 definition$5.define(FluentDesignSystem.registry);
 
+const TextSize = {
+  _100: "100",
+  _200: "200",
+  _300: "300",
+  _400: "400",
+  _500: "500",
+  _600: "600",
+  _700: "700",
+  _800: "800",
+  _900: "900",
+  _1000: "1000"
+};
+const TextFont = {
+  base: "base",
+  numeric: "numeric",
+  monospace: "monospace"
+};
+const TextWeight = {
+  medium: "medium",
+  regular: "regular",
+  semibold: "semibold",
+  bold: "bold"
+};
+const TextAlign = {
+  start: "start",
+  end: "end",
+  center: "center",
+  justify: "justify"
+};
 const tagName$4 = `${FluentDesignSystem.prefix}-text`;
 
 var __defProp$6 = Object.defineProperty;
@@ -12861,6 +13344,9 @@ const definition$4 = Text.compose({
 
 definition$4.define(FluentDesignSystem.registry);
 
+const ToggleButtonAppearance = ButtonAppearance;
+const ToggleButtonShape = ButtonShape;
+const ToggleButtonSize = ButtonSize;
 const tagName$3 = `${FluentDesignSystem.prefix}-toggle-button`;
 
 var __defProp$5 = Object.defineProperty;
@@ -13788,3 +14274,5 @@ function forceRepaint(element) {
 }
 
 globalThis.Fluent = { ...globalThis.Fluent, setTheme };
+
+export { Accordion, AccordionExpandMode, AccordionItem, AccordionItemMarkerPosition, AccordionItemSize, AnchorButton, AnchorButtonAppearance, definition$D as AnchorButtonDefinition, AnchorButtonShape, AnchorButtonSize, template$D as AnchorButtonTemplate, AnchorTarget, Avatar, AvatarActive, AvatarAppearance, AvatarColor, definition$C as AvatarDefinition, AvatarNamedColor, AvatarShape, AvatarSize, styles$A as AvatarStyles, template$C as AvatarTemplate, Badge, BadgeAppearance, BadgeColor, definition$B as BadgeDefinition, BadgeShape, BadgeSize, styles$z as BadgeStyles, template$B as BadgeTemplate, BaseAccordionItem, BaseAnchor, BaseAvatar, BaseButton, BaseCheckbox, BaseDivider, BaseDropdown, BaseField, BaseMenuList, BaseProgressBar, BaseRadioGroup, BaseRatingDisplay, BaseSpinner, BaseTablist, BaseTextArea, BaseTextInput, BaseTree, Button, ButtonAppearance, definition$A as ButtonDefinition, ButtonFormTarget, ButtonShape, ButtonSize, styles$C as ButtonStyles, template$A as ButtonTemplate, ButtonType, Checkbox, definition$z as CheckboxDefinition, CheckboxShape, CheckboxSize, styles$y as CheckboxStyles, template$z as CheckboxTemplate, CompoundButton, CompoundButtonAppearance, definition$y as CompoundButtonDefinition, CompoundButtonShape, CompoundButtonSize, styles$x as CompoundButtonStyles, template$y as CompoundButtonTemplate, CounterBadge, CounterBadgeAppearance, CounterBadgeColor, definition$x as CounterBadgeDefinition, CounterBadgeShape, CounterBadgeSize, styles$w as CounterBadgeStyles, template$x as CounterBadgeTemplate, Dialog, DialogBody, definition$v as DialogBodyDefinition, styles$u as DialogBodyStyles, template$v as DialogBodyTemplate, definition$w as DialogDefinition, styles$v as DialogStyles, template$w as DialogTemplate, DialogType, Direction, Divider, DividerAlignContent, DividerAppearance, definition$u as DividerDefinition, DividerOrientation, DividerRole, styles$t as DividerStyles, template$u as DividerTemplate, Drawer, DrawerBody, definition$s as DrawerBodyDefinition, styles$r as DrawerBodyStyles, template$s as DrawerBodyTemplate, definition$t as DrawerDefinition, DrawerPosition, DrawerSize, styles$s as DrawerStyles, template$t as DrawerTemplate, DrawerType, Dropdown, DropdownAppearance, definition$r as DropdownDefinition, DropdownOption, definition$g as DropdownOptionDefinition, styles$g as DropdownOptionStyles, template$g as DropdownOptionTemplate, DropdownSize, styles$q as DropdownStyles, template$r as DropdownTemplate, DropdownType, Field, definition$q as FieldDefinition, LabelPosition as FieldLabelPosition, styles$p as FieldStyles, template$q as FieldTemplate, FluentDesignSystem, Image, definition$p as ImageDefinition, ImageFit, ImageShape, styles$o as ImageStyles, template$p as ImageTemplate, Label, definition$o as LabelDefinition, LabelSize, styles$n as LabelStyles, template$o as LabelTemplate, LabelWeight, Link, LinkAppearance, definition$n as LinkDefinition, styles$m as LinkStyles, LinkTarget, template$n as LinkTemplate, Listbox, definition$m as ListboxDefinition, styles$l as ListboxStyles, template$m as ListboxTemplate, Menu, MenuButton, MenuButtonAppearance, definition$l as MenuButtonDefinition, MenuButtonShape, MenuButtonSize, styles$C as MenuButtonStyles, template$l as MenuButtonTemplate, definition$i as MenuDefinition, MenuItem, definition$k as MenuItemDefinition, MenuItemRole, styles$k as MenuItemStyles, template$k as MenuItemTemplate, MenuList, definition$j as MenuListDefinition, styles$j as MenuListStyles, template$j as MenuListTemplate, styles$i as MenuStyles, template$i as MenuTemplate, MessageBar, definition$h as MessageBarDefinition, MessageBarIntent, MessageBarLayout, MessageBarShape, styles$h as MessageBarStyles, template$h as MessageBarTemplate, Orientation, ProgressBar, definition$f as ProgressBarDefinition, ProgressBarShape, styles$f as ProgressBarStyles, template$f as ProgressBarTemplate, ProgressBarThickness, ProgressBarValidationState, Radio, definition$d as RadioDefinition, RadioGroup, definition$e as RadioGroupDefinition, RadioGroupOrientation, styles$e as RadioGroupStyles, template$e as RadioGroupTemplate, styles$d as RadioStyles, template$d as RadioTemplate, RatingDisplay, RatingDisplayColor, definition$c as RatingDisplayDefinition, RatingDisplaySize, styles$c as RatingDisplayStyles, template$c as RatingDisplayTemplate, Slider, definition$b as SliderDefinition, SliderMode, SliderOrientation, SliderSize, styles$b as SliderStyles, template$b as SliderTemplate, Spinner, SpinnerAppearance, definition$a as SpinnerDefinition, SpinnerSize, styles$a as SpinnerStyles, template$a as SpinnerTemplate, StartEnd, Switch, definition$9 as SwitchDefinition, SwitchLabelPosition, styles$9 as SwitchStyles, template$9 as SwitchTemplate, Tab, definition$8 as TabDefinition, styles$8 as TabStyles, template$8 as TabTemplate, Tablist, TablistAppearance, definition$7 as TablistDefinition, TablistOrientation, TablistSize, styles$7 as TablistStyles, template$7 as TablistTemplate, Text, TextAlign, TextArea, TextAreaAppearance, TextAreaAppearancesForDisplayShadow, TextAreaAutocomplete, definition$6 as TextAreaDefinition, TextAreaResize, TextAreaSize, styles$6 as TextAreaStyles, template$6 as TextAreaTemplate, definition$4 as TextDefinition, TextFont, TextInput, TextInputAppearance, TextInputControlSize, definition$5 as TextInputDefinition, styles$5 as TextInputStyles, template$5 as TextInputTemplate, TextInputType, TextSize, styles$4 as TextStyles, template$4 as TextTemplate, TextWeight, ToggleButton, ToggleButtonAppearance, definition$3 as ToggleButtonDefinition, ToggleButtonShape, ToggleButtonSize, styles$3 as ToggleButtonStyles, template$3 as ToggleButtonTemplate, Tooltip, definition$2 as TooltipDefinition, TooltipPositioningOption, styles$2 as TooltipStyles, template$2 as TooltipTemplate, Tree, definition$1 as TreeDefinition, TreeItem, definition as TreeItemDefinition, styles as TreeItemStyles, template as TreeItemTemplate, styles$1 as TreeStyles, template$1 as TreeTemplate, ValidationFlags, definition$E as accordionDefinition, definition$F as accordionItemDefinition, styles$E as accordionItemStyles, template$F as accordionItemTemplate, styles$D as accordionStyles, template$E as accordionTemplate, borderRadius2XLarge, borderRadius3XLarge, borderRadius4XLarge, borderRadius5XLarge, borderRadius6XLarge, borderRadiusCircular, borderRadiusLarge, borderRadiusMedium, borderRadiusNone, borderRadiusSmall, borderRadiusXLarge, colorBackgroundOverlay, colorBrandBackground, colorBrandBackground2, colorBrandBackground2Hover, colorBrandBackground2Pressed, colorBrandBackground3Static, colorBrandBackground4Static, colorBrandBackgroundHover, colorBrandBackgroundInverted, colorBrandBackgroundInvertedHover, colorBrandBackgroundInvertedPressed, colorBrandBackgroundInvertedSelected, colorBrandBackgroundPressed, colorBrandBackgroundSelected, colorBrandBackgroundStatic, colorBrandForeground1, colorBrandForeground2, colorBrandForeground2Hover, colorBrandForeground2Pressed, colorBrandForegroundInverted, colorBrandForegroundInvertedHover, colorBrandForegroundInvertedPressed, colorBrandForegroundLink, colorBrandForegroundLinkHover, colorBrandForegroundLinkPressed, colorBrandForegroundLinkSelected, colorBrandForegroundOnLight, colorBrandForegroundOnLightHover, colorBrandForegroundOnLightPressed, colorBrandForegroundOnLightSelected, colorBrandShadowAmbient, colorBrandShadowKey, colorBrandStroke1, colorBrandStroke2, colorBrandStroke2Contrast, colorBrandStroke2Hover, colorBrandStroke2Pressed, colorCompoundBrandBackground, colorCompoundBrandBackgroundHover, colorCompoundBrandBackgroundPressed, colorCompoundBrandForeground1, colorCompoundBrandForeground1Hover, colorCompoundBrandForeground1Pressed, colorCompoundBrandStroke, colorCompoundBrandStrokeHover, colorCompoundBrandStrokePressed, colorNeutralBackground1, colorNeutralBackground1Hover, colorNeutralBackground1Pressed, colorNeutralBackground1Selected, colorNeutralBackground2, colorNeutralBackground2Hover, colorNeutralBackground2Pressed, colorNeutralBackground2Selected, colorNeutralBackground3, colorNeutralBackground3Hover, colorNeutralBackground3Pressed, colorNeutralBackground3Selected, colorNeutralBackground4, colorNeutralBackground4Hover, colorNeutralBackground4Pressed, colorNeutralBackground4Selected, colorNeutralBackground5, colorNeutralBackground5Hover, colorNeutralBackground5Pressed, colorNeutralBackground5Selected, colorNeutralBackground6, colorNeutralBackground7, colorNeutralBackground7Hover, colorNeutralBackground7Pressed, colorNeutralBackground7Selected, colorNeutralBackground8, colorNeutralBackgroundAlpha, colorNeutralBackgroundAlpha2, colorNeutralBackgroundDisabled, colorNeutralBackgroundDisabled2, colorNeutralBackgroundInverted, colorNeutralBackgroundInvertedDisabled, colorNeutralBackgroundInvertedHover, colorNeutralBackgroundInvertedPressed, colorNeutralBackgroundInvertedSelected, colorNeutralBackgroundStatic, colorNeutralCardBackground, colorNeutralCardBackgroundDisabled, colorNeutralCardBackgroundHover, colorNeutralCardBackgroundPressed, colorNeutralCardBackgroundSelected, colorNeutralForeground1, colorNeutralForeground1Hover, colorNeutralForeground1Pressed, colorNeutralForeground1Selected, colorNeutralForeground1Static, colorNeutralForeground2, colorNeutralForeground2BrandHover, colorNeutralForeground2BrandPressed, colorNeutralForeground2BrandSelected, colorNeutralForeground2Hover, colorNeutralForeground2Link, colorNeutralForeground2LinkHover, colorNeutralForeground2LinkPressed, colorNeutralForeground2LinkSelected, colorNeutralForeground2Pressed, colorNeutralForeground2Selected, colorNeutralForeground3, colorNeutralForeground3BrandHover, colorNeutralForeground3BrandPressed, colorNeutralForeground3BrandSelected, colorNeutralForeground3Hover, colorNeutralForeground3Pressed, colorNeutralForeground3Selected, colorNeutralForeground4, colorNeutralForeground5, colorNeutralForeground5Hover, colorNeutralForeground5Pressed, colorNeutralForeground5Selected, colorNeutralForegroundDisabled, colorNeutralForegroundInverted, colorNeutralForegroundInverted2, colorNeutralForegroundInvertedDisabled, colorNeutralForegroundInvertedHover, colorNeutralForegroundInvertedLink, colorNeutralForegroundInvertedLinkHover, colorNeutralForegroundInvertedLinkPressed, colorNeutralForegroundInvertedLinkSelected, colorNeutralForegroundInvertedPressed, colorNeutralForegroundInvertedSelected, colorNeutralForegroundOnBrand, colorNeutralForegroundStaticInverted, colorNeutralShadowAmbient, colorNeutralShadowAmbientDarker, colorNeutralShadowAmbientLighter, colorNeutralShadowKey, colorNeutralShadowKeyDarker, colorNeutralShadowKeyLighter, colorNeutralStencil1, colorNeutralStencil1Alpha, colorNeutralStencil2, colorNeutralStencil2Alpha, colorNeutralStroke1, colorNeutralStroke1Hover, colorNeutralStroke1Pressed, colorNeutralStroke1Selected, colorNeutralStroke2, colorNeutralStroke3, colorNeutralStroke4, colorNeutralStroke4Hover, colorNeutralStroke4Pressed, colorNeutralStroke4Selected, colorNeutralStrokeAccessible, colorNeutralStrokeAccessibleHover, colorNeutralStrokeAccessiblePressed, colorNeutralStrokeAccessibleSelected, colorNeutralStrokeAlpha, colorNeutralStrokeAlpha2, colorNeutralStrokeDisabled, colorNeutralStrokeDisabled2, colorNeutralStrokeInvertedDisabled, colorNeutralStrokeOnBrand, colorNeutralStrokeOnBrand2, colorNeutralStrokeOnBrand2Hover, colorNeutralStrokeOnBrand2Pressed, colorNeutralStrokeOnBrand2Selected, colorNeutralStrokeSubtle, colorPaletteAnchorBackground2, colorPaletteAnchorBorderActive, colorPaletteAnchorForeground2, colorPaletteBeigeBackground2, colorPaletteBeigeBorderActive, colorPaletteBeigeForeground2, colorPaletteBerryBackground1, colorPaletteBerryBackground2, colorPaletteBerryBackground3, colorPaletteBerryBorder1, colorPaletteBerryBorder2, colorPaletteBerryBorderActive, colorPaletteBerryForeground1, colorPaletteBerryForeground2, colorPaletteBerryForeground3, colorPaletteBlueBackground2, colorPaletteBlueBorderActive, colorPaletteBlueForeground2, colorPaletteBrassBackground2, colorPaletteBrassBorderActive, colorPaletteBrassForeground2, colorPaletteBrownBackground2, colorPaletteBrownBorderActive, colorPaletteBrownForeground2, colorPaletteCornflowerBackground2, colorPaletteCornflowerBorderActive, colorPaletteCornflowerForeground2, colorPaletteCranberryBackground2, colorPaletteCranberryBorderActive, colorPaletteCranberryForeground2, colorPaletteDarkGreenBackground2, colorPaletteDarkGreenBorderActive, colorPaletteDarkGreenForeground2, colorPaletteDarkOrangeBackground1, colorPaletteDarkOrangeBackground2, colorPaletteDarkOrangeBackground3, colorPaletteDarkOrangeBorder1, colorPaletteDarkOrangeBorder2, colorPaletteDarkOrangeBorderActive, colorPaletteDarkOrangeForeground1, colorPaletteDarkOrangeForeground2, colorPaletteDarkOrangeForeground3, colorPaletteDarkRedBackground2, colorPaletteDarkRedBorderActive, colorPaletteDarkRedForeground2, colorPaletteForestBackground2, colorPaletteForestBorderActive, colorPaletteForestForeground2, colorPaletteGoldBackground2, colorPaletteGoldBorderActive, colorPaletteGoldForeground2, colorPaletteGrapeBackground2, colorPaletteGrapeBorderActive, colorPaletteGrapeForeground2, colorPaletteGreenBackground1, colorPaletteGreenBackground2, colorPaletteGreenBackground3, colorPaletteGreenBorder1, colorPaletteGreenBorder2, colorPaletteGreenBorderActive, colorPaletteGreenForeground1, colorPaletteGreenForeground2, colorPaletteGreenForeground3, colorPaletteGreenForegroundInverted, colorPaletteLavenderBackground2, colorPaletteLavenderBorderActive, colorPaletteLavenderForeground2, colorPaletteLightGreenBackground1, colorPaletteLightGreenBackground2, colorPaletteLightGreenBackground3, colorPaletteLightGreenBorder1, colorPaletteLightGreenBorder2, colorPaletteLightGreenBorderActive, colorPaletteLightGreenForeground1, colorPaletteLightGreenForeground2, colorPaletteLightGreenForeground3, colorPaletteLightTealBackground2, colorPaletteLightTealBorderActive, colorPaletteLightTealForeground2, colorPaletteLilacBackground2, colorPaletteLilacBorderActive, colorPaletteLilacForeground2, colorPaletteMagentaBackground2, colorPaletteMagentaBorderActive, colorPaletteMagentaForeground2, colorPaletteMarigoldBackground1, colorPaletteMarigoldBackground2, colorPaletteMarigoldBackground3, colorPaletteMarigoldBorder1, colorPaletteMarigoldBorder2, colorPaletteMarigoldBorderActive, colorPaletteMarigoldForeground1, colorPaletteMarigoldForeground2, colorPaletteMarigoldForeground3, colorPaletteMinkBackground2, colorPaletteMinkBorderActive, colorPaletteMinkForeground2, colorPaletteNavyBackground2, colorPaletteNavyBorderActive, colorPaletteNavyForeground2, colorPalettePeachBackground2, colorPalettePeachBorderActive, colorPalettePeachForeground2, colorPalettePinkBackground2, colorPalettePinkBorderActive, colorPalettePinkForeground2, colorPalettePlatinumBackground2, colorPalettePlatinumBorderActive, colorPalettePlatinumForeground2, colorPalettePlumBackground2, colorPalettePlumBorderActive, colorPalettePlumForeground2, colorPalettePumpkinBackground2, colorPalettePumpkinBorderActive, colorPalettePumpkinForeground2, colorPalettePurpleBackground2, colorPalettePurpleBorderActive, colorPalettePurpleForeground2, colorPaletteRedBackground1, colorPaletteRedBackground2, colorPaletteRedBackground3, colorPaletteRedBorder1, colorPaletteRedBorder2, colorPaletteRedBorderActive, colorPaletteRedForeground1, colorPaletteRedForeground2, colorPaletteRedForeground3, colorPaletteRedForegroundInverted, colorPaletteRoyalBlueBackground2, colorPaletteRoyalBlueBorderActive, colorPaletteRoyalBlueForeground2, colorPaletteSeafoamBackground2, colorPaletteSeafoamBorderActive, colorPaletteSeafoamForeground2, colorPaletteSteelBackground2, colorPaletteSteelBorderActive, colorPaletteSteelForeground2, colorPaletteTealBackground2, colorPaletteTealBorderActive, colorPaletteTealForeground2, colorPaletteYellowBackground1, colorPaletteYellowBackground2, colorPaletteYellowBackground3, colorPaletteYellowBorder1, colorPaletteYellowBorder2, colorPaletteYellowBorderActive, colorPaletteYellowForeground1, colorPaletteYellowForeground2, colorPaletteYellowForeground3, colorPaletteYellowForegroundInverted, colorScrollbarOverlay, colorStatusDangerBackground1, colorStatusDangerBackground2, colorStatusDangerBackground3, colorStatusDangerBackground3Hover, colorStatusDangerBackground3Pressed, colorStatusDangerBorder1, colorStatusDangerBorder2, colorStatusDangerBorderActive, colorStatusDangerForeground1, colorStatusDangerForeground2, colorStatusDangerForeground3, colorStatusDangerForegroundInverted, colorStatusSuccessBackground1, colorStatusSuccessBackground2, colorStatusSuccessBackground3, colorStatusSuccessBorder1, colorStatusSuccessBorder2, colorStatusSuccessBorderActive, colorStatusSuccessForeground1, colorStatusSuccessForeground2, colorStatusSuccessForeground3, colorStatusSuccessForegroundInverted, colorStatusWarningBackground1, colorStatusWarningBackground2, colorStatusWarningBackground3, colorStatusWarningBorder1, colorStatusWarningBorder2, colorStatusWarningBorderActive, colorStatusWarningForeground1, colorStatusWarningForeground2, colorStatusWarningForeground3, colorStatusWarningForegroundInverted, colorStrokeFocus1, colorStrokeFocus2, colorSubtleBackground, colorSubtleBackgroundHover, colorSubtleBackgroundInverted, colorSubtleBackgroundInvertedHover, colorSubtleBackgroundInvertedPressed, colorSubtleBackgroundInvertedSelected, colorSubtleBackgroundLightAlphaHover, colorSubtleBackgroundLightAlphaPressed, colorSubtleBackgroundLightAlphaSelected, colorSubtleBackgroundPressed, colorSubtleBackgroundSelected, colorTransparentBackground, colorTransparentBackgroundHover, colorTransparentBackgroundPressed, colorTransparentBackgroundSelected, colorTransparentStroke, colorTransparentStrokeDisabled, colorTransparentStrokeInteractive, curveAccelerateMax, curveAccelerateMid, curveAccelerateMin, curveDecelerateMax, curveDecelerateMid, curveDecelerateMin, curveEasyEase, curveEasyEaseMax, curveLinear, display, dropdownButtonTemplate, dropdownInputTemplate, durationFast, durationFaster, durationGentle, durationNormal, durationSlow, durationSlower, durationUltraFast, durationUltraSlow, endSlotTemplate, fontFamilyBase, fontFamilyMonospace, fontFamilyNumeric, fontSizeBase100, fontSizeBase200, fontSizeBase300, fontSizeBase400, fontSizeBase500, fontSizeBase600, fontSizeHero1000, fontSizeHero700, fontSizeHero800, fontSizeHero900, fontWeightBold, fontWeightMedium, fontWeightRegular, fontWeightSemibold, getDirection, isDialog, isDropdown, isDropdownOption, isListbox, isTab, lineHeightBase100, lineHeightBase200, lineHeightBase300, lineHeightBase400, lineHeightBase500, lineHeightBase600, lineHeightHero1000, lineHeightHero700, lineHeightHero800, lineHeightHero900, listboxTemplate, roleForMenuItem, setTheme, shadow16, shadow16Brand, shadow2, shadow28, shadow28Brand, shadow2Brand, shadow4, shadow4Brand, shadow64, shadow64Brand, shadow8, shadow8Brand, spacingHorizontalL, spacingHorizontalM, spacingHorizontalMNudge, spacingHorizontalNone, spacingHorizontalS, spacingHorizontalSNudge, spacingHorizontalXL, spacingHorizontalXS, spacingHorizontalXXL, spacingHorizontalXXS, spacingHorizontalXXXL, spacingVerticalL, spacingVerticalM, spacingVerticalMNudge, spacingVerticalNone, spacingVerticalS, spacingVerticalSNudge, spacingVerticalXL, spacingVerticalXS, spacingVerticalXXL, spacingVerticalXXS, spacingVerticalXXXL, startSlotTemplate, strokeWidthThick, strokeWidthThicker, strokeWidthThickest, strokeWidthThin, typographyBody1StrongStyles, typographyBody1StrongerStyles, typographyBody1Styles, typographyBody2Styles, typographyCaption1StrongStyles, typographyCaption1StrongerStyles, typographyCaption1Styles, typographyCaption2StrongStyles, typographyCaption2Styles, typographyDisplayStyles, typographyLargeTitleStyles, typographySubtitle1Styles, typographySubtitle2StrongerStyles, typographySubtitle2Styles, typographyTitle1Styles, typographyTitle2Styles, typographyTitle3Styles, zIndexBackground, zIndexContent, zIndexDebug, zIndexFloating, zIndexMessages, zIndexOverlay, zIndexPopup, zIndexPriority };

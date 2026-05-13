@@ -1,4 +1,4 @@
-﻿import { setTheme } from '/lib/fluentui/web-components/dist/web-components.min.js';
+﻿import { setTheme } from '/lib/fluentui/web-components/dist/web-components-all.min.js';
 import { webLightTheme } from '/lib/fluentui/tokens/lib/index.js';
 
 setTheme(webLightTheme);
