@@ -15,6 +15,9 @@ const TOOLBAR_ACTION_BUTTONS = [
     'deleteActionBtn'
 ];
 
+const LINKS_LOADING_CHANGED_EVENT = 'elf.links.loading-changed';
+const LINKS_EMPTY_STATE_CHANGED_EVENT = 'elf.links.empty-state-changed';
+
 export function setupToolbarActionEventListeners() {
     elements.reportActionBtn.addEventListener('click', handleReportAction);
     elements.qrActionBtn.addEventListener('click', handleQrAction);
@@ -54,11 +57,23 @@ export async function loadLinks() {
 }
 
 export function showLoading(show) {
+    document.dispatchEvent(new CustomEvent(LINKS_LOADING_CHANGED_EVENT, {
+        detail: {
+            isLoading: show
+        }
+    }));
+
     elements.loadingSpinner.classList.toggle('d-none', !show);
     elements.linksData.style.opacity = show ? '0.5' : '1';
 }
 
 export function showNoData(show) {
+    document.dispatchEvent(new CustomEvent(LINKS_EMPTY_STATE_CHANGED_EVENT, {
+        detail: {
+            showEmptyState: show
+        }
+    }));
+
     elements.noDataMessage.classList.toggle('d-none', !show);
     elements.paginationContainer.classList.toggle('d-none', show);
 }

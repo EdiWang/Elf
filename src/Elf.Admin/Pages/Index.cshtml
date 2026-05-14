@@ -10,7 +10,7 @@
             <i class="bi bi-plus-lg" aria-hidden="true"></i>
             New
         </fluent-button>
-        <fluent-button id="refreshBtn" title="Refresh links">
+        <fluent-button id="refreshBtn" title="Refresh links" x-ref="refreshButton">
             <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
         </fluent-button>
         <div class="toolbar-selection-actions" aria-label="Selected link actions">
@@ -33,11 +33,11 @@
     </div>
     <div class="command-filters">
         <div class="command-group search-group">
-            <fluent-text-input type="text" id="searchTerm" placeholder="Search links by note or token..."></fluent-text-input>
-            <fluent-button type="button" id="searchBtn" title="Search">
+            <fluent-text-input type="text" id="searchTerm" x-ref="searchTerm" placeholder="Search links by note or token..."></fluent-text-input>
+            <fluent-button type="button" id="searchBtn" title="Search" x-ref="searchButton">
                 <i class="bi bi-search" aria-hidden="true"></i>
             </fluent-button>
-            <fluent-button type="button" id="clearBtn" title="Clear search">
+            <fluent-button type="button" id="clearBtn" title="Clear search" x-ref="clearButton">
                 <i class="bi bi-x-lg" aria-hidden="true"></i>
             </fluent-button>
         </div>
@@ -73,7 +73,7 @@
     </div>
 </section>
 
-<div id="loadingSpinner" class="loading-panel d-none">
+<div id="loadingSpinner" class="loading-panel" x-show="isLoading" x-cloak>
     <fluent-progress-ring></fluent-progress-ring>
     <span class="sr-only">Loading...</span>
 </div>
@@ -94,20 +94,20 @@
                     <th scope="col" class="column-updated">Updated</th>
                 </tr>
             </thead>
-            <tbody id="linksData"></tbody>
+            <tbody id="linksData" x-bind:style="isLoading ? 'opacity: 0.5' : 'opacity: 1'"></tbody>
         </table>
     </div>
 </div>
 
-<div id="noDataMessage" class="empty-state d-none">
+<div id="noDataMessage" class="empty-state" x-show="showEmptyState" x-cloak>
     <h2>No links found</h2>
     <p>Try adjusting your search criteria or add a new link.</p>
 </div>
 
-<nav aria-label="Links pagination" id="paginationContainer" class="pagination-shell">
+<nav aria-label="Links pagination" id="paginationContainer" class="pagination-shell" x-show="!showEmptyState">
     <div class="pagination-size">
         <label for="pageSize">Show</label>
-        <fluent-dropdown id="pageSize" class="page-size-dropdown" aria-label="Page size" value="10">
+        <fluent-dropdown id="pageSize" class="page-size-dropdown" aria-label="Page size" value="10" x-ref="pageSize">
             <fluent-listbox>
                 <fluent-option value="10" selected>10</fluent-option>
                 <fluent-option value="25">25</fluent-option>
