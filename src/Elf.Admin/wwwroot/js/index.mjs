@@ -1,6 +1,6 @@
 import { Alpine } from './alpine-init.mjs';
 import { elements } from './index.dom.mjs';
-import { updateState, resetPage } from './index.state.mjs';
+import { state, updateState, resetPage } from './index.state.mjs';
 import { loadLinks, setupToolbarActionEventListeners } from './index.links.mjs';
 import { setupDeleteEventListeners } from './index.delete.mjs';
 import { setupLinkEditEventListeners } from './index.linkEdit.mjs';
@@ -16,6 +16,8 @@ Alpine.data('linksDashboard', () => ({
     showEmptyState: false,
     selectedTagFilterNames: [],
     tagFilterPlaceholder: TAG_FILTER_PLACEHOLDER,
+    recordsInfo: '',
+    paginationItems: [],
 
     init() {
         this.setupStateListeners();
@@ -39,6 +41,11 @@ Alpine.data('linksDashboard', () => ({
 
         document.addEventListener('elf.links.empty-state-changed', event => {
             this.showEmptyState = Boolean(event.detail?.showEmptyState);
+        });
+
+        document.addEventListener('elf.links.pagination-changed', event => {
+            this.recordsInfo = event.detail?.recordsInfo ?? '';
+            this.paginationItems = event.detail?.paginationItems ?? [];
         });
     },
 
@@ -209,6 +216,37 @@ Alpine.data('linksDashboard', () => ({
 
         updateState({ pageSize });
         resetPage();
+        await this.load();
+    },
+
+    async goToPage(page) {
+        if (page === 'prev') {
+            if (state.currentPage === 0) {
+                return;
+            }
+
+            updateState({ currentPage: state.currentPage - 1 });
+            await this.load();
+            return;
+        }
+
+        const totalPages = Math.ceil(state.totalRows / state.pageSize);
+        if (page === 'next') {
+            if (state.currentPage >= totalPages - 1) {
+                return;
+            }
+
+            updateState({ currentPage: state.currentPage + 1 });
+            await this.load();
+            return;
+        }
+
+        const pageNumber = Number.parseInt(page, 10);
+        if (Number.isNaN(pageNumber) || pageNumber === state.currentPage) {
+            return;
+        }
+
+        updateState({ currentPage: pageNumber });
         await this.load();
     },
 

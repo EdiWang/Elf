@@ -120,9 +120,27 @@
                 <fluent-option value="100">100</fluent-option>
             </fluent-listbox>
         </fluent-dropdown>
-        <span id="recordsInfo" class="muted-text"></span>
+        <span id="recordsInfo" class="muted-text" x-text="recordsInfo"></span>
     </div>
-    <div class="pagination-actions" id="pagination"></div>
+    <div class="pagination-actions" id="pagination" x-ref="pagination">
+        <template x-for="item in paginationItems" x-bind:key="item.key">
+            <span>
+                <template x-if="item.type === 'ellipsis'">
+                    <span class="pagination-ellipsis" x-text="item.label"></span>
+                </template>
+                <template x-if="item.type === 'button'">
+                    <button type="button"
+                            class="pagination-button"
+                            x-bind:class="{ 'is-current': item.current }"
+                            x-bind:disabled="item.disabled"
+                            x-bind:aria-current="item.current ? 'page' : null"
+                            x-bind:data-page="item.page"
+                            x-on:click="goToPage(item.page)"
+                            x-text="item.label"></button>
+                </template>
+            </span>
+        </template>
+    </div>
 </nav>
 
 <partial name="_DeleteModal" />
