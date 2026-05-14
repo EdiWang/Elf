@@ -4,24 +4,30 @@ import { updateState, resetPage } from './index.state.mjs';
 import { loadLinks, setupToolbarActionEventListeners } from './index.links.mjs';
 import { setupDeleteEventListeners } from './index.delete.mjs';
 import { setupLinkEditEventListeners } from './index.linkEdit.mjs';
-import { clearTagSearchSelection, setupTagSearchEventListeners } from './index.tagSearch.mjs';
+import { clearTagSearchSelection, loadLinksByTags } from './index.tagSearch.mjs';
+import { getTags } from './tags.apiclient.mjs';
+import { warning } from './toastService.mjs';
+
+const TAG_FILTER_PLACEHOLDER = 'Select tags to filter...';
 
 Alpine.data('linksDashboard', () => ({
     isLoading: false,
     isRefreshing: false,
     showEmptyState: false,
+    selectedTagFilterNames: [],
+    tagFilterPlaceholder: TAG_FILTER_PLACEHOLDER,
 
     init() {
         this.setupStateListeners();
         this.setupEventListeners();
         this.setupPageCommandListeners();
+        void this.initializeTagFilter();
         void this.load();
     },
 
     setupEventListeners() {
         setupDeleteEventListeners();
         setupLinkEditEventListeners();
-        setupTagSearchEventListeners();
         setupToolbarActionEventListeners();
     },
 
@@ -53,6 +59,18 @@ Alpine.data('linksDashboard', () => ({
             void this.changePageSize();
         });
 
+        this.$refs.tagFilter?.addEventListener('change', () => {
+            this.syncSelectedTagFilterNames();
+        });
+
+        this.$refs.tagSearchButton?.addEventListener('click', () => {
+            void this.searchByTags();
+        });
+
+        this.$refs.clearTagFilterButton?.addEventListener('click', () => {
+            void this.clearTagFilter();
+        });
+
         this.$refs.searchTerm?.addEventListener('keypress', event => {
             if (event.key === 'Enter') {
                 void this.search();
@@ -60,8 +78,49 @@ Alpine.data('linksDashboard', () => ({
         });
     },
 
+    get selectedTagFilterLabel() {
+        return this.selectedTagFilterNames.length > 0
+            ? this.selectedTagFilterNames.join(', ')
+            : this.tagFilterPlaceholder;
+    },
+
     async load() {
         await loadLinks();
+    },
+
+    async initializeTagFilter() {
+        await this.loadTagFilterOptions();
+        this.syncSelectedTagFilterNames();
+    },
+
+    async loadTagFilterOptions() {
+        try {
+            const tags = await getTags();
+            this.renderTagFilterOptions(tags);
+        } catch (error) {
+            console.error('Error initializing tag search dropdown:', error);
+        }
+    },
+
+    renderTagFilterOptions(tags) {
+        const listbox = elements.tagFilterListbox;
+        if (!listbox) {
+            return;
+        }
+
+        listbox.replaceChildren();
+
+        const fragment = document.createDocumentFragment();
+        const orderedTags = [...tags].sort((left, right) => left.name.localeCompare(right.name));
+
+        for (const tag of orderedTags) {
+            const option = document.createElement('fluent-option');
+            option.setAttribute('value', tag.id.toString());
+            option.textContent = tag.name;
+            fragment.appendChild(option);
+        }
+
+        listbox.appendChild(fragment);
     },
 
     async search() {
@@ -72,6 +131,7 @@ Alpine.data('linksDashboard', () => ({
         });
 
         clearTagSearchSelection();
+        this.syncSelectedTagFilterNames();
         resetPage();
         await this.load();
     },
@@ -88,6 +148,42 @@ Alpine.data('linksDashboard', () => ({
         });
 
         clearTagSearchSelection();
+        this.syncSelectedTagFilterNames();
+        resetPage();
+        await this.load();
+    },
+
+    async searchByTags() {
+        const tagIds = this.getSelectedTagIds();
+        if (tagIds.length === 0) {
+            warning('Please select at least one tag to search.');
+            return;
+        }
+
+        if (this.$refs.searchTerm) {
+            this.$refs.searchTerm.value = '';
+        }
+
+        updateState({
+            selectedTagIds: tagIds,
+            searchMode: 'tags',
+            currentSearchTerm: ''
+        });
+
+        this.syncSelectedTagFilterNames();
+        resetPage();
+        await loadLinksByTags();
+    },
+
+    async clearTagFilter() {
+        clearTagSearchSelection();
+        this.syncSelectedTagFilterNames();
+
+        updateState({
+            selectedTagIds: [],
+            searchMode: 'text'
+        });
+
         resetPage();
         await this.load();
     },
@@ -124,5 +220,29 @@ Alpine.data('linksDashboard', () => ({
         const disabled = this.isRefreshing || this.isLoading;
         elements.refreshBtn.disabled = disabled;
         elements.refreshBtn.toggleAttribute('disabled', disabled);
+    },
+
+    getSelectedTagOptions() {
+        if (!elements.tagFilter?.selectedOptions) {
+            return [];
+        }
+
+        return Array.from(elements.tagFilter.selectedOptions);
+    },
+
+    getSelectedTagIds() {
+        return this.getSelectedTagOptions()
+            .map(option => Number.parseInt(option.value || option.getAttribute('value') || '', 10))
+            .filter(tagId => !Number.isNaN(tagId));
+    },
+
+    getSelectedTagNames() {
+        return this.getSelectedTagOptions()
+            .map(option => option.textContent?.trim())
+            .filter(Boolean);
+    },
+
+    syncSelectedTagFilterNames() {
+        this.selectedTagFilterNames = this.getSelectedTagNames();
     }
 }));

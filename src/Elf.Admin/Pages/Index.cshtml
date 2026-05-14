@@ -46,6 +46,7 @@
             <fluent-dropdown
                 id="tagFilter"
                 class="tag-filter-dropdown"
+                x-ref="tagFilter"
                 multiple
                 type="dropdown"
                 appearance="outline"
@@ -59,14 +60,18 @@
                     id="tagFilterControl"
                     role="combobox"
                     slot="control"
-                    type="button">
+                    type="button"
+                    x-ref="tagFilterControl"
+                    x-bind:class="{ 'is-placeholder': selectedTagFilterNames.length === 0 }"
+                    x-bind:title="selectedTagFilterLabel"
+                    x-text="selectedTagFilterLabel">
                     Select tags to filter...
                 </button>
             </fluent-dropdown>
-            <fluent-button type="button" id="tagSearchBtn" title="Search tags">
+            <fluent-button type="button" id="tagSearchBtn" title="Search tags" x-ref="tagSearchButton">
                 <i class="bi bi-search" aria-hidden="true"></i>
             </fluent-button>
-            <fluent-button type="button" id="clearTagFilterBtn" title="Clear tag filter">
+            <fluent-button type="button" id="clearTagFilterBtn" title="Clear tag filter" x-ref="clearTagFilterButton">
                 <i class="bi bi-x-lg" aria-hidden="true"></i>
             </fluent-button>
         </div>
