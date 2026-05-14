@@ -517,6 +517,7 @@ main {
 }
 
 .d-none,
+[x-cloak],
 [hidden] {
     display: none !important;
 }
@@ -723,6 +724,32 @@ main {
     padding: 0 4px;
 }
 
+.pagination-button {
+    min-height: 32px;
+    padding: 4px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+}
+
+    .pagination-button:hover:not(:disabled) {
+        border-color: var(--accent);
+    }
+
+    .pagination-button:disabled {
+        cursor: default;
+        opacity: 0.55;
+    }
+
+    .pagination-button.is-current {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: #fff;
+    }
+
 .inline-alert {
     border: 1px solid var(--border-subtle);
     border-radius: 6px;
@@ -815,28 +842,40 @@ main {
 }
 
 .tag-badge {
+    min-height: 28px;
+    padding: 3px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
     cursor: pointer;
     user-select: none;
 }
 
-    .tag-badge::part(control) {
-        transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    .tag-badge-hit {
+        display: inline-flex;
+        border-radius: 4px;
+        outline: none;
     }
 
-    .tag-badge:hover::part(control) {
+    .tag-badge {
+        transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .tag-badge:hover {
         transform: translateY(-1px);
     }
 
-    .tag-badge:focus-visible {
+    .tag-badge-hit:focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: 2px;
     }
 
-    .tag-badge[appearance="outline"]::part(control) {
-        opacity: 0.9;
-    }
-
-    .tag-badge.is-selected::part(control) {
+    .tag-badge.is-selected {
+        border-color: var(--accent);
+        background: #edf5fd;
+        color: var(--accent);
         box-shadow: 0 0 0 1px rgba(15, 108, 189, 0.18), 0 6px 14px rgba(15, 108, 189, 0.16);
     }
 

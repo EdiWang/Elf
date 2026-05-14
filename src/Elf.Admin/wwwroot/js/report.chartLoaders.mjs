@@ -5,20 +5,15 @@
 import { getTrackingCounts, getClientTypeCounts, getMostRequestedLinks } from './report.apiclient.mjs';
 import { createRequestsLineChart, createClientTypesPieChart, createMostRequestedLinksDoughnutChart } from './report.charts.mjs';
 import { createDateRangeRequest } from './report.dateUtils.mjs';
-import { setLoadingState, handleError } from './report.uiState.mjs';
+import { handleError } from './report.uiState.mjs';
 
 /**
  * Load and display the requests line chart
  * @param {HTMLInputElement} startDateInput - Start date input element
  * @param {HTMLInputElement} endDateInput - End date input element
- * @param {HTMLElement} refreshBtn - Refresh button element
- * @param {HTMLElement} refreshSpinner - Refresh spinner element
  */
-export async function loadRequestsChart(startDateInput, endDateInput, refreshBtn, refreshSpinner) {
+export async function loadRequestsChart(startDateInput, endDateInput) {
     try {
-        // Show loading state
-        setLoadingState(true, refreshBtn, refreshSpinner);
-
         // Prepare date range request
         const dateRangeRequest = createDateRangeRequest(startDateInput.value, endDateInput.value);
 
@@ -30,9 +25,6 @@ export async function loadRequestsChart(startDateInput, endDateInput, refreshBtn
 
     } catch (error) {
         handleError(error, 'loading requests chart');
-    } finally {
-        // Hide loading state
-        setLoadingState(false, refreshBtn, refreshSpinner);
     }
 }
 

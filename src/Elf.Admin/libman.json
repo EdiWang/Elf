@@ -9,6 +9,13 @@
     {
       "library": "@fluentui/web-components@3.0.0-rc.18",
       "destination": "wwwroot/lib/fluentui/web-components/"
+    },
+    {
+      "library": "alpinejs@3.15.8",
+      "destination": "wwwroot/lib/alpinejs/",
+      "files": [
+        "dist/module.esm.min.js"
+      ]
     }
   ]
 }

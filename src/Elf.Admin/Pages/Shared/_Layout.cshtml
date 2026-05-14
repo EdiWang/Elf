@@ -3,6 +3,7 @@
 @inject IConfiguration Configuration
 @{
     var forwarderBaseUrl = Configuration["ForwarderBaseUrl"] ?? string.Empty;
+    var alpineData = ViewBag.XData as string ?? "{}";
 }
 <!DOCTYPE html>
 <html lang="en" data-forwarder-base-url="@forwarderBaseUrl">
@@ -37,7 +38,7 @@
             <partial name="_Aside" />
         </aside>
 
-        <main role="main">
+        <main role="main" x-data="@alpineData">
             @RenderBody()
         </main>
     </div>

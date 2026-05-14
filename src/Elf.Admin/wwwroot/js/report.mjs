@@ -1,33 +1,56 @@
+import { Alpine } from './alpine-init.mjs';
 import { setDefaultDates, validateDateRange, setupDateValidation } from './report.dateUtils.mjs';
 import { loadRequestsChart, loadClientTypesChart, loadMostRequestedLinksChart } from './report.chartLoaders.mjs';
 import { loadRecentRequestsTable } from './report.trackingRecords.mjs';
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Initialize DOM elements
-    const startDateInput = document.getElementById('startDate');
-    const endDateInput = document.getElementById('endDate');
-    const refreshBtn = document.getElementById('refreshChartBtn');
-    const refreshSpinner = document.getElementById('refreshSpinner');
+Alpine.data('reportDashboard', () => ({
+    isRefreshing: false,
 
-    // Set default dates (last 7 days)
-    setDefaultDates(startDateInput, endDateInput);
+    init() {
+        setDefaultDates(this.$refs.startDate, this.$refs.endDate);
+        setupDateValidation(this.$refs.startDate, this.$refs.endDate);
 
-    // Setup date validation
-    setupDateValidation(startDateInput, endDateInput);
+        this.$refs.refreshButton?.addEventListener('click', () => this.refresh());
+        this.refresh();
+    },
 
-    // Initialize charts and table on page load
-    loadRequestsChart(startDateInput, endDateInput, refreshBtn, refreshSpinner);
-    loadClientTypesChart(startDateInput, endDateInput);
-    window.reportPageData?.linkId ?? loadMostRequestedLinksChart(startDateInput, endDateInput);
-    loadRecentRequestsTable();
-
-    // Refresh chart button click handler
-    refreshBtn.addEventListener('click', function () {
-        if (validateDateRange(startDateInput, endDateInput)) {
-            loadRequestsChart(startDateInput, endDateInput, refreshBtn, refreshSpinner);
-            loadClientTypesChart(startDateInput, endDateInput);
-            window.reportPageData?.linkId ?? loadMostRequestedLinksChart(startDateInput, endDateInput);
-            loadRecentRequestsTable();
+    async refresh() {
+        if (!validateDateRange(this.$refs.startDate, this.$refs.endDate)) {
+            return;
         }
-    });
-});
+
+        await this.loadReport();
+    },
+
+    async loadReport() {
+        this.isRefreshing = true;
+        this.syncRefreshButtonState();
+
+        try {
+            const loaders = [
+                loadRequestsChart(this.$refs.startDate, this.$refs.endDate),
+                loadClientTypesChart(this.$refs.startDate, this.$refs.endDate),
+                loadRecentRequestsTable()
+            ];
+
+            if (!window.reportPageData?.linkId) {
+                loaders.push(loadMostRequestedLinksChart(this.$refs.startDate, this.$refs.endDate));
+            }
+
+            await Promise.all(loaders);
+        } finally {
+            this.isRefreshing = false;
+            this.syncRefreshButtonState();
+        }
+    },
+
+    syncRefreshButtonState() {
+        const refreshButton = this.$refs.refreshButton;
+        if (!refreshButton) {
+            return;
+        }
+
+        refreshButton.disabled = this.isRefreshing;
+        refreshButton.toggleAttribute('disabled', this.isRefreshing);
+    }
+}));

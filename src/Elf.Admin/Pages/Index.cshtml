@@ -1,6 +1,7 @@
 ﻿@page
 @{
     ViewData["Title"] = "Links";
+    ViewBag.XData = "linksDashboard";
 }
 
 <section class="command-bar">
@@ -9,7 +10,7 @@
             <i class="bi bi-plus-lg" aria-hidden="true"></i>
             New
         </fluent-button>
-        <fluent-button id="refreshBtn" title="Refresh links">
+        <fluent-button id="refreshBtn" title="Refresh links" x-ref="refreshButton">
             <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
         </fluent-button>
         <div class="toolbar-selection-actions" aria-label="Selected link actions">
@@ -32,11 +33,11 @@
     </div>
     <div class="command-filters">
         <div class="command-group search-group">
-            <fluent-text-input type="text" id="searchTerm" placeholder="Search links by note or token..."></fluent-text-input>
-            <fluent-button type="button" id="searchBtn" title="Search">
+            <fluent-text-input type="text" id="searchTerm" x-ref="searchTerm" placeholder="Search links by note or token..."></fluent-text-input>
+            <fluent-button type="button" id="searchBtn" title="Search" x-ref="searchButton">
                 <i class="bi bi-search" aria-hidden="true"></i>
             </fluent-button>
-            <fluent-button type="button" id="clearBtn" title="Clear search">
+            <fluent-button type="button" id="clearBtn" title="Clear search" x-ref="clearButton">
                 <i class="bi bi-x-lg" aria-hidden="true"></i>
             </fluent-button>
         </div>
@@ -45,6 +46,7 @@
             <fluent-dropdown
                 id="tagFilter"
                 class="tag-filter-dropdown"
+                x-ref="tagFilter"
                 multiple
                 type="dropdown"
                 appearance="outline"
@@ -58,21 +60,25 @@
                     id="tagFilterControl"
                     role="combobox"
                     slot="control"
-                    type="button">
+                    type="button"
+                    x-ref="tagFilterControl"
+                    x-bind:class="{ 'is-placeholder': selectedTagFilterNames.length === 0 }"
+                    x-bind:title="selectedTagFilterLabel"
+                    x-text="selectedTagFilterLabel">
                     Select tags to filter...
                 </button>
             </fluent-dropdown>
-            <fluent-button type="button" id="tagSearchBtn" title="Search tags">
+            <fluent-button type="button" id="tagSearchBtn" title="Search tags" x-ref="tagSearchButton">
                 <i class="bi bi-search" aria-hidden="true"></i>
             </fluent-button>
-            <fluent-button type="button" id="clearTagFilterBtn" title="Clear tag filter">
+            <fluent-button type="button" id="clearTagFilterBtn" title="Clear tag filter" x-ref="clearTagFilterButton">
                 <i class="bi bi-x-lg" aria-hidden="true"></i>
             </fluent-button>
         </div>
     </div>
 </section>
 
-<div id="loadingSpinner" class="loading-panel d-none">
+<div id="loadingSpinner" class="loading-panel" x-show="isLoading" x-cloak>
     <fluent-progress-ring></fluent-progress-ring>
     <span class="sr-only">Loading...</span>
 </div>
@@ -93,20 +99,20 @@
                     <th scope="col" class="column-updated">Updated</th>
                 </tr>
             </thead>
-            <tbody id="linksData"></tbody>
+            <tbody id="linksData" x-bind:style="isLoading ? 'opacity: 0.5' : 'opacity: 1'"></tbody>
         </table>
     </div>
 </div>
 
-<div id="noDataMessage" class="empty-state d-none">
+<div id="noDataMessage" class="empty-state" x-show="showEmptyState" x-cloak>
     <h2>No links found</h2>
     <p>Try adjusting your search criteria or add a new link.</p>
 </div>
 
-<nav aria-label="Links pagination" id="paginationContainer" class="pagination-shell">
+<nav aria-label="Links pagination" id="paginationContainer" class="pagination-shell" x-show="!showEmptyState">
     <div class="pagination-size">
         <label for="pageSize">Show</label>
-        <fluent-dropdown id="pageSize" class="page-size-dropdown" aria-label="Page size" value="10">
+        <fluent-dropdown id="pageSize" class="page-size-dropdown" aria-label="Page size" value="10" x-ref="pageSize">
             <fluent-listbox>
                 <fluent-option value="10" selected>10</fluent-option>
                 <fluent-option value="25">25</fluent-option>
@@ -114,9 +120,27 @@
                 <fluent-option value="100">100</fluent-option>
             </fluent-listbox>
         </fluent-dropdown>
-        <span id="recordsInfo" class="muted-text"></span>
+        <span id="recordsInfo" class="muted-text" x-text="recordsInfo"></span>
     </div>
-    <div class="pagination-actions" id="pagination"></div>
+    <div class="pagination-actions" id="pagination" x-ref="pagination">
+        <template x-for="item in paginationItems" x-bind:key="item.key">
+            <span>
+                <template x-if="item.type === 'ellipsis'">
+                    <span class="pagination-ellipsis" x-text="item.label"></span>
+                </template>
+                <template x-if="item.type === 'button'">
+                    <button type="button"
+                            class="pagination-button"
+                            x-bind:class="{ 'is-current': item.current }"
+                            x-bind:disabled="item.disabled"
+                            x-bind:aria-current="item.current ? 'page' : null"
+                            x-bind:data-page="item.page"
+                            x-on:click="goToPage(item.page)"
+                            x-text="item.label"></button>
+                </template>
+            </span>
+        </template>
+    </div>
 </nav>
 
 <partial name="_DeleteModal" />
