@@ -3,24 +3,6 @@
  */
 
 /**
- * Show or hide loading state
- * @param {boolean} isLoading - Whether to show loading state
- * @param {HTMLElement} refreshBtn - Refresh button element
- * @param {HTMLElement} refreshSpinner - Refresh spinner element
- */
-export function setLoadingState(isLoading, refreshBtn, refreshSpinner) {
-    if (isLoading) {
-        refreshSpinner.classList.remove('d-none');
-        refreshSpinner.removeAttribute('aria-hidden');
-        refreshBtn.disabled = true;
-    } else {
-        refreshSpinner.classList.add('d-none');
-        refreshSpinner.setAttribute('aria-hidden', 'true');
-        refreshBtn.disabled = false;
-    }
-}
-
-/**
  * Handle errors with logging and optional user feedback
  * @param {Error} error - The error that occurred
  * @param {string} context - Context where the error occurred

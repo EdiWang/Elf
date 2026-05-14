@@ -1,6 +1,7 @@
 ﻿@page "/Report"
 @{
     ViewData["Title"] = "Report";
+    ViewBag.XData = "reportDashboard";
 }
 
 <div class="report-sections" id="reportSections">
@@ -12,17 +13,19 @@
                         <div class="date-command-bar">
                             <div class="form-field">
                                 <label for="startDate">Start Date</label>
-                                <fluent-text-input type="date" id="startDate" name="startDate" required></fluent-text-input>
+                                <fluent-text-input type="date" id="startDate" name="startDate" x-ref="startDate" required></fluent-text-input>
                                 <div class="invalid-feedback" id="startDateError"></div>
                             </div>
                             <div class="form-field">
                                 <label for="endDate">End Date</label>
-                                <fluent-text-input type="date" id="endDate" name="endDate" required></fluent-text-input>
+                                <fluent-text-input type="date" id="endDate" name="endDate" x-ref="endDate" required></fluent-text-input>
                                 <div class="invalid-feedback" id="endDateError"></div>
                             </div>
                             <div class="form-field command-align-end">
-                                <fluent-button appearance="primary" type="button" id="refreshChartBtn">
-                                    <fluent-progress-ring class="inline-progress d-none" id="refreshSpinner" aria-hidden="true"></fluent-progress-ring>
+                                <fluent-button appearance="primary" type="button" id="refreshChartBtn" x-ref="refreshButton">
+                                    <span x-show="isRefreshing" x-cloak>
+                                        <fluent-progress-ring class="inline-progress" id="refreshSpinner" aria-hidden="true"></fluent-progress-ring>
+                                    </span>
                                     <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
                                     Refresh Chart
                                 </fluent-button>
