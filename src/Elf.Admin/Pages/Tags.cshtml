@@ -1,72 +1,95 @@
 ﻿@page "/Tags"
 @{
     ViewData["Title"] = "Tags";
+    ViewBag.XData = "tagManager";
 }
 
 <section class="command-bar">
     <div class="command-actions">
-        <fluent-button appearance="primary" type="button" id="addTagBtn">
+        <fluent-button x-ref="addTagBtn" appearance="primary" type="button" id="addTagBtn">
             <i class="bi bi-plus-lg" aria-hidden="true"></i>
             New
         </fluent-button>
-        <fluent-button type="button" id="refreshTagBtn" title="Refresh tags">
+        <fluent-button x-ref="refreshTagBtn" type="button" id="refreshTagBtn" title="Refresh tags">
             <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
         </fluent-button>
         <div class="toolbar-selection-actions" aria-label="Selected tag actions">
-            <fluent-button type="button" id="editTagActionBtn" title="Edit tag" disabled>
+            <fluent-button x-ref="editTagActionBtn" type="button" id="editTagActionBtn" title="Edit tag" disabled>
                 <i class="bi bi-pencil-square" aria-hidden="true"></i>
             </fluent-button>
-            <fluent-button type="button" id="deleteTagActionBtn" class="danger-action" title="Delete tag" disabled>
+            <fluent-button x-ref="deleteTagActionBtn" type="button" id="deleteTagActionBtn" class="danger-action" title="Delete tag" disabled>
                 <i class="bi bi-trash" aria-hidden="true"></i>
             </fluent-button>
         </div>
     </div>
 </section>
 
-<fluent-dialog id="tagEditModal" type="modal" aria-labelledby="tagEditModalLabel">
+<fluent-dialog x-ref="tagEditModal" type="modal" aria-labelledby="tagEditModalLabel">
     <fluent-dialog-body>
-        <span slot="title" id="tagEditModalLabel">Create Tag</span>
-        <form id="tagEditForm">
-            <input type="hidden" id="tagId" />
+        <span slot="title" id="tagEditModalLabel" x-text="editingTagId ? 'Edit Tag' : 'Create Tag'">Create Tag</span>
+        <form x-ref="tagEditForm" id="tagEditForm">
             <div class="form-field short-field">
-                <fluent-text-input type="text" id="tagName" name="name" maxlength="32" required>Tag Name *</fluent-text-input>
-                <div class="invalid-feedback" id="tagNameError"></div>
+                <fluent-text-input x-ref="tagName"
+                                   type="text"
+                                   id="tagName"
+                                   name="name"
+                                   maxlength="32"
+                                   required>Tag Name *</fluent-text-input>
+                <div class="invalid-feedback" id="tagNameError" x-text="validationMessage"></div>
                 <div class="form-help">Maximum 32 characters</div>
             </div>
         </form>
-        <fluent-button slot="action" appearance="secondary" type="button" id="cancelTagBtn">
+        <fluent-button slot="action" appearance="secondary" type="button" data-dialog-close>
             Cancel
         </fluent-button>
-        <fluent-button slot="action" appearance="primary" type="submit" form="tagEditForm" id="saveTagBtn">
-            Save
+        <fluent-button x-ref="saveTagBtn" slot="action" appearance="primary" type="button" id="saveTagBtn">
+            <span x-show="isSaving"><fluent-progress-ring class="inline-progress" aria-hidden="true"></fluent-progress-ring></span>
+            <i x-show="!isSaving" class="bi bi-check-lg" aria-hidden="true"></i>
+            <span x-text="isSaving ? 'Saving...' : 'Save'"></span>
         </fluent-button>
     </fluent-dialog-body>
 </fluent-dialog>
 
 <!-- Tags List -->
-<div id="loadingSpinner" class="loading-panel d-none">
+<div class="loading-panel" x-show="isLoading" x-cloak>
     <fluent-progress-ring></fluent-progress-ring>
     <span class="sr-only">Loading...</span>
 </div>
 
-<div id="noTagsMessage" class="empty-state d-none">
+<div class="empty-state" x-show="!isLoading && !hasTags" x-cloak>
     <span class="empty-state-icon" aria-hidden="true">#</span>
     <p class="mt-2">No tags found. Create your first tag to get started.</p>
 </div>
 
-<div id="tagsGridContainer" class="tags-grid-shell d-none">
-    <div id="tagsGrid" class="tag-grid" role="listbox" aria-label="Tags" aria-orientation="horizontal"></div>
+<div class="tags-grid-shell" x-show="!isLoading && hasTags" x-cloak>
+    <div x-ref="tagGrid" class="tag-grid" role="listbox" aria-label="Tags" aria-orientation="horizontal">
+        <template x-for="tag in sortedTags" x-bind:key="tag.id">
+            <span class="tag-badge-hit"
+                  role="option"
+                  tabindex="0"
+                  x-bind:aria-selected="tag.id === selectedTagId ? 'true' : 'false'"
+                  x-bind:data-tag-id="tag.id">
+                <button type="button"
+                        class="tag-badge"
+                        x-bind:data-tag-id="tag.id"
+                        x-bind:class="{ 'is-selected': tag.id === selectedTagId }"
+                        x-bind:title="tag.name"
+                        x-text="tag.name"></button>
+            </span>
+        </template>
+    </div>
 </div>
 
-<fluent-dialog id="deleteTagModal" type="modal" aria-labelledby="deleteTagModalLabel">
+<fluent-dialog x-ref="deleteTagModal" type="modal" aria-labelledby="deleteTagModalLabel">
     <fluent-dialog-body>
         <span slot="title" id="deleteTagModalLabel">Confirm Delete</span>
-        <p>Are you sure you want to delete the tag "<strong id="deleteTagName"></strong>"?</p>
+        <p>Are you sure you want to delete the tag "<strong x-text="tagToDelete?.name ?? ''"></strong>"?</p>
         <p class="danger-text"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> This action cannot be undone.</p>
         <fluent-button slot="action" appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
-        <fluent-button slot="action" appearance="primary" type="button" id="confirmDeleteBtn">
-            <i class="bi bi-trash" aria-hidden="true"></i>
-            Delete
+        <fluent-button x-ref="confirmDeleteBtn" slot="action" appearance="primary" type="button" id="confirmDeleteBtn">
+            <span x-show="isDeleting"><fluent-progress-ring class="inline-progress" aria-hidden="true"></fluent-progress-ring></span>
+            <i x-show="!isDeleting" class="bi bi-trash" aria-hidden="true"></i>
+            <span x-text="isDeleting ? 'Deleting...' : 'Delete'"></span>
         </fluent-button>
     </fluent-dialog-body>
 </fluent-dialog>
