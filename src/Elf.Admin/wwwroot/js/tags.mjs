@@ -213,6 +213,7 @@ Alpine.data('tagManager', () => ({
             await this.loadTags();
         } catch (err) {
             console.error('Error deleting tag:', err);
+            error('Failed to delete tag. Please try again.');
         } finally {
             this.isDeleting = false;
             this.syncDeletingState();
