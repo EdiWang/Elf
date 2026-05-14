@@ -147,6 +147,7 @@ Alpine.data('tagManager', () => ({
             await this.loadTags(preferredSelectedTagId);
         } catch (err) {
             console.error('Error saving tag:', err);
+            error('Failed to save tag. Please try again.');
         } finally {
             this.isSaving = false;
             this.syncSavingState();
