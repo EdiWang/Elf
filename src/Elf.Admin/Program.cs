@@ -1,5 +1,6 @@
 using Edi.AspNetCore.Utils;
 using Elf.Admin.Data;
+using Elf.Admin.Services;
 using Elf.Shared;
 using Elf.TokenGenerator;
 using LiteBus.Commands;
@@ -55,6 +56,11 @@ public class Program
         services.AddControllers();
         services.AddHealthChecks();
         services.AddOptions();
+        services.Configure<LinkTrackingCleanupOptions>(configuration.GetSection("LinkTrackingCleanup"));
+        if (configuration.GetValue("LinkTrackingCleanup:RetentionDays", 365) > 0)
+        {
+            services.AddHostedService<LinkTrackingCleanupService>();
+        }
         services.AddFeatureManagement();
 
         var redisConn = configuration.GetConnectionString("RedisConnection");
