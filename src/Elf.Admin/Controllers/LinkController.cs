@@ -68,7 +68,8 @@ public class LinkController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> SetEnable(int id, bool isEnabled)
     {
-        await commandMediator.SendAsync(new SetEnableCommand(id, isEnabled));
+        var token = await commandMediator.SendAsync(new SetEnableCommand(id, isEnabled));
+        if (token is not null) await cache.RemoveAsync(token);
         return NoContent();
     }
 

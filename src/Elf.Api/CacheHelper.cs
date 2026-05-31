@@ -17,18 +17,16 @@ public static class DistributedCacheExtensions
         return cachedLink;
     }
 
-    public static async Task SetLink(this IDistributedCache cache, string token, LinkEntity link, TimeSpan? ttl = null)
+    public static async Task SetLink(this IDistributedCache cache, string token, LinkEntity link, TimeSpan? ttl)
     {
+        if (ttl is null || ttl <= TimeSpan.Zero)
+        {
+            return;
+        }
+
         var json = JsonSerializer.Serialize(link);
         var bytes = Encoding.UTF8.GetBytes(json);
 
-        if (ttl == null)
-        {
-            await cache.SetAsync(token, bytes);
-        }
-        else
-        {
-            await cache.SetAsync(token, bytes, new() { SlidingExpiration = ttl });
-        }
+        await cache.SetAsync(token, bytes, new() { AbsoluteExpirationRelativeToNow = ttl });
     }
 }

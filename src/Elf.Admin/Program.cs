@@ -57,6 +57,16 @@ public class Program
         services.AddOptions();
         services.AddFeatureManagement();
 
+        var redisConn = configuration.GetConnectionString("RedisConnection");
+        if (!string.IsNullOrWhiteSpace(redisConn))
+        {
+            services.AddStackExchangeRedisCache(options => options.Configuration = redisConn);
+        }
+        else
+        {
+            services.AddDistributedMemoryCache();
+        }
+
         services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
         services.AddScoped<ILinkVerifier, LinkVerifier>();
 
