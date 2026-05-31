@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Elf.Shared;
 
 namespace Elf.Admin.Models;
 
@@ -16,8 +17,8 @@ public class LinkEditModel
 
     [Display(Name = "Aka")]
     [MaxLength(32)]
-    [RegularExpression("(?!-)([a-z0-9-]+)",
-        ErrorMessage = "Aka can only accept lower case English letters (a-z) and numbers (0-9) with/out hyphen (-) in middle.")]
+    [RegularExpression(IdentifierRules.AkaNamePattern,
+        ErrorMessage = "Aka can only contain lowercase letters, numbers, and hyphens, and cannot start or end with a hyphen.")]
     public string AkaName { get; set; }
 
     [Required]

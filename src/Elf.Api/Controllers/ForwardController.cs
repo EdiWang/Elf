@@ -32,7 +32,7 @@ public class ForwardController(
     private StringValues UserAgent => Request.Headers.UserAgent;
 
     [AddElfHeader]
-    [HttpGet("/aka/{akaName:regex(^(?!-)([[a-zA-Z0-9-]]+)$)}")]
+    [HttpGet("/aka/{akaName:" + IdentifierRules.AkaNameRouteConstraint + "}")]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Aka(string akaName)
     {

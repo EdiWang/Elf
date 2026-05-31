@@ -9,7 +9,8 @@ public class ShortGuidTokenGenerator : ITokenGenerator
     public bool TryParseToken(string input, out string token)
     {
         token = null;
-        if (input.Length != Length) return false;
+        if (string.IsNullOrWhiteSpace(input) || input.Length != Length) return false;
+        if (!input.All(c => char.IsDigit(c) || c is >= 'a' and <= 'f')) return false;
 
         token = input;
         return true;

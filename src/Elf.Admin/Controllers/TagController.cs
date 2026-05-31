@@ -4,6 +4,7 @@ using Elf.Admin.Models;
 using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Admin.Controllers;
 
@@ -29,6 +30,10 @@ public class TagController(ICommandMediator commandMediator, IQueryMediator quer
         {
             await commandMediator.SendAsync(command);
         }
+        catch (ValidationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
         catch (DuplicateResourceException ex)
         {
             return Conflict(ex.Message);
@@ -48,6 +53,10 @@ public class TagController(ICommandMediator commandMediator, IQueryMediator quer
         try
         {
             code = await commandMediator.SendAsync(new UpdateTagCommand(id, request));
+        }
+        catch (ValidationException ex)
+        {
+            return BadRequest(ex.Message);
         }
         catch (DuplicateResourceException ex)
         {

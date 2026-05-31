@@ -43,6 +43,10 @@ public class LinkController(
         {
             await commandMediator.SendAsync(new CreateLinkCommand(model));
         }
+        catch (ValidationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
         catch (DuplicateResourceException ex)
         {
             return Conflict(ex.Message);
@@ -73,6 +77,10 @@ public class LinkController(
         try
         {
             token = await commandMediator.SendAsync(new EditLinkCommand(id, model));
+        }
+        catch (ValidationException ex)
+        {
+            return BadRequest(ex.Message);
         }
         catch (DuplicateResourceException ex)
         {
