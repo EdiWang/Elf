@@ -24,6 +24,7 @@ public class ElfDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new LinkEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new TagEntityConfiguration());
         modelBuilder.ApplyConfiguration(new LinkTrackingEntityConfiguration());
 
         modelBuilder

@@ -1,13 +1,21 @@
 import { html } from '@microsoft/fast-element';
-import { badgeTemplate } from '../badge/badge.template.js';
-function composeTemplate(options = {}) {
-    return badgeTemplate({
-        defaultContent: html `${x => x.setCount()}`,
-    });
-}
+import { endSlotTemplate, startSlotTemplate } from '../patterns/start-end.js';
 /**
- * The template for the Counter Badge component.
+ * Generates a template for the CounterBadge component.
+ *
  * @public
  */
-export const template = composeTemplate();
+export function counterBadgeTemplate(options = {}) {
+    return html `
+    ${startSlotTemplate(options)}
+    <span>${x => x.displayValue}</span>
+    ${endSlotTemplate(options)}
+  `;
+}
+/**
+ * The template for the fluent-counter-badge component.
+ *
+ * @public
+ */
+export const template = counterBadgeTemplate();
 //# sourceMappingURL=counter-badge.template.js.map

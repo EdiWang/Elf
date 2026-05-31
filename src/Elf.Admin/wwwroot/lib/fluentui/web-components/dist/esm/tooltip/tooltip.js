@@ -17,9 +17,7 @@ export class Tooltip extends FASTElement {
      * @internal
      */
     positioningChanged() {
-        if (!AnchorPositioningCSSSupported) {
-            this.setFallbackStyles();
-        }
+        this.setFallbackStyles();
     }
     /**
      * Reference to the anchor element
@@ -73,10 +71,16 @@ export class Tooltip extends FASTElement {
          * Hide the tooltip on blur
          */
         this.blurAnchorHandler = () => this.hideTooltip(0);
+        /**
+         * Indicates whether the tooltip styles have been applied for browsers that do not support anchor positioning.
+         * @internal
+         */
+        this.anchorPositioningReady = false;
         this.elementInternals.role = 'tooltip';
     }
     connectedCallback() {
         super.connectedCallback();
+        this.popover ??= 'auto';
         // If the anchor element is not found, tooltip will not be shown
         if (!this.anchorElement) {
             return;
@@ -101,11 +105,24 @@ export class Tooltip extends FASTElement {
         Updates.enqueue(() => this.setFallbackStyles());
     }
     disconnectedCallback() {
-        super.disconnectedCallback();
         this.anchorElement?.removeEventListener('focus', this.focusAnchorHandler);
         this.anchorElement?.removeEventListener('blur', this.blurAnchorHandler);
         this.anchorElement?.removeEventListener('mouseenter', this.mouseenterAnchorHandler);
         this.anchorElement?.removeEventListener('mouseleave', this.mouseleaveAnchorHandler);
+        if (this.anchorElement) {
+            const describedBy = this.anchorElement.getAttribute('aria-describedby') ?? '';
+            const ids = describedBy
+                .trim()
+                .split(/\s+/)
+                .filter(id => id !== this.id);
+            if (ids.length) {
+                this.anchorElement.setAttribute('aria-describedby', ids.join(' '));
+            }
+            else {
+                this.anchorElement.removeAttribute('aria-describedby');
+            }
+        }
+        super.disconnectedCallback();
     }
     /**
      * Shows the tooltip
@@ -113,6 +130,12 @@ export class Tooltip extends FASTElement {
      * @internal
      */
     showTooltip(delay = this.defaultDelay) {
+        if (!this.anchorPositioningReady) {
+            this.setFallbackStyles().then(() => {
+                this.showTooltip(delay);
+            });
+            return;
+        }
         setTimeout(() => {
             this.setAttribute('aria-hidden', 'false');
             this.showPopover();
@@ -134,7 +157,15 @@ export class Tooltip extends FASTElement {
             this.hidePopover();
         }, delay);
     }
-    setFallbackStyles() {
+    /**
+     * Sets fallback styles for the tooltip for browsers that do not support CSS anchor positioning.
+     * @internal
+     */
+    async setFallbackStyles() {
+        if (AnchorPositioningCSSSupported) {
+            this.anchorPositioningReady = true;
+            return;
+        }
         if (!this.anchorElement) {
             return;
         }
@@ -183,7 +214,8 @@ export class Tooltip extends FASTElement {
       }
     `;
         if (window.CSS_ANCHOR_POLYFILL) {
-            window.CSS_ANCHOR_POLYFILL.call({ element: this.anchorPositioningStyleElement });
+            await window.CSS_ANCHOR_POLYFILL({ elements: [this.anchorPositioningStyleElement] });
+            this.anchorPositioningReady = true;
         }
     }
 }

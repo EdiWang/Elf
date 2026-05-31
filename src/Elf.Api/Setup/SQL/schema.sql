@@ -65,6 +65,26 @@ CREATE TABLE [dbo].[Tag](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Link_FwToken]
+ON [dbo].[Link] ([FwToken] ASC)
+WHERE [FwToken] IS NOT NULL
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Link_AkaName]
+ON [dbo].[Link] ([AkaName] ASC)
+WHERE [AkaName] IS NOT NULL
+GO
+CREATE NONCLUSTERED INDEX [IX_Link_UpdateTimeUtc]
+ON [dbo].[Link] ([UpdateTimeUtc] DESC)
+GO
+CREATE NONCLUSTERED INDEX [IX_LinkTracking_LinkId_RequestTimeUtc]
+ON [dbo].[LinkTracking] ([LinkId] ASC, [RequestTimeUtc] DESC)
+GO
+CREATE NONCLUSTERED INDEX [IX_LinkTracking_RequestTimeUtc]
+ON [dbo].[LinkTracking] ([RequestTimeUtc] DESC)
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Tag_Name]
+ON [dbo].[Tag] ([Name] ASC)
+GO
 ALTER TABLE [dbo].[LinkTag]  WITH CHECK ADD  CONSTRAINT [FK_LinkTag_Link] FOREIGN KEY([LinkId])
 REFERENCES [dbo].[Link] ([Id])
 GO

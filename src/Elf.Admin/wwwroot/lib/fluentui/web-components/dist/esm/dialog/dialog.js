@@ -1,5 +1,5 @@
 import { __decorate } from "tslib";
-import { attr, FASTElement, observable, Updates } from '@microsoft/fast-element';
+import { attr, FASTElement, observable, Updates, volatile } from '@microsoft/fast-element';
 import { DialogType } from './dialog.options.js';
 /**
  * A Dialog Custom HTML Element.
@@ -11,24 +11,6 @@ import { DialogType } from './dialog.options.js';
 export class Dialog extends FASTElement {
     constructor() {
         super(...arguments);
-        /**
-         * The type of the dialog modal
-         *
-         * @public
-         */
-        this.type = DialogType.modal;
-        /**
-         * Method to emit an event before the dialog's open state changes
-         * HTML spec proposal: https://github.com/whatwg/html/issues/9733
-         *
-         * @public
-         */
-        this.emitBeforeToggle = () => {
-            this.$emit('beforetoggle', {
-                oldState: this.dialog.open ? 'open' : 'closed',
-                newState: this.dialog.open ? 'closed' : 'open',
-            });
-        };
         /**
          * Method to emit an event after the dialog's open state changes
          * HTML spec proposal: https://github.com/whatwg/html/issues/9733
@@ -42,11 +24,78 @@ export class Dialog extends FASTElement {
             });
         };
     }
-    dialogChanged() {
-        this.updateDialogAttributes();
+    /**
+     * The `aria-describedby` attribute value for the dialog, which is determined by the `ariaDescribedby` property. This
+     * is used to ensure that the dialog's accessible description is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogDescribedby() {
+        if (this.dialog) {
+            return this.ariaDescribedby;
+        }
     }
-    typeChanged(prev, next) {
-        this.updateDialogAttributes();
+    /**
+     * The `aria-label` attribute value for the dialog, which is determined by the `ariaLabel` property. This is used to
+     * ensure that the dialog's accessible name is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogLabel() {
+        if (this.dialog) {
+            return this.ariaLabel;
+        }
+    }
+    /**
+     * The `aria-labelledby` attribute value for the dialog, which is determined by the `ariaLabelledby` property. This is
+     * used to ensure that the dialog's accessible name is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogLabelledby() {
+        if (this.dialog) {
+            return this.ariaLabelledby;
+        }
+    }
+    /**
+     * The modal state of the dialog, which is determined by the `type` property. If the dialog is not a non-modal dialog,
+     * the modal state will be true, otherwise it will be undefined.
+     *
+     * @internal
+     */
+    get dialogModal() {
+        if (this.dialog && this.type !== DialogType.nonModal) {
+            return true;
+        }
+    }
+    /**
+     * The role of the dialog, which is determined by the `type` property. If the dialog is an alert dialog, the role will
+     * be 'alertdialog', otherwise it will be undefined.
+     *
+     * @internal
+     */
+    get dialogRole() {
+        if (this.dialog && this.type === DialogType.alert) {
+            return 'alertdialog';
+        }
+    }
+    connectedCallback() {
+        super.connectedCallback();
+        Updates.enqueue(() => {
+            this.type = this.type ?? DialogType.modal;
+        });
+    }
+    /**
+     * Method to emit an event before the dialog's open state changes
+     * HTML spec proposal: https://github.com/whatwg/html/issues/9733
+     *
+     * @public
+     */
+    emitBeforeToggle() {
+        this.$emit('beforetoggle', {
+            oldState: this.dialog.open ? 'open' : 'closed',
+            newState: this.dialog.open ? 'closed' : 'open',
+        });
     }
     /**
      * Method to show the dialog
@@ -88,28 +137,6 @@ export class Dialog extends FASTElement {
         }
         return true;
     }
-    /**
-     * Updates the internal dialog element's attributes based on its type.
-     *
-     * @internal
-     */
-    updateDialogAttributes() {
-        if (!this.dialog) {
-            return;
-        }
-        if (this.type === DialogType.alert) {
-            this.dialog.setAttribute('role', 'alertdialog');
-        }
-        else {
-            this.dialog.removeAttribute('role');
-        }
-        if (this.type !== DialogType.nonModal) {
-            this.dialog.setAttribute('aria-modal', 'true');
-        }
-        else {
-            this.dialog.removeAttribute('aria-modal');
-        }
-    }
 }
 __decorate([
     observable
@@ -126,4 +153,19 @@ __decorate([
 __decorate([
     attr
 ], Dialog.prototype, "type", void 0);
+__decorate([
+    volatile
+], Dialog.prototype, "dialogDescribedby", null);
+__decorate([
+    volatile
+], Dialog.prototype, "dialogLabel", null);
+__decorate([
+    volatile
+], Dialog.prototype, "dialogLabelledby", null);
+__decorate([
+    volatile
+], Dialog.prototype, "dialogModal", null);
+__decorate([
+    volatile
+], Dialog.prototype, "dialogRole", null);
 //# sourceMappingURL=dialog.js.map

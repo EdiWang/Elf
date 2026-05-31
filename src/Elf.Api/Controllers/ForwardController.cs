@@ -129,7 +129,7 @@ public class ForwardController(
 
     private async Task CacheLinkAsync(string token, LinkEntity link)
     {
-        var cacheExpiration = link.TTL.HasValue
+        var cacheExpiration = link.TTL is > 0
             ? TimeSpan.FromSeconds(link.TTL.Value)
             : (TimeSpan?)null;
 

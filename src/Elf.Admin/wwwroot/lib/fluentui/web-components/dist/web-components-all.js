@@ -76,6 +76,44 @@ switch (kernelMode) {
         break;
 }
 /**
+ * Warning and error messages.
+ * @internal
+ */
+var Message;
+(function (Message) {
+    // 1000 - 1100 Kernel
+    // 1101 - 1200 Observation
+    Message[Message["needsArrayObservation"] = 1101] = "needsArrayObservation";
+    // 1201 - 1300 Templating
+    Message[Message["onlySetDOMPolicyOnce"] = 1201] = "onlySetDOMPolicyOnce";
+    Message[Message["bindingInnerHTMLRequiresTrustedTypes"] = 1202] = "bindingInnerHTMLRequiresTrustedTypes";
+    Message[Message["twoWayBindingRequiresObservables"] = 1203] = "twoWayBindingRequiresObservables";
+    Message[Message["hostBindingWithoutHost"] = 1204] = "hostBindingWithoutHost";
+    Message[Message["unsupportedBindingBehavior"] = 1205] = "unsupportedBindingBehavior";
+    Message[Message["directCallToHTMLTagNotAllowed"] = 1206] = "directCallToHTMLTagNotAllowed";
+    Message[Message["onlySetTemplatePolicyOnce"] = 1207] = "onlySetTemplatePolicyOnce";
+    Message[Message["cannotSetTemplatePolicyAfterCompilation"] = 1208] = "cannotSetTemplatePolicyAfterCompilation";
+    Message[Message["blockedByDOMPolicy"] = 1209] = "blockedByDOMPolicy";
+    // 1301 - 1400 Styles
+    // 1401 - 1500 Components
+    Message[Message["missingElementDefinition"] = 1401] = "missingElementDefinition";
+    // 1501 - 1600 Context and Dependency Injection
+    Message[Message["noRegistrationForContext"] = 1501] = "noRegistrationForContext";
+    Message[Message["noFactoryForResolver"] = 1502] = "noFactoryForResolver";
+    Message[Message["invalidResolverStrategy"] = 1503] = "invalidResolverStrategy";
+    Message[Message["cannotAutoregisterDependency"] = 1504] = "cannotAutoregisterDependency";
+    Message[Message["cannotResolveKey"] = 1505] = "cannotResolveKey";
+    Message[Message["cannotConstructNativeFunction"] = 1506] = "cannotConstructNativeFunction";
+    Message[Message["cannotJITRegisterNonConstructor"] = 1507] = "cannotJITRegisterNonConstructor";
+    Message[Message["cannotJITRegisterIntrinsic"] = 1508] = "cannotJITRegisterIntrinsic";
+    Message[Message["cannotJITRegisterInterface"] = 1509] = "cannotJITRegisterInterface";
+    Message[Message["invalidResolver"] = 1510] = "invalidResolver";
+    Message[Message["invalidKey"] = 1511] = "invalidKey";
+    Message[Message["noDefaultResolver"] = 1512] = "noDefaultResolver";
+    Message[Message["cyclicDependency"] = 1513] = "cyclicDependency";
+    Message[Message["connectUpdateRequiresController"] = 1514] = "connectUpdateRequiresController";
+})(Message || (Message = {}));
+/**
  * Determines whether or not an object is a function.
  * @public
  */
@@ -119,6 +157,39 @@ var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof win
         const result = new Function("return this")();
         result.globalThis = result;
     }
+})();
+(function requestIdleCallbackPolyfill() {
+    if ("requestIdleCallback" in globalThis) {
+        return;
+    }
+    /**
+     * A polyfill for requestIdleCallback that falls back to setTimeout.
+     *
+     * @param callback - The function to call when the browser is idle.
+     * @param options - Options object that may contain a timeout property.
+     * @returns An ID that can be used to cancel the callback.
+     * @public
+     */
+    globalThis.requestIdleCallback = function requestIdleCallback(callback, options) {
+        const start = Date.now();
+        return setTimeout(() => {
+            callback({
+                didTimeout: (options === null || options === void 0 ? void 0 : options.timeout)
+                    ? Date.now() - start >= options.timeout
+                    : false,
+                timeRemaining: () => 0,
+            });
+        }, 1);
+    };
+    /**
+     * A polyfill for cancelIdleCallback that falls back to clearTimeout.
+     *
+     * @param id - The ID of the callback to cancel.
+     * @public
+     */
+    globalThis.cancelIdleCallback = function cancelIdleCallback(id) {
+        clearTimeout(id);
+    };
 })();
 
 // ensure FAST global - duplicated debug.ts
@@ -284,7 +355,7 @@ const DOM = Object.freeze({
      */
     setPolicy(value) {
         if (defaultPolicy !== fastPolicy) {
-            throw FAST.error(1201 /* Message.onlySetDOMPolicyOnce */);
+            throw FAST.error(Message.onlySetDOMPolicyOnce);
         }
         defaultPolicy = value;
     },
@@ -315,72 +386,6 @@ const DOM = Object.freeze({
             ? element.setAttribute(attributeName, "")
             : element.removeAttribute(attributeName);
     },
-});
-
-/**
- * The default UpdateQueue.
- * @public
- */
-const Updates = FAST.getById(KernelServiceId.updateQueue, () => {
-    const tasks = [];
-    const pendingErrors = [];
-    const rAF = globalThis.requestAnimationFrame;
-    let updateAsync = true;
-    function throwFirstError() {
-        if (pendingErrors.length) {
-            throw pendingErrors.shift();
-        }
-    }
-    function tryRunTask(task) {
-        try {
-            task.call();
-        }
-        catch (error) {
-            if (updateAsync) {
-                pendingErrors.push(error);
-                setTimeout(throwFirstError, 0);
-            }
-            else {
-                tasks.length = 0;
-                throw error;
-            }
-        }
-    }
-    function process() {
-        const capacity = 1024;
-        let index = 0;
-        while (index < tasks.length) {
-            tryRunTask(tasks[index]);
-            index++;
-            // Prevent leaking memory for long chains of recursive calls to `enqueue`.
-            // If we call `enqueue` within a task scheduled by `enqueue`, the queue will
-            // grow, but to avoid an O(n) walk for every task we execute, we don't
-            // shift tasks off the queue after they have been executed.
-            // Instead, we periodically shift 1024 tasks off the queue.
-            if (index > capacity) {
-                // Manually shift all values starting at the index back to the
-                // beginning of the queue.
-                for (let scan = 0, newLength = tasks.length - index; scan < newLength; scan++) {
-                    tasks[scan] = tasks[scan + index];
-                }
-                tasks.length -= index;
-                index = 0;
-            }
-        }
-        tasks.length = 0;
-    }
-    function enqueue(callable) {
-        tasks.push(callable);
-        if (tasks.length < 2) {
-            updateAsync ? rAF(process) : process();
-        }
-    }
-    return Object.freeze({
-        enqueue,
-        next: () => new Promise(enqueue),
-        process,
-        setMode: (isAsync) => (updateAsync = isAsync),
-    });
 });
 
 /**
@@ -549,6 +554,72 @@ class PropertyChangeNotifier {
 }
 
 /**
+ * The default UpdateQueue.
+ * @public
+ */
+const Updates = FAST.getById(KernelServiceId.updateQueue, () => {
+    const tasks = [];
+    const pendingErrors = [];
+    const rAF = globalThis.requestAnimationFrame;
+    let updateAsync = true;
+    function throwFirstError() {
+        if (pendingErrors.length) {
+            throw pendingErrors.shift();
+        }
+    }
+    function tryRunTask(task) {
+        try {
+            task.call();
+        }
+        catch (error) {
+            if (updateAsync) {
+                pendingErrors.push(error);
+                setTimeout(throwFirstError, 0);
+            }
+            else {
+                tasks.length = 0;
+                throw error;
+            }
+        }
+    }
+    function process() {
+        const capacity = 1024;
+        let index = 0;
+        while (index < tasks.length) {
+            tryRunTask(tasks[index]);
+            index++;
+            // Prevent leaking memory for long chains of recursive calls to `enqueue`.
+            // If we call `enqueue` within a task scheduled by `enqueue`, the queue will
+            // grow, but to avoid an O(n) walk for every task we execute, we don't
+            // shift tasks off the queue after they have been executed.
+            // Instead, we periodically shift 1024 tasks off the queue.
+            if (index > capacity) {
+                // Manually shift all values starting at the index back to the
+                // beginning of the queue.
+                for (let scan = 0, newLength = tasks.length - index; scan < newLength; scan++) {
+                    tasks[scan] = tasks[scan + index];
+                }
+                tasks.length -= index;
+                index = 0;
+            }
+        }
+        tasks.length = 0;
+    }
+    function enqueue(callable) {
+        tasks.push(callable);
+        if (tasks.length < 2) {
+            updateAsync ? rAF(process) : process();
+        }
+    }
+    return Object.freeze({
+        enqueue,
+        next: () => new Promise(enqueue),
+        process,
+        setMode: (isAsync) => (updateAsync = isAsync),
+    });
+});
+
+/**
  * Describes how the source's lifetime relates to its controller's lifetime.
  * @public
  */
@@ -573,7 +644,7 @@ const Observable = FAST.getById(KernelServiceId.observable, () => {
     const notifierLookup = new WeakMap();
     let watcher = void 0;
     let createArrayObserver = (array) => {
-        throw FAST.error(1101 /* Message.needsArrayObservation */);
+        throw FAST.error(Message.needsArrayObservation);
     };
     function getNotifier(source) {
         var _a;
@@ -939,97 +1010,6 @@ function oneTime(expression, policy) {
     return new OneTimeBinding(expression, policy);
 }
 
-let DefaultStyleStrategy;
-function reduceStyles(styles) {
-    return styles
-        .map((x) => x instanceof ElementStyles ? reduceStyles(x.styles) : [x])
-        .reduce((prev, curr) => prev.concat(curr), []);
-}
-/**
- * Represents styles that can be applied to a custom element.
- * @public
- */
-class ElementStyles {
-    /**
-     * Creates an instance of ElementStyles.
-     * @param styles - The styles that will be associated with elements.
-     */
-    constructor(styles) {
-        this.styles = styles;
-        this.targets = new WeakSet();
-        this._strategy = null;
-        this.behaviors = styles
-            .map((x) => x instanceof ElementStyles ? x.behaviors : null)
-            .reduce((prev, curr) => (curr === null ? prev : prev === null ? curr : prev.concat(curr)), null);
-    }
-    /**
-     * Gets the StyleStrategy associated with these element styles.
-     */
-    get strategy() {
-        if (this._strategy === null) {
-            this.withStrategy(DefaultStyleStrategy);
-        }
-        return this._strategy;
-    }
-    /** @internal */
-    addStylesTo(target) {
-        this.strategy.addStylesTo(target);
-        this.targets.add(target);
-    }
-    /** @internal */
-    removeStylesFrom(target) {
-        this.strategy.removeStylesFrom(target);
-        this.targets.delete(target);
-    }
-    /** @internal */
-    isAttachedTo(target) {
-        return this.targets.has(target);
-    }
-    /**
-     * Associates behaviors with this set of styles.
-     * @param behaviors - The behaviors to associate.
-     */
-    withBehaviors(...behaviors) {
-        this.behaviors =
-            this.behaviors === null ? behaviors : this.behaviors.concat(behaviors);
-        return this;
-    }
-    /**
-     * Sets the strategy that handles adding/removing these styles for an element.
-     * @param strategy - The strategy to use.
-     */
-    withStrategy(Strategy) {
-        this._strategy = new Strategy(reduceStyles(this.styles));
-        return this;
-    }
-    /**
-     * Sets the default strategy type to use when creating style strategies.
-     * @param Strategy - The strategy type to construct.
-     */
-    static setDefaultStrategy(Strategy) {
-        DefaultStyleStrategy = Strategy;
-    }
-    /**
-     * Normalizes a set of composable style options.
-     * @param styles - The style options to normalize.
-     * @returns A singular ElementStyles instance or undefined.
-     */
-    static normalize(styles) {
-        return styles === void 0
-            ? void 0
-            : Array.isArray(styles)
-                ? new ElementStyles(styles)
-                : styles instanceof ElementStyles
-                    ? styles
-                    : new ElementStyles([styles]);
-    }
-}
-/**
- * Indicates whether the DOM supports the adoptedStyleSheets feature.
- */
-ElementStyles.supportsAdoptedStyleSheets = Array.isArray(document.adoptedStyleSheets) &&
-    "replace" in CSSStyleSheet.prototype;
-
 const registry$1 = createTypeRegistry();
 /**
  * Instructs the css engine to provide dynamic styles or
@@ -1133,6 +1113,97 @@ class CSSBindingDirective {
 }
 CSSDirective.define(CSSBindingDirective);
 
+let DefaultStyleStrategy;
+function reduceStyles(styles) {
+    return styles
+        .map((x) => x instanceof ElementStyles ? reduceStyles(x.styles) : [x])
+        .reduce((prev, curr) => prev.concat(curr), []);
+}
+/**
+ * Represents styles that can be applied to a custom element.
+ * @public
+ */
+class ElementStyles {
+    /**
+     * Gets the StyleStrategy associated with these element styles.
+     */
+    get strategy() {
+        if (this._strategy === null) {
+            this.withStrategy(DefaultStyleStrategy);
+        }
+        return this._strategy;
+    }
+    /**
+     * Creates an instance of ElementStyles.
+     * @param styles - The styles that will be associated with elements.
+     */
+    constructor(styles) {
+        this.styles = styles;
+        this.targets = new WeakSet();
+        this._strategy = null;
+        this.behaviors = styles
+            .map((x) => x instanceof ElementStyles ? x.behaviors : null)
+            .reduce((prev, curr) => (curr === null ? prev : prev === null ? curr : prev.concat(curr)), null);
+    }
+    /** @internal */
+    addStylesTo(target) {
+        this.strategy.addStylesTo(target);
+        this.targets.add(target);
+    }
+    /** @internal */
+    removeStylesFrom(target) {
+        this.strategy.removeStylesFrom(target);
+        this.targets.delete(target);
+    }
+    /** @internal */
+    isAttachedTo(target) {
+        return this.targets.has(target);
+    }
+    /**
+     * Associates behaviors with this set of styles.
+     * @param behaviors - The behaviors to associate.
+     */
+    withBehaviors(...behaviors) {
+        this.behaviors =
+            this.behaviors === null ? behaviors : this.behaviors.concat(behaviors);
+        return this;
+    }
+    /**
+     * Sets the strategy that handles adding/removing these styles for an element.
+     * @param strategy - The strategy to use.
+     */
+    withStrategy(Strategy) {
+        this._strategy = new Strategy(reduceStyles(this.styles));
+        return this;
+    }
+    /**
+     * Sets the default strategy type to use when creating style strategies.
+     * @param Strategy - The strategy type to construct.
+     */
+    static setDefaultStrategy(Strategy) {
+        DefaultStyleStrategy = Strategy;
+    }
+    /**
+     * Normalizes a set of composable style options.
+     * @param styles - The style options to normalize.
+     * @returns A singular ElementStyles instance or undefined.
+     */
+    static normalize(styles) {
+        return styles === void 0
+            ? void 0
+            : Array.isArray(styles)
+                ? new ElementStyles(styles)
+                : styles instanceof ElementStyles
+                    ? styles
+                    : new ElementStyles([styles]);
+    }
+}
+/**
+ * Indicates whether the DOM supports the adoptedStyleSheets feature.
+ */
+ElementStyles.supportsAdoptedStyleSheets = Array.isArray(document.adoptedStyleSheets) &&
+    "replace" in CSSStyleSheet.prototype;
+
 const marker$1 = `${Math.random().toString(36).substring(2, 8)}`;
 let varId = 0;
 const nextCSSVariable = () => `--v${marker$1}${++varId}`;
@@ -1225,111 +1296,12 @@ css.partial = (strings, ...values) => {
     return new CSSPartial(styles, behaviors);
 };
 
-const bindingStartMarker = /fe-b\$\$start\$\$(\d+)\$\$(.+)\$\$fe-b/;
-const bindingEndMarker = /fe-b\$\$end\$\$(\d+)\$\$(.+)\$\$fe-b/;
-const repeatViewStartMarker = /fe-repeat\$\$start\$\$(\d+)\$\$fe-repeat/;
-const repeatViewEndMarker = /fe-repeat\$\$end\$\$(\d+)\$\$fe-repeat/;
-const elementBoundaryStartMarker = /^(?:.{0,1000})fe-eb\$\$start\$\$(.+?)\$\$fe-eb/;
-const elementBoundaryEndMarker = /fe-eb\$\$end\$\$(.{0,1000})\$\$fe-eb(?:.{0,1000})$/;
-function isComment$1(node) {
-    return node && node.nodeType === Node.COMMENT_NODE;
-}
 /**
- * Markup utilities to aid in template hydration.
- * @internal
+ * A unique per-session random marker string used to create placeholder tokens in HTML.
+ * Bindings embedded in template literals are replaced with interpolation markers
+ * of the form `fast-xxxxxx{id}fast-xxxxxx` so the compiler can later locate them in the
+ * parsed DOM and associate each marker with its ViewBehaviorFactory.
  */
-const HydrationMarkup = Object.freeze({
-    attributeMarkerName: "data-fe-b",
-    attributeBindingSeparator: " ",
-    contentBindingStartMarker(index, uniqueId) {
-        return `fe-b$$start$$${index}$$${uniqueId}$$fe-b`;
-    },
-    contentBindingEndMarker(index, uniqueId) {
-        return `fe-b$$end$$${index}$$${uniqueId}$$fe-b`;
-    },
-    repeatStartMarker(index) {
-        return `fe-repeat$$start$$${index}$$fe-repeat`;
-    },
-    repeatEndMarker(index) {
-        return `fe-repeat$$end$$${index}$$fe-repeat`;
-    },
-    isContentBindingStartMarker(content) {
-        return bindingStartMarker.test(content);
-    },
-    isContentBindingEndMarker(content) {
-        return bindingEndMarker.test(content);
-    },
-    isRepeatViewStartMarker(content) {
-        return repeatViewStartMarker.test(content);
-    },
-    isRepeatViewEndMarker(content) {
-        return repeatViewEndMarker.test(content);
-    },
-    isElementBoundaryStartMarker(node) {
-        return isComment$1(node) && elementBoundaryStartMarker.test(node.data.trim());
-    },
-    isElementBoundaryEndMarker(node) {
-        return isComment$1(node) && elementBoundaryEndMarker.test(node.data);
-    },
-    /**
-     * Returns the indexes of the ViewBehaviorFactories affecting
-     * attributes for the element, or null if no factories were found.
-     */
-    parseAttributeBinding(node) {
-        const attr = node.getAttribute(this.attributeMarkerName);
-        return attr === null
-            ? attr
-            : attr.split(this.attributeBindingSeparator).map(i => parseInt(i));
-    },
-    /**
-     * Parses the ViewBehaviorFactory index from string data. Returns
-     * the binding index or null if the index cannot be retrieved.
-     */
-    parseContentBindingStartMarker(content) {
-        return parseIndexAndIdMarker(bindingStartMarker, content);
-    },
-    parseContentBindingEndMarker(content) {
-        return parseIndexAndIdMarker(bindingEndMarker, content);
-    },
-    /**
-     * Parses the index of a repeat directive from a content string.
-     */
-    parseRepeatStartMarker(content) {
-        return parseIntMarker(repeatViewStartMarker, content);
-    },
-    parseRepeatEndMarker(content) {
-        return parseIntMarker(repeatViewEndMarker, content);
-    },
-    /**
-     * Parses element Id from element boundary markers
-     */
-    parseElementBoundaryStartMarker(content) {
-        return parseStringMarker(elementBoundaryStartMarker, content.trim());
-    },
-    parseElementBoundaryEndMarker(content) {
-        return parseStringMarker(elementBoundaryEndMarker, content);
-    },
-});
-function parseIntMarker(regex, content) {
-    const match = regex.exec(content);
-    return match === null ? match : parseInt(match[1]);
-}
-function parseStringMarker(regex, content) {
-    const match = regex.exec(content);
-    return match === null ? match : match[1];
-}
-function parseIndexAndIdMarker(regex, content) {
-    const match = regex.exec(content);
-    return match === null ? match : [parseInt(match[1]), match[2]];
-}
-/**
- * @internal
- */
-const Hydratable = Symbol.for("fe-hydration");
-function isHydratable(value) {
-    return value[Hydratable] === Hydratable;
-}
-
 const marker = `fast-${Math.random().toString(36).substring(2, 8)}`;
 const interpolationStart = `${marker}{`;
 const interpolationEnd = `}${marker}`;
@@ -1381,6 +1353,8 @@ const Parser = Object.freeze({
      * directives or null if no directives are found in the string.
      */
     parse(value, factories) {
+        // Split on the interpolation start marker. If there's only one part,
+        // no placeholders exist and we return null to signal "no directives here."
         const parts = value.split(interpolationStart);
         if (parts.length === 1) {
             return null;
@@ -1434,7 +1408,13 @@ const HTMLDirective = Object.freeze({
         return type;
     },
     /**
-     *
+     * Determines the DOM aspect type for a directive based on attribute name prefix.
+     * The prefix convention maps to aspect types as follows:
+     *   - No prefix (e.g. "class")  → DOMAspect.attribute
+     *   - ":" prefix (e.g. ":value") → DOMAspect.property (":classList" → DOMAspect.tokenList)
+     *   - "?" prefix (e.g. "?disabled") → DOMAspect.booleanAttribute
+     *   - `@` prefix (e.g. `@click`) → DOMAspect.event
+     *   - Falsy or absent value → DOMAspect.content (see remarks)
      * @param directive - The directive to assign the aspect to.
      * @param value - The value to base the aspect determination on.
      * @remarks
@@ -1500,6 +1480,279 @@ class StatelessAttachedAttributeDirective {
 }
 makeSerializationNoop(StatelessAttachedAttributeDirective);
 
+const selectElements = (value) => value.nodeType === 1;
+/**
+ * Creates a function that can be used to filter a Node array, selecting only elements.
+ * @param selector - An optional selector to restrict the filter to.
+ * @public
+ */
+const elements = (selector) => selector
+    ? value => value.nodeType === 1 && value.matches(selector)
+    : selectElements;
+/**
+ * A base class for node observation.
+ * @public
+ * @remarks
+ * Internally used by the SlottedDirective and the ChildrenDirective.
+ */
+class NodeObservationDirective extends StatelessAttachedAttributeDirective {
+    /**
+     * The unique id of the factory.
+     */
+    get id() {
+        return this._id;
+    }
+    set id(value) {
+        this._id = value;
+        this._controllerProperty = `${value}-c`;
+    }
+    /**
+     * Bind this behavior to the source.
+     * @param source - The source to bind to.
+     * @param context - The execution context that the binding is operating within.
+     * @param targets - The targets that behaviors in a view can attach to.
+     */
+    bind(controller) {
+        const target = controller.targets[this.targetNodeId];
+        target[this._controllerProperty] = controller;
+        this.updateTarget(controller.source, this.computeNodes(target));
+        this.observe(target);
+        controller.onUnbind(this);
+    }
+    /**
+     * Unbinds this behavior from the source.
+     * @param source - The source to unbind from.
+     * @param context - The execution context that the binding is operating within.
+     * @param targets - The targets that behaviors in a view can attach to.
+     */
+    unbind(controller) {
+        const target = controller.targets[this.targetNodeId];
+        this.updateTarget(controller.source, emptyArray);
+        this.disconnect(target);
+        target[this._controllerProperty] = null;
+    }
+    /**
+     * Gets the data source for the target.
+     * @param target - The target to get the source for.
+     * @returns The source.
+     */
+    getSource(target) {
+        return target[this._controllerProperty].source;
+    }
+    /**
+     * Updates the source property with the computed nodes.
+     * @param source - The source object to assign the nodes property to.
+     * @param value - The nodes to assign to the source object property.
+     */
+    updateTarget(source, value) {
+        source[this.options.property] = value;
+    }
+    /**
+     * Computes the set of nodes that should be assigned to the source property.
+     * @param target - The target to compute the nodes for.
+     * @returns The computed nodes.
+     * @remarks
+     * Applies filters if provided.
+     */
+    computeNodes(target) {
+        let nodes = this.getNodes(target);
+        if ("filter" in this.options) {
+            nodes = nodes.filter(this.options.filter);
+        }
+        return nodes;
+    }
+}
+
+/**
+ * Regex patterns for parsing hydration markers embedded as HTML comments by the SSR renderer.
+ * Each marker type encodes factory indices so the client can map markers back to ViewBehaviorFactories.
+ *
+ * Content binding markers bracket text/template content:
+ *   <!-- fe-b$$start$$<factoryIndex>$$<uniqueId>$$fe-b -->
+ *   ...content...
+ *   <!-- fe-b$$end$$<factoryIndex>$$<uniqueId>$$fe-b -->
+ *
+ * Repeat markers bracket each repeated item:
+ *   <!-- fe-repeat$$start$$<itemIndex>$$fe-repeat -->
+ *   <!-- fe-repeat$$end$$<itemIndex>$$fe-repeat -->
+ *
+ * Element boundary markers demarcate nested custom elements so parent walkers can skip them:
+ *   <!-- fe-eb$$start$$<elementId>$$fe-eb -->
+ *   <!-- fe-eb$$end$$<elementId>$$fe-eb -->
+ */
+const bindingStartMarker = /fe-b\$\$start\$\$(\d+)\$\$(.+)\$\$fe-b/;
+const bindingEndMarker = /fe-b\$\$end\$\$(\d+)\$\$(.+)\$\$fe-b/;
+const repeatViewStartMarker = /fe-repeat\$\$start\$\$(\d+)\$\$fe-repeat/;
+const repeatViewEndMarker = /fe-repeat\$\$end\$\$(\d+)\$\$fe-repeat/;
+const elementBoundaryStartMarker = /^(?:.{0,1000})fe-eb\$\$start\$\$(.+?)\$\$fe-eb/;
+const elementBoundaryEndMarker = /fe-eb\$\$end\$\$(.{0,1000})\$\$fe-eb(?:.{0,1000})$/;
+function isComment$1(node) {
+    return node && node.nodeType === Node.COMMENT_NODE;
+}
+/**
+ * Markup utilities to aid in template hydration.
+ * @internal
+ */
+const HydrationMarkup = Object.freeze({
+    attributeMarkerName: "data-fe-b",
+    compactAttributeMarkerName: "data-fe-c",
+    attributeBindingSeparator: " ",
+    contentBindingStartMarker(index, uniqueId) {
+        return `fe-b$$start$$${index}$$${uniqueId}$$fe-b`;
+    },
+    contentBindingEndMarker(index, uniqueId) {
+        return `fe-b$$end$$${index}$$${uniqueId}$$fe-b`;
+    },
+    repeatStartMarker(index) {
+        return `fe-repeat$$start$$${index}$$fe-repeat`;
+    },
+    repeatEndMarker(index) {
+        return `fe-repeat$$end$$${index}$$fe-repeat`;
+    },
+    isContentBindingStartMarker(content) {
+        return bindingStartMarker.test(content);
+    },
+    isContentBindingEndMarker(content) {
+        return bindingEndMarker.test(content);
+    },
+    isRepeatViewStartMarker(content) {
+        return repeatViewStartMarker.test(content);
+    },
+    isRepeatViewEndMarker(content) {
+        return repeatViewEndMarker.test(content);
+    },
+    isElementBoundaryStartMarker(node) {
+        return isComment$1(node) && elementBoundaryStartMarker.test(node.data.trim());
+    },
+    isElementBoundaryEndMarker(node) {
+        return isComment$1(node) && elementBoundaryEndMarker.test(node.data);
+    },
+    /**
+     * Returns the indexes of the ViewBehaviorFactories affecting
+     * attributes for the element, or null if no factories were found.
+     *
+     * This method parses the space-separated format: `data-fe-b="0 1 2"`.
+     */
+    parseAttributeBinding(node) {
+        const attr = node.getAttribute(this.attributeMarkerName);
+        return attr === null
+            ? attr
+            : attr.split(this.attributeBindingSeparator).map(i => parseInt(i));
+    },
+    /**
+     * Returns the indexes of the ViewBehaviorFactories affecting
+     * attributes for the element, or null if no factories were found.
+     *
+     * This method parses the enumerated format: `data-fe-b-0`, `data-fe-b-1`, `data-fe-b-2`.
+     * This is an alternative format that uses separate attributes for each binding index.
+     */
+    parseEnumeratedAttributeBinding(node) {
+        const attrs = [];
+        const prefixLength = this.attributeMarkerName.length + 1;
+        const prefix = `${this.attributeMarkerName}-`;
+        for (const attr of node.getAttributeNames()) {
+            if (attr.startsWith(prefix)) {
+                const count = Number(attr.slice(prefixLength));
+                if (!Number.isNaN(count)) {
+                    attrs.push(count);
+                }
+                else {
+                    throw FAST.error(1601 /* invalidAttributeMarkerName */, {
+                        name: attr,
+                        expectedFormat: `${prefix}<number>`,
+                    });
+                }
+            }
+        }
+        return attrs.length === 0 ? null : attrs;
+    },
+    /**
+     * Returns the indexes of the ViewBehaviorFactories affecting
+     * attributes for the element, or null if no factories were found.
+     *
+     * This method parses the compact format: `data-fe-c-{index}-{count}`.
+     */
+    parseCompactAttributeBinding(node) {
+        const prefix = `${this.compactAttributeMarkerName}-`;
+        const attrName = node.getAttributeNames().find(name => name.startsWith(prefix));
+        if (!attrName) {
+            return null;
+        }
+        const suffix = attrName.slice(prefix.length);
+        const parts = suffix.split("-");
+        const startIndex = parseInt(parts[0], 10);
+        const count = parseInt(parts[1], 10);
+        if (parts.length !== 2 ||
+            Number.isNaN(startIndex) ||
+            Number.isNaN(count) ||
+            startIndex < 0 ||
+            count < 1) {
+            throw FAST.error(1604 /* invalidCompactAttributeMarkerName */, {
+                name: attrName,
+                expectedFormat: `${this.compactAttributeMarkerName}-{index}-{count}`,
+            });
+        }
+        const indexes = [];
+        for (let i = 0; i < count; i++) {
+            indexes.push(startIndex + i);
+        }
+        return indexes;
+    },
+    /**
+     * Parses the ViewBehaviorFactory index from string data. Returns
+     * the binding index or null if the index cannot be retrieved.
+     */
+    parseContentBindingStartMarker(content) {
+        return parseIndexAndIdMarker(bindingStartMarker, content);
+    },
+    parseContentBindingEndMarker(content) {
+        return parseIndexAndIdMarker(bindingEndMarker, content);
+    },
+    /**
+     * Parses the index of a repeat directive from a content string.
+     */
+    parseRepeatStartMarker(content) {
+        return parseIntMarker(repeatViewStartMarker, content);
+    },
+    parseRepeatEndMarker(content) {
+        return parseIntMarker(repeatViewEndMarker, content);
+    },
+    /**
+     * Parses element Id from element boundary markers
+     */
+    parseElementBoundaryStartMarker(content) {
+        return parseStringMarker(elementBoundaryStartMarker, content.trim());
+    },
+    parseElementBoundaryEndMarker(content) {
+        return parseStringMarker(elementBoundaryEndMarker, content);
+    },
+});
+function parseIntMarker(regex, content) {
+    const match = regex.exec(content);
+    return match === null ? match : parseInt(match[1]);
+}
+function parseStringMarker(regex, content) {
+    const match = regex.exec(content);
+    return match === null ? match : match[1];
+}
+function parseIndexAndIdMarker(regex, content) {
+    const match = regex.exec(content);
+    return match === null ? match : [parseInt(match[1]), match[2]];
+}
+/**
+ * @internal
+ */
+const Hydratable = Symbol.for("fe-hydration");
+/** @beta */
+function isHydratable(value) {
+    return value[Hydratable] === Hydratable;
+}
+/**
+ * The attribute used to defer hydration of an element.
+ * @beta
+ */
+const deferHydrationAttribute = "defer-hydration";
+
 class HydrationTargetElementError extends Error {
     constructor(
     /**
@@ -1544,7 +1797,23 @@ function isShadowRoot(node) {
     return node instanceof DocumentFragment && "mode" in node;
 }
 /**
- * Maps {@link CompiledViewBehaviorFactory} ids to the corresponding node targets for the view.
+ * Maps compiled ViewBehaviorFactory IDs to their corresponding DOM nodes in the
+ * server-rendered shadow root. Uses a TreeWalker to scan the existing DOM between
+ * firstNode and lastNode, parsing hydration markers to build the targets map.
+ *
+ * For element nodes: parses `data-fe-b` (or variant) attributes to identify which
+ * factories target each element, then removes the marker attribute.
+ *
+ * For comment nodes: parses content binding markers (`fe-b$$start/end$$`) to find
+ * the DOM range controlled by each content binding. Single text nodes become the
+ * direct target; multi-node ranges are stored in boundaries for structural directives.
+ * Element boundary markers (`fe-eb$$start/end$$`) cause the walker to skip over
+ * nested custom elements that handle their own hydration.
+ *
+ * Host bindings (targetNodeId='h') appear at the start of the factories array but
+ * have no SSR markers — getHydrationIndexOffset() computes how many to skip so that
+ * marker indices align with the correct non-host factories.
+ *
  * @param firstNode - The first node of the view.
  * @param lastNode -  The last node of the view.
  * @param factories - The Compiled View Behavior Factories that belong to the view.
@@ -1553,6 +1822,7 @@ function isShadowRoot(node) {
 function buildViewBindingTargets(firstNode, lastNode, factories) {
     const range = createRangeForNodes(firstNode, lastNode);
     const treeRoot = range.commonAncestorContainer;
+    const hydrationIndexOffset = getHydrationIndexOffset(factories);
     const walker = document.createTreeWalker(treeRoot, NodeFilter.SHOW_ELEMENT + NodeFilter.SHOW_COMMENT + NodeFilter.SHOW_TEXT, {
         acceptNode(node) {
             return range.comparePoint(node, 0) === 0
@@ -1566,11 +1836,11 @@ function buildViewBindingTargets(firstNode, lastNode, factories) {
     while (node !== null) {
         switch (node.nodeType) {
             case Node.ELEMENT_NODE: {
-                targetElement(node, factories, targets);
+                targetElement(node, factories, targets, hydrationIndexOffset);
                 break;
             }
             case Node.COMMENT_NODE: {
-                targetComment(node, walker, factories, targets, boundaries);
+                targetComment(node, walker, factories, targets, boundaries, hydrationIndexOffset);
                 break;
             }
         }
@@ -1579,20 +1849,22 @@ function buildViewBindingTargets(firstNode, lastNode, factories) {
     range.detach();
     return { targets, boundaries };
 }
-function targetElement(node, factories, targets) {
+function targetElement(node, factories, targets, hydrationIndexOffset) {
+    var _a, _b;
     // Check for attributes and map any factories.
-    const attrFactoryIds = HydrationMarkup.parseAttributeBinding(node);
+    const attrFactoryIds = (_b = (_a = HydrationMarkup.parseAttributeBinding(node)) !== null && _a !== void 0 ? _a : HydrationMarkup.parseEnumeratedAttributeBinding(node)) !== null && _b !== void 0 ? _b : HydrationMarkup.parseCompactAttributeBinding(node);
     if (attrFactoryIds !== null) {
         for (const id of attrFactoryIds) {
-            if (!factories[id]) {
+            const factory = factories[id + hydrationIndexOffset];
+            if (!factory) {
                 throw new HydrationTargetElementError(`HydrationView was unable to successfully target factory on ${node.nodeName} inside ${node.getRootNode().host.nodeName}. This likely indicates a template mismatch between SSR rendering and hydration.`, factories, node);
             }
-            targetFactory(factories[id], node, targets);
+            targetFactory(factory, node, targets);
         }
         node.removeAttribute(HydrationMarkup.attributeMarkerName);
     }
 }
-function targetComment(node, walker, factories, targets, boundaries) {
+function targetComment(node, walker, factories, targets, boundaries, hydrationIndexOffset) {
     if (HydrationMarkup.isElementBoundaryStartMarker(node)) {
         skipToElementBoundaryEndMarker(node, walker);
         return;
@@ -1603,7 +1875,7 @@ function targetComment(node, walker, factories, targets, boundaries) {
             return;
         }
         const [index, id] = parsed;
-        const factory = factories[index];
+        const factory = factories[index + hydrationIndexOffset];
         const nodes = [];
         let current = walker.nextSibling();
         node.data = "";
@@ -1667,6 +1939,23 @@ function skipToElementBoundaryEndMarker(node, walker) {
         current = walker.nextSibling();
     }
 }
+/**
+ * Counts how many factories at the start of the array are host bindings (targetNodeId='h').
+ * Host bindings target the custom element itself and are not represented by SSR markers,
+ * so the marker indices must be offset by this count to align with the correct factory.
+ */
+function getHydrationIndexOffset(factories) {
+    let offset = 0;
+    for (let i = 0, ii = factories.length; i < ii; ++i) {
+        if (factories[i].targetNodeId === "h") {
+            offset++;
+        }
+        else {
+            break;
+        }
+    }
+    return offset;
+}
 function targetFactory(factory, node, targets) {
     if (factory.targetNodeId === undefined) {
         // Dev error, this shouldn't ever be thrown
@@ -1675,7 +1964,7 @@ function targetFactory(factory, node, targets) {
     targets[factory.targetNodeId] = node;
 }
 
-var _a;
+var _a$1;
 function removeNodeSequence(firstNode, lastNode) {
     const parent = firstNode.parentNode;
     let current = firstNode;
@@ -1850,6 +2139,17 @@ class HTMLView extends DefaultExecutionContext {
     }
     /**
      * Binds a view's behaviors to its binding source.
+     *
+     * On the first call, this iterates through all compiled factories, calling
+     * createBehavior() on each to produce a ViewBehavior instance (e.g., an
+     * HTMLBindingDirective), and then immediately binds it. This is where event
+     * listeners are registered, expression observers are created, and initial
+     * DOM values are set.
+     *
+     * On subsequent calls with a new source, existing behaviors are re-bound
+     * to the new data source, which re-evaluates all binding expressions and
+     * updates the DOM accordingly.
+     *
      * @param source - The binding source for the view's binding behaviors.
      * @param context - The execution context to run the behaviors within.
      */
@@ -1859,6 +2159,8 @@ class HTMLView extends DefaultExecutionContext {
         }
         let behaviors = this.behaviors;
         if (behaviors === null) {
+            // First bind: create behaviors from factories and bind each one.
+            // The view (this) acts as the ViewController, providing targets and source.
             this.source = source;
             this.context = context;
             this.behaviors = behaviors = new Array(this.factories.length);
@@ -1951,13 +2253,22 @@ class HydrationBindingError extends Error {
     }
 }
 class HydrationView extends DefaultExecutionContext {
+    get hydrationStage() {
+        return this._hydrationStage;
+    }
+    get targets() {
+        return this._targets;
+    }
+    get bindingViewBoundaries() {
+        return this._bindingViewBoundaries;
+    }
     constructor(firstChild, lastChild, sourceTemplate, hostBindingTarget) {
         super();
         this.firstChild = firstChild;
         this.lastChild = lastChild;
         this.sourceTemplate = sourceTemplate;
         this.hostBindingTarget = hostBindingTarget;
-        this[_a] = Hydratable;
+        this[_a$1] = Hydratable;
         this.context = this;
         this.source = null;
         this.isBound = false;
@@ -1969,15 +2280,6 @@ class HydrationView extends DefaultExecutionContext {
         this._bindingViewBoundaries = {};
         this._targets = {};
         this.factories = sourceTemplate.compile().factories;
-    }
-    get hydrationStage() {
-        return this._hydrationStage;
-    }
-    get targets() {
-        return this._targets;
-    }
-    get bindingViewBoundaries() {
-        return this._bindingViewBoundaries;
     }
     /**
      * no-op. Hydrated views are don't need to be moved from a documentFragment
@@ -2033,7 +2335,7 @@ class HydrationView extends DefaultExecutionContext {
         fragment.appendChild(end);
     }
     bind(source, context = this) {
-        var _b, _c;
+        var _b;
         if (this.hydrationStage !== HydrationStage.hydrated) {
             this._hydrationStage = HydrationStage.hydrating;
         }
@@ -2077,7 +2379,28 @@ class HydrationView extends DefaultExecutionContext {
                     if (typeof templateString !== "string") {
                         templateString = templateString.innerHTML;
                     }
-                    throw new HydrationBindingError(`HydrationView was unable to successfully target bindings inside "${(_c = ((_b = this.firstChild) === null || _b === void 0 ? void 0 : _b.getRootNode()).host) === null || _c === void 0 ? void 0 : _c.nodeName}".`, factory, createRangeForNodes(this.firstChild, this.lastChild).cloneContents(), templateString);
+                    const hostElement = ((_b = this.firstChild) === null || _b === void 0 ? void 0 : _b.getRootNode())
+                        .host;
+                    const hostName = (hostElement === null || hostElement === void 0 ? void 0 : hostElement.nodeName) || "unknown";
+                    const factoryInfo = factory;
+                    // Build detailed error message
+                    const details = [
+                        `HydrationView was unable to successfully target bindings inside "<${hostName.toLowerCase()}>".`,
+                        `\nMismatch Details:`,
+                        `  - Expected target node ID: "${factory.targetNodeId}"`,
+                        `  - Available target IDs: [${Object.keys(this.targets).join(", ") || "none"}]`,
+                    ];
+                    if (factory.targetTagName) {
+                        details.push(`  - Expected tag name: "${factory.targetTagName}"`);
+                    }
+                    if (factoryInfo.sourceAspect) {
+                        details.push(`  - Source aspect: "${factoryInfo.sourceAspect}"`);
+                    }
+                    if (factoryInfo.aspectType !== undefined) {
+                        details.push(`  - Aspect type: ${factoryInfo.aspectType}`);
+                    }
+                    details.push(`\nThis usually means:`, `  1. The server-rendered HTML doesn't match the client template`, `  2. The hydration markers are missing or corrupted`, `  3. The DOM structure was modified before hydration`, `\nTemplate: ${templateString.slice(0, 200)}${templateString.length > 200 ? "..." : ""}`);
+                    throw new HydrationBindingError(details.join("\n"), factory, createRangeForNodes(this.firstChild, this.lastChild).cloneContents(), templateString);
                 }
             }
         }
@@ -2123,12 +2446,20 @@ class HydrationView extends DefaultExecutionContext {
         unbindables.length = 0;
     }
 }
-_a = Hydratable;
+_a$1 = Hydratable;
 makeSerializationNoop(HydrationView);
 
 function isContentTemplate(value) {
     return value.create !== undefined;
 }
+/**
+ * Sink function for DOMAspect.content bindings (text content interpolation).
+ * Handles two cases:
+ * - If the value is a ContentTemplate (has a create() method), it composes a child
+ *   view into the DOM, managing view lifecycle (create/reuse/remove/bind).
+ * - If the value is a primitive, it sets target.textContent directly, first removing
+ *   any previously composed view.
+ */
 function updateContent(target, aspect, value, controller) {
     // If there's no actual value, then this equates to the
     // empty string for the purposes of content bindings.
@@ -2197,6 +2528,12 @@ function updateContent(target, aspect, value, controller) {
         target.textContent = value;
     }
 }
+/**
+ * Sink function for DOMAspect.tokenList bindings (e.g., :classList).
+ * Uses a versioning scheme to efficiently track which CSS classes were added
+ * in the current update vs. the previous one. Classes from the previous version
+ * that aren't present in the new value are automatically removed.
+ */
 function updateTokenList(target, aspect, value) {
     var _a;
     const lookup = `${this.id}-t`;
@@ -2229,6 +2566,12 @@ function updateTokenList(target, aspect, value) {
         }
     }
 }
+/**
+ * Maps each DOMAspect type to its corresponding DOM update ("sink") function.
+ * When a binding value changes, the sink function for the binding's aspect type
+ * is called to push the new value into the DOM. Events are handled separately
+ * via addEventListener in bind(), so the event sink is a no-op.
+ */
 const sinkLookup = {
     [DOMAspect.attribute]: DOM.setAttribute,
     [DOMAspect.booleanAttribute]: DOM.setBooleanAttribute,
@@ -2238,7 +2581,18 @@ const sinkLookup = {
     [DOMAspect.event]: () => void 0,
 };
 /**
- * A directive that applies bindings.
+ * The central binding directive that bridges data expressions and DOM updates.
+ *
+ * HTMLBindingDirective fulfills three roles simultaneously:
+ * - **HTMLDirective**: Produces placeholder HTML via createHTML() during template authoring.
+ * - **ViewBehaviorFactory**: Creates behaviors (returns itself) during view creation.
+ * - **ViewBehavior / EventListener**: Attaches to a DOM node during bind, manages
+ *   expression observers for reactive updates, and handles DOM events directly.
+ *
+ * The aspectType (set by HTMLDirective.assignAspect during template processing)
+ * determines which DOM "sink" function is used to apply values — e.g.,
+ * setAttribute for attributes, addEventListener for events, textContent for content.
+ *
  * @public
  */
 class HTMLBindingDirective {
@@ -2270,14 +2624,25 @@ class HTMLBindingDirective {
             const sink = sinkLookup[this.aspectType];
             const policy = (_a = this.dataBinding.policy) !== null && _a !== void 0 ? _a : this.policy;
             if (!sink) {
-                throw FAST.error(1205 /* Message.unsupportedBindingBehavior */);
+                throw FAST.error(Message.unsupportedBindingBehavior);
             }
             this.data = `${this.id}-d`;
             this.updateTarget = policy.protect(this.targetTagName, this.aspectType, this.targetAspect, sink);
         }
         return this;
     }
-    /** @internal */
+    /**
+     * Attaches this binding to its target DOM node.
+     * - For events: stores the controller reference on the target element and registers
+     *   this directive as the EventListener via addEventListener. The directive's
+     *   handleEvent() method will be called when the event fires.
+     * - For content bindings: registers an unbind handler, then falls through to the
+     *   default path.
+     * - For all non-event bindings: creates (or reuses) an ExpressionObserver, evaluates
+     *   the binding expression, and applies the result to the DOM via the updateTarget
+     *   sink function. The observer will call handleChange() on future data changes.
+     * @internal
+     */
     bind(controller) {
         var _a;
         const target = controller.targets[this.targetNodeId];
@@ -2292,7 +2657,7 @@ class HTMLBindingDirective {
             case DOMAspect.content:
                 controller.onUnbind(this);
             // intentional fall through
-            default:
+            default: {
                 const observer = (_a = target[this.data]) !== null && _a !== void 0 ? _a : (target[this.data] = this.dataBinding.createObserver(this, this));
                 observer.target = target;
                 observer.controller = controller;
@@ -2305,6 +2670,7 @@ class HTMLBindingDirective {
                 }
                 this.updateTarget(target, this.targetAspect, observer.bind(controller), controller);
                 break;
+            }
         }
     }
     /** @internal */
@@ -2316,7 +2682,14 @@ class HTMLBindingDirective {
             view.needsBindOnly = true;
         }
     }
-    /** @internal */
+    /**
+     * Implements the EventListener interface. When a DOM event fires on the target
+     * element, this method retrieves the ViewController stored on the element,
+     * sets the event on the ExecutionContext so `c.event` is available to the
+     * binding expression, and evaluates the expression. If the expression returns
+     * anything other than `true`, the event's default action is prevented.
+     * @internal
+     */
     handleEvent(event) {
         const controller = event.currentTarget[this.data];
         if (controller.isBound) {
@@ -2328,15 +2701,38 @@ class HTMLBindingDirective {
             }
         }
     }
-    /** @internal */
+    /**
+     * Called by the ExpressionObserver when a tracked dependency changes.
+     * Re-evaluates the binding expression via observer.bind() and pushes
+     * the new value to the DOM through the updateTarget sink function.
+     * This is the reactive update path that keeps the DOM in sync with data.
+     *
+     * Guards against stale notifications: when a view is unbound (e.g., after
+     * a parent `when` directive tears down a child element), coupled-lifetime
+     * observers may still hold active subscriptions. If a property change fires
+     * on the source element while the view is inactive, this guard prevents
+     * the binding expression from evaluating with a null source.
+     * @internal
+     */
     handleChange(binding, observer) {
-        const target = observer.target;
         const controller = observer.controller;
+        // https://github.com/microsoft/fast/issues/7444
+        // This guard will be reconsidered in the next major version.
+        if (!controller.isBound) {
+            return;
+        }
+        const target = observer.target;
         this.updateTarget(target, this.targetAspect, observer.bind(controller), controller);
     }
 }
 HTMLDirective.define(HTMLBindingDirective, { aspected: true });
 
+/**
+ * Builds a hierarchical node ID by appending the child index to the parent's ID.
+ * For example, the third child of root is "r.2", and its first child is "r.2.0".
+ * These IDs are used as property names on the targets prototype so that each
+ * binding's target DOM node can be lazily resolved via a chain of childNodes lookups.
+ */
 const targetIdFrom = (parentId, nodeIndex) => `${parentId}.${nodeIndex}`;
 const descriptorCache = {};
 // used to prevent creating lots of objects just to track node and index while compiling
@@ -2346,7 +2742,7 @@ const next = {
 };
 function tryWarn(name) {
     if (!name.startsWith("fast-")) {
-        FAST.warn(1204 /* Message.hostBindingWithoutHost */, { name });
+        FAST.warn(Message.hostBindingWithoutHost, { name });
     }
 }
 const warningHost = new Proxy(document.createElement("div"), {
@@ -2386,6 +2782,13 @@ class CompilationContext {
         this.proto = Object.create(null, this.descriptors);
         return this;
     }
+    /**
+     * Registers a lazy getter on the targets prototype that resolves a DOM node
+     * by navigating from its parent's childNodes at the given index. Getters are
+     * chained: accessing targets["r.0.2"] first resolves targets["r.0"] (which
+     * resolves targets["r"]), then returns childNodes[2]. Results are cached so
+     * each node is resolved at most once per view instance.
+     */
     addTargetDescriptor(parentId, targetId, targetIndex) {
         const descriptors = this.descriptors;
         if (targetId === "r" || // root
@@ -2396,7 +2799,7 @@ class CompilationContext {
         if (!descriptors[parentId]) {
             const index = parentId.lastIndexOf(".");
             const grandparentId = parentId.substring(0, index);
-            const childIndex = parseInt(parentId.substring(index + 1));
+            const childIndex = parseInt(parentId.substring(index + 1), 10);
             this.addTargetDescriptor(grandparentId, parentId, childIndex);
         }
         let descriptor = descriptorCache[targetId];
@@ -2411,13 +2814,20 @@ class CompilationContext {
         }
         descriptors[targetId] = descriptor;
     }
+    /**
+     * Creates a new HTMLView by cloning the compiled DocumentFragment and building
+     * a targets object. The targets prototype contains lazy getters that resolve
+     * each binding's target DOM node via childNodes traversal. Accessing every
+     * registered nodeId eagerly triggers the getter chain so all nodes are resolved
+     * before behaviors are bound.
+     */
     createView(hostBindingTarget) {
         const fragment = this.fragment.cloneNode(true);
         const targets = Object.create(this.proto);
-        targets.r = fragment;
-        targets.h = hostBindingTarget !== null && hostBindingTarget !== void 0 ? hostBindingTarget : warningHost;
+        targets.r = fragment; // root — the cloned DocumentFragment
+        targets.h = hostBindingTarget !== null && hostBindingTarget !== void 0 ? hostBindingTarget : warningHost; // host — the custom element
         for (const id of this.nodeIds) {
-            targets[id]; // trigger locator
+            Reflect.get(targets, id); // trigger lazy getter to resolve and cache the DOM node
         }
         return new HTMLView(fragment, this.factories, targets);
     }
@@ -2437,7 +2847,6 @@ function compileAttributes(context, parentId, node, nodeId, nodeIndex, includeBa
             }
         }
         else {
-            /* eslint-disable-next-line @typescript-eslint/no-use-before-define */
             result = Compiler.aggregate(parseResult, context.policy);
         }
         if (result !== null) {
@@ -2482,7 +2891,6 @@ function compileChildren(context, parent, parentId) {
     let nodeIndex = 0;
     let childNode = parent.firstChild;
     while (childNode) {
-        /* eslint-disable-next-line @typescript-eslint/no-use-before-define */
         const result = compileNode(context, parentId, childNode, nodeIndex);
         childNode = result.node;
         nodeIndex = result.index;
@@ -2497,14 +2905,14 @@ function compileNode(context, parentId, node, nodeIndex) {
             break;
         case 3: // text node
             return compileContent(context, node, parentId, nodeId, nodeIndex);
-        case 8: // comment
+        case 8: {
+            // comment
             const parts = Parser.parse(node.data, context.directives);
             if (parts !== null) {
-                context.addFactory(
-                /* eslint-disable-next-line @typescript-eslint/no-use-before-define */
-                Compiler.aggregate(parts), parentId, nodeId, nodeIndex, null);
+                context.addFactory(Compiler.aggregate(parts), parentId, nodeId, nodeIndex, null);
             }
             break;
+        }
     }
     next.index = nodeIndex + 1;
     next.node = node.nextSibling;
@@ -2512,7 +2920,7 @@ function compileNode(context, parentId, node, nodeIndex) {
 }
 function isMarker(node, directives) {
     return (node &&
-        node.nodeType == 8 &&
+        node.nodeType === 8 &&
         Parser.parse(node.data, directives) !== null);
 }
 const templateTag = "TEMPLATE";
@@ -2614,182 +3022,6 @@ const Compiler = {
     },
 };
 
-// Much thanks to LitHTML for working this out!
-const lastAttributeNameRegex = 
-/* eslint-disable-next-line no-control-regex, max-len */
-/([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
-const noFactories = Object.create(null);
-/**
- * Inlines a template into another template.
- * @public
- */
-class InlineTemplateDirective {
-    /**
-     * Creates an instance of InlineTemplateDirective.
-     * @param template - The template to inline.
-     */
-    constructor(html, factories = noFactories) {
-        this.html = html;
-        this.factories = factories;
-    }
-    /**
-     * Creates HTML to be used within a template.
-     * @param add - Can be used to add  behavior factories to a template.
-     */
-    createHTML(add) {
-        const factories = this.factories;
-        for (const key in factories) {
-            add(factories[key]);
-        }
-        return this.html;
-    }
-}
-/**
- * An empty template partial.
- */
-InlineTemplateDirective.empty = new InlineTemplateDirective("");
-HTMLDirective.define(InlineTemplateDirective);
-function createHTML(value, prevString, add, definition = HTMLDirective.getForInstance(value)) {
-    if (definition.aspected) {
-        const match = lastAttributeNameRegex.exec(prevString);
-        if (match !== null) {
-            HTMLDirective.assignAspect(value, match[2]);
-        }
-    }
-    return value.createHTML(add);
-}
-/**
- * A template capable of creating HTMLView instances or rendering directly to DOM.
- * @public
- */
-class ViewTemplate {
-    /**
-     * Creates an instance of ViewTemplate.
-     * @param html - The html representing what this template will instantiate, including placeholders for directives.
-     * @param factories - The directives that will be connected to placeholders in the html.
-     * @param policy - The security policy to use when compiling this template.
-     */
-    constructor(html, factories = {}, policy) {
-        this.policy = policy;
-        this.result = null;
-        this.html = html;
-        this.factories = factories;
-    }
-    /**
-     * @internal
-     */
-    compile() {
-        if (this.result === null) {
-            this.result = Compiler.compile(this.html, this.factories, this.policy);
-        }
-        return this.result;
-    }
-    /**
-     * Creates an HTMLView instance based on this template definition.
-     * @param hostBindingTarget - The element that host behaviors will be bound to.
-     */
-    create(hostBindingTarget) {
-        return this.compile().createView(hostBindingTarget);
-    }
-    /**
-     * Returns a directive that can inline the template.
-     */
-    inline() {
-        return new InlineTemplateDirective(isString(this.html) ? this.html : this.html.innerHTML, this.factories);
-    }
-    /**
-     * Sets the DOMPolicy for this template.
-     * @param policy - The policy to associated with this template.
-     * @returns The modified template instance.
-     * @remarks
-     * The DOMPolicy can only be set once for a template and cannot be
-     * set after the template is compiled.
-     */
-    withPolicy(policy) {
-        if (this.result) {
-            throw FAST.error(1208 /* Message.cannotSetTemplatePolicyAfterCompilation */);
-        }
-        if (this.policy) {
-            throw FAST.error(1207 /* Message.onlySetTemplatePolicyOnce */);
-        }
-        this.policy = policy;
-        return this;
-    }
-    /**
-     * Creates an HTMLView from this template, binds it to the source, and then appends it to the host.
-     * @param source - The data source to bind the template to.
-     * @param host - The Element where the template will be rendered.
-     * @param hostBindingTarget - An HTML element to target the host bindings at if different from the
-     * host that the template is being attached to.
-     */
-    render(source, host, hostBindingTarget) {
-        const view = this.create(hostBindingTarget);
-        view.bind(source);
-        view.appendTo(host);
-        return view;
-    }
-    /**
-     * Creates a template based on a set of static strings and dynamic values.
-     * @param strings - The static strings to create the template with.
-     * @param values - The dynamic values to create the template with.
-     * @param policy - The DOMPolicy to associated with the template.
-     * @returns A ViewTemplate.
-     * @remarks
-     * This API should not be used directly under normal circumstances because constructing
-     * a template in this way, if not done properly, can open up the application to XSS
-     * attacks. When using this API, provide a strong DOMPolicy that can properly sanitize
-     * and also be sure to manually sanitize all static strings particularly if they can
-     * come from user input.
-     */
-    static create(strings, values, policy) {
-        let html = "";
-        const factories = Object.create(null);
-        const add = (factory) => {
-            var _a;
-            const id = (_a = factory.id) !== null && _a !== void 0 ? _a : (factory.id = nextId());
-            factories[id] = factory;
-            return id;
-        };
-        for (let i = 0, ii = strings.length - 1; i < ii; ++i) {
-            const currentString = strings[i];
-            let currentValue = values[i];
-            let definition;
-            html += currentString;
-            if (isFunction(currentValue)) {
-                currentValue = new HTMLBindingDirective(oneWay(currentValue));
-            }
-            else if (currentValue instanceof Binding) {
-                currentValue = new HTMLBindingDirective(currentValue);
-            }
-            else if (!(definition = HTMLDirective.getForInstance(currentValue))) {
-                const staticValue = currentValue;
-                currentValue = new HTMLBindingDirective(oneTime(() => staticValue));
-            }
-            html += createHTML(currentValue, currentString, add, definition);
-        }
-        return new ViewTemplate(html + strings[strings.length - 1], factories, policy);
-    }
-}
-makeSerializationNoop(ViewTemplate);
-/**
- * Transforms a template literal string into a ViewTemplate.
- * @param strings - The string fragments that are interpolated with the values.
- * @param values - The values that are interpolated with the string fragments.
- * @remarks
- * The html helper supports interpolation of strings, numbers, binding expressions,
- * other template instances, and Directive instances.
- * @public
- */
-const html = ((strings, ...values) => {
-    if (Array.isArray(strings) && Array.isArray(strings.raw)) {
-        return ViewTemplate.create(strings, values);
-    }
-    throw FAST.error(1206 /* Message.directCallToHTMLTagNotAllowed */);
-});
-html.partial = (html) => {
-    return new InlineTemplateDirective(html);
-};
-
 /**
  * The runtime behavior for template references.
  * @public
@@ -2810,136 +3042,6 @@ HTMLDirective.define(RefDirective);
  * @public
  */
 const ref = (propertyName) => new RefDirective(propertyName);
-
-const selectElements = (value) => value.nodeType === 1;
-/**
- * Creates a function that can be used to filter a Node array, selecting only elements.
- * @param selector - An optional selector to restrict the filter to.
- * @public
- */
-const elements = (selector) => selector
-    ? value => value.nodeType === 1 && value.matches(selector)
-    : selectElements;
-/**
- * A base class for node observation.
- * @public
- * @remarks
- * Internally used by the SlottedDirective and the ChildrenDirective.
- */
-class NodeObservationDirective extends StatelessAttachedAttributeDirective {
-    /**
-     * The unique id of the factory.
-     */
-    get id() {
-        return this._id;
-    }
-    set id(value) {
-        this._id = value;
-        this._controllerProperty = `${value}-c`;
-    }
-    /**
-     * Bind this behavior to the source.
-     * @param source - The source to bind to.
-     * @param context - The execution context that the binding is operating within.
-     * @param targets - The targets that behaviors in a view can attach to.
-     */
-    bind(controller) {
-        const target = controller.targets[this.targetNodeId];
-        target[this._controllerProperty] = controller;
-        this.updateTarget(controller.source, this.computeNodes(target));
-        this.observe(target);
-        controller.onUnbind(this);
-    }
-    /**
-     * Unbinds this behavior from the source.
-     * @param source - The source to unbind from.
-     * @param context - The execution context that the binding is operating within.
-     * @param targets - The targets that behaviors in a view can attach to.
-     */
-    unbind(controller) {
-        const target = controller.targets[this.targetNodeId];
-        this.updateTarget(controller.source, emptyArray);
-        this.disconnect(target);
-        target[this._controllerProperty] = null;
-    }
-    /**
-     * Gets the data source for the target.
-     * @param target - The target to get the source for.
-     * @returns The source.
-     */
-    getSource(target) {
-        return target[this._controllerProperty].source;
-    }
-    /**
-     * Updates the source property with the computed nodes.
-     * @param source - The source object to assign the nodes property to.
-     * @param value - The nodes to assign to the source object property.
-     */
-    updateTarget(source, value) {
-        source[this.options.property] = value;
-    }
-    /**
-     * Computes the set of nodes that should be assigned to the source property.
-     * @param target - The target to compute the nodes for.
-     * @returns The computed nodes.
-     * @remarks
-     * Applies filters if provided.
-     */
-    computeNodes(target) {
-        let nodes = this.getNodes(target);
-        if ("filter" in this.options) {
-            nodes = nodes.filter(this.options.filter);
-        }
-        return nodes;
-    }
-}
-
-const slotEvent = "slotchange";
-/**
- * The runtime behavior for slotted node observation.
- * @public
- */
-class SlottedDirective extends NodeObservationDirective {
-    /**
-     * Begins observation of the nodes.
-     * @param target - The target to observe.
-     */
-    observe(target) {
-        target.addEventListener(slotEvent, this);
-    }
-    /**
-     * Disconnects observation of the nodes.
-     * @param target - The target to unobserve.
-     */
-    disconnect(target) {
-        target.removeEventListener(slotEvent, this);
-    }
-    /**
-     * Retrieves the raw nodes that should be assigned to the source property.
-     * @param target - The target to get the node to.
-     */
-    getNodes(target) {
-        return target.assignedNodes(this.options);
-    }
-    /** @internal */
-    handleEvent(event) {
-        const target = event.currentTarget;
-        this.updateTarget(this.getSource(target), this.computeNodes(target));
-    }
-}
-HTMLDirective.define(SlottedDirective);
-/**
- * A directive that observes the `assignedNodes()` of a slot and updates a property
- * whenever they change.
- * @param propertyOrOptions - The options used to configure slotted node observation.
- * @public
- */
-function slotted(propertyOrOptions) {
-    if (isString(propertyOrOptions)) {
-        propertyOrOptions = { property: propertyOrOptions };
-    }
-    return new SlottedDirective(propertyOrOptions);
-}
 
 const booleanMode = "boolean";
 const reflectMode = "reflect";
@@ -2964,13 +3066,11 @@ const booleanConverter = {
         return value ? "true" : "false";
     },
     fromView(value) {
-        return value === null ||
+        return !(value === null ||
             value === void 0 ||
             value === "false" ||
             value === false ||
-            value === 0
-            ? false
-            : true;
+            value === 0);
     },
 };
 function toNumber(value) {
@@ -3027,7 +3127,7 @@ class AttributeDefinition {
     /**
      * Sets the value of the attribute/property on the source element.
      * @param source - The source element to access.
-     * @param value - The value to set the attribute/property to.
+     * @param newValue - The value to set the attribute/property to.
      */
     setValue(source, newValue) {
         const oldValue = source[this.fieldName];
@@ -3136,17 +3236,44 @@ function attr(configOrTarget, prop) {
     return decorator;
 }
 
+var __awaiter = (window && window.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var _a;
 const defaultShadowOptions = { mode: "open" };
 const defaultElementOptions = {};
 const fastElementBaseTypes = new Set();
+/**
+ * The FAST custom element registry
+ * @internal
+ */
 const fastElementRegistry = FAST.getById(KernelServiceId.elementRegistry, () => createTypeRegistry());
+/**
+ * Values for the `templateOptions` property.
+ * @alpha
+ */
+const TemplateOptions = {
+    deferAndHydrate: "defer-and-hydrate",
+};
 /**
  * Defines metadata for a FASTElement.
  * @public
  */
 class FASTElementDefinition {
+    /**
+     * Indicates if this element has been defined in at least one registry.
+     */
+    get isDefined() {
+        return this.platformDefined;
+    }
     constructor(type, nameOrConfig = type.definition) {
-        var _a;
+        var _b;
         this.platformDefined = false;
         if (isString(nameOrConfig)) {
             nameOrConfig = { name: nameOrConfig };
@@ -3154,7 +3281,8 @@ class FASTElementDefinition {
         this.type = type;
         this.name = nameOrConfig.name;
         this.template = nameOrConfig.template;
-        this.registry = (_a = nameOrConfig.registry) !== null && _a !== void 0 ? _a : customElements;
+        this.templateOptions = nameOrConfig.templateOptions;
+        this.registry = (_b = nameOrConfig.registry) !== null && _b !== void 0 ? _b : customElements;
         const proto = type.prototype;
         const attributes = AttributeDefinition.collect(type, nameOrConfig.attributes);
         const observedAttributes = new Array(attributes.length);
@@ -3186,12 +3314,8 @@ class FASTElementDefinition {
                 : Object.assign(Object.assign({}, defaultElementOptions), nameOrConfig.elementOptions);
         this.styles = ElementStyles.normalize(nameOrConfig.styles);
         fastElementRegistry.register(this);
-    }
-    /**
-     * Indicates if this element has been defined in at least one registry.
-     */
-    get isDefined() {
-        return this.platformDefined;
+        Observable.defineProperty(_a.isRegistered, this.name);
+        _a.isRegistered[this.name] = this.type;
     }
     /**
      * Defines a custom element based on this definition.
@@ -3200,10 +3324,12 @@ class FASTElementDefinition {
      * This operation is idempotent per registry.
      */
     define(registry = this.registry) {
+        var _b, _c;
         const type = this.type;
         if (!registry.get(this.name)) {
             this.platformDefined = true;
             registry.define(this.name, type, this.elementOptions);
+            (_c = (_b = this.lifecycleCallbacks) === null || _b === void 0 ? void 0 : _b.elementDidDefine) === null || _c === void 0 ? void 0 : _c.call(_b, this.name);
         }
         return this;
     }
@@ -3215,10 +3341,10 @@ class FASTElementDefinition {
      */
     static compose(type, nameOrDef) {
         if (fastElementBaseTypes.has(type) || fastElementRegistry.getByType(type)) {
-            return new FASTElementDefinition(class extends type {
+            return new _a(class extends type {
             }, nameOrDef);
         }
-        return new FASTElementDefinition(type, nameOrDef);
+        return new _a(type, nameOrDef);
     }
     /**
      * Registers a FASTElement base type.
@@ -3228,7 +3354,37 @@ class FASTElementDefinition {
     static registerBaseType(type) {
         fastElementBaseTypes.add(type);
     }
+    /**
+     * Creates an instance of FASTElementDefinition asynchronously. This option assumes
+     * that a template and shadowOptions will be provided and completes when those requirements
+     * are met.
+     * @param type - The type this definition is being created for.
+     * @param nameOrDef - The name of the element to define or a config object
+     * that describes the element to define.
+     * @alpha
+     */
+    static composeAsync(type, nameOrDef) {
+        return new Promise(resolve => {
+            if (fastElementBaseTypes.has(type) || fastElementRegistry.getByType(type)) {
+                resolve(new _a(class extends type {
+                }, nameOrDef));
+            }
+            const definition = new _a(type, nameOrDef);
+            Observable.getNotifier(definition).subscribe({
+                handleChange: () => {
+                    var _b, _c;
+                    (_c = (_b = definition.lifecycleCallbacks) === null || _b === void 0 ? void 0 : _b.templateDidUpdate) === null || _c === void 0 ? void 0 : _c.call(_b, definition.name);
+                    resolve(definition);
+                },
+            }, "template");
+        });
+    }
 }
+_a = FASTElementDefinition;
+/**
+ * The definition has been registered to the FAST element registry.
+ */
+FASTElementDefinition.isRegistered = {};
 /**
  * Gets the element definition associated with the specified type.
  * @param type - The custom element type to retrieve the definition for.
@@ -3239,6 +3395,261 @@ FASTElementDefinition.getByType = fastElementRegistry.getByType;
  * @param instance - The custom element instance to retrieve the definition for.
  */
 FASTElementDefinition.getForInstance = fastElementRegistry.getForInstance;
+/**
+ * Indicates when a custom elements definition has been registered with the fastElementRegistry.
+ * @param name - The name of the defined custom element.
+ * @alpha
+ */
+FASTElementDefinition.registerAsync = (name) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise(resolve => {
+        if (_a.isRegistered[name]) {
+            resolve(_a.isRegistered[name]);
+        }
+        Observable.getNotifier(_a.isRegistered).subscribe({ handleChange: () => resolve(_a.isRegistered[name]) }, name);
+    });
+});
+Observable.defineProperty(FASTElementDefinition.prototype, "template");
+
+// Much thanks to LitHTML for working this out!
+const lastAttributeNameRegex = 
+/* eslint-disable-next-line no-control-regex, max-len */
+/([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+const noFactories = Object.create(null);
+/**
+ * Inlines a template into another template.
+ * @public
+ */
+class InlineTemplateDirective {
+    /**
+     * Creates an instance of InlineTemplateDirective.
+     * @param template - The template to inline.
+     */
+    constructor(html, factories = noFactories) {
+        this.html = html;
+        this.factories = factories;
+    }
+    /**
+     * Creates HTML to be used within a template.
+     * @param add - Can be used to add  behavior factories to a template.
+     */
+    createHTML(add) {
+        const factories = this.factories;
+        for (const key in factories) {
+            add(factories[key]);
+        }
+        return this.html;
+    }
+}
+/**
+ * An empty template partial.
+ */
+InlineTemplateDirective.empty = new InlineTemplateDirective("");
+HTMLDirective.define(InlineTemplateDirective);
+function createHTML(value, prevString, add, definition = HTMLDirective.getForInstance(value)) {
+    if (definition.aspected) {
+        const match = lastAttributeNameRegex.exec(prevString);
+        if (match !== null) {
+            HTMLDirective.assignAspect(value, match[2]);
+        }
+    }
+    return value.createHTML(add);
+}
+/**
+ * A template capable of creating HTMLView instances or rendering directly to DOM.
+ * @public
+ */
+class ViewTemplate {
+    /**
+     * Creates an instance of ViewTemplate.
+     * @param html - The html representing what this template will instantiate, including placeholders for directives.
+     * @param factories - The directives that will be connected to placeholders in the html.
+     * @param policy - The security policy to use when compiling this template.
+     */
+    constructor(html, factories = {}, policy) {
+        this.policy = policy;
+        this.result = null;
+        this.html = html;
+        this.factories = factories;
+    }
+    /**
+     * @internal
+     */
+    compile() {
+        if (this.result === null) {
+            this.result = Compiler.compile(this.html, this.factories, this.policy);
+        }
+        return this.result;
+    }
+    /**
+     * Creates an HTMLView instance based on this template definition.
+     * @param hostBindingTarget - The element that host behaviors will be bound to.
+     */
+    create(hostBindingTarget) {
+        return this.compile().createView(hostBindingTarget);
+    }
+    /**
+     * Returns a directive that can inline the template.
+     */
+    inline() {
+        return new InlineTemplateDirective(isString(this.html) ? this.html : this.html.innerHTML, this.factories);
+    }
+    /**
+     * Sets the DOMPolicy for this template.
+     * @param policy - The policy to associated with this template.
+     * @returns The modified template instance.
+     * @remarks
+     * The DOMPolicy can only be set once for a template and cannot be
+     * set after the template is compiled.
+     */
+    withPolicy(policy) {
+        if (this.result) {
+            throw FAST.error(Message.cannotSetTemplatePolicyAfterCompilation);
+        }
+        if (this.policy) {
+            throw FAST.error(Message.onlySetTemplatePolicyOnce);
+        }
+        this.policy = policy;
+        return this;
+    }
+    /**
+     * Creates an HTMLView from this template, binds it to the source, and then appends it to the host.
+     * @param source - The data source to bind the template to.
+     * @param host - The Element where the template will be rendered.
+     * @param hostBindingTarget - An HTML element to target the host bindings at if different from the
+     * host that the template is being attached to.
+     */
+    render(source, host, hostBindingTarget) {
+        const view = this.create(hostBindingTarget);
+        view.bind(source);
+        view.appendTo(host);
+        return view;
+    }
+    /**
+     * Processes the tagged template literal's static strings and interpolated values and
+     * creates a ViewTemplate.
+     *
+     * For each interpolated value:
+     * 1. Functions (binding expressions, e.g., `x => x.name`) → wrapped in a one-way HTMLBindingDirective
+     * 2. Binding instances → wrapped in an HTMLBindingDirective
+     * 3. HTMLDirective instances → used as-is
+     * 4. Static values (strings, numbers) → wrapped in a one-time HTMLBindingDirective
+     *
+     * Each directive's createHTML() is called with an `add` callback that registers
+     * the factory in the factories record under a unique ID and returns that ID.
+     * The directive inserts a placeholder marker (e.g., `fast-abc123{0}fast-abc123`) into
+     * the HTML string so the compiler can later find and associate it with the factory.
+     *
+     * Aspect detection happens here too: the `lastAttributeNameRegex` checks whether
+     * the placeholder appears inside an attribute value, and if so, assignAspect()
+     * sets the correct DOMAspect (attribute, property, event, etc.) based on the
+     * attribute name prefix.
+     *
+     * @param strings - The static strings to create the template with.
+     * @param values - The dynamic values to create the template with.
+     * @param policy - The DOMPolicy to associated with the template.
+     * @returns A ViewTemplate.
+     * @remarks
+     * This API should not be used directly under normal circumstances because constructing
+     * a template in this way, if not done properly, can open up the application to XSS
+     * attacks. When using this API, provide a strong DOMPolicy that can properly sanitize
+     * and also be sure to manually sanitize all static strings particularly if they can
+     * come from user input.
+     */
+    static create(strings, values, policy) {
+        let html = "";
+        const factories = Object.create(null);
+        const add = (factory) => {
+            var _a;
+            const id = (_a = factory.id) !== null && _a !== void 0 ? _a : (factory.id = nextId());
+            factories[id] = factory;
+            return id;
+        };
+        for (let i = 0, ii = strings.length - 1; i < ii; ++i) {
+            const currentString = strings[i];
+            let currentValue = values[i];
+            let definition;
+            html += currentString;
+            if (isFunction(currentValue)) {
+                currentValue = new HTMLBindingDirective(oneWay(currentValue));
+            }
+            else if (currentValue instanceof Binding) {
+                currentValue = new HTMLBindingDirective(currentValue);
+            }
+            else if (!(definition = HTMLDirective.getForInstance(currentValue))) {
+                const staticValue = currentValue;
+                currentValue = new HTMLBindingDirective(oneTime(() => staticValue));
+            }
+            html += createHTML(currentValue, currentString, add, definition);
+        }
+        return new ViewTemplate(html + strings[strings.length - 1], factories, policy);
+    }
+}
+makeSerializationNoop(ViewTemplate);
+/**
+ * Transforms a template literal string into a ViewTemplate.
+ * @param strings - The string fragments that are interpolated with the values.
+ * @param values - The values that are interpolated with the string fragments.
+ * @remarks
+ * The html helper supports interpolation of strings, numbers, binding expressions,
+ * other template instances, and Directive instances.
+ * @public
+ */
+const html = ((strings, ...values) => {
+    if (Array.isArray(strings) && Array.isArray(strings.raw)) {
+        return ViewTemplate.create(strings, values);
+    }
+    throw FAST.error(Message.directCallToHTMLTagNotAllowed);
+});
+html.partial = (html) => {
+    return new InlineTemplateDirective(html);
+};
+
+const slotEvent = "slotchange";
+/**
+ * The runtime behavior for slotted node observation.
+ * @public
+ */
+class SlottedDirective extends NodeObservationDirective {
+    /**
+     * Begins observation of the nodes.
+     * @param target - The target to observe.
+     */
+    observe(target) {
+        target.addEventListener(slotEvent, this);
+    }
+    /**
+     * Disconnects observation of the nodes.
+     * @param target - The target to unobserve.
+     */
+    disconnect(target) {
+        target.removeEventListener(slotEvent, this);
+    }
+    /**
+     * Retrieves the raw nodes that should be assigned to the source property.
+     * @param target - The target to get the node to.
+     */
+    getNodes(target) {
+        return target.assignedNodes(this.options);
+    }
+    /** @internal */
+    handleEvent(event) {
+        const target = event.currentTarget;
+        this.updateTarget(this.getSource(target), this.computeNodes(target));
+    }
+}
+HTMLDirective.define(SlottedDirective);
+/**
+ * A directive that observes the `assignedNodes()` of a slot and updates a property
+ * whenever they change.
+ * @param propertyOrOptions - The options used to configure slotted node observation.
+ * @public
+ */
+function slotted(propertyOrOptions) {
+    if (isString(propertyOrOptions)) {
+        propertyOrOptions = { property: propertyOrOptions };
+    }
+    return new SlottedDirective(propertyOrOptions);
+}
 
 /**
  * An extension of MutationObserver that supports unobserving nodes.
@@ -3347,91 +3758,32 @@ function getShadowRoot(element) {
 }
 let elementControllerStrategy;
 /**
+ * The various lifecycle stages of an ElementController.
+ * @public
+ */
+var Stages;
+(function (Stages) {
+    /** The element is in the process of connecting. */
+    Stages[Stages["connecting"] = 0] = "connecting";
+    /** The element is connected. */
+    Stages[Stages["connected"] = 1] = "connected";
+    /** The element is in the process of disconnecting. */
+    Stages[Stages["disconnecting"] = 2] = "disconnecting";
+    /** The element is disconnected. */
+    Stages[Stages["disconnected"] = 3] = "disconnected";
+})(Stages || (Stages = {}));
+/**
  * Controls the lifecycle and rendering of a `FASTElement`.
  * @public
  */
 class ElementController extends PropertyChangeNotifier {
-    /**
-     * Creates a Controller to control the specified element.
-     * @param element - The element to be controlled by this controller.
-     * @param definition - The element definition metadata that instructs this
-     * controller in how to handle rendering and other platform integrations.
-     * @internal
-     */
-    constructor(element, definition) {
-        super(element);
-        this.boundObservables = null;
-        this.needsInitialization = true;
-        this.hasExistingShadowRoot = false;
-        this._template = null;
-        this.stage = 3 /* Stages.disconnected */;
-        /**
-         * A guard against connecting behaviors multiple times
-         * during connect in scenarios where a behavior adds
-         * another behavior during it's connectedCallback
-         */
-        this.guardBehaviorConnection = false;
-        this.behaviors = null;
-        /**
-         * Tracks whether behaviors are connected so that
-         * behaviors cant be connected multiple times
-         */
-        this.behaviorsConnected = false;
-        this._mainStyles = null;
-        /**
-         * This allows Observable.getNotifier(...) to return the Controller
-         * when the notifier for the Controller itself is being requested. The
-         * result is that the Observable system does not need to create a separate
-         * instance of Notifier for observables on the Controller. The component and
-         * the controller will now share the same notifier, removing one-object construct
-         * per web component instance.
-         */
-        this.$fastController = this;
-        /**
-         * The view associated with the custom element.
-         * @remarks
-         * If `null` then the element is managing its own rendering.
-         */
-        this.view = null;
-        this.source = element;
-        this.definition = definition;
-        const shadowOptions = definition.shadowOptions;
-        if (shadowOptions !== void 0) {
-            let shadowRoot = element.shadowRoot;
-            if (shadowRoot) {
-                this.hasExistingShadowRoot = true;
-            }
-            else {
-                shadowRoot = element.attachShadow(shadowOptions);
-                if (shadowOptions.mode === "closed") {
-                    shadowRoots.set(element, shadowRoot);
-                }
-            }
-        }
-        // Capture any observable values that were set by the binding engine before
-        // the browser upgraded the element. Then delete the property since it will
-        // shadow the getter/setter that is required to make the observable operate.
-        // Later, in the connect callback, we'll re-apply the values.
-        const accessors = Observable.getAccessors(element);
-        if (accessors.length > 0) {
-            const boundObservables = (this.boundObservables = Object.create(null));
-            for (let i = 0, ii = accessors.length; i < ii; ++i) {
-                const propertyName = accessors[i].name;
-                const value = element[propertyName];
-                if (value !== void 0) {
-                    delete element[propertyName];
-                    boundObservables[propertyName] = value;
-                }
-            }
-        }
-    }
     /**
      * Indicates whether or not the custom element has been
      * connected to the document.
      */
     get isConnected() {
         Observable.track(this, isConnectedPropertyName);
-        return this.stage === 1 /* Stages.connected */;
+        return this.stage === Stages.connected;
     }
     /**
      * The context the expression is evaluated against.
@@ -3485,6 +3837,28 @@ class ElementController extends PropertyChangeNotifier {
         }
     }
     /**
+     * The shadow root options for the component.
+     */
+    get shadowOptions() {
+        return this._shadowRootOptions;
+    }
+    set shadowOptions(value) {
+        // options on the shadowRoot can only be set once
+        if (this._shadowRootOptions === void 0 && value !== void 0) {
+            this._shadowRootOptions = value;
+            let shadowRoot = this.source.shadowRoot;
+            if (shadowRoot) {
+                this.hasExistingShadowRoot = true;
+            }
+            else {
+                shadowRoot = this.source.attachShadow(value);
+                if (value.mode === "closed") {
+                    shadowRoots.set(this.source, shadowRoot);
+                }
+            }
+        }
+    }
+    /**
      * The main set of styles used for the component, independent
      * of any dynamically added styles.
      */
@@ -3517,6 +3891,90 @@ class ElementController extends PropertyChangeNotifier {
         }
     }
     /**
+     * Creates a Controller to control the specified element.
+     * @param element - The element to be controlled by this controller.
+     * @param definition - The element definition metadata that instructs this
+     * controller in how to handle rendering and other platform integrations.
+     * @internal
+     */
+    constructor(element, definition) {
+        super(element);
+        /**
+         * A map of observable properties that were set on the element before upgrade.
+         */
+        this.boundObservables = null;
+        /**
+         * Indicates whether the controller needs to perform initial rendering.
+         */
+        this.needsInitialization = true;
+        /**
+         * Indicates whether the element has an existing shadow root (e.g. from declarative shadow DOM).
+         */
+        this.hasExistingShadowRoot = false;
+        /**
+         * The template used to render the component.
+         */
+        this._template = null;
+        /**
+         * The current lifecycle stage of the controller.
+         */
+        this.stage = Stages.disconnected;
+        /**
+         * A guard against connecting behaviors multiple times
+         * during connect in scenarios where a behavior adds
+         * another behavior during it's connectedCallback
+         */
+        this.guardBehaviorConnection = false;
+        /**
+         * The behaviors associated with the component.
+         */
+        this.behaviors = null;
+        /**
+         * Tracks whether behaviors are connected so that
+         * behaviors cant be connected multiple times
+         */
+        this.behaviorsConnected = false;
+        /**
+         * The main set of styles used for the component, independent of any
+         * dynamically added styles.
+         */
+        this._mainStyles = null;
+        /**
+         * This allows Observable.getNotifier(...) to return the Controller
+         * when the notifier for the Controller itself is being requested. The
+         * result is that the Observable system does not need to create a separate
+         * instance of Notifier for observables on the Controller. The component and
+         * the controller will now share the same notifier, removing one-object construct
+         * per web component instance.
+         */
+        this.$fastController = this;
+        /**
+         * The view associated with the custom element.
+         * @remarks
+         * If `null` then the element is managing its own rendering.
+         */
+        this.view = null;
+        this.source = element;
+        this.definition = definition;
+        this.shadowOptions = definition.shadowOptions;
+        // Capture any observable values that were set by the binding engine before
+        // the browser upgraded the element. Then delete the property since it will
+        // shadow the getter/setter that is required to make the observable operate.
+        // Later, in the connect callback, we'll re-apply the values.
+        const accessors = Observable.getAccessors(element);
+        if (accessors.length > 0) {
+            const boundObservables = (this.boundObservables = Object.create(null));
+            for (let i = 0, ii = accessors.length; i < ii; ++i) {
+                const propertyName = accessors[i].name;
+                const value = element[propertyName];
+                if (value !== void 0) {
+                    delete element[propertyName];
+                    boundObservables[propertyName] = value;
+                }
+            }
+        }
+    }
+    /**
      * Registers an unbind handler with the controller.
      * @param behavior - An object to call when the controller unbinds.
      */
@@ -3537,7 +3995,7 @@ class ElementController extends PropertyChangeNotifier {
             behavior.addedCallback && behavior.addedCallback(this);
             if (behavior.connectedCallback &&
                 !this.guardBehaviorConnection &&
-                (this.stage === 1 /* Stages.connected */ || this.stage === 0 /* Stages.connecting */)) {
+                (this.stage === Stages.connected || this.stage === Stages.connecting)) {
                 behavior.connectedCallback(this);
             }
         }
@@ -3561,7 +4019,7 @@ class ElementController extends PropertyChangeNotifier {
         }
         if (count === 1 || force) {
             targetBehaviors.delete(behavior);
-            if (behavior.disconnectedCallback && this.stage !== 3 /* Stages.disconnected */) {
+            if (behavior.disconnectedCallback && this.stage !== Stages.disconnected) {
                 behavior.disconnectedCallback(this);
             }
             behavior.removedCallback && behavior.removedCallback(this);
@@ -3622,10 +4080,10 @@ class ElementController extends PropertyChangeNotifier {
      * Runs connected lifecycle behavior on the associated element.
      */
     connect() {
-        if (this.stage !== 3 /* Stages.disconnected */) {
+        if (this.stage !== Stages.disconnected) {
             return;
         }
-        this.stage = 0 /* Stages.connecting */;
+        this.stage = Stages.connecting;
         this.bindObservables();
         this.connectBehaviors();
         if (this.needsInitialization) {
@@ -3636,9 +4094,12 @@ class ElementController extends PropertyChangeNotifier {
         else if (this.view !== null) {
             this.view.bind(this.source);
         }
-        this.stage = 1 /* Stages.connected */;
+        this.stage = Stages.connected;
         Observable.notify(this, isConnectedPropertyName);
     }
+    /**
+     * Binds any observables that were set before upgrade.
+     */
     bindObservables() {
         if (this.boundObservables !== null) {
             const element = this.source;
@@ -3651,6 +4112,9 @@ class ElementController extends PropertyChangeNotifier {
             this.boundObservables = null;
         }
     }
+    /**
+     * Connects any existing behaviors on the associated element.
+     */
     connectBehaviors() {
         if (this.behaviorsConnected === false) {
             const behaviors = this.behaviors;
@@ -3664,6 +4128,9 @@ class ElementController extends PropertyChangeNotifier {
             this.behaviorsConnected = true;
         }
     }
+    /**
+     * Disconnects any behaviors on the associated element.
+     */
     disconnectBehaviors() {
         if (this.behaviorsConnected === true) {
             const behaviors = this.behaviors;
@@ -3679,16 +4146,16 @@ class ElementController extends PropertyChangeNotifier {
      * Runs disconnected lifecycle behavior on the associated element.
      */
     disconnect() {
-        if (this.stage !== 1 /* Stages.connected */) {
+        if (this.stage !== Stages.connected) {
             return;
         }
-        this.stage = 2 /* Stages.disconnecting */;
+        this.stage = Stages.disconnecting;
         Observable.notify(this, isConnectedPropertyName);
         if (this.view !== null) {
             this.view.unbind();
         }
         this.disconnectBehaviors();
-        this.stage = 3 /* Stages.disconnected */;
+        this.stage = Stages.disconnected;
     }
     /**
      * Runs the attribute changed callback for the associated element.
@@ -3711,11 +4178,18 @@ class ElementController extends PropertyChangeNotifier {
      * Only emits events if connected.
      */
     emit(type, detail, options) {
-        if (this.stage === 1 /* Stages.connected */) {
+        if (this.stage === Stages.connected) {
             return this.source.dispatchEvent(new CustomEvent(type, Object.assign(Object.assign({ detail }, defaultEventOptions), options)));
         }
         return false;
     }
+    /**
+     * Renders the provided template to the element.
+     *
+     * @param template - The template to render.
+     * @remarks
+     * If `null` is provided, any existing view will be removed.
+     */
     renderTemplate(template) {
         var _a;
         // When getting the host to render to, we start by looking
@@ -3745,20 +4219,33 @@ class ElementController extends PropertyChangeNotifier {
     /**
      * Locates or creates a controller for the specified element.
      * @param element - The element to return the controller for.
+     * @param override - Reset the controller even if one has been defined.
      * @remarks
      * The specified element must have a {@link FASTElementDefinition}
      * registered either through the use of the {@link customElement}
      * decorator or a call to `FASTElement.define`.
      */
-    static forCustomElement(element) {
+    static forCustomElement(element, override = false) {
         const controller = element.$fastController;
-        if (controller !== void 0) {
+        if (controller !== void 0 && !override) {
             return controller;
         }
         const definition = FASTElementDefinition.getForInstance(element);
         if (definition === void 0) {
-            throw FAST.error(1401 /* Message.missingElementDefinition */);
+            throw FAST.error(Message.missingElementDefinition);
         }
+        Observable.getNotifier(definition).subscribe({
+            handleChange: () => {
+                ElementController.forCustomElement(element, true);
+                element.$fastController.connect();
+            },
+        }, "template");
+        Observable.getNotifier(definition).subscribe({
+            handleChange: () => {
+                ElementController.forCustomElement(element, true);
+                element.$fastController.connect();
+            },
+        }, "shadowOptions");
         return (element.$fastController = new elementControllerStrategy(element, definition));
     }
     /**
@@ -3890,7 +4377,10 @@ if (ElementStyles.supportsAdoptedStyleSheets) {
 else {
     ElementStyles.setDefaultStrategy(StyleElementStrategy);
 }
-const deferHydrationAttribute = "defer-hydration";
+/**
+ * The attribute used to indicate that an element needs hydration.
+ * @public
+ */
 const needsHydrationAttribute = "needs-hydration";
 /**
  * An ElementController capable of hydrating FAST elements from
@@ -3899,22 +4389,90 @@ const needsHydrationAttribute = "needs-hydration";
  * @beta
  */
 class HydratableElementController extends ElementController {
-    static hydrationObserverHandler(records) {
-        for (const record of records) {
-            HydratableElementController.hydrationObserver.unobserve(record.target);
-            record.target.$fastController.connect();
+    /**
+     * {@inheritdoc ElementController.shadowOptions}
+     */
+    get shadowOptions() {
+        return super.shadowOptions;
+    }
+    set shadowOptions(value) {
+        super.shadowOptions = value;
+        if ((this.hasExistingShadowRoot || (value !== void 0 && !this.template)) &&
+            this.definition.templateOptions === TemplateOptions.deferAndHydrate) {
+            this.source.toggleAttribute(deferHydrationAttribute, true);
+            this.source.toggleAttribute(needsHydrationAttribute, true);
         }
     }
+    /**
+     * Adds the current element instance to the hydrating instances map
+     */
+    addHydratingInstance() {
+        if (!HydratableElementController.hydratingInstances) {
+            return;
+        }
+        const name = this.definition.name;
+        let instances = HydratableElementController.hydratingInstances.get(name);
+        if (!instances) {
+            instances = new Set();
+            HydratableElementController.hydratingInstances.set(name, instances);
+        }
+        instances.add(this.source);
+    }
+    /**
+     * Configure lifecycle callbacks for hydration events
+     */
+    static config(callbacks) {
+        HydratableElementController.lifecycleCallbacks = callbacks;
+        return this;
+    }
+    static hydrationObserverHandler(records) {
+        for (const record of records) {
+            if (!record.target.hasAttribute(deferHydrationAttribute)) {
+                HydratableElementController.hydrationObserver.unobserve(record.target);
+                record.target.$fastController.connect();
+            }
+        }
+    }
+    /**
+     * Checks to see if hydration is complete and if so, invokes the hydrationComplete callback.
+     * Then resets the ElementController strategy to the default so that future elements
+     * don't use the HydratableElementController.
+     *
+     * @param deadline - the idle deadline object
+     */
+    static checkHydrationComplete(deadline) {
+        var _a, _b, _c;
+        if (deadline.didTimeout) {
+            HydratableElementController.idleCallbackId = requestIdleCallback(HydratableElementController.checkHydrationComplete, { timeout: 50 });
+            return;
+        }
+        // If there are no more hydrating instances, invoke the hydrationComplete callback
+        if (((_a = HydratableElementController.hydratingInstances) === null || _a === void 0 ? void 0 : _a.size) === 0) {
+            try {
+                (_c = (_b = HydratableElementController.lifecycleCallbacks).hydrationComplete) === null || _c === void 0 ? void 0 : _c.call(_b);
+            }
+            catch (_d) {
+                // A lifecycle callback must never prevent post-hydration cleanup.
+            }
+            // Reset to the default strategy after hydration is complete
+            ElementController.setStrategy(ElementController);
+        }
+    }
+    /**
+     * Runs connected lifecycle behavior on the associated element.
+     */
     connect() {
-        var _a, _b;
+        var _a, _b, _c, _d, _e, _f, _g;
         // Initialize needsHydration on first connect
-        if (this.needsHydration === undefined) {
-            this.needsHydration =
-                this.source.getAttribute(needsHydrationAttribute) !== null;
+        this.needsHydration =
+            (_a = this.needsHydration) !== null && _a !== void 0 ? _a : this.source.hasAttribute(needsHydrationAttribute);
+        if (this.needsHydration) {
+            this.addHydratingInstance();
         }
         // If the `defer-hydration` attribute exists on the source,
         // wait for it to be removed before continuing connection behavior.
         if (this.source.hasAttribute(deferHydrationAttribute)) {
+            this.addHydratingInstance();
             HydratableElementController.hydrationObserver.observe(this.source, {
                 attributeFilter: [deferHydrationAttribute],
             });
@@ -3926,18 +4484,34 @@ class HydratableElementController extends ElementController {
         // class
         if (!this.needsHydration) {
             super.connect();
+            this.removeHydratingInstance();
             return;
         }
-        if (this.stage !== 3 /* Stages.disconnected */) {
+        if (this.stage !== Stages.disconnected) {
             return;
         }
-        this.stage = 0 /* Stages.connecting */;
+        if (!HydratableElementController.hydrationStarted) {
+            HydratableElementController.hydrationStarted = true;
+            try {
+                (_c = (_b = HydratableElementController.lifecycleCallbacks).hydrationStarted) === null || _c === void 0 ? void 0 : _c.call(_b);
+            }
+            catch (_h) {
+                // A lifecycle callback must never prevent hydration.
+            }
+        }
+        try {
+            (_e = (_d = HydratableElementController.lifecycleCallbacks).elementWillHydrate) === null || _e === void 0 ? void 0 : _e.call(_d, this.source);
+        }
+        catch (_j) {
+            // A lifecycle callback must never prevent hydration.
+        }
+        this.stage = Stages.connecting;
         this.bindObservables();
         this.connectBehaviors();
-        const element = this.source;
-        const host = (_a = getShadowRoot(element)) !== null && _a !== void 0 ? _a : element;
         if (this.template) {
             if (isHydratable(this.template)) {
+                const element = this.source;
+                const host = (_f = getShadowRoot(element)) !== null && _f !== void 0 ? _f : element;
                 let firstChild = host.firstChild;
                 let lastChild = host.lastChild;
                 if (element.shadowRoot === null) {
@@ -3952,27 +4526,86 @@ class HydratableElementController extends ElementController {
                     }
                 }
                 this.view = this.template.hydrate(firstChild, lastChild, element);
-                (_b = this.view) === null || _b === void 0 ? void 0 : _b.bind(this.source);
+                (_g = this.view) === null || _g === void 0 ? void 0 : _g.bind(this.source);
             }
             else {
                 this.renderTemplate(this.template);
             }
         }
         this.addStyles(this.mainStyles);
-        this.stage = 1 /* Stages.connected */;
+        this.stage = Stages.connected;
         this.source.removeAttribute(needsHydrationAttribute);
         this.needsInitialization = this.needsHydration = false;
+        this.removeHydratingInstance();
         Observable.notify(this, isConnectedPropertyName);
     }
+    /**
+     * Removes the current element instance from the hydrating instances map
+     */
+    removeHydratingInstance() {
+        var _a, _b;
+        if (!HydratableElementController.hydratingInstances) {
+            return;
+        }
+        try {
+            (_b = (_a = HydratableElementController.lifecycleCallbacks).elementDidHydrate) === null || _b === void 0 ? void 0 : _b.call(_a, this.source);
+        }
+        catch (_c) {
+            // A lifecycle callback must never prevent hydration.
+        }
+        const name = this.definition.name;
+        const instances = HydratableElementController.hydratingInstances.get(name);
+        if (instances) {
+            instances.delete(this.source);
+            if (!instances.size) {
+                HydratableElementController.hydratingInstances.delete(name);
+            }
+            if (HydratableElementController.idleCallbackId) {
+                cancelIdleCallback(HydratableElementController.idleCallbackId);
+            }
+            HydratableElementController.idleCallbackId = requestIdleCallback(HydratableElementController.checkHydrationComplete, { timeout: 50 });
+        }
+    }
+    /**
+     * Unregisters the hydration observer when the element is disconnected.
+     */
     disconnect() {
         super.disconnect();
         HydratableElementController.hydrationObserver.unobserve(this.source);
     }
+    /**
+     * Sets the ElementController strategy to HydratableElementController.
+     * @remarks
+     * This method is typically called during application startup to enable
+     * hydration support for FAST elements.
+     */
     static install() {
         ElementController.setStrategy(HydratableElementController);
     }
 }
 HydratableElementController.hydrationObserver = new UnobservableMutationObserver(HydratableElementController.hydrationObserverHandler);
+/**
+ * Lifecycle callbacks for hydration events
+ */
+HydratableElementController.lifecycleCallbacks = {};
+/**
+ * Whether the hydrationStarted callback has already been invoked.
+ */
+HydratableElementController.hydrationStarted = false;
+/**
+ * An idle callback ID used to track hydration completion
+ */
+HydratableElementController.idleCallbackId = null;
+/**
+ * A map of element instances by the name of the custom element they are
+ * associated with. The key is the custom element name, and the value is the
+ * instances of hydratable elements which currently need to be hydrated.
+ *
+ * When all of the instances in the set have been hydrated, the set is
+ * cleared and removed from the map. If the map is empty, the
+ * hydrationComplete callback is invoked.
+ */
+HydratableElementController.hydratingInstances = new Map();
 
 /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
 function createFASTElement(BaseType) {
@@ -4003,6 +4636,24 @@ function compose(type, nameOrDef) {
         return FASTElementDefinition.compose(type, nameOrDef);
     }
     return FASTElementDefinition.compose(this, type);
+}
+function defineAsync(type, nameOrDef) {
+    if (isFunction(type)) {
+        return new Promise(resolve => {
+            FASTElementDefinition.composeAsync(type, nameOrDef).then(value => {
+                resolve(value);
+            });
+        }).then(value => {
+            return value.define().type;
+        });
+    }
+    return new Promise(resolve => {
+        FASTElementDefinition.composeAsync(this, type).then(value => {
+            resolve(value);
+        });
+    }).then(value => {
+        return value.define().type;
+    });
 }
 function define(type, nameOrDef) {
     if (isFunction(type)) {
@@ -4037,6 +4688,11 @@ const FASTElement = Object.assign(createFASTElement(HTMLElement), {
      * @public
      */
     compose,
+    /**
+     * Defines metadata for a FASTElement which can be used after it has been resolved to define the element.
+     * @alpha
+     */
+    defineAsync,
 });
 
 function staticallyCompose(item) {
@@ -4079,14 +4735,14 @@ function applyMixins(derivedCtor, ...baseCtors) {
   });
 }
 
-var __defProp$O = Object.defineProperty;
-var __getOwnPropDesc$O = Object.getOwnPropertyDescriptor;
-var __decorateClass$O = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$O(target, key) : target;
+var __defProp$P = Object.defineProperty;
+var __getOwnPropDesc$P = Object.getOwnPropertyDescriptor;
+var __decorateClass$P = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$P(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$O(target, key, result);
+  if (kind && result) __defProp$P(target, key, result);
   return result;
 };
 class BaseAccordionItem extends FASTElement {
@@ -4103,31 +4759,31 @@ class BaseAccordionItem extends FASTElement {
     this.disabled = false;
   }
 }
-__decorateClass$O([
+__decorateClass$P([
   attr({
     attribute: "heading-level",
     mode: "fromView",
     converter: nullableNumberConverter
   })
 ], BaseAccordionItem.prototype, "headinglevel", 2);
-__decorateClass$O([
+__decorateClass$P([
   attr({ mode: "boolean" })
 ], BaseAccordionItem.prototype, "expanded", 2);
-__decorateClass$O([
+__decorateClass$P([
   attr({ mode: "boolean" })
 ], BaseAccordionItem.prototype, "disabled", 2);
-__decorateClass$O([
+__decorateClass$P([
   observable
 ], BaseAccordionItem.prototype, "expandbutton", 2);
 
-var __defProp$N = Object.defineProperty;
-var __getOwnPropDesc$N = Object.getOwnPropertyDescriptor;
-var __decorateClass$N = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$N(target, key) : target;
+var __defProp$O = Object.defineProperty;
+var __getOwnPropDesc$O = Object.getOwnPropertyDescriptor;
+var __decorateClass$O = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$O(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$N(target, key, result);
+  if (kind && result) __defProp$O(target, key, result);
   return result;
 };
 class AccordionItem extends BaseAccordionItem {
@@ -4136,13 +4792,13 @@ class AccordionItem extends BaseAccordionItem {
     this.block = false;
   }
 }
-__decorateClass$N([
+__decorateClass$O([
   attr
 ], AccordionItem.prototype, "size", 2);
-__decorateClass$N([
+__decorateClass$O([
   attr({ attribute: "marker-position" })
 ], AccordionItem.prototype, "markerPosition", 2);
-__decorateClass$N([
+__decorateClass$O([
   attr({ mode: "boolean" })
 ], AccordionItem.prototype, "block", 2);
 applyMixins(AccordionItem, StartEnd);
@@ -4620,7 +5276,7 @@ const zIndexFloating = "var(--zIndexFloating)";
 const zIndexPriority = "var(--zIndexPriority)";
 const zIndexDebug = "var(--zIndexDebug)";
 
-const styles$E = css`${display("block")} :host{max-width:fit-content;contain:content}.heading{height:44px;display:grid;position:relative;padding-inline:${spacingHorizontalM} ${spacingHorizontalMNudge};border-radius:${borderRadiusMedium};font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};grid-template-columns:auto auto 1fr auto}.button{appearance:none;background:${colorTransparentBackground};border:none;box-sizing:border-box;color:${colorNeutralForeground1};cursor:pointer;font:inherit;grid-column:auto/span 2;grid-row:1;height:44px;outline:none;padding:0;text-align:start}.button::before{content:'';position:absolute;inset:0px;cursor:pointer;border-radius:${borderRadiusSmall}}:where(.default-marker-collapsed,.default-marker-expanded),::slotted(:is([slot='marker-collapsed'],[slot='marker-expanded'])){display:flex;align-items:center;justify-content:center;pointer-events:none;position:relative;height:100%;padding-inline-end:${spacingHorizontalS};grid-column:1/span 1;grid-row:1}.content{margin:0 ${spacingHorizontalM}}::slotted([slot='start']){display:flex;justify-content:center;align-items:center;padding-right:${spacingHorizontalS};grid-column:2/span 1;grid-row:1}button:focus-visible::after{content:'';position:absolute;inset:0px;cursor:pointer;border-radius:${borderRadiusSmall};outline:none;border:2px solid ${colorStrokeFocus1};box-shadow:inset 0 0 0 1px ${colorStrokeFocus2}}:host([disabled]) .button{color:${colorNeutralForegroundDisabled}}:host([disabled]) svg{filter:invert(89%) sepia(0%) saturate(569%) hue-rotate(155deg) brightness(88%) contrast(87%)}:host([expanded]) .content{display:block}:host([expanded]) .default-marker-collapsed,:host([expanded]) ::slotted([slot='marker-collapsed']),:host(:not([expanded])) :is(.default-marker-expanded,.content),:host(:not([expanded])) ::slotted([slot='marker-expanded']){display:none}:host([expanded]) ::slotted([slot='marker-expanded']),:host(:not([expanded])) ::slotted([slot='marker-collapsed']){display:flex}.heading{font-size:${fontSizeBase300};line-height:${lineHeightBase300}}:host([size='small']) .heading{font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']) .heading{font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='extra-large']) .heading{font-size:${fontSizeBase500};line-height:${lineHeightBase500}}:host([marker-position='end']) ::slotted([slot='start']){grid-column:1/span 1}:host([marker-position='end']) :is(.default-marker-collapsed,.default-marker-expanded){grid-column:4/span 1;padding-inline-start:${spacingHorizontalS};padding-inline-end:0}:host([marker-position='end']) .button{grid-column:2/span 3}:host([block]){max-width:100%}:host([marker-position='end']) .heading{grid-template-columns:auto auto 28px;padding-inline:${spacingHorizontalM}}:host([marker-position='end']:has([slot='start'])) .heading{padding-inline:${spacingHorizontalMNudge} ${spacingHorizontalM}}:host([block][marker-position='end']) .heading{grid-template-columns:auto 1fr}:host([marker-position='end']) :is(.default-marker-collapsed,.default-marker-expanded){grid-column:5/span 1}`;
+const styles$F = css`${display("block")} :host{max-width:fit-content;contain:content}.heading{height:44px;display:grid;position:relative;padding-inline:${spacingHorizontalM} ${spacingHorizontalMNudge};border-radius:${borderRadiusMedium};font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};grid-template-columns:auto auto 1fr auto}.button{appearance:none;background:${colorTransparentBackground};border:none;box-sizing:border-box;color:${colorNeutralForeground1};cursor:pointer;font:inherit;grid-column:auto/span 2;grid-row:1;height:44px;outline:none;padding:0;text-align:start}.button::before{content:'';position:absolute;inset:0px;cursor:pointer;border-radius:${borderRadiusSmall}}:where(.default-marker-collapsed,.default-marker-expanded),::slotted(:is([slot='marker-collapsed'],[slot='marker-expanded'])){display:flex;align-items:center;justify-content:center;pointer-events:none;position:relative;height:100%;padding-inline-end:${spacingHorizontalS};grid-column:1/span 1;grid-row:1}.content{margin:0 ${spacingHorizontalM}}::slotted([slot='start']){display:flex;justify-content:center;align-items:center;padding-right:${spacingHorizontalS};grid-column:2/span 1;grid-row:1}button:focus-visible::after{content:'';position:absolute;inset:0px;cursor:pointer;border-radius:${borderRadiusSmall};outline:none;border:2px solid ${colorStrokeFocus1};box-shadow:inset 0 0 0 1px ${colorStrokeFocus2}}:host([disabled]) .button{color:${colorNeutralForegroundDisabled}}:host([disabled]) svg{filter:invert(89%) sepia(0%) saturate(569%) hue-rotate(155deg) brightness(88%) contrast(87%)}:host([expanded]) .content{display:block}:host([expanded]) .default-marker-collapsed,:host([expanded]) ::slotted([slot='marker-collapsed']),:host(:not([expanded])) :is(.default-marker-expanded,.content),:host(:not([expanded])) ::slotted([slot='marker-expanded']){display:none}:host([expanded]) ::slotted([slot='marker-expanded']),:host(:not([expanded])) ::slotted([slot='marker-collapsed']){display:flex}.heading{font-size:${fontSizeBase300};line-height:${lineHeightBase300}}:host([size='small']) .heading{font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']) .heading{font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='extra-large']) .heading{font-size:${fontSizeBase500};line-height:${lineHeightBase500}}:host([marker-position='end']) ::slotted([slot='start']){grid-column:1/span 1}:host([marker-position='end']) :is(.default-marker-collapsed,.default-marker-expanded){grid-column:4/span 1;padding-inline-start:${spacingHorizontalS};padding-inline-end:0}:host([marker-position='end']) .button{grid-column:2/span 3}:host([block]){max-width:100%}:host([marker-position='end']) .heading{grid-template-columns:auto auto 28px;padding-inline:${spacingHorizontalM}}:host([marker-position='end']:has([slot='start'])) .heading{padding-inline:${spacingHorizontalMNudge} ${spacingHorizontalM}}:host([block][marker-position='end']) .heading{grid-template-columns:auto 1fr}:host([marker-position='end']) :is(.default-marker-collapsed,.default-marker-expanded){grid-column:5/span 1}`;
 
 const chevronRight20Filled = html.partial(`<svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns=http://www.w3.org/2000/svg class=default-marker-collapsed aria-hidden=true><path d="M7.73271 4.20694C8.03263 3.92125 8.50737 3.93279 8.79306 4.23271L13.7944 9.48318C14.0703 9.77285 14.0703 10.2281 13.7944 10.5178L8.79306 15.7682C8.50737 16.0681 8.03263 16.0797 7.73271 15.794C7.43279 15.5083 7.42125 15.0336 7.70694 14.7336L12.2155 10.0005L7.70694 5.26729C7.42125 4.96737 7.43279 4.49264 7.73271 4.20694Z" fill=currentColor /></svg>`);
 const chevronDown20Filled = html.partial(`<svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns=http://www.w3.org/2000/svg class=default-marker-expanded aria-hidden=true><path d="M15.794 7.73271C16.0797 8.03263 16.0681 8.50737 15.7682 8.79306L10.5178 13.7944C10.2281 14.0703 9.77285 14.0703 9.48318 13.7944L4.23271 8.79306C3.93279 8.50737 3.92125 8.03263 4.20694 7.73271C4.49264 7.43279 4.96737 7.42125 5.26729 7.70694L10.0005 12.2155L14.7336 7.70694C15.0336 7.42125 15.5083 7.43279 15.794 7.73271Z" fill=currentColor /></svg>`);
@@ -4635,7 +5291,7 @@ const template$F = accordionItemTemplate({
 const definition$F = AccordionItem.compose({
   name: tagName$F,
   template: template$F,
-  styles: styles$E
+  styles: styles$F
 });
 
 definition$F.define(FluentDesignSystem.registry);
@@ -4646,7 +5302,7 @@ const AccordionExpandMode = {
 };
 const tagName$E = `${FluentDesignSystem.prefix}-accordion`;
 
-function requestIdleCallback(callback, options) {
+function requestIdleCallback$1(callback, options) {
   if ("requestIdleCallback" in globalThis) {
     return globalThis.requestIdleCallback(callback, options);
   }
@@ -4666,25 +5322,25 @@ function waitForConnectedDescendants(target, callback, options) {
   const scheduleCheck = (deadline) => {
     if (target.querySelector(selector) === null || deadline && deadline.timeRemaining() <= 0) {
       if (useIdleCallback) {
-        requestIdleCallback(callback, { timeout });
+        requestIdleCallback$1(callback, { timeout });
       } else {
         callback();
       }
       return;
     }
-    requestIdleCallback(scheduleCheck, { timeout });
+    requestIdleCallback$1(scheduleCheck, { timeout });
   };
   scheduleCheck();
 }
 
-var __defProp$M = Object.defineProperty;
-var __getOwnPropDesc$M = Object.getOwnPropertyDescriptor;
-var __decorateClass$M = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$M(target, key) : target;
+var __defProp$N = Object.defineProperty;
+var __getOwnPropDesc$N = Object.getOwnPropertyDescriptor;
+var __decorateClass$N = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$N(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$M(target, key, result);
+  if (kind && result) __defProp$N(target, key, result);
   return result;
 };
 class Accordion extends FASTElement {
@@ -4702,7 +5358,7 @@ class Accordion extends FASTElement {
      */
     this.setItems = () => {
       waitForConnectedDescendants(this, () => {
-        if (this.slottedAccordionItems.length === 0) {
+        if (!this.slottedAccordionItems?.length) {
           return;
         }
         const children = Array.from(this.children);
@@ -4829,14 +5485,14 @@ class Accordion extends FASTElement {
     this.setItems();
   }
 }
-__decorateClass$M([
+__decorateClass$N([
   attr({ attribute: "expand-mode" })
 ], Accordion.prototype, "expandmode", 2);
-__decorateClass$M([
+__decorateClass$N([
   observable
 ], Accordion.prototype, "slottedAccordionItems", 2);
 
-const styles$D = css`${display("flex")} :host{flex-direction:column;width:100%;contain:content}`;
+const styles$E = css`${display("flex")} :host{flex-direction:column;width:100%;contain:content}`;
 
 function accordionTemplate() {
   return html`<template><slot ${slotted({ property: "slottedAccordionItems", filter: elements() })}></slot></template>`;
@@ -4846,7 +5502,7 @@ const template$E = accordionTemplate();
 const definition$E = Accordion.compose({
   name: tagName$E,
   template: template$E,
-  styles: styles$D
+  styles: styles$E
 });
 
 definition$E.define(FluentDesignSystem.registry);
@@ -4942,14 +5598,14 @@ function swapStates(elementInternals, prev = "", next = "", States, prefix = "")
   }
 }
 
-var __defProp$L = Object.defineProperty;
-var __getOwnPropDesc$L = Object.getOwnPropertyDescriptor;
-var __decorateClass$L = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$L(target, key) : target;
+var __defProp$M = Object.defineProperty;
+var __getOwnPropDesc$M = Object.getOwnPropertyDescriptor;
+var __decorateClass$M = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$M(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$L(target, key, result);
+  if (kind && result) __defProp$M(target, key, result);
   return result;
 };
 class BaseAnchor extends FASTElement {
@@ -5061,39 +5717,39 @@ class BaseAnchor extends FASTElement {
     return proxy;
   }
 }
-__decorateClass$L([
+__decorateClass$M([
   attr
 ], BaseAnchor.prototype, "download", 2);
-__decorateClass$L([
+__decorateClass$M([
   attr
 ], BaseAnchor.prototype, "href", 2);
-__decorateClass$L([
+__decorateClass$M([
   attr
 ], BaseAnchor.prototype, "hreflang", 2);
-__decorateClass$L([
+__decorateClass$M([
   attr
 ], BaseAnchor.prototype, "ping", 2);
-__decorateClass$L([
+__decorateClass$M([
   attr
 ], BaseAnchor.prototype, "referrerpolicy", 2);
-__decorateClass$L([
+__decorateClass$M([
   attr
 ], BaseAnchor.prototype, "rel", 2);
-__decorateClass$L([
+__decorateClass$M([
   attr
 ], BaseAnchor.prototype, "target", 2);
-__decorateClass$L([
+__decorateClass$M([
   attr
 ], BaseAnchor.prototype, "type", 2);
 
-var __defProp$K = Object.defineProperty;
-var __getOwnPropDesc$K = Object.getOwnPropertyDescriptor;
-var __decorateClass$K = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$K(target, key) : target;
+var __defProp$L = Object.defineProperty;
+var __getOwnPropDesc$L = Object.getOwnPropertyDescriptor;
+var __decorateClass$L = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$L(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$K(target, key, result);
+  if (kind && result) __defProp$L(target, key, result);
   return result;
 };
 class AnchorButton extends BaseAnchor {
@@ -5134,24 +5790,24 @@ class AnchorButton extends BaseAnchor {
     toggleState(this.elementInternals, "icon", !!next);
   }
 }
-__decorateClass$K([
+__decorateClass$L([
   attr
 ], AnchorButton.prototype, "appearance", 2);
-__decorateClass$K([
+__decorateClass$L([
   attr
 ], AnchorButton.prototype, "shape", 2);
-__decorateClass$K([
+__decorateClass$L([
   attr
 ], AnchorButton.prototype, "size", 2);
-__decorateClass$K([
+__decorateClass$L([
   attr({ attribute: "icon-only", mode: "boolean" })
 ], AnchorButton.prototype, "iconOnly", 2);
 applyMixins(AnchorButton, StartEnd);
 
 const baseButtonStyles = css`${display("inline-flex")} :host{--icon-spacing:${spacingHorizontalSNudge};position:relative;contain:layout style;vertical-align:middle;align-items:center;box-sizing:border-box;justify-content:center;text-align:center;text-decoration-line:none;margin:0;min-height:32px;outline-style:none;background-color:${colorNeutralBackground1};color:${colorNeutralForeground1};border:${strokeWidthThin} solid ${colorNeutralStroke1};padding:0 ${spacingHorizontalM};min-width:96px;border-radius:${borderRadiusMedium};font-size:${fontSizeBase300};font-family:${fontFamilyBase};font-weight:${fontWeightSemibold};line-height:${lineHeightBase300};transition-duration:${durationFaster};transition-property:background,border,color;transition-timing-function:${curveEasyEase};cursor:pointer;user-select:none}.content{display:inherit}:host(:hover){background-color:${colorNeutralBackground1Hover};color:${colorNeutralForeground1Hover};border-color:${colorNeutralStroke1Hover}}:host(:hover:active){background-color:${colorNeutralBackground1Pressed};border-color:${colorNeutralStroke1Pressed};color:${colorNeutralForeground1Pressed};outline-style:none}:host(:focus-visible){border-color:${colorTransparentStroke};outline:${strokeWidthThick} solid ${colorTransparentStroke};box-shadow:${shadow4},0 0 0 2px ${colorStrokeFocus2}}@media screen and (prefers-reduced-motion:reduce){:host{transition-duration:0.01ms}}::slotted(svg){font-size:20px;height:20px;width:20px;fill:currentColor}::slotted([slot='start']){margin-inline-end:var(--icon-spacing)}::slotted([slot='end']),[slot='end']{flex-shrink:0;margin-inline-start:var(--icon-spacing)}:host([icon-only]){min-width:32px;max-width:32px}:host([size='small']){--icon-spacing:${spacingHorizontalXS};min-height:24px;min-width:64px;padding:0 ${spacingHorizontalS};border-radius:${borderRadiusSmall};font-size:${fontSizeBase200};line-height:${lineHeightBase200};font-weight:${fontWeightRegular}}:host([size='small'][icon-only]){min-width:24px;max-width:24px}:host([size='large']){min-height:40px;border-radius:${borderRadiusLarge};padding:0 ${spacingHorizontalL};font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='large'][icon-only]){min-width:40px;max-width:40px}:host([size='large']) ::slotted(svg){font-size:24px;height:24px;width:24px}:host(:is([shape='circular'],[shape='circular']:focus-visible)){border-radius:${borderRadiusCircular}}:host(:is([shape='square'],[shape='square']:focus-visible)){border-radius:${borderRadiusNone}}:host([appearance='primary']){background-color:${colorBrandBackground};color:${colorNeutralForegroundOnBrand};border-color:transparent}:host([appearance='primary']:hover){background-color:${colorBrandBackgroundHover}}:host([appearance='primary']:is(:hover,:hover:active):not(:focus-visible)){border-color:transparent}:host([appearance='primary']:is(:hover,:hover:active)){color:${colorNeutralForegroundOnBrand}}:host([appearance='primary']:hover:active){background-color:${colorBrandBackgroundPressed}}:host([appearance='primary']:focus-visible){border-color:${colorNeutralForegroundOnBrand};box-shadow:${shadow2},0 0 0 2px ${colorStrokeFocus2}}:host([appearance='outline']){background-color:${colorTransparentBackground}}:host([appearance='outline']:hover){background-color:${colorTransparentBackgroundHover}}:host([appearance='outline']:hover:active){background-color:${colorTransparentBackgroundPressed}}:host([appearance='subtle']){background-color:${colorSubtleBackground};color:${colorNeutralForeground2};border-color:transparent}:host([appearance='subtle']:hover){background-color:${colorSubtleBackgroundHover};color:${colorNeutralForeground2Hover};border-color:transparent}:host([appearance='subtle']:hover:active){background-color:${colorSubtleBackgroundPressed};color:${colorNeutralForeground2Pressed};border-color:transparent}:host([appearance='subtle']:hover) ::slotted(svg){fill:${colorNeutralForeground2BrandHover}}:host([appearance='subtle']:hover:active) ::slotted(svg){fill:${colorNeutralForeground2BrandPressed}}:host([appearance='transparent']){background-color:${colorTransparentBackground};color:${colorNeutralForeground2}}:host([appearance='transparent']:hover){background-color:${colorTransparentBackgroundHover};color:${colorNeutralForeground2BrandHover}}:host([appearance='transparent']:hover:active){background-color:${colorTransparentBackgroundPressed};color:${colorNeutralForeground2BrandPressed}}:host(:is([appearance='transparent'],[appearance='transparent']:is(:hover,:active))){border-color:transparent}`;
-const styles$C = css`${baseButtonStyles} :host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable])),:host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable]):hover),:host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable]):hover:active){background-color:${colorNeutralBackgroundDisabled};border-color:${colorNeutralStrokeDisabled};color:${colorNeutralForegroundDisabled};cursor:not-allowed}:host([appearance='primary']:is(:disabled,[disabled-focusable])),:host([appearance='primary']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){border-color:transparent}:host([appearance='outline']:is(:disabled,[disabled-focusable])),:host([appearance='outline']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){background-color:${colorTransparentBackground}}:host([appearance='subtle']:is(:disabled,[disabled-focusable])),:host([appearance='subtle']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){background-color:${colorTransparentBackground};border-color:transparent}:host([appearance='transparent']:is(:disabled,[disabled-focusable])),:host([appearance='transparent']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){border-color:transparent;background-color:${colorTransparentBackground}}@media (forced-colors:active){:host{background-color:ButtonFace;color:ButtonText}:host(:is(:hover,:focus-visible)){border-color:Highlight !important}:host([appearance='primary']:not(:is(:hover,:focus-visible))){background-color:Highlight;color:HighlightText;forced-color-adjust:none}:host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable])){background-color:ButtonFace;color:GrayText;border-color:ButtonText}}`;
+const styles$D = css`${baseButtonStyles} :host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable])),:host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable]):hover),:host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable]):hover:active){background-color:${colorNeutralBackgroundDisabled};border-color:${colorNeutralStrokeDisabled};color:${colorNeutralForegroundDisabled};cursor:not-allowed}:host([appearance='primary']:is(:disabled,[disabled-focusable])),:host([appearance='primary']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){border-color:transparent}:host([appearance='outline']:is(:disabled,[disabled-focusable])),:host([appearance='outline']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){background-color:${colorTransparentBackground}}:host([appearance='subtle']:is(:disabled,[disabled-focusable])),:host([appearance='subtle']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){background-color:${colorTransparentBackground};border-color:transparent}:host([appearance='transparent']:is(:disabled,[disabled-focusable])),:host([appearance='transparent']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){border-color:transparent;background-color:${colorTransparentBackground}}@media (forced-colors:active){:host{background-color:ButtonFace;color:ButtonText}:host(:is(:hover,:focus-visible)){border-color:Highlight !important}:host([appearance='primary']:not(:is(:hover,:focus-visible))){background-color:Highlight;color:HighlightText;forced-color-adjust:none}:host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable])){background-color:ButtonFace;color:GrayText;border-color:ButtonText}}`;
 
-const styles$B = css`${baseButtonStyles} ::slotted(a){position:absolute;inset:0}@media (forced-colors:active){:host{border-color:LinkText;color:LinkText}}`;
+const styles$C = css`${baseButtonStyles} ::slotted(a){position:absolute;inset:0}@media (forced-colors:active){:host{border-color:LinkText;color:LinkText}}`;
 
 function anchorTemplate$1(options = {}) {
   return html`<template tabindex=0 @click=${(x, c) => x.clickHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)}>${startSlotTemplate(options)} <span class=content part=content><slot></slot></span>${endSlotTemplate(options)}</template>`;
@@ -5161,7 +5817,7 @@ const template$D = anchorTemplate$1();
 const definition$D = AnchorButton.compose({
   name: tagName$C,
   template: template$D,
-  styles: styles$B
+  styles: styles$C
 });
 
 definition$D.define(FluentDesignSystem.registry);
@@ -5276,14 +5932,14 @@ function getInitials(displayName, isRtl, options) {
   return getInitialsLatin(displayName, isRtl, options?.firstInitialOnly);
 }
 
-var __defProp$J = Object.defineProperty;
-var __getOwnPropDesc$J = Object.getOwnPropertyDescriptor;
-var __decorateClass$J = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$J(target, key) : target;
+var __defProp$K = Object.defineProperty;
+var __getOwnPropDesc$K = Object.getOwnPropertyDescriptor;
+var __decorateClass$K = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$K(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$J(target, key, result);
+  if (kind && result) __defProp$K(target, key, result);
   return result;
 };
 class BaseAvatar extends FASTElement {
@@ -5392,30 +6048,30 @@ class BaseAvatar extends FASTElement {
     }
   }
 }
-__decorateClass$J([
+__decorateClass$K([
   observable
 ], BaseAvatar.prototype, "defaultSlot", 2);
-__decorateClass$J([
+__decorateClass$K([
   observable
 ], BaseAvatar.prototype, "monogram", 2);
-__decorateClass$J([
+__decorateClass$K([
   observable
 ], BaseAvatar.prototype, "slottedDefaults", 2);
-__decorateClass$J([
+__decorateClass$K([
   attr
 ], BaseAvatar.prototype, "name", 2);
-__decorateClass$J([
+__decorateClass$K([
   attr
 ], BaseAvatar.prototype, "initials", 2);
 
-var __defProp$I = Object.defineProperty;
-var __getOwnPropDesc$I = Object.getOwnPropertyDescriptor;
-var __decorateClass$I = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$I(target, key) : target;
+var __defProp$J = Object.defineProperty;
+var __getOwnPropDesc$J = Object.getOwnPropertyDescriptor;
+var __decorateClass$J = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$J(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$I(target, key, result);
+  if (kind && result) __defProp$J(target, key, result);
   return result;
 };
 const _Avatar = class _Avatar extends BaseAvatar {
@@ -5470,22 +6126,22 @@ const _Avatar = class _Avatar extends BaseAvatar {
  * An array of the available Avatar named colors
  */
 _Avatar.colors = Object.values(AvatarNamedColor);
-__decorateClass$I([
+__decorateClass$J([
   attr
 ], _Avatar.prototype, "active", 2);
-__decorateClass$I([
+__decorateClass$J([
   attr
 ], _Avatar.prototype, "shape", 2);
-__decorateClass$I([
+__decorateClass$J([
   attr
 ], _Avatar.prototype, "appearance", 2);
-__decorateClass$I([
+__decorateClass$J([
   attr({ converter: nullableNumberConverter })
 ], _Avatar.prototype, "size", 2);
-__decorateClass$I([
+__decorateClass$J([
   attr
 ], _Avatar.prototype, "color", 2);
-__decorateClass$I([
+__decorateClass$J([
   attr({ attribute: "color-id" })
 ], _Avatar.prototype, "colorId", 2);
 let Avatar = _Avatar;
@@ -5510,7 +6166,7 @@ const animations = {
   normalEase: curveEasyEase,
   nullEasing: curveLinear
 };
-const styles$A = css`${display("inline-grid")} :host{position:relative;place-items:center;place-content:center;grid-template:1fr/1fr;flex-shrink:0;width:32px;height:32px;font-family:${fontFamilyBase};font-weight:${fontWeightSemibold};font-size:${fontSizeBase300};border-radius:${borderRadiusCircular};color:${colorNeutralForeground3};background-color:${colorNeutralBackground6};contain:layout style}.monogram,.default-icon{grid-area:1/1/-1/-1}.monogram:empty{display:none}.default-slot:is(.has-slotted,:has-slotted)~.default-icon,.default-slot:is(.has-slotted,:has-slotted)~.monogram,:host(:is([name]):not([name=''])) .default-icon,:host(:is([initials]):not([initials=''])) .default-icon{display:none}.default-icon,::slotted(svg){width:20px;height:20px;font-size:20px}::slotted(img){box-sizing:border-box;width:100%;height:100%;border-radius:${borderRadiusCircular}}::slotted([slot='badge']){position:absolute;bottom:0;right:0;box-shadow:0 0 0 ${strokeWidthThin} ${colorNeutralBackground1}}:host([size='64']) ::slotted([slot='badge']),:host([size='72']) ::slotted([slot='badge']),:host([size='96']) ::slotted([slot='badge']),:host([size='120']) ::slotted([slot='badge']),:host([size='128']) ::slotted([slot='badge']){box-shadow:0 0 0 ${strokeWidthThick} ${colorNeutralBackground1}}:host([size='16']),:host([size='20']),:host([size='24']){font-size:${fontSizeBase100};font-weight:${fontWeightRegular}}:host([size='16']){width:16px;height:16px}:host([size='20']){width:20px;height:20px}:host([size='24']){width:24px;height:24px}:host([size='16']) .default-icon,:host([size='16']) ::slotted(svg){width:12px;height:12px;font-size:12px}:host([size='20']) .default-icon,:host([size='24']) .default-icon,:host([size='20']) ::slotted(svg),:host([size='24']) ::slotted(svg){width:16px;height:16px;font-size:16px}:host([size='28']){width:28px;height:28px;font-size:${fontSizeBase200}}:host([size='36']){width:36px;height:36px}:host([size='40']){width:40px;height:40px}:host([size='48']),:host([size='56']){font-size:${fontSizeBase400}}:host([size='48']){width:48px;height:48px}:host([size='48']) .default-icon,:host([size='48']) ::slotted(svg){width:24px;height:24px;font-size:24px}:host([size='56']){width:56px;height:56px}:host([size='56']) .default-icon,:host([size='56']) ::slotted(svg){width:28px;height:28px;font-size:28px}:host([size='64']),:host([size='72']),:host([size='96']){font-size:${fontSizeBase500}}:host([size='64']) .default-icon,:host([size='72']) .default-icon,:host([size='64']) ::slotted(svg),:host([size='72']) ::slotted(svg){width:32px;height:32px;font-size:32px}:host([size='64']){width:64px;height:64px}:host([size='72']){width:72px;height:72px}:host([size='96']){width:96px;height:96px}:host([size='96']) .default-icon,:host([size='120']) .default-icon,:host([size='128']) .default-icon,:host([size='96']) ::slotted(svg),:host([size='120']) ::slotted(svg),:host([size='128']) ::slotted(svg){width:48px;height:48px;font-size:48px}:host([size='120']),:host([size='128']){font-size:${fontSizeBase600}}:host([size='120']){width:120px;height:120px}:host([size='128']){width:128px;height:128px}:host([shape='square']){border-radius:${borderRadiusMedium}}:host([shape='square'][size='20']),:host([shape='square'][size='24']){border-radius:${borderRadiusSmall}}:host([shape='square'][size='56']),:host([shape='square'][size='64']),:host([shape='square'][size='72']){border-radius:${borderRadiusLarge}}:host([shape='square'][size='96']),:host([shape='square'][size='120']),:host([shape='square'][size='128']){border-radius:${borderRadiusXLarge}}:host([data-color='brand']){color:${colorNeutralForegroundStaticInverted};background-color:${colorBrandBackgroundStatic}}:host([data-color='dark-red']){color:${colorPaletteDarkRedForeground2};background-color:${colorPaletteDarkRedBackground2}}:host([data-color='cranberry']){color:${colorPaletteCranberryForeground2};background-color:${colorPaletteCranberryBackground2}}:host([data-color='red']){color:${colorPaletteRedForeground2};background-color:${colorPaletteRedBackground2}}:host([data-color='pumpkin']){color:${colorPalettePumpkinForeground2};background-color:${colorPalettePumpkinBackground2}}:host([data-color='peach']){color:${colorPalettePeachForeground2};background-color:${colorPalettePeachBackground2}}:host([data-color='marigold']){color:${colorPaletteMarigoldForeground2};background-color:${colorPaletteMarigoldBackground2}}:host([data-color='gold']){color:${colorPaletteGoldForeground2};background-color:${colorPaletteGoldBackground2}}:host([data-color='brass']){color:${colorPaletteBrassForeground2};background-color:${colorPaletteBrassBackground2}}:host([data-color='brown']){color:${colorPaletteBrownForeground2};background-color:${colorPaletteBrownBackground2}}:host([data-color='forest']){color:${colorPaletteForestForeground2};background-color:${colorPaletteForestBackground2}}:host([data-color='seafoam']){color:${colorPaletteSeafoamForeground2};background-color:${colorPaletteSeafoamBackground2}}:host([data-color='dark-green']){color:${colorPaletteDarkGreenForeground2};background-color:${colorPaletteDarkGreenBackground2}}:host([data-color='light-teal']){color:${colorPaletteLightTealForeground2};background-color:${colorPaletteLightTealBackground2}}:host([data-color='teal']){color:${colorPaletteTealForeground2};background-color:${colorPaletteTealBackground2}}:host([data-color='steel']){color:${colorPaletteSteelForeground2};background-color:${colorPaletteSteelBackground2}}:host([data-color='blue']){color:${colorPaletteBlueForeground2};background-color:${colorPaletteBlueBackground2}}:host([data-color='royal-blue']){color:${colorPaletteRoyalBlueForeground2};background-color:${colorPaletteRoyalBlueBackground2}}:host([data-color='cornflower']){color:${colorPaletteCornflowerForeground2};background-color:${colorPaletteCornflowerBackground2}}:host([data-color='navy']){color:${colorPaletteNavyForeground2};background-color:${colorPaletteNavyBackground2}}:host([data-color='lavender']){color:${colorPaletteLavenderForeground2};background-color:${colorPaletteLavenderBackground2}}:host([data-color='purple']){color:${colorPalettePurpleForeground2};background-color:${colorPalettePurpleBackground2}}:host([data-color='grape']){color:${colorPaletteGrapeForeground2};background-color:${colorPaletteGrapeBackground2}}:host([data-color='lilac']){color:${colorPaletteLilacForeground2};background-color:${colorPaletteLilacBackground2}}:host([data-color='pink']){color:${colorPalettePinkForeground2};background-color:${colorPalettePinkBackground2}}:host([data-color='magenta']){color:${colorPaletteMagentaForeground2};background-color:${colorPaletteMagentaBackground2}}:host([data-color='plum']){color:${colorPalettePlumForeground2};background-color:${colorPalettePlumBackground2}}:host([data-color='beige']){color:${colorPaletteBeigeForeground2};background-color:${colorPaletteBeigeBackground2}}:host([data-color='mink']){color:${colorPaletteMinkForeground2};background-color:${colorPaletteMinkBackground2}}:host([data-color='platinum']){color:${colorPalettePlatinumForeground2};background-color:${colorPalettePlatinumBackground2}}:host([data-color='anchor']){color:${colorPaletteAnchorForeground2};background-color:${colorPaletteAnchorBackground2}}:host([active]){transform:perspective(1px);transition-property:transform,opacity;transition-duration:${durationUltraSlow},${durationFaster};transition-delay:${animations.fastEase},${animations.nullEasing}}:host([active])::before{content:'';position:absolute;top:0;left:0;bottom:0;right:0;border-radius:inherit;transition-property:margin,opacity;transition-duration:${durationUltraSlow},${durationSlower};transition-delay:${animations.fastEase},${animations.nullEasing}}:host([active])::before{box-shadow:${shadow8};border-style:solid;border-color:${colorBrandBackgroundStatic}}:host([active][appearance='shadow'])::before{border-style:none;border-color:none}:host([active]:not([appearance='shadow']))::before{margin:calc(-2 * ${strokeWidthThick});border-width:${strokeWidthThick}}:host([size='56'][active]:not([appearance='shadow']))::before,:host([size='64'][active]:not([appearance='shadow']))::before{margin:calc(-2 * ${strokeWidthThicker});border-width:${strokeWidthThicker}}:host([size='72'][active]:not([appearance='shadow']))::before,:host([size='96'][active]:not([appearance='shadow']))::before,:host([size='120'][active]:not([appearance='shadow']))::before,:host([size='128'][active]:not([appearance='shadow']))::before{margin:calc(-2 * ${strokeWidthThickest});border-width:${strokeWidthThickest}}:host([size='20'][active][appearance])::before,:host([size='24'][active][appearance])::before,:host([size='28'][active][appearance])::before{box-shadow:${shadow4}}:host([size='56'][active][appearance])::before,:host([size='64'][active][appearance])::before{box-shadow:${shadow16}}:host([size='72'][active][appearance])::before,:host([size='96'][active][appearance])::before,:host([size='120'][active][appearance])::before,:host([size='128'][active][appearance])::before{box-shadow:${shadow28}}:host([active][appearance='ring'])::before{box-shadow:none}:host([active='inactive']){opacity:0.8;transform:scale(0.875);transition-property:transform,opacity;transition-duration:${durationUltraSlow},${durationFaster};transition-delay:${animations.fastOutSlowInMin},${animations.nullEasing}}:host([active='inactive'])::before{margin:0;opacity:0;transition-property:margin,opacity;transition-duration:${durationUltraSlow},${durationSlower};transition-delay:${animations.fastOutSlowInMin},${animations.nullEasing}}@media screen and (prefers-reduced-motion:reduce){:host([active]){transition-duration:0.01ms}:host([active])::before{transition-duration:0.01ms;transition-delay:0.01ms}}`;
+const styles$B = css`${display("inline-grid")} :host{position:relative;place-items:center;place-content:center;grid-template:1fr/1fr;flex-shrink:0;width:32px;height:32px;font-family:${fontFamilyBase};font-weight:${fontWeightSemibold};font-size:${fontSizeBase300};border-radius:${borderRadiusCircular};color:${colorNeutralForeground3};background-color:${colorNeutralBackground6};contain:layout style}.monogram,.default-icon{grid-area:1/1/-1/-1}.monogram:empty{display:none}.default-slot:is(.has-slotted,:has-slotted)~.default-icon,.default-slot:is(.has-slotted,:has-slotted)~.monogram,:host(:is([name]):not([name=''])) .default-icon,:host(:is([initials]):not([initials=''])) .default-icon{display:none}.default-icon,::slotted(svg){width:20px;height:20px;font-size:20px}::slotted(img){box-sizing:border-box;width:100%;height:100%;border-radius:${borderRadiusCircular}}::slotted([slot='badge']){position:absolute;bottom:0;right:0;box-shadow:0 0 0 ${strokeWidthThin} ${colorNeutralBackground1}}:host([size='64']) ::slotted([slot='badge']),:host([size='72']) ::slotted([slot='badge']),:host([size='96']) ::slotted([slot='badge']),:host([size='120']) ::slotted([slot='badge']),:host([size='128']) ::slotted([slot='badge']){box-shadow:0 0 0 ${strokeWidthThick} ${colorNeutralBackground1}}:host([size='16']),:host([size='20']),:host([size='24']){font-size:${fontSizeBase100};font-weight:${fontWeightRegular}}:host([size='16']){width:16px;height:16px}:host([size='20']){width:20px;height:20px}:host([size='24']){width:24px;height:24px}:host([size='16']) .default-icon,:host([size='16']) ::slotted(svg){width:12px;height:12px;font-size:12px}:host([size='20']) .default-icon,:host([size='24']) .default-icon,:host([size='20']) ::slotted(svg),:host([size='24']) ::slotted(svg){width:16px;height:16px;font-size:16px}:host([size='28']){width:28px;height:28px;font-size:${fontSizeBase200}}:host([size='36']){width:36px;height:36px}:host([size='40']){width:40px;height:40px}:host([size='48']),:host([size='56']){font-size:${fontSizeBase400}}:host([size='48']){width:48px;height:48px}:host([size='48']) .default-icon,:host([size='48']) ::slotted(svg){width:24px;height:24px;font-size:24px}:host([size='56']){width:56px;height:56px}:host([size='56']) .default-icon,:host([size='56']) ::slotted(svg){width:28px;height:28px;font-size:28px}:host([size='64']),:host([size='72']),:host([size='96']){font-size:${fontSizeBase500}}:host([size='64']) .default-icon,:host([size='72']) .default-icon,:host([size='64']) ::slotted(svg),:host([size='72']) ::slotted(svg){width:32px;height:32px;font-size:32px}:host([size='64']){width:64px;height:64px}:host([size='72']){width:72px;height:72px}:host([size='96']){width:96px;height:96px}:host([size='96']) .default-icon,:host([size='120']) .default-icon,:host([size='128']) .default-icon,:host([size='96']) ::slotted(svg),:host([size='120']) ::slotted(svg),:host([size='128']) ::slotted(svg){width:48px;height:48px;font-size:48px}:host([size='120']),:host([size='128']){font-size:${fontSizeBase600}}:host([size='120']){width:120px;height:120px}:host([size='128']){width:128px;height:128px}:host([shape='square']){border-radius:${borderRadiusMedium}}:host([shape='square'][size='20']),:host([shape='square'][size='24']){border-radius:${borderRadiusSmall}}:host([shape='square'][size='56']),:host([shape='square'][size='64']),:host([shape='square'][size='72']){border-radius:${borderRadiusLarge}}:host([shape='square'][size='96']),:host([shape='square'][size='120']),:host([shape='square'][size='128']){border-radius:${borderRadiusXLarge}}:host([data-color='brand']){color:${colorNeutralForegroundStaticInverted};background-color:${colorBrandBackgroundStatic}}:host([data-color='dark-red']){color:${colorPaletteDarkRedForeground2};background-color:${colorPaletteDarkRedBackground2}}:host([data-color='cranberry']){color:${colorPaletteCranberryForeground2};background-color:${colorPaletteCranberryBackground2}}:host([data-color='red']){color:${colorPaletteRedForeground2};background-color:${colorPaletteRedBackground2}}:host([data-color='pumpkin']){color:${colorPalettePumpkinForeground2};background-color:${colorPalettePumpkinBackground2}}:host([data-color='peach']){color:${colorPalettePeachForeground2};background-color:${colorPalettePeachBackground2}}:host([data-color='marigold']){color:${colorPaletteMarigoldForeground2};background-color:${colorPaletteMarigoldBackground2}}:host([data-color='gold']){color:${colorPaletteGoldForeground2};background-color:${colorPaletteGoldBackground2}}:host([data-color='brass']){color:${colorPaletteBrassForeground2};background-color:${colorPaletteBrassBackground2}}:host([data-color='brown']){color:${colorPaletteBrownForeground2};background-color:${colorPaletteBrownBackground2}}:host([data-color='forest']){color:${colorPaletteForestForeground2};background-color:${colorPaletteForestBackground2}}:host([data-color='seafoam']){color:${colorPaletteSeafoamForeground2};background-color:${colorPaletteSeafoamBackground2}}:host([data-color='dark-green']){color:${colorPaletteDarkGreenForeground2};background-color:${colorPaletteDarkGreenBackground2}}:host([data-color='light-teal']){color:${colorPaletteLightTealForeground2};background-color:${colorPaletteLightTealBackground2}}:host([data-color='teal']){color:${colorPaletteTealForeground2};background-color:${colorPaletteTealBackground2}}:host([data-color='steel']){color:${colorPaletteSteelForeground2};background-color:${colorPaletteSteelBackground2}}:host([data-color='blue']){color:${colorPaletteBlueForeground2};background-color:${colorPaletteBlueBackground2}}:host([data-color='royal-blue']){color:${colorPaletteRoyalBlueForeground2};background-color:${colorPaletteRoyalBlueBackground2}}:host([data-color='cornflower']){color:${colorPaletteCornflowerForeground2};background-color:${colorPaletteCornflowerBackground2}}:host([data-color='navy']){color:${colorPaletteNavyForeground2};background-color:${colorPaletteNavyBackground2}}:host([data-color='lavender']){color:${colorPaletteLavenderForeground2};background-color:${colorPaletteLavenderBackground2}}:host([data-color='purple']){color:${colorPalettePurpleForeground2};background-color:${colorPalettePurpleBackground2}}:host([data-color='grape']){color:${colorPaletteGrapeForeground2};background-color:${colorPaletteGrapeBackground2}}:host([data-color='lilac']){color:${colorPaletteLilacForeground2};background-color:${colorPaletteLilacBackground2}}:host([data-color='pink']){color:${colorPalettePinkForeground2};background-color:${colorPalettePinkBackground2}}:host([data-color='magenta']){color:${colorPaletteMagentaForeground2};background-color:${colorPaletteMagentaBackground2}}:host([data-color='plum']){color:${colorPalettePlumForeground2};background-color:${colorPalettePlumBackground2}}:host([data-color='beige']){color:${colorPaletteBeigeForeground2};background-color:${colorPaletteBeigeBackground2}}:host([data-color='mink']){color:${colorPaletteMinkForeground2};background-color:${colorPaletteMinkBackground2}}:host([data-color='platinum']){color:${colorPalettePlatinumForeground2};background-color:${colorPalettePlatinumBackground2}}:host([data-color='anchor']){color:${colorPaletteAnchorForeground2};background-color:${colorPaletteAnchorBackground2}}:host([active]){transform:perspective(1px);transition-property:transform,opacity;transition-duration:${durationUltraSlow},${durationFaster};transition-delay:${animations.fastEase},${animations.nullEasing}}:host([active])::before{content:'';position:absolute;top:0;left:0;bottom:0;right:0;border-radius:inherit;transition-property:margin,opacity;transition-duration:${durationUltraSlow},${durationSlower};transition-delay:${animations.fastEase},${animations.nullEasing}}:host([active])::before{box-shadow:${shadow8};border-style:solid;border-color:${colorBrandBackgroundStatic}}:host([active][appearance='shadow'])::before{border-style:none;border-color:none}:host([active]:not([appearance='shadow']))::before{margin:calc(-2 * ${strokeWidthThick});border-width:${strokeWidthThick}}:host([size='56'][active]:not([appearance='shadow']))::before,:host([size='64'][active]:not([appearance='shadow']))::before{margin:calc(-2 * ${strokeWidthThicker});border-width:${strokeWidthThicker}}:host([size='72'][active]:not([appearance='shadow']))::before,:host([size='96'][active]:not([appearance='shadow']))::before,:host([size='120'][active]:not([appearance='shadow']))::before,:host([size='128'][active]:not([appearance='shadow']))::before{margin:calc(-2 * ${strokeWidthThickest});border-width:${strokeWidthThickest}}:host([size='20'][active][appearance])::before,:host([size='24'][active][appearance])::before,:host([size='28'][active][appearance])::before{box-shadow:${shadow4}}:host([size='56'][active][appearance])::before,:host([size='64'][active][appearance])::before{box-shadow:${shadow16}}:host([size='72'][active][appearance])::before,:host([size='96'][active][appearance])::before,:host([size='120'][active][appearance])::before,:host([size='128'][active][appearance])::before{box-shadow:${shadow28}}:host([active][appearance='ring'])::before{box-shadow:none}:host([active='inactive']){opacity:0.8;transform:scale(0.875);transition-property:transform,opacity;transition-duration:${durationUltraSlow},${durationFaster};transition-delay:${animations.fastOutSlowInMin},${animations.nullEasing}}:host([active='inactive'])::before{margin:0;opacity:0;transition-property:margin,opacity;transition-duration:${durationUltraSlow},${durationSlower};transition-delay:${animations.fastOutSlowInMin},${animations.nullEasing}}@media screen and (prefers-reduced-motion:reduce){:host([active]){transition-duration:0.01ms}:host([active])::before{transition-duration:0.01ms;transition-delay:0.01ms}}`;
 
 const defaultIconTemplate = html`<svg width=1em height=1em viewBox="0 0 20 20" class=default-icon fill=currentcolor aria-hidden=true><path d="M10 2a4 4 0 100 8 4 4 0 000-8zM7 6a3 3 0 116 0 3 3 0 01-6 0zm-2 5a2 2 0 00-2 2c0 1.7.83 2.97 2.13 3.8A9.14 9.14 0 0010 18c1.85 0 3.58-.39 4.87-1.2A4.35 4.35 0 0017 13a2 2 0 00-2-2H5zm-1 2a1 1 0 011-1h10a1 1 0 011 1c0 1.3-.62 2.28-1.67 2.95A8.16 8.16 0 0110 17a8.16 8.16 0 01-4.33-1.05A3.36 3.36 0 014 13z"></path></svg>`;
 function avatarTemplate() {
@@ -5521,7 +6177,7 @@ const template$C = avatarTemplate();
 const definition$C = Avatar.compose({
   name: tagName$B,
   template: template$C,
-  styles: styles$A
+  styles: styles$B
 });
 
 definition$C.define(FluentDesignSystem.registry);
@@ -5557,14 +6213,14 @@ const BadgeSize = {
 };
 const tagName$A = `${FluentDesignSystem.prefix}-badge`;
 
-var __defProp$H = Object.defineProperty;
-var __getOwnPropDesc$H = Object.getOwnPropertyDescriptor;
-var __decorateClass$H = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$H(target, key) : target;
+var __defProp$I = Object.defineProperty;
+var __getOwnPropDesc$I = Object.getOwnPropertyDescriptor;
+var __decorateClass$I = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$I(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$H(target, key, result);
+  if (kind && result) __defProp$I(target, key, result);
   return result;
 };
 class Badge extends FASTElement {
@@ -5574,16 +6230,16 @@ class Badge extends FASTElement {
     this.color = BadgeColor.brand;
   }
 }
-__decorateClass$H([
+__decorateClass$I([
   attr
 ], Badge.prototype, "appearance", 2);
-__decorateClass$H([
+__decorateClass$I([
   attr
 ], Badge.prototype, "color", 2);
-__decorateClass$H([
+__decorateClass$I([
   attr
 ], Badge.prototype, "shape", 2);
-__decorateClass$H([
+__decorateClass$I([
   attr
 ], Badge.prototype, "size", 2);
 applyMixins(Badge, StartEnd);
@@ -5595,7 +6251,7 @@ const badgeGhostStyles = css.partial`:host([appearance='ghost']){color:${colorBr
 const badgeOutlineStyles = css.partial`:host([appearance='outline']){border-color:currentColor;color:${colorBrandForeground1};background-color:initial}:host([appearance='outline'][color='danger']){color:${colorPaletteRedForeground3}}:host([appearance='outline'][color='important']){color:${colorNeutralForeground3};border-color:${colorNeutralStrokeAccessible}}:host([appearance='outline'][color='informative']){color:${colorNeutralForeground3};border-color:${colorNeutralStroke2}}:host([appearance='outline'][color='severe']){color:${colorPaletteDarkOrangeForeground3}}:host([appearance='outline'][color='subtle']){color:${colorNeutralForegroundStaticInverted}}:host([appearance='outline'][color='success']){color:${colorPaletteGreenForeground2}}:host([appearance='outline'][color='warning']){color:${colorPaletteYellowForeground2}}`;
 const badgeTintStyles = css.partial`:host([appearance='tint']){background-color:${colorBrandBackground2};color:${colorBrandForeground2};border-color:${colorBrandStroke2}}:host([appearance='tint'][color='danger']){background-color:${colorPaletteRedBackground1};color:${colorPaletteRedForeground1};border-color:${colorPaletteRedBorder1}}:host([appearance='tint'][color='important']){background-color:${colorNeutralForeground3};color:${colorNeutralBackground1};border-color:${colorTransparentStroke}}:host([appearance='tint'][color='informative']){background-color:${colorNeutralBackground4};color:${colorNeutralForeground3};border-color:${colorNeutralStroke2}}:host([appearance='tint'][color='severe']){background-color:${colorPaletteDarkOrangeBackground1};color:${colorPaletteDarkOrangeForeground1};border-color:${colorPaletteDarkOrangeBorder1}}:host([appearance='tint'][color='subtle']){background-color:${colorNeutralBackground1};color:${colorNeutralForeground3};border-color:${colorNeutralStroke2}}:host([appearance='tint'][color='success']){background-color:${colorPaletteGreenBackground1};color:${colorPaletteGreenForeground1};border-color:${colorPaletteGreenBorder2}}:host([appearance='tint'][color='warning']){background-color:${colorPaletteYellowBackground1};color:${colorPaletteYellowForeground2};border-color:${colorPaletteYellowBorder1}}`;
 
-const styles$z = css`:host([shape='square']){border-radius:${borderRadiusNone}}:host([shape='rounded']){border-radius:${borderRadiusMedium}}:host([shape='rounded']:is([size='tiny'],[size='extra-small'],[size='small'])){border-radius:${borderRadiusSmall}}${badgeTintStyles} ${badgeOutlineStyles} ${badgeGhostStyles} ${badgeFilledStyles} ${badgeSizeStyles} ${badgeBaseStyles} @media (forced-colors:active){:host,:host([appearance='outline']),:host([appearance='tint']){border-color:CanvasText}}`;
+const styles$A = css`:host([shape='square']){border-radius:${borderRadiusNone}}:host([shape='rounded']){border-radius:${borderRadiusMedium}}:host([shape='rounded']:is([size='tiny'],[size='extra-small'],[size='small'])){border-radius:${borderRadiusSmall}}${badgeTintStyles} ${badgeOutlineStyles} ${badgeGhostStyles} ${badgeFilledStyles} ${badgeSizeStyles} ${badgeBaseStyles} @media (forced-colors:active){:host,:host([appearance='outline']),:host([appearance='tint']){border-color:CanvasText}}`;
 
 function badgeTemplate(options = {}) {
   return html`${startSlotTemplate(options)}<slot>${staticallyCompose(options.defaultContent)}</slot>${endSlotTemplate(options)}`;
@@ -5605,19 +6261,19 @@ const template$B = badgeTemplate();
 const definition$B = Badge.compose({
   name: tagName$A,
   template: template$B,
-  styles: styles$z
+  styles: styles$A
 });
 
 definition$B.define(FluentDesignSystem.registry);
 
-var __defProp$G = Object.defineProperty;
-var __getOwnPropDesc$G = Object.getOwnPropertyDescriptor;
-var __decorateClass$G = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$G(target, key) : target;
+var __defProp$H = Object.defineProperty;
+var __getOwnPropDesc$H = Object.getOwnPropertyDescriptor;
+var __decorateClass$H = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$H(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$G(target, key, result);
+  if (kind && result) __defProp$H(target, key, result);
   return result;
 };
 class BaseButton extends FASTElement {
@@ -5842,54 +6498,54 @@ class BaseButton extends FASTElement {
  * @public
  */
 BaseButton.formAssociated = true;
-__decorateClass$G([
+__decorateClass$H([
   attr({ mode: "boolean" })
 ], BaseButton.prototype, "autofocus", 2);
-__decorateClass$G([
+__decorateClass$H([
   observable
 ], BaseButton.prototype, "defaultSlottedContent", 2);
-__decorateClass$G([
+__decorateClass$H([
   attr({ mode: "boolean" })
 ], BaseButton.prototype, "disabled", 2);
-__decorateClass$G([
+__decorateClass$H([
   attr({ attribute: "disabled-focusable", mode: "boolean" })
 ], BaseButton.prototype, "disabledFocusable", 2);
-__decorateClass$G([
+__decorateClass$H([
   attr({ attribute: "formaction" })
 ], BaseButton.prototype, "formAction", 2);
-__decorateClass$G([
+__decorateClass$H([
   attr({ attribute: "form" })
 ], BaseButton.prototype, "formAttribute", 2);
-__decorateClass$G([
+__decorateClass$H([
   attr({ attribute: "formenctype" })
 ], BaseButton.prototype, "formEnctype", 2);
-__decorateClass$G([
+__decorateClass$H([
   attr({ attribute: "formmethod" })
 ], BaseButton.prototype, "formMethod", 2);
-__decorateClass$G([
+__decorateClass$H([
   attr({ attribute: "formnovalidate", mode: "boolean" })
 ], BaseButton.prototype, "formNoValidate", 2);
-__decorateClass$G([
+__decorateClass$H([
   attr({ attribute: "formtarget" })
 ], BaseButton.prototype, "formTarget", 2);
-__decorateClass$G([
+__decorateClass$H([
   attr
 ], BaseButton.prototype, "name", 2);
-__decorateClass$G([
+__decorateClass$H([
   attr
 ], BaseButton.prototype, "type", 2);
-__decorateClass$G([
+__decorateClass$H([
   attr
 ], BaseButton.prototype, "value", 2);
 
-var __defProp$F = Object.defineProperty;
-var __getOwnPropDesc$F = Object.getOwnPropertyDescriptor;
-var __decorateClass$F = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$F(target, key) : target;
+var __defProp$G = Object.defineProperty;
+var __getOwnPropDesc$G = Object.getOwnPropertyDescriptor;
+var __decorateClass$G = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$G(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$F(target, key, result);
+  if (kind && result) __defProp$G(target, key, result);
   return result;
 };
 class Button extends BaseButton {
@@ -5898,16 +6554,16 @@ class Button extends BaseButton {
     this.iconOnly = false;
   }
 }
-__decorateClass$F([
+__decorateClass$G([
   attr
 ], Button.prototype, "appearance", 2);
-__decorateClass$F([
+__decorateClass$G([
   attr
 ], Button.prototype, "shape", 2);
-__decorateClass$F([
+__decorateClass$G([
   attr
 ], Button.prototype, "size", 2);
-__decorateClass$F([
+__decorateClass$G([
   attr({ attribute: "icon-only", mode: "boolean" })
 ], Button.prototype, "iconOnly", 2);
 applyMixins(Button, StartEnd);
@@ -5920,7 +6576,7 @@ const template$A = buttonTemplate$1();
 const definition$A = Button.compose({
   name: tagName$D,
   template: template$A,
-  styles: styles$C
+  styles: styles$D
 });
 
 definition$A.define(FluentDesignSystem.registry);
@@ -5935,14 +6591,14 @@ const CheckboxSize = {
 };
 const tagName$z = `${FluentDesignSystem.prefix}-checkbox`;
 
-var __defProp$E = Object.defineProperty;
-var __getOwnPropDesc$E = Object.getOwnPropertyDescriptor;
-var __decorateClass$E = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$E(target, key) : target;
+var __defProp$F = Object.defineProperty;
+var __getOwnPropDesc$F = Object.getOwnPropertyDescriptor;
+var __decorateClass$F = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$F(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$E(target, key, result);
+  if (kind && result) __defProp$F(target, key, result);
   return result;
 };
 class BaseCheckbox extends FASTElement {
@@ -6053,7 +6709,7 @@ class BaseCheckbox extends FASTElement {
    * @internal
    */
   requiredChanged(prev, next) {
-    if (this.$fastController.isConnected) {
+    if (this.elementInternals) {
       this.setValidity();
       this.elementInternals.ariaRequired = this.required ? "true" : "false";
     }
@@ -6085,7 +6741,7 @@ class BaseCheckbox extends FASTElement {
    * Reflects the {@link https://developer.mozilla.org/docs/Web/API/ElementInternals/validationMessage | `ElementInternals.validationMessage`} property.
    */
   get validationMessage() {
-    if (this.elementInternals.validationMessage) {
+    if (this.elementInternals?.validationMessage) {
       return this.elementInternals.validationMessage;
     }
     if (!this._validationFallbackMessage) {
@@ -6118,11 +6774,11 @@ class BaseCheckbox extends FASTElement {
   }
   set value(value) {
     this._value = value;
-    if (this.$fastController.isConnected) {
+    if (this.elementInternals) {
       this.setFormValue(value);
       this.setValidity();
-      Observable.notify(this, "value");
     }
+    Observable.notify(this, "value");
   }
   /**
    * Determines if the control can be submitted for constraint validation.
@@ -6233,7 +6889,9 @@ class BaseCheckbox extends FASTElement {
    * @internal
    */
   setAriaChecked(value = this.checked) {
-    this.elementInternals.ariaChecked = value ? "true" : "false";
+    if (this.elementInternals) {
+      this.elementInternals.ariaChecked = value ? "true" : "false";
+    }
   }
   /**
    * Reflects the {@link https://developer.mozilla.org/docs/Web/API/ElementInternals/setFormValue | `ElementInternals.setFormValue()`} method.
@@ -6241,7 +6899,7 @@ class BaseCheckbox extends FASTElement {
    * @internal
    */
   setFormValue(value, state) {
-    this.elementInternals.setFormValue(value, value ?? state);
+    this.elementInternals?.setFormValue(value, value ?? state);
   }
   /**
    * Sets a custom validity message.
@@ -6263,7 +6921,7 @@ class BaseCheckbox extends FASTElement {
    * @internal
    */
   setValidity(flags, message, anchor) {
-    if (this.$fastController.isConnected) {
+    if (this.elementInternals) {
       if (this.disabled || !this.required) {
         this.elementInternals.setValidity({});
         return;
@@ -6292,39 +6950,39 @@ class BaseCheckbox extends FASTElement {
  * @public
  */
 BaseCheckbox.formAssociated = true;
-__decorateClass$E([
+__decorateClass$F([
   attr({ mode: "boolean" })
 ], BaseCheckbox.prototype, "autofocus", 2);
-__decorateClass$E([
+__decorateClass$F([
   observable
 ], BaseCheckbox.prototype, "disabled", 2);
-__decorateClass$E([
+__decorateClass$F([
   attr({ attribute: "disabled", mode: "boolean" })
 ], BaseCheckbox.prototype, "disabledAttribute", 2);
-__decorateClass$E([
+__decorateClass$F([
   attr({ attribute: "form" })
 ], BaseCheckbox.prototype, "formAttribute", 2);
-__decorateClass$E([
+__decorateClass$F([
   attr({ attribute: "checked", mode: "boolean" })
 ], BaseCheckbox.prototype, "initialChecked", 2);
-__decorateClass$E([
+__decorateClass$F([
   attr({ attribute: "value", mode: "fromView" })
 ], BaseCheckbox.prototype, "initialValue", 2);
-__decorateClass$E([
+__decorateClass$F([
   attr
 ], BaseCheckbox.prototype, "name", 2);
-__decorateClass$E([
+__decorateClass$F([
   attr({ mode: "boolean" })
 ], BaseCheckbox.prototype, "required", 2);
 
-var __defProp$D = Object.defineProperty;
-var __getOwnPropDesc$D = Object.getOwnPropertyDescriptor;
-var __decorateClass$D = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$D(target, key) : target;
+var __defProp$E = Object.defineProperty;
+var __getOwnPropDesc$E = Object.getOwnPropertyDescriptor;
+var __decorateClass$E = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$E(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$D(target, key, result);
+  if (kind && result) __defProp$E(target, key, result);
   return result;
 };
 class Checkbox extends BaseCheckbox {
@@ -6367,13 +7025,13 @@ class Checkbox extends BaseCheckbox {
     super.toggleChecked(force);
   }
 }
-__decorateClass$D([
+__decorateClass$E([
   observable
 ], Checkbox.prototype, "indeterminate", 2);
-__decorateClass$D([
+__decorateClass$E([
   attr
 ], Checkbox.prototype, "shape", 2);
-__decorateClass$D([
+__decorateClass$E([
   attr
 ], Checkbox.prototype, "size", 2);
 
@@ -6406,7 +7064,7 @@ const userInvalidState = stateSelector("user-invalid");
 const validState = stateSelector("valid");
 const valueMissingState = stateSelector("value-missing");
 
-const styles$y = css`${display("inline-flex")} :host{--size:16px;background-color:${colorNeutralBackground1};border-radius:${borderRadiusSmall};border:${strokeWidthThin} solid ${colorNeutralStrokeAccessible};box-sizing:border-box;cursor:pointer;position:relative;width:var(--size)}:host,.indeterminate-indicator,.checked-indicator{aspect-ratio:1}:host(:hover){border-color:${colorNeutralStrokeAccessibleHover}}:host(:active){border-color:${colorNeutralStrokeAccessiblePressed}}:host(${checkedState}:hover){background-color:${colorCompoundBrandBackgroundHover};border-color:${colorCompoundBrandStrokeHover}}:host(${checkedState}:active){background-color:${colorCompoundBrandBackgroundPressed};border-color:${colorCompoundBrandStrokePressed}}:host(:focus-visible){outline:none}:host(:not([slot='input']))::after{content:'';position:absolute;inset:-8px;box-sizing:border-box;outline:none;border:${strokeWidthThick} solid ${colorTransparentStroke};border-radius:${borderRadiusMedium}}:host(:not([slot='input']):focus-visible)::after{border-color:${colorStrokeFocus2}}.indeterminate-indicator,.checked-indicator{color:${colorNeutralForegroundInverted};inset:0;margin:auto;position:absolute}::slotted([slot='checked-indicator']),.checked-indicator{fill:currentColor;display:inline-flex;flex:1 0 auto;width:12px}:host(:not(${checkedState})) *:is(::slotted([slot='checked-indicator']),.checked-indicator){display:none}:host(${checkedState}),:host(${indeterminateState}){border-color:${colorCompoundBrandStroke}}:host(${checkedState}),:host(${indeterminateState}) .indeterminate-indicator{background-color:${colorCompoundBrandBackground}}:host(${indeterminateState}) .indeterminate-indicator{border-radius:${borderRadiusSmall};position:absolute;width:calc(var(--size)/2);inset:0}:host([size='large']){--size:20px}:host([size='large']) ::slotted([slot='checked-indicator']),:host([size='large']) .checked-indicator{width:16px}:host([shape='circular']),:host([shape='circular']) .indeterminate-indicator{border-radius:${borderRadiusCircular}}:host([disabled]),:host([disabled]${checkedState}){background-color:${colorNeutralBackgroundDisabled};border-color:${colorNeutralStrokeDisabled}}:host([disabled]){cursor:unset}:host([disabled]${indeterminateState}) .indeterminate-indicator{background-color:${colorNeutralStrokeDisabled}}:host([disabled]${checkedState}) .checked-indicator{color:${colorNeutralStrokeDisabled}}@media (forced-colors:active){:host{border-color:FieldText}:host(:not([slot='input']:focus-visible))::after{border-color:Canvas}:host(:not([disabled]):hover),:host(${checkedState}:not([disabled]):hover),:host(:not([slot='input']):focus-visible)::after{border-color:Highlight}.indeterminate-indicator,.checked-indicator{color:HighlightText}:host(${checkedState}),:host(${indeterminateState}) .indeterminate-indicator{background-color:FieldText}:host(${checkedState}:not([disabled]):hover),:host(${indeterminateState}:not([disabled]):hover) .indeterminate-indicator{background-color:Highlight}:host([disabled]){border-color:GrayText}:host([disabled]${indeterminateState}) .indeterminate-indicator{background-color:GrayText}:host([disabled]),:host([disabled]${checkedState}) .checked-indicator{color:GrayText}}`;
+const styles$z = css`${display("inline-flex")} :host{--size:16px;background-color:${colorNeutralBackground1};border-radius:${borderRadiusSmall};border:${strokeWidthThin} solid ${colorNeutralStrokeAccessible};box-sizing:border-box;cursor:pointer;position:relative;width:var(--size)}:host,.indeterminate-indicator,.checked-indicator{aspect-ratio:1}:host(:hover){border-color:${colorNeutralStrokeAccessibleHover}}:host(:active){border-color:${colorNeutralStrokeAccessiblePressed}}:host(${checkedState}:hover){background-color:${colorCompoundBrandBackgroundHover};border-color:${colorCompoundBrandStrokeHover}}:host(${checkedState}:active){background-color:${colorCompoundBrandBackgroundPressed};border-color:${colorCompoundBrandStrokePressed}}:host(:focus-visible){outline:none}:host(:not([slot='input']))::after{content:'';position:absolute;inset:-8px;box-sizing:border-box;outline:none;border:${strokeWidthThick} solid ${colorTransparentStroke};border-radius:${borderRadiusMedium}}:host(:not([slot='input']):focus-visible)::after{border-color:${colorStrokeFocus2}}.indeterminate-indicator,.checked-indicator{color:${colorNeutralForegroundInverted};inset:0;margin:auto;position:absolute}::slotted([slot='checked-indicator']),.checked-indicator{fill:currentColor;display:inline-flex;flex:1 0 auto;width:12px}:host(:not(${checkedState})) *:is(::slotted([slot='checked-indicator']),.checked-indicator){display:none}:host(${checkedState}),:host(${indeterminateState}){border-color:${colorCompoundBrandStroke}}:host(${checkedState}),:host(${indeterminateState}) .indeterminate-indicator{background-color:${colorCompoundBrandBackground}}:host(${indeterminateState}) .indeterminate-indicator{border-radius:${borderRadiusSmall};position:absolute;width:calc(var(--size)/2);inset:0}:host([size='large']){--size:20px}:host([size='large']) ::slotted([slot='checked-indicator']),:host([size='large']) .checked-indicator{width:16px}:host([shape='circular']),:host([shape='circular']) .indeterminate-indicator{border-radius:${borderRadiusCircular}}:host([disabled]),:host([disabled]${checkedState}){background-color:${colorNeutralBackgroundDisabled};border-color:${colorNeutralStrokeDisabled}}:host([disabled]){cursor:unset}:host([disabled]${indeterminateState}) .indeterminate-indicator{background-color:${colorNeutralStrokeDisabled}}:host([disabled]${checkedState}) .checked-indicator{color:${colorNeutralStrokeDisabled}}@media (forced-colors:active){:host{border-color:FieldText}:host(:not([slot='input']:focus-visible))::after{border-color:Canvas}:host(:not([disabled]):hover),:host(${checkedState}:not([disabled]):hover),:host(:not([slot='input']):focus-visible)::after{border-color:Highlight}.indeterminate-indicator,.checked-indicator{color:HighlightText}:host(${checkedState}),:host(${indeterminateState}) .indeterminate-indicator{background-color:FieldText}:host(${checkedState}:not([disabled]):hover),:host(${indeterminateState}:not([disabled]):hover) .indeterminate-indicator{background-color:Highlight}:host([disabled]){border-color:GrayText}:host([disabled]${indeterminateState}) .indeterminate-indicator{background-color:GrayText}:host([disabled]),:host([disabled]${checkedState}) .checked-indicator{color:GrayText}}`;
 
 const checkedIndicator$2 = html.partial(
   /* html */
@@ -6427,7 +7085,7 @@ const template$z = checkboxTemplate({
 const definition$z = Checkbox.compose({
   name: tagName$z,
   template: template$z,
-  styles: styles$y
+  styles: styles$z
 });
 
 definition$z.define(FluentDesignSystem.registry);
@@ -6440,17 +7098,17 @@ const tagName$y = `${FluentDesignSystem.prefix}-compound-button`;
 class CompoundButton extends Button {
 }
 
-const styles$x = css`${styles$C} :host,:host(:is([size])){gap:12px;height:auto;padding-top:14px;padding-inline:12px;padding-bottom:16px;font-size:${fontSizeBase300};line-height:${lineHeightBase300}}.content{display:flex;flex-direction:column;text-align:start}::slotted([slot='description']){color:${colorNeutralForeground2};line-height:100%;font-size:${fontSizeBase200};font-weight:${fontWeightRegular}}::slotted(svg),:host([size='large']) ::slotted(svg){font-size:40px;height:40px;width:40px}:host(:hover) ::slotted([slot='description']){color:${colorNeutralForeground2Hover}}:host(:active) ::slotted([slot='description']){color:${colorNeutralForeground2Pressed}}:host(:is([appearance='primary'],[appearance='primary']:is(:hover,:active))) ::slotted([slot='description']){color:${colorNeutralForegroundOnBrand}}:host(:is([appearance='transparent'],[appearance='subtle'],[appearance='subtle']:is(:hover,:active))) ::slotted([slot='description']){color:${colorNeutralForeground2}}:host([appearance='transparent']:hover) ::slotted([slot='description']){color:${colorNeutralForeground2BrandHover}}:host([appearance='transparent']:active) ::slotted([slot='description']){color:${colorNeutralForeground2BrandPressed}}:host(:is(:disabled,:disabled[appearance],[disabled-focusable],[disabled-focusable][appearance])) ::slotted([slot='description']){color:${colorNeutralForegroundDisabled}}:host([size='small']){padding:8px;padding-bottom:10px}:host([icon-only]){min-width:52px;max-width:52px;padding:${spacingHorizontalSNudge}}:host([icon-only][size='small']){min-width:48px;max-width:48px;padding:${spacingHorizontalXS}}:host([icon-only][size='large']){min-width:56px;max-width:56px;padding:${spacingHorizontalS}}:host([size='large']){padding-top:18px;padding-inline:16px;padding-bottom:20px;font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='large']) ::slotted([slot='description']){font-size:${fontSizeBase300}}@media (forced-colors:active){:host([appearance='primary']:not(:hover,:focus-visible,:disabled,[disabled-focusable])) ::slotted([slot='description']){color:HighlightText}}`;
+const styles$y = css`${styles$D} :host,:host(:is([size])){gap:12px;height:auto;padding-top:14px;padding-inline:12px;padding-bottom:16px;font-size:${fontSizeBase300};line-height:${lineHeightBase300}}.content{display:flex;flex-direction:column;text-align:start}::slotted([slot='description']){color:${colorNeutralForeground2};line-height:100%;font-size:${fontSizeBase200};font-weight:${fontWeightRegular}}::slotted(svg),:host([size='large']) ::slotted(svg){font-size:40px;height:40px;width:40px}:host(:hover) ::slotted([slot='description']){color:${colorNeutralForeground2Hover}}:host(:active) ::slotted([slot='description']){color:${colorNeutralForeground2Pressed}}:host(:is([appearance='primary'],[appearance='primary']:is(:hover,:active))) ::slotted([slot='description']){color:${colorNeutralForegroundOnBrand}}:host(:is([appearance='transparent'],[appearance='subtle'],[appearance='subtle']:is(:hover,:active))) ::slotted([slot='description']){color:${colorNeutralForeground2}}:host([appearance='transparent']:hover) ::slotted([slot='description']){color:${colorNeutralForeground2BrandHover}}:host([appearance='transparent']:active) ::slotted([slot='description']){color:${colorNeutralForeground2BrandPressed}}:host(:is(:disabled,:disabled[appearance],[disabled-focusable],[disabled-focusable][appearance])) ::slotted([slot='description']){color:${colorNeutralForegroundDisabled}}:host([size='small']){padding:8px;padding-bottom:10px}:host([icon-only]){min-width:52px;max-width:52px;padding:${spacingHorizontalSNudge}}:host([icon-only][size='small']){min-width:48px;max-width:48px;padding:${spacingHorizontalXS}}:host([icon-only][size='large']){min-width:56px;max-width:56px;padding:${spacingHorizontalS}}:host([size='large']){padding-top:18px;padding-inline:16px;padding-bottom:20px;font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='large']) ::slotted([slot='description']){font-size:${fontSizeBase300}}@media (forced-colors:active){:host([appearance='primary']:not(:hover,:focus-visible,:disabled,[disabled-focusable])) ::slotted([slot='description']){color:HighlightText}}`;
 
 function buttonTemplate(options = {}) {
-  return html`<template ?disabled=${(x) => x.disabled} tabindex=${(x) => x.disabled ? null : x.tabIndex ?? 0}>${startSlotTemplate(options)} <span class=content part=content><slot ${slotted("defaultSlottedContent")}></slot><slot name=description></slot></span>${endSlotTemplate(options)}</template>`;
+  return html`<template @click=${(x, c) => x.clickHandler(c.event)} @keypress=${(x, c) => x.keypressHandler(c.event)}>${startSlotTemplate(options)} <span class=content part=content><slot ${slotted("defaultSlottedContent")}></slot><slot name=description></slot></span>${endSlotTemplate(options)}</template>`;
 }
 const template$y = buttonTemplate();
 
 const definition$y = CompoundButton.compose({
   name: tagName$y,
   template: template$y,
-  styles: styles$x
+  styles: styles$y
 });
 
 definition$y.define(FluentDesignSystem.registry);
@@ -6483,17 +7141,17 @@ const CounterBadgeSize = {
 };
 const tagName$x = `${FluentDesignSystem.prefix}-counter-badge`;
 
-var __defProp$C = Object.defineProperty;
-var __getOwnPropDesc$C = Object.getOwnPropertyDescriptor;
-var __decorateClass$C = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$C(target, key) : target;
+var __defProp$D = Object.defineProperty;
+var __getOwnPropDesc$D = Object.getOwnPropertyDescriptor;
+var __decorateClass$D = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$D(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$C(target, key, result);
+  if (kind && result) __defProp$D(target, key, result);
   return result;
 };
-class CounterBadge extends FASTElement {
+class BaseCounterBadge extends FASTElement {
   constructor() {
     super(...arguments);
     /**
@@ -6507,26 +7165,44 @@ class CounterBadge extends FASTElement {
     this.showZero = false;
     this.dot = false;
   }
-  countChanged() {
-    this.setCount();
-  }
-  overflowCountChanged() {
-    this.setCount();
-  }
-  /**
-   * Function to set the count
-   * This is the default slotted content for the counter badge
-   * If children are slotted, that will override the value returned
-   *
-   * @internal
-   */
-  setCount() {
+  get displayValue() {
     const count = this.count ?? 0;
-    if ((count !== 0 || this.showZero) && !this.dot) {
-      return count > this.overflowCount ? `${this.overflowCount}+` : `${count}`;
+    if (!this.showZero && count === 0 || this.dot) {
+      return "";
     }
-    return;
+    if (this.overflowCount > 0 && count > this.overflowCount) {
+      return `${this.overflowCount}+`;
+    }
+    return `${count}`;
   }
+}
+__decorateClass$D([
+  attr({ converter: nullableNumberConverter })
+], BaseCounterBadge.prototype, "count", 2);
+__decorateClass$D([
+  attr({ attribute: "overflow-count", converter: nullableNumberConverter })
+], BaseCounterBadge.prototype, "overflowCount", 2);
+__decorateClass$D([
+  attr({ attribute: "show-zero", mode: "boolean" })
+], BaseCounterBadge.prototype, "showZero", 2);
+__decorateClass$D([
+  attr({ mode: "boolean" })
+], BaseCounterBadge.prototype, "dot", 2);
+__decorateClass$D([
+  volatile
+], BaseCounterBadge.prototype, "displayValue", 1);
+
+var __defProp$C = Object.defineProperty;
+var __getOwnPropDesc$C = Object.getOwnPropertyDescriptor;
+var __decorateClass$C = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$C(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp$C(target, key, result);
+  return result;
+};
+class CounterBadge extends BaseCounterBadge {
 }
 __decorateClass$C([
   attr
@@ -6540,33 +7216,19 @@ __decorateClass$C([
 __decorateClass$C([
   attr
 ], CounterBadge.prototype, "size", 2);
-__decorateClass$C([
-  attr({ converter: nullableNumberConverter })
-], CounterBadge.prototype, "count", 2);
-__decorateClass$C([
-  attr({ attribute: "overflow-count", converter: nullableNumberConverter })
-], CounterBadge.prototype, "overflowCount", 2);
-__decorateClass$C([
-  attr({ attribute: "show-zero", mode: "boolean" })
-], CounterBadge.prototype, "showZero", 2);
-__decorateClass$C([
-  attr({ mode: "boolean" })
-], CounterBadge.prototype, "dot", 2);
 applyMixins(CounterBadge, StartEnd);
 
-const styles$w = css`:host([shape='rounded']){border-radius:${borderRadiusMedium}}:host([shape='rounded']:is([size='tiny'],[size='extra-small'],[size='small'])){border-radius:${borderRadiusSmall}}${badgeSizeStyles} ${badgeFilledStyles} ${badgeGhostStyles} ${badgeBaseStyles} :host(:is([dot],[dot][appearance][size])){min-width:auto;width:6px;height:6px;padding:0}`;
+const styles$x = css`:host([shape='rounded']){border-radius:${borderRadiusMedium}}:host([shape='rounded']:is([size='tiny'],[size='extra-small'],[size='small'])){border-radius:${borderRadiusSmall}}${badgeSizeStyles} ${badgeFilledStyles} ${badgeGhostStyles} ${badgeBaseStyles} :host(:is([dot],[dot][appearance][size])){min-width:auto;width:6px;height:6px;padding:0}`;
 
-function composeTemplate(options = {}) {
-  return badgeTemplate({
-    defaultContent: html`${(x) => x.setCount()}`
-  });
+function counterBadgeTemplate(options = {}) {
+  return html`${startSlotTemplate(options)} <span>${(x) => x.displayValue}</span> ${endSlotTemplate(options)}`;
 }
-const template$x = composeTemplate();
+const template$x = counterBadgeTemplate();
 
 const definition$x = CounterBadge.compose({
   name: tagName$x,
   template: template$x,
-  styles: styles$w
+  styles: styles$x
 });
 
 definition$x.define(FluentDesignSystem.registry);
@@ -6597,19 +7259,6 @@ var __decorateClass$B = (decorators, target, key, kind) => {
 class Dialog extends FASTElement {
   constructor() {
     super(...arguments);
-    this.type = DialogType.modal;
-    /**
-     * Method to emit an event before the dialog's open state changes
-     * HTML spec proposal: https://github.com/whatwg/html/issues/9733
-     *
-     * @public
-     */
-    this.emitBeforeToggle = () => {
-      this.$emit("beforetoggle", {
-        oldState: this.dialog.open ? "open" : "closed",
-        newState: this.dialog.open ? "closed" : "open"
-      });
-    };
     /**
      * Method to emit an event after the dialog's open state changes
      * HTML spec proposal: https://github.com/whatwg/html/issues/9733
@@ -6623,11 +7272,48 @@ class Dialog extends FASTElement {
       });
     };
   }
-  dialogChanged() {
-    this.updateDialogAttributes();
+  get dialogDescribedby() {
+    if (this.dialog) {
+      return this.ariaDescribedby;
+    }
   }
-  typeChanged(prev, next) {
-    this.updateDialogAttributes();
+  get dialogLabel() {
+    if (this.dialog) {
+      return this.ariaLabel;
+    }
+  }
+  get dialogLabelledby() {
+    if (this.dialog) {
+      return this.ariaLabelledby;
+    }
+  }
+  get dialogModal() {
+    if (this.dialog && this.type !== DialogType.nonModal) {
+      return true;
+    }
+  }
+  get dialogRole() {
+    if (this.dialog && this.type === DialogType.alert) {
+      return "alertdialog";
+    }
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    Updates.enqueue(() => {
+      this.type = this.type ?? DialogType.modal;
+    });
+  }
+  /**
+   * Method to emit an event before the dialog's open state changes
+   * HTML spec proposal: https://github.com/whatwg/html/issues/9733
+   *
+   * @public
+   */
+  emitBeforeToggle() {
+    this.$emit("beforetoggle", {
+      oldState: this.dialog.open ? "open" : "closed",
+      newState: this.dialog.open ? "closed" : "open"
+    });
   }
   /**
    * Method to show the dialog
@@ -6668,26 +7354,6 @@ class Dialog extends FASTElement {
     }
     return true;
   }
-  /**
-   * Updates the internal dialog element's attributes based on its type.
-   *
-   * @internal
-   */
-  updateDialogAttributes() {
-    if (!this.dialog) {
-      return;
-    }
-    if (this.type === DialogType.alert) {
-      this.dialog.setAttribute("role", "alertdialog");
-    } else {
-      this.dialog.removeAttribute("role");
-    }
-    if (this.type !== DialogType.nonModal) {
-      this.dialog.setAttribute("aria-modal", "true");
-    } else {
-      this.dialog.removeAttribute("aria-modal");
-    }
-  }
 }
 __decorateClass$B([
   observable
@@ -6704,15 +7370,30 @@ __decorateClass$B([
 __decorateClass$B([
   attr
 ], Dialog.prototype, "type", 2);
+__decorateClass$B([
+  volatile
+], Dialog.prototype, "dialogDescribedby", 1);
+__decorateClass$B([
+  volatile
+], Dialog.prototype, "dialogLabel", 1);
+__decorateClass$B([
+  volatile
+], Dialog.prototype, "dialogLabelledby", 1);
+__decorateClass$B([
+  volatile
+], Dialog.prototype, "dialogModal", 1);
+__decorateClass$B([
+  volatile
+], Dialog.prototype, "dialogRole", 1);
 
-const template$w = html`<dialog class=dialog part=dialog aria-describedby=${(x) => x.ariaDescribedby} aria-labelledby=${(x) => x.ariaLabelledby} aria-label=${(x) => x.ariaLabel} @click=${(x, c) => x.clickHandler(c.event)} @cancel=${(x) => x.hide()} ${ref("dialog")}><slot></slot></dialog>`;
+const template$w = html`<dialog class=dialog part=dialog aria-modal=${(x) => x.dialogModal} aria-describedby=${(x) => x.dialogDescribedby} aria-labelledby=${(x) => x.dialogLabelledby} aria-label=${(x) => x.dialogLabel} role=${(x) => x.dialogRole} @click=${(x, c) => x.clickHandler(c.event)} @cancel=${(x) => x.hide()} ${ref("dialog")}><slot></slot></dialog>`;
 
-const styles$v = css`@layer base{:host{--dialog-backdrop:${colorBackgroundOverlay};--dialog-starting-scale:0.85}::backdrop{background:var(--dialog-backdrop,rgba(0,0,0,0.4))}dialog{background:${colorNeutralBackground1};border-radius:${borderRadiusXLarge};border:none;box-shadow:${shadow64};color:${colorNeutralForeground1};max-height:100vh;padding:0;width:100%;max-width:600px}:host([type='non-modal']) dialog{inset:0;position:fixed;z-index:2;overflow:auto}@supports (max-height:1dvh){dialog{max-height:100dvh}}}@layer animations{@media (prefers-reduced-motion:no-preference){dialog,::backdrop{transition:display allow-discrete,opacity,overlay allow-discrete,scale;transition-duration:${durationGentle};transition-timing-function:${curveDecelerateMid};opacity:0}::backdrop{transition-timing-function:${curveLinear}}[open],[open]::backdrop{opacity:1}dialog:not([open]){scale:var(--dialog-starting-scale);transition-timing-function:${curveAccelerateMid}}}@starting-style{[open],[open]::backdrop{opacity:0}dialog{scale:var(--dialog-starting-scale)}}}@media (forced-colors:active){@layer base{dialog{border:${strokeWidthThin} solid ${colorTransparentStroke}}}}`;
+const styles$w = css`@layer base{:host{--dialog-backdrop:${colorBackgroundOverlay};--dialog-starting-scale:0.85}::backdrop{background:var(--dialog-backdrop,rgba(0,0,0,0.4))}dialog{background:${colorNeutralBackground1};border-radius:${borderRadiusXLarge};border:none;box-shadow:${shadow64};color:${colorNeutralForeground1};max-height:100vh;padding:0;width:100%;max-width:600px}:host([type='non-modal']) dialog{inset:0;position:fixed;z-index:2;overflow:auto}@supports (max-height:1dvh){dialog{max-height:100dvh}}}@layer animations{@media (prefers-reduced-motion:no-preference){dialog,::backdrop{transition:display allow-discrete,opacity,overlay allow-discrete,scale;transition-duration:${durationGentle};transition-timing-function:${curveDecelerateMid};opacity:0}::backdrop{transition-timing-function:${curveLinear}}[open],[open]::backdrop{opacity:1}dialog:not([open]){scale:var(--dialog-starting-scale);transition-timing-function:${curveAccelerateMid}}}@starting-style{[open],[open]::backdrop{opacity:0}dialog{scale:var(--dialog-starting-scale)}}}@media (forced-colors:active){@layer base{dialog{border:${strokeWidthThin} solid ${colorTransparentStroke}}}}`;
 
 const definition$w = Dialog.compose({
   name: tagName$w,
   template: template$w,
-  styles: styles$v
+  styles: styles$w
 });
 
 definition$w.define(FluentDesignSystem.registry);
@@ -6739,12 +7420,12 @@ class DialogBody extends FASTElement {
 
 const template$v = html`<template><div class=title part=title><slot name=title></slot><slot name=title-action></slot><slot name=close @click=${(x, c) => x.clickHandler(c.event)}></slot></div><div class=content part=content><slot></slot></div><div class=actions part=actions><slot name=action></slot></div></template>`;
 
-const styles$u = css`${display("grid")} :host{background:${colorNeutralBackground1};box-sizing:border-box;gap:${spacingVerticalS};padding:${spacingVerticalXXL} ${spacingHorizontalXXL};container:dialog-body/inline-size}.title{box-sizing:border-box;align-items:flex-start;background:${colorNeutralBackground1};color:${colorNeutralForeground1};column-gap:8px;display:flex;font-family:${fontFamilyBase};font-size:${fontSizeBase500};font-weight:${fontWeightSemibold};inset-block-start:0;justify-content:space-between;line-height:${lineHeightBase500};margin-block-end:calc(${spacingVerticalS} * -1);margin-block-start:calc(${spacingVerticalXXL} * -1);padding-block-end:${spacingVerticalS};padding-block-start:${spacingVerticalXXL}}.content{box-sizing:border-box;color:${colorNeutralForeground1};font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};min-height:32px}.actions{box-sizing:border-box;background:${colorNeutralBackground1};display:flex;flex-direction:column;gap:${spacingVerticalS};inset-block-end:0;margin-block-end:calc(${spacingVerticalXXL} * -1);padding-block-end:${spacingVerticalXXL};padding-block-start:${spacingVerticalL}}::slotted([slot='title-action']){margin-inline-start:auto}::slotted([slot='title']){font:inherit;padding:0;margin:0}:not(:has(:is([slot='title'],[slot='title-action']))) .title{justify-content:end}@container (min-width:480px){.actions{align-items:center;flex-direction:row;justify-content:flex-end;margin-block-start:calc(${spacingVerticalS} * -1);padding-block-start:${spacingVerticalS}}}@media (min-height:480px){.title{position:sticky;z-index:1}.actions{position:sticky;z-index:2}`;
+const styles$v = css`${display("grid")} :host{background:${colorNeutralBackground1};box-sizing:border-box;gap:${spacingVerticalS};padding:${spacingVerticalXXL} ${spacingHorizontalXXL};container:dialog-body/inline-size}.title{box-sizing:border-box;align-items:flex-start;background:${colorNeutralBackground1};color:${colorNeutralForeground1};column-gap:8px;display:flex;font-family:${fontFamilyBase};font-size:${fontSizeBase500};font-weight:${fontWeightSemibold};inset-block-start:0;justify-content:space-between;line-height:${lineHeightBase500};margin-block-end:calc(${spacingVerticalS} * -1);margin-block-start:calc(${spacingVerticalXXL} * -1);padding-block-end:${spacingVerticalS};padding-block-start:${spacingVerticalXXL}}.content{box-sizing:border-box;color:${colorNeutralForeground1};font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};min-height:32px}.actions{box-sizing:border-box;background:${colorNeutralBackground1};display:flex;flex-direction:column;gap:${spacingVerticalS};inset-block-end:0;margin-block-end:calc(${spacingVerticalXXL} * -1);padding-block-end:${spacingVerticalXXL};padding-block-start:${spacingVerticalL}}::slotted([slot='title-action']){margin-inline-start:auto}::slotted([slot='title']){font:inherit;padding:0;margin:0}:not(:has(:is([slot='title'],[slot='title-action']))) .title{justify-content:end}@container (min-width:480px){.actions{align-items:center;flex-direction:row;justify-content:flex-end;margin-block-start:calc(${spacingVerticalS} * -1);padding-block-start:${spacingVerticalS}}}@media (min-height:480px){.title{position:sticky;z-index:1}.actions{position:sticky;z-index:2}`;
 
 const definition$v = DialogBody.compose({
   name: tagName$v,
   template: template$v,
-  styles: styles$u
+  styles: styles$v
 });
 
 definition$v.define(FluentDesignSystem.registry);
@@ -6865,12 +7546,12 @@ function dividerTemplate() {
 }
 const template$u = dividerTemplate();
 
-const styles$t = css`${display("flex")} :host{contain:content}:host::after,:host::before{align-self:center;background:${colorNeutralStroke2};box-sizing:border-box;content:'';display:flex;flex-grow:1;height:${strokeWidthThin}}:host([inset]){padding:0 12px}:host ::slotted(*){color:${colorNeutralForeground2};font-family:${fontFamilyBase};font-size:${fontSizeBase200};font-weight:${fontWeightRegular};margin:0;padding:0 12px}:host([align-content='start'])::before,:host([align-content='end'])::after{flex-basis:12px;flex-grow:0;flex-shrink:0}:host([orientation='vertical']){align-items:center;flex-direction:column;height:100%;min-height:84px}:host([orientation='vertical']):empty{min-height:20px}:host([orientation='vertical'][inset])::before{margin-top:12px}:host([orientation='vertical'][inset])::after{margin-bottom:12px}:host([orientation='vertical']):empty::before,:host([orientation='vertical']):empty::after{height:10px;min-height:10px;flex-grow:0}:host([orientation='vertical'])::before,:host([orientation='vertical'])::after{width:${strokeWidthThin};min-height:20px;height:100%}:host([orientation='vertical']) ::slotted(*){display:flex;flex-direction:column;padding:12px 0;line-height:20px}:host([orientation='vertical'][align-content='start'])::before{min-height:8px}:host([orientation='vertical'][align-content='end'])::after{min-height:8px}:host([appearance='strong'])::before,:host([appearance='strong'])::after{background:${colorNeutralStroke1}}:host([appearance='strong']) ::slotted(*){color:${colorNeutralForeground1}}:host([appearance='brand'])::before,:host([appearance='brand'])::after{background:${colorBrandStroke1}}:host([appearance='brand']) ::slotted(*){color:${colorBrandForeground1}}:host([appearance='subtle'])::before,:host([appearance='subtle'])::after{background:${colorNeutralStroke3}}:host([appearance='subtle']) ::slotted(*){color:${colorNeutralForeground3}}@media (forced-colors:active){:host([appearance='strong'])::before,:host([appearance='strong'])::after,:host([appearance='brand'])::before,:host([appearance='brand'])::after,:host([appearance='subtle'])::before,:host([appearance='subtle'])::after,:host::after,:host::before{background:WindowText;color:WindowText}}`;
+const styles$u = css`${display("flex")} :host{contain:content}:host::after,:host::before{align-self:center;background:${colorNeutralStroke2};box-sizing:border-box;content:'';display:flex;flex-grow:1;height:${strokeWidthThin}}:host([inset]){padding:0 12px}:host ::slotted(*){color:${colorNeutralForeground2};font-family:${fontFamilyBase};font-size:${fontSizeBase200};font-weight:${fontWeightRegular};margin:0;padding:0 12px}:host([align-content='start'])::before,:host([align-content='end'])::after{flex-basis:12px;flex-grow:0;flex-shrink:0}:host([orientation='vertical']){align-items:center;flex-direction:column;height:100%;min-height:84px}:host([orientation='vertical']):empty{min-height:20px}:host([orientation='vertical'][inset])::before{margin-top:12px}:host([orientation='vertical'][inset])::after{margin-bottom:12px}:host([orientation='vertical']):empty::before,:host([orientation='vertical']):empty::after{height:10px;min-height:10px;flex-grow:0}:host([orientation='vertical'])::before,:host([orientation='vertical'])::after{width:${strokeWidthThin};min-height:20px;height:100%}:host([orientation='vertical']) ::slotted(*){display:flex;flex-direction:column;padding:12px 0;line-height:20px}:host([orientation='vertical'][align-content='start'])::before{min-height:8px}:host([orientation='vertical'][align-content='end'])::after{min-height:8px}:host([appearance='strong'])::before,:host([appearance='strong'])::after{background:${colorNeutralStroke1}}:host([appearance='strong']) ::slotted(*){color:${colorNeutralForeground1}}:host([appearance='brand'])::before,:host([appearance='brand'])::after{background:${colorBrandStroke1}}:host([appearance='brand']) ::slotted(*){color:${colorBrandForeground1}}:host([appearance='subtle'])::before,:host([appearance='subtle'])::after{background:${colorNeutralStroke3}}:host([appearance='subtle']) ::slotted(*){color:${colorNeutralForeground3}}@media (forced-colors:active){:host([appearance='strong'])::before,:host([appearance='strong'])::after,:host([appearance='brand'])::before,:host([appearance='brand'])::after,:host([appearance='subtle'])::before,:host([appearance='subtle'])::after,:host::after,:host::before{background:WindowText;color:WindowText}}`;
 
 const definition$u = Divider.compose({
   name: tagName$u,
   template: template$u,
-  styles: styles$t
+  styles: styles$u
 });
 
 definition$u.define(FluentDesignSystem.registry);
@@ -6905,7 +7586,6 @@ var __decorateClass$y = (decorators, target, key, kind) => {
 class Drawer extends FASTElement {
   constructor() {
     super(...arguments);
-    this.type = DrawerType.modal;
     this.position = DrawerPosition.start;
     this.size = DrawerSize.medium;
     /**
@@ -6933,27 +7613,37 @@ class Drawer extends FASTElement {
       });
     };
   }
-  typeChanged() {
-    if (!this.dialog) {
-      return;
-    }
-    this.updateDialogRole();
-    if (this.type === DrawerType.modal) {
-      this.dialog.setAttribute("aria-modal", "true");
-    } else {
-      this.dialog.removeAttribute("aria-modal");
+  get dialogDescribedby() {
+    if (this.dialog) {
+      return this.ariaDescribedby;
     }
   }
-  /** @internal */
+  get dialogLabel() {
+    if (this.dialog) {
+      return this.ariaLabel;
+    }
+  }
+  get dialogLabelledby() {
+    if (this.dialog) {
+      return this.ariaLabelledby;
+    }
+  }
+  get dialogModal() {
+    if (this.dialog && this.type === DrawerType.modal) {
+      return true;
+    }
+  }
+  get dialogRole() {
+    if (this.dialog && this.type === DrawerType.modal) {
+      return "dialog";
+    }
+    return this.role;
+  }
   connectedCallback() {
     super.connectedCallback();
-    this.typeChanged();
-    this.observeRoleAttr();
-  }
-  /** @internal */
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    this.roleAttrObserver.disconnect();
+    Updates.enqueue(() => {
+      this.type = this.type ?? DrawerType.modal;
+    });
   }
   /**
    * Method to show the drawer
@@ -7001,24 +7691,6 @@ class Drawer extends FASTElement {
   cancelHandler() {
     this.hide();
   }
-  observeRoleAttr() {
-    if (this.roleAttrObserver) {
-      return;
-    }
-    this.roleAttrObserver = new MutationObserver(() => {
-      this.updateDialogRole();
-    });
-    this.roleAttrObserver.observe(this, {
-      attributes: true,
-      attributeFilter: ["role"]
-    });
-  }
-  updateDialogRole() {
-    if (!this.dialog) {
-      return;
-    }
-    this.dialog.role = this.type === DrawerType.modal ? "dialog" : this.role;
-  }
 }
 __decorateClass$y([
   attr
@@ -7033,23 +7705,41 @@ __decorateClass$y([
   attr
 ], Drawer.prototype, "position", 2);
 __decorateClass$y([
+  observable
+], Drawer.prototype, "role", 2);
+__decorateClass$y([
   attr({ attribute: "size" })
 ], Drawer.prototype, "size", 2);
 __decorateClass$y([
   observable
 ], Drawer.prototype, "dialog", 2);
+__decorateClass$y([
+  volatile
+], Drawer.prototype, "dialogDescribedby", 1);
+__decorateClass$y([
+  volatile
+], Drawer.prototype, "dialogLabel", 1);
+__decorateClass$y([
+  volatile
+], Drawer.prototype, "dialogLabelledby", 1);
+__decorateClass$y([
+  volatile
+], Drawer.prototype, "dialogModal", 1);
+__decorateClass$y([
+  volatile
+], Drawer.prototype, "dialogRole", 1);
 
-const styles$s = css`${display("block")} :host{--dialog-backdrop:${colorBackgroundOverlay}}:host([type='non-modal']) dialog[open]::backdrop{display:none}:host([type='non-modal']) dialog{position:fixed;top:0;bottom:0}:host([type='inline']){height:100%;width:fit-content}:host([type='inline']) dialog[open]{box-shadow:none;position:relative}:host([size='small']) dialog{width:320px;max-width:320px}:host([size='large']) dialog{width:940px;max-width:940px}:host([size='full']) dialog{width:100%;max-width:100%}:host([position='end']) dialog{margin-inline-start:auto;margin-inline-end:0}dialog{box-sizing:border-box;z-index:var(--drawer-elevation,1000);font-size:${fontSizeBase300};line-height:${lineHeightBase300};font-family:${fontFamilyBase};font-weight:${fontWeightRegular};color:${colorNeutralForeground1};max-width:var(--drawer-width,592px);max-height:100vh;height:100%;margin-inline-start:0;margin-inline-end:auto;border-inline-end-color:${colorTransparentStroke};border-inline-start-color:var(--drawer-separator,${colorTransparentStroke});outline:none;top:0;bottom:0;width:var(--drawer-width,592px);border-radius:0;padding:0;max-width:var(--drawer-width,592px);box-shadow:${shadow64};border:${strokeWidthThin} solid ${colorTransparentStroke};background:${colorNeutralBackground1}}dialog::backdrop{background:var(--dialog-backdrop)}@layer animations{@media (prefers-reduced-motion:no-preference){dialog{transition:display allow-discrete,opacity,overlay allow-discrete,transform;transition-duration:${durationGentle};transition-timing-function:${curveDecelerateMid}}:host dialog:not([open]){transform:translateX(-100%);transition-timing-function:${curveAccelerateMid}}:host([position='end']) dialog:not([open]){transform:translateX(100%);transition-timing-function:${curveAccelerateMid}}dialog[open]{transform:translateX(0)}dialog::backdrop{transition:display allow-discrete,opacity,overlay allow-discrete,scale;transition-duration:${durationGentle};transition-timing-function:${curveDecelerateMid};background:var(--dialog-backdrop,${colorBackgroundOverlay});opacity:0}dialog[open]::backdrop{opacity:1}dialog::backdrop{transition-timing-function:${curveLinear}}}@starting-style{dialog[open]{transform:translateX(-100%)}:host([position='end']) dialog[open]{transform:translateX(100%)}dialog[open]::backdrop{opacity:0}}}`;
+const styles$t = css`${display("block")} :host{--dialog-backdrop:${colorBackgroundOverlay}}:host([type='non-modal']) dialog[open]::backdrop{display:none}:host([type='non-modal']) dialog{position:fixed;top:0;bottom:0}:host([type='inline']){height:100%;width:fit-content}:host([type='inline']) dialog[open]{box-shadow:none;position:relative}:host([size='small']) dialog{width:320px;max-width:320px}:host([size='large']) dialog{width:940px;max-width:940px}:host([size='full']) dialog{width:100%;max-width:100%}:host([position='end']) dialog{margin-inline-start:auto;margin-inline-end:0}dialog{box-sizing:border-box;z-index:var(--drawer-elevation,1000);font-size:${fontSizeBase300};line-height:${lineHeightBase300};font-family:${fontFamilyBase};font-weight:${fontWeightRegular};color:${colorNeutralForeground1};max-width:var(--drawer-width,592px);max-height:100vh;height:100%;margin-inline-start:0;margin-inline-end:auto;border-inline-end-color:${colorTransparentStroke};border-inline-start-color:var(--drawer-separator,${colorTransparentStroke});outline:none;top:0;bottom:0;width:var(--drawer-width,592px);border-radius:0;padding:0;max-width:var(--drawer-width,592px);box-shadow:${shadow64};border:${strokeWidthThin} solid ${colorTransparentStroke};background:${colorNeutralBackground1}}dialog::backdrop{background:var(--dialog-backdrop)}@layer animations{@media (prefers-reduced-motion:no-preference){dialog{transition:display allow-discrete,opacity,overlay allow-discrete,transform;transition-duration:${durationGentle};transition-timing-function:${curveDecelerateMid}}:host dialog:not([open]){transform:translateX(-100%);transition-timing-function:${curveAccelerateMid}}:host([position='end']) dialog:not([open]){transform:translateX(100%);transition-timing-function:${curveAccelerateMid}}dialog[open]{transform:translateX(0)}dialog::backdrop{transition:display allow-discrete,opacity,overlay allow-discrete,scale;transition-duration:${durationGentle};transition-timing-function:${curveDecelerateMid};background:var(--dialog-backdrop,${colorBackgroundOverlay});opacity:0}dialog[open]::backdrop{opacity:1}dialog::backdrop{transition-timing-function:${curveLinear}}}@starting-style{dialog[open]{transform:translateX(-100%)}:host([position='end']) dialog[open]{transform:translateX(100%)}dialog[open]::backdrop{opacity:0}}}`;
 
 function drawerTemplate() {
-  return html`<dialog class=dialog part=dialog aria-describedby=${(x) => x.ariaDescribedby} aria-labelledby=${(x) => x.ariaLabelledby} aria-label=${(x) => x.ariaLabel} size=${(x) => x.size} position=${(x) => x.position} @click=${(x, c) => x.clickHandler(c.event)} @cancel=${(x) => x.cancelHandler()} ${ref("dialog")}><slot></slot></dialog>`;
+  return html`<dialog class=dialog part=dialog aria-describedby=${(x) => x.dialogDescribedby} aria-labelledby=${(x) => x.dialogLabelledby} aria-label=${(x) => x.dialogLabel} aria-modal=${(x) => x.dialogModal} role=${(x) => x.dialogRole} size=${(x) => x.size} position=${(x) => x.position} @click=${(x, c) => x.clickHandler(c.event)} @cancel=${(x) => x.cancelHandler()} ${ref("dialog")}><slot></slot></dialog>`;
 }
 const template$t = drawerTemplate();
 
 const definition$t = Drawer.compose({
   name: tagName$t,
   template: template$t,
-  styles: styles$s
+  styles: styles$t
 });
 
 definition$t.define(FluentDesignSystem.registry);
@@ -7092,7 +7782,7 @@ const typographyTitle3Styles = css.partial`font-family:${fontFamilyBase};font-si
 const typographyLargeTitleStyles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeHero900};line-height:${lineHeightHero900};font-weight:${fontWeightSemibold};`;
 const typographyDisplayStyles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeHero1000};line-height:${lineHeightHero1000};font-weight:${fontWeightSemibold};`;
 
-const styles$r = css`${display("grid")} :host{box-sizing:border-box;grid-template-rows:min-content auto min-content;position:relative;height:100%;padding:${spacingHorizontalXL};max-height:100svh}.header{display:flex;justify-content:space-between;align-items:center;${typographySubtitle1Styles}}.footer{display:flex;justify-content:flex-start;gap:${spacingHorizontalM}}::slotted([slot='title']){font:inherit;padding:0;margin:0}`;
+const styles$s = css`${display("grid")} :host{box-sizing:border-box;grid-template-rows:min-content auto min-content;position:relative;height:100%;padding:${spacingHorizontalXL};max-height:100svh}.header{display:flex;justify-content:space-between;align-items:center;${typographySubtitle1Styles}}.footer{display:flex;justify-content:flex-start;gap:${spacingHorizontalM}}::slotted([slot='title']){font:inherit;padding:0;margin:0}`;
 
 function drawerBodyTemplate() {
   return html`<div class=header part=header><slot name=title></slot><slot name=close @click=${(x, c) => x.clickHandler(c.event)}></slot></div><div class=content part=content><slot></slot></div><div class=footer part=footer><slot name=footer></slot></div>`;
@@ -7102,7 +7792,7 @@ const template$s = drawerBodyTemplate();
 const definition$s = DrawerBody.compose({
   name: tagName$s,
   template: template$s,
-  styles: styles$r
+  styles: styles$s
 });
 
 definition$s.define(FluentDesignSystem.registry);
@@ -7321,20 +8011,16 @@ const _BaseDropdown = class _BaseDropdown extends FASTElement {
       const notifier = Observable.getNotifier(this);
       notifier.subscribe(next);
       notifier.notify("multiple");
-      waitForConnectedDescendants(
-        next,
-        () => {
-          this.options.forEach((option) => {
-            option.disabled = option.disabledAttribute || this.disabled;
-            option.name = this.name;
-          });
-          this.enabledOptions.filter((x) => x.defaultSelected).forEach((x, i) => {
-            x.selected = this.multiple || i === 0;
-          });
-          this.setValidity();
-        },
-        { idleCallback: true }
-      );
+      Updates.enqueue(() => {
+        this.options.forEach((option) => {
+          option.disabled = option.disabledAttribute || this.disabled;
+          option.name = this.name;
+        });
+        this.enabledOptions.filter((x) => x.defaultSelected).forEach((x, i) => {
+          x.selected = this.multiple || i === 0;
+        });
+        this.setValidity();
+      });
       if (AnchorPositioningCSSSupported) {
         const anchorName = uniqueId("--dropdown-anchor-");
         this.style.setProperty("anchor-name", anchorName);
@@ -7402,7 +8088,7 @@ const _BaseDropdown = class _BaseDropdown extends FASTElement {
    * @public
    */
   get enabledOptions() {
-    return this.listbox?.enabledOptions ?? [];
+    return this.listbox?.enabledOptions ?? Array.from(this.querySelectorAll("*")).filter((o) => isDropdownOption(o) && !o.disabled);
   }
   /**
    * A reference to the first freeform option, if present.
@@ -7434,7 +8120,7 @@ const _BaseDropdown = class _BaseDropdown extends FASTElement {
    * @public
    */
   get options() {
-    return this.listbox?.options ?? [];
+    return this.listbox?.options ?? Array.from(this.querySelectorAll("*")).filter((o) => isDropdownOption(o));
   }
   /**
    * The index of the first selected option, scoped to the enabled options.
@@ -7994,12 +8680,12 @@ __decorateClass$w([
   attr
 ], Dropdown.prototype, "size", 2);
 
-const styles$q = css`${display("inline-flex")} :host{anchor-name:--dropdown-trigger;box-sizing:border-box;color:${colorNeutralForeground1};cursor:pointer}:host(${placeholderShownState}){color:${colorNeutralForeground4}}.control{appearance:none;background-color:${colorNeutralBackground1};border-radius:${borderRadiusMedium};border:${strokeWidthThin} solid ${colorTransparentStroke};box-shadow:inset 0 0 0 ${strokeWidthThin} var(--control-border-color);box-sizing:border-box;color:inherit;column-gap:${spacingHorizontalXXS};display:inline-flex;justify-content:space-between;min-width:160px;overflow:hidden;padding:${spacingVerticalSNudge} ${spacingHorizontalMNudge};position:relative;text-align:start;width:100%;z-index:1;${typographyBody1Styles}}:host([size='small']) .control{column-gap:${spacingHorizontalXXS};padding:${spacingVerticalXS} ${spacingHorizontalSNudge};${typographyCaption1Styles}}:host([size='large']) .control{column-gap:${spacingHorizontalS};padding:${spacingVerticalS} ${spacingHorizontalM};${typographyBody2Styles}}::slotted(:is(input,button)){all:unset;flex:1 1 auto}::slotted(button){cursor:pointer}::slotted(input){cursor:text}:where(slot[name='indicator']>*,::slotted([slot='indicator'])){all:unset;align-items:center;appearance:none;aspect-ratio:1;color:${colorNeutralForeground3};display:inline-flex;justify-content:center;width:20px}:host([size='small']) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){width:16px}:host([size='large']) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){width:24px}.control::after,.control::before{content:''/'';inset:auto 0 0;pointer-events:none;position:absolute}.control::before{height:${strokeWidthThin}}.control::after{background-color:${colorCompoundBrandStroke};height:${strokeWidthThick};scale:0 1;transition:scale ${durationUltraFast} ${curveDecelerateMid}}:host(:where(:focus-within)) .control{border-radius:${borderRadiusMedium};box-shadow:inset 0 0 0 1px ${colorStrokeFocus1};outline:${strokeWidthThick} solid ${colorStrokeFocus2}}:host(:where(${openState},:focus-within)) .control::after{scale:1 1;transition-duration:${durationNormal};transition-timing-function:${curveAccelerateMid}}:host(:where([appearance='outline'],[appearance='transparent'])) .control::before{background-color:${colorNeutralStrokeAccessible}}:host([appearance='transparent']) .control{--control-border-color:${colorTransparentStrokeInteractive};background-color:${colorTransparentBackground};border-radius:${borderRadiusNone}}:host([appearance='outline']) .control{--control-border-color:${colorNeutralStroke1}}:host([appearance='outline']) .control:hover{--control-border-color:${colorNeutralStroke1Hover}}:host(:where([appearance='outline'],[appearance='transparent'])) .control:hover::before{background-color:${colorNeutralStrokeAccessibleHover}}:host([appearance='outline']) .control:hover::after{background-color:${colorCompoundBrandBackgroundHover}}:host([appearance='outline']) .control:active{--control-border-color:${colorNeutralStroke1Pressed}}:host(:where([appearance='outline'],[appearance='transparent'])) .control:active::before{background-color:${colorNeutralStrokeAccessiblePressed}}:host(:where([appearance='outline'],[appearance='transparent'])) .control:active::after{background-color:${colorCompoundBrandBackgroundPressed}}:host([appearance='filled-darker']) .control{background-color:${colorNeutralBackground3}}:host(:where([appearance='filled-lighter'],[appearance='filled-darker'])) .control{--control-border-color:${colorTransparentStroke}}:host(:disabled),:host(:disabled) ::slotted(:where(button,input)){cursor:not-allowed}:host(:disabled) .control::before,:host(:disabled) .control::after{content:none}:host(:disabled) .control:is(*,:active,:hover),:host(:disabled) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){--control-border-color:${colorNeutralStrokeDisabled};background-color:${colorNeutralBackgroundDisabled};color:${colorNeutralForegroundDisabled}}::slotted(:not([slot]):not([popover])),::slotted([popover]:not(:popover-open)){display:none}@supports not (anchor-name:--anchor){:host{--listbox-max-height:50vh;--margin-offset:calc(${lineHeightBase300} + (${spacingVerticalSNudge} * 2) + ${strokeWidthThin})}:host([size='small']){--margin-offset:calc(${lineHeightBase200} + (${spacingVerticalXS} * 2) + ${strokeWidthThin})}:host([size='large']){--margin-offset:calc(${lineHeightBase400} + (${spacingVerticalS} * 2) + ${strokeWidthThin})}}@media (forced-colors:active){:host(:disabled) .control{border-color:GrayText}:host(:disabled) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){color:GrayText}`;
+const styles$r = css`${display("inline-flex")} :host{anchor-name:--dropdown-trigger;box-sizing:border-box;color:${colorNeutralForeground1};cursor:pointer}:host(${placeholderShownState}){color:${colorNeutralForeground4}}.control{appearance:none;background-color:${colorNeutralBackground1};border-radius:${borderRadiusMedium};border:${strokeWidthThin} solid ${colorTransparentStroke};box-shadow:inset 0 0 0 ${strokeWidthThin} var(--control-border-color);box-sizing:border-box;color:inherit;column-gap:${spacingHorizontalXXS};display:inline-flex;justify-content:space-between;min-width:160px;overflow:hidden;padding:${spacingVerticalSNudge} ${spacingHorizontalMNudge};white-space:normal;position:relative;text-align:start;width:100%;z-index:1;${typographyBody1Styles}}:host([size='small']) .control{column-gap:${spacingHorizontalXXS};padding:${spacingVerticalXS} ${spacingHorizontalSNudge};${typographyCaption1Styles}}:host([size='large']) .control{column-gap:${spacingHorizontalS};padding:${spacingVerticalS} ${spacingHorizontalM};${typographyBody2Styles}}::slotted(:is(input,button)){all:unset;flex:1 1 auto}::slotted(button){cursor:pointer}::slotted(input){cursor:text}:where(slot[name='indicator']>*,::slotted([slot='indicator'])){all:unset;align-items:center;appearance:none;aspect-ratio:1;color:${colorNeutralForeground3};display:inline-flex;justify-content:center;width:20px}:host([size='small']) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){width:16px}:host([size='large']) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){width:24px}.control::after,.control::before{content:''/'';inset:auto 0 0;pointer-events:none;position:absolute}.control::before{height:${strokeWidthThin}}.control::after{background-color:${colorCompoundBrandStroke};height:${strokeWidthThick};scale:0 1;transition:scale ${durationUltraFast} ${curveDecelerateMid}}:host(:where(:focus-within)) .control{border-radius:${borderRadiusMedium};box-shadow:inset 0 0 0 1px ${colorStrokeFocus1};outline:${strokeWidthThick} solid ${colorStrokeFocus2}}:host(:where(${openState},:focus-within)) .control::after{scale:1 1;transition-duration:${durationNormal};transition-timing-function:${curveAccelerateMid}}:host(:where([appearance='outline'],[appearance='transparent'])) .control::before{background-color:${colorNeutralStrokeAccessible}}:host([appearance='transparent']) .control{--control-border-color:${colorTransparentStrokeInteractive};background-color:${colorTransparentBackground};border-radius:${borderRadiusNone}}:host([appearance='outline']) .control{--control-border-color:${colorNeutralStroke1}}:host([appearance='outline']) .control:hover{--control-border-color:${colorNeutralStroke1Hover}}:host(:where([appearance='outline'],[appearance='transparent'])) .control:hover::before{background-color:${colorNeutralStrokeAccessibleHover}}:host([appearance='outline']) .control:hover::after{background-color:${colorCompoundBrandBackgroundHover}}:host([appearance='outline']) .control:active{--control-border-color:${colorNeutralStroke1Pressed}}:host(:where([appearance='outline'],[appearance='transparent'])) .control:active::before{background-color:${colorNeutralStrokeAccessiblePressed}}:host(:where([appearance='outline'],[appearance='transparent'])) .control:active::after{background-color:${colorCompoundBrandBackgroundPressed}}:host([appearance='filled-darker']) .control{background-color:${colorNeutralBackground3}}:host(:where([appearance='filled-lighter'],[appearance='filled-darker'])) .control{--control-border-color:${colorTransparentStroke}}:host(:disabled),:host(:disabled) ::slotted(:where(button,input)){cursor:not-allowed}:host(:disabled) .control::before,:host(:disabled) .control::after{content:none}:host(:disabled) .control:is(*,:active,:hover),:host(:disabled) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){--control-border-color:${colorNeutralStrokeDisabled};background-color:${colorNeutralBackgroundDisabled};color:${colorNeutralForegroundDisabled}}::slotted(:not([slot]):not([popover])),::slotted([popover]:not(:popover-open)){display:none}@supports not (anchor-name:--anchor){:host{--listbox-max-height:50vh;--margin-offset:calc(${lineHeightBase300} + (${spacingVerticalSNudge} * 2) + ${strokeWidthThin})}:host([size='small']){--margin-offset:calc(${lineHeightBase200} + (${spacingVerticalXS} * 2) + ${strokeWidthThin})}:host([size='large']){--margin-offset:calc(${lineHeightBase400} + (${spacingVerticalS} * 2) + ${strokeWidthThin})}}@media (forced-colors:active){:host(:disabled) .control{border-color:GrayText}:host(:disabled) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){color:GrayText}`;
 
 const definition$r = Dropdown.compose({
   name: tagName$r,
   template: template$r,
-  styles: styles$q
+  styles: styles$r
 });
 
 definition$r.define(FluentDesignSystem.registry);
@@ -8239,14 +8925,14 @@ __decorateClass$u([
   attr({ attribute: "label-position" })
 ], Field.prototype, "labelPosition", 2);
 
-const styles$p = css`${display("inline-grid")} :host{color:${colorNeutralForeground1};align-items:center;gap:0 ${spacingHorizontalM};justify-items:start}:has([slot='message']){color:${colorNeutralForeground1};row-gap:${spacingVerticalS}}:not(::slotted([slot='label'])){gap:0}:host([label-position='before']){grid-template-areas:'label input' 'label message'}:host([label-position='after']){gap:0;grid-template-areas:'input label' 'message message';grid-template-columns:auto 1fr}:host([label-position='after']) ::slotted([slot='input']){margin-inline-end:${spacingHorizontalM}}:host([label-position='above']){grid-template-areas:'label' 'input' 'message';row-gap:${spacingVerticalXXS}}:host([label-position='below']){grid-template-areas:'input' 'label' 'message';justify-items:center}:host([label-position='below']) ::slotted([slot='label']){margin-block-start:${spacingVerticalM}}:host(${requiredState}) ::slotted([slot='label'])::after{content:'*'/'';color:${colorPaletteRedForeground1};margin-inline-start:${spacingHorizontalXS}}::slotted([slot='input']){grid-area:input}::slotted([slot='message']){color:${colorNeutralForeground3};font-family:${fontFamilyBase};font-size:${fontSizeBase200};font-weight:${fontWeightRegular};grid-area:message;line-height:${lineHeightBase200};margin-block-start:${spacingVerticalXXS}}:host(${focusVisibleState}:focus-within){border-radius:${borderRadiusMedium};outline:${strokeWidthThick} solid ${colorStrokeFocus2}}::slotted(label),::slotted([slot='label']){cursor:inherit;display:inline-flex;font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};grid-area:label;line-height:${lineHeightBase300};justify-self:stretch;user-select:none}:host([size='small']) ::slotted(label){font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']) ::slotted(label){font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='large']) ::slotted(label),:host([weight='semibold']) ::slotted(label){font-weight:${fontWeightSemibold}}:host(${disabledState}){cursor:default}::slotted([flag]){display:none}:host(${badInputState}) ::slotted([flag='${ValidationFlags.badInput}']),:host(${customErrorState}) ::slotted([flag='${ValidationFlags.customError}']),:host(${patternMismatchState}) ::slotted([flag='${ValidationFlags.patternMismatch}']),:host(${rangeOverflowState}) ::slotted([flag='${ValidationFlags.rangeOverflow}']),:host(${rangeUnderflowState}) ::slotted([flag='${ValidationFlags.rangeUnderflow}']),:host(${stepMismatchState}) ::slotted([flag='${ValidationFlags.stepMismatch}']),:host(${tooLongState}) ::slotted([flag='${ValidationFlags.tooLong}']),:host(${tooShortState}) ::slotted([flag='${ValidationFlags.tooShort}']),:host(${typeMismatchState}) ::slotted([flag='${ValidationFlags.typeMismatch}']),:host(${valueMissingState}) ::slotted([flag='${ValidationFlags.valueMissing}']),:host(${validState}) ::slotted([flag='${ValidationFlags.valid}']){display:block}`;
+const styles$q = css`${display("inline-grid")} :host{color:${colorNeutralForeground1};align-items:center;gap:0 ${spacingHorizontalM};justify-items:start}:has([slot='message']){color:${colorNeutralForeground1};row-gap:${spacingVerticalS}}:not(::slotted([slot='label'])){gap:0}:host([label-position='before']){grid-template-areas:'label input' 'label message'}:host([label-position='after']){gap:0;grid-template-areas:'input label' 'message message';grid-template-columns:auto 1fr}:host([label-position='after']) ::slotted([slot='input']){margin-inline-end:${spacingHorizontalM}}:host([label-position='above']){grid-template-areas:'label' 'input' 'message';row-gap:${spacingVerticalXXS}}:host([label-position='below']){grid-template-areas:'input' 'label' 'message';justify-items:center}:host([label-position='below']) ::slotted([slot='label']){margin-block-start:${spacingVerticalM}}:host(${requiredState}) ::slotted([slot='label'])::after{content:'*'/'';color:${colorPaletteRedForeground1};margin-inline-start:${spacingHorizontalXS}}::slotted([slot='input']){grid-area:input}::slotted([slot='message']){color:${colorNeutralForeground3};font-family:${fontFamilyBase};font-size:${fontSizeBase200};font-weight:${fontWeightRegular};grid-area:message;line-height:${lineHeightBase200};margin-block-start:${spacingVerticalXXS}}:host(${focusVisibleState}:focus-within){border-radius:${borderRadiusMedium};outline:${strokeWidthThick} solid ${colorStrokeFocus2}}::slotted(label),::slotted([slot='label']){cursor:inherit;display:inline-flex;font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};grid-area:label;line-height:${lineHeightBase300};justify-self:stretch;user-select:none}:host([size='small']) ::slotted(label){font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']) ::slotted(label){font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='large']) ::slotted(label),:host([weight='semibold']) ::slotted(label){font-weight:${fontWeightSemibold}}:host(${disabledState}){cursor:default}::slotted([flag]){display:none}:host(${badInputState}) ::slotted([flag='${ValidationFlags.badInput}']),:host(${customErrorState}) ::slotted([flag='${ValidationFlags.customError}']),:host(${patternMismatchState}) ::slotted([flag='${ValidationFlags.patternMismatch}']),:host(${rangeOverflowState}) ::slotted([flag='${ValidationFlags.rangeOverflow}']),:host(${rangeUnderflowState}) ::slotted([flag='${ValidationFlags.rangeUnderflow}']),:host(${stepMismatchState}) ::slotted([flag='${ValidationFlags.stepMismatch}']),:host(${tooLongState}) ::slotted([flag='${ValidationFlags.tooLong}']),:host(${tooShortState}) ::slotted([flag='${ValidationFlags.tooShort}']),:host(${typeMismatchState}) ::slotted([flag='${ValidationFlags.typeMismatch}']),:host(${valueMissingState}) ::slotted([flag='${ValidationFlags.valueMissing}']),:host(${validState}) ::slotted([flag='${ValidationFlags.valid}']){display:block}`;
 
 const template$q = html`<template @click=${(x, c) => x.clickHandler(c.event)} @change=${(x, c) => x.changeHandler(c.event)} @focusin=${(x, c) => x.focusinHandler(c.event)} @focusout=${(x, c) => x.focusoutHandler(c.event)}><slot name=label part=label ${slotted("labelSlot")}></slot><slot name=input part=input ${slotted("slottedInputs")}></slot><slot name=message part=message ${slotted({ property: "messageSlot", filter: elements("[flag]") })}></slot></template>`;
 
 const definition$q = Field.compose({
   name: tagName$o,
   template: template$q,
-  styles: styles$p,
+  styles: styles$q,
   shadowOptions: {
     delegatesFocus: true
   }
@@ -8297,12 +8983,12 @@ __decorateClass$t([
 
 const template$p = html`<slot></slot>`;
 
-const styles$o = css`:host{contain:content}:host ::slotted(img){box-sizing:border-box;min-height:8px;min-width:8px;display:inline-block}:host([block]) ::slotted(img){width:100%;height:auto}:host([bordered]) ::slotted(img){border:${strokeWidthThin} solid ${colorNeutralStroke2}}:host([fit='none']) ::slotted(img){object-fit:none;object-position:top left;height:100%;width:100%}:host([fit='center']) ::slotted(img){object-fit:none;object-position:center;height:100%;width:100%}:host([fit='contain']) ::slotted(img){object-fit:contain;object-position:center;height:100%;width:100%}:host([fit='cover']) ::slotted(img){object-fit:cover;object-position:center;height:100%;width:100%}:host([shadow]) ::slotted(img){box-shadow:${shadow4}}:host([shape='circular']) ::slotted(img){border-radius:${borderRadiusCircular}}:host([shape='rounded']) ::slotted(img){border-radius:${borderRadiusMedium}}`;
+const styles$p = css`:host{contain:content}:host ::slotted(img){box-sizing:border-box;min-height:8px;min-width:8px;display:inline-block}:host([block]) ::slotted(img){width:100%;height:auto}:host([bordered]) ::slotted(img){border:${strokeWidthThin} solid ${colorNeutralStroke2}}:host([fit='none']) ::slotted(img){object-fit:none;object-position:top left;height:100%;width:100%}:host([fit='center']) ::slotted(img){object-fit:none;object-position:center;height:100%;width:100%}:host([fit='contain']) ::slotted(img){object-fit:contain;object-position:center;height:100%;width:100%}:host([fit='cover']) ::slotted(img){object-fit:cover;object-position:center;height:100%;width:100%}:host([shadow]) ::slotted(img){box-shadow:${shadow4}}:host([shape='circular']) ::slotted(img){border-radius:${borderRadiusCircular}}:host([shape='rounded']) ::slotted(img){border-radius:${borderRadiusMedium}}`;
 
 const definition$p = Image.compose({
   name: tagName$n,
   template: template$p,
-  styles: styles$o
+  styles: styles$p
 });
 
 definition$p.define(FluentDesignSystem.registry);
@@ -8348,7 +9034,7 @@ __decorateClass$s([
   attr({ mode: "boolean" })
 ], Label.prototype, "required", 2);
 
-const styles$n = css`${display("inline-flex")} :host{color:${colorNeutralForeground1};cursor:pointer;font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};user-select:none}.asterisk{color:${colorPaletteRedForeground1};margin-inline-start:${spacingHorizontalXS}}:host([size='small']){font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']){font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host(:is([size='large'],[weight='semibold'])){font-weight:${fontWeightSemibold}}:host([disabled]),:host([disabled]) .asterisk{color:${colorNeutralForegroundDisabled}}`;
+const styles$o = css`${display("inline-flex")} :host{color:${colorNeutralForeground1};cursor:pointer;font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};user-select:none}.asterisk{color:${colorPaletteRedForeground1};margin-inline-start:${spacingHorizontalXS}}:host([size='small']){font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']){font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host(:is([size='large'],[weight='semibold'])){font-weight:${fontWeightSemibold}}:host([disabled]),:host([disabled]) .asterisk{color:${colorNeutralForegroundDisabled}}`;
 
 function labelTemplate() {
   return html`<slot></slot><span part=asterisk class=asterisk aria-hidden=true ?hidden=${(x) => !x.required}>*</span>`;
@@ -8358,7 +9044,7 @@ const template$o = labelTemplate();
 const definition$o = Label.compose({
   name: tagName$m,
   template: template$o,
-  styles: styles$n
+  styles: styles$o
 });
 
 definition$o.define(FluentDesignSystem.registry);
@@ -8392,7 +9078,7 @@ __decorateClass$r([
   attr({ mode: "boolean" })
 ], Link.prototype, "inline", 2);
 
-const styles$m = css`${display("inline")} :host{position:relative;box-sizing:border-box;background-color:transparent;color:${colorBrandForegroundLink};cursor:pointer;font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};overflow:inherit;text-align:start;text-decoration:none;text-decoration-thickness:${strokeWidthThin};text-overflow:inherit;user-select:text}:host(:is(:hover,:focus-visible)){outline:none;text-decoration-line:underline}@media (hover:hover){:host(:hover){color:${colorBrandForegroundLinkHover}}:host(:active){color:${colorBrandForegroundLinkPressed}}:host([appearance='subtle']:hover){color:${colorNeutralForeground2LinkHover}}:host([appearance='subtle']:active){color:${colorNeutralForeground2LinkPressed}}}:host([appearance='subtle']){color:${colorNeutralForeground2Link}}:host-context(:is(h1,h2,h3,h4,h5,h6,p,fluent-text)),:host([inline]){font:inherit;text-decoration:underline}:host(:not([href])){color:inherit;text-decoration:none}::slotted(a){position:absolute;inset:0}@media (forced-colors:active){:host{color:LinkText}}`;
+const styles$n = css`${display("inline")} :host{position:relative;box-sizing:border-box;background-color:transparent;color:${colorBrandForegroundLink};cursor:pointer;font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};overflow:inherit;text-align:start;text-decoration:none;text-decoration-thickness:${strokeWidthThin};text-overflow:inherit;user-select:text}:host(:is(:hover,:focus-visible)){outline:none;text-decoration-line:underline}@media (hover:hover){:host(:hover){color:${colorBrandForegroundLinkHover}}:host(:active){color:${colorBrandForegroundLinkPressed}}:host([appearance='subtle']:hover){color:${colorNeutralForeground2LinkHover}}:host([appearance='subtle']:active){color:${colorNeutralForeground2LinkPressed}}}:host([appearance='subtle']){color:${colorNeutralForeground2Link}}:host-context(:is(h1,h2,h3,h4,h5,h6,p,fluent-text)),:host([inline]){font:inherit;text-decoration:underline}:host(:not([href])){color:inherit;text-decoration:none}::slotted(a){position:absolute;inset:0}@media (forced-colors:active){:host{color:LinkText}}`;
 
 function anchorTemplate() {
   return html`<template tabindex=0 @click=${(x, c) => x.clickHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)}><slot></slot></template>`;
@@ -8402,7 +9088,7 @@ const template$n = anchorTemplate();
 const definition$n = Link.compose({
   name: tagName$l,
   template: template$n,
-  styles: styles$m
+  styles: styles$n
 });
 
 definition$n.define(FluentDesignSystem.registry);
@@ -8597,7 +9283,7 @@ __decorateClass$q([
   observable
 ], Listbox.prototype, "dropdown", 2);
 
-const styles$l = css`${display("inline-flex")} :host{background-color:${colorNeutralBackground1};border-radius:${borderRadiusMedium};border:${strokeWidthThin} solid ${colorTransparentStroke};box-shadow:${shadow16};box-sizing:border-box;flex-direction:column;margin:0;min-width:160px;padding:${spacingHorizontalXS};row-gap:${spacingHorizontalXXS};width:auto}:host([popover]){inset:unset;overflow:auto}@supports (anchor-name:--anchor){:host([popover]){position:absolute;margin-block-start:0;max-height:var(--listbox-max-height,calc(50vh - anchor-size(self-block)));min-width:anchor-size(width);position-anchor:--dropdown;position-area:block-end span-inline-end;position-try-fallbacks:flip-inline,flip-block,--flip-block,block-start}@position-try --flip-block{bottom:anchor(top);top:unset}}@supports not (anchor-name:--anchor){:host([popover]){margin-block-start:var(--margin-offset,0);max-height:var(--listbox-max-height,50vh);position:fixed}:host([popover]${flipBlockState}){margin-block-start:revert;translate:0 -100%}}`;
+const styles$m = css`${display("inline-flex")} :host{background-color:${colorNeutralBackground1};border-radius:${borderRadiusMedium};border:${strokeWidthThin} solid ${colorTransparentStroke};box-shadow:${shadow16};box-sizing:border-box;flex-direction:column;margin:0;min-width:160px;padding:${spacingHorizontalXS};row-gap:${spacingHorizontalXXS};width:auto}:host([popover]){inset:unset;overflow:auto}@supports (anchor-name:--anchor){:host([popover]){position:absolute;margin-block-start:0;max-height:var(--listbox-max-height,calc(50vh - anchor-size(self-block)));min-width:anchor-size(width);position-anchor:--dropdown;position-area:block-end span-inline-end;position-try-fallbacks:flip-inline,flip-block,--flip-block,block-start}@position-try --flip-block{bottom:anchor(top);top:unset}}@supports not (anchor-name:--anchor){:host([popover]){margin-block-start:var(--margin-offset,0);max-height:var(--listbox-max-height,50vh);position:fixed}:host([popover]${flipBlockState}){margin-block-start:revert;translate:0 -100%}}`;
 
 function listboxTemplate() {
   return html`<template @beforetoggle=${(x, c) => x.beforetoggleHandler(c.event)} @click=${(x, c) => x.clickHandler(c.event)}><slot ${ref("defaultSlot")} @slotchange=${(x, c) => x.slotchangeHandler(c.event)}></slot></template>`;
@@ -8607,10 +9293,12 @@ const template$m = listboxTemplate();
 const definition$m = Listbox.compose({
   name: tagName$q,
   template: template$m,
-  styles: styles$l
+  styles: styles$m
 });
 
 definition$m.define(FluentDesignSystem.registry);
+
+const styles$l = styles$D;
 
 const MenuButtonAppearance = ButtonAppearance;
 const MenuButtonShape = ButtonShape;
@@ -8630,7 +9318,7 @@ const template$l = buttonTemplate$1({
 const definition$l = MenuButton.compose({
   name: tagName$k,
   template: template$l,
-  styles: styles$C
+  styles: styles$l
 });
 
 definition$l.define(FluentDesignSystem.registry);
@@ -8945,7 +9633,7 @@ function nodeContains(node, otherNode) {
 * @returns {boolean}
 */
 function supportsFocusGroup() {
-	return "focusgroup" in (globalThis?.HTMLElement?.prototype ?? {});
+	return "focusgroup" in (globalThis?.HTMLElement?.prototype ?? {}) || "focusGroup" in (globalThis?.HTMLElement?.prototype ?? {});
 }
 /**
 * Gets the navigation direction (“forward” or “backward”) based on:
@@ -9452,6 +10140,9 @@ const _BaseMenuList = class _BaseMenuList extends FASTElement {
    */
   connectedCallback() {
     super.connectedCallback();
+    if (!this.slot && this.isNestedMenu()) {
+      this.slot = "submenu";
+    }
     Updates.enqueue(() => {
       this.setItems();
     });
@@ -9462,6 +10153,9 @@ const _BaseMenuList = class _BaseMenuList extends FASTElement {
    */
   disconnectedCallback() {
     super.disconnectedCallback();
+    Array.from(this.children).forEach((child) => {
+      Observable.getNotifier(child).unsubscribe(this, "hidden");
+    });
     this.menuChildren = void 0;
     this.removeEventListener("change", this.changedMenuItemHandler);
   }
@@ -9483,6 +10177,9 @@ const _BaseMenuList = class _BaseMenuList extends FASTElement {
   }
   setItems() {
     const children = Array.from(this.children);
+    children.forEach((child) => {
+      Observable.getNotifier(child).subscribe(this, "hidden");
+    });
     this.menuChildren = children.filter((child) => !child.hasAttribute("hidden"));
     this.menuItems = this.menuChildren?.filter(this.isMenuItemElement);
     const indent = this.menuItems?.reduce((accum, current) => {
@@ -9539,7 +10236,7 @@ class MenuList extends BaseMenuList {
 const styles$j = css`${display("flex")} :host{flex-direction:column;height:fit-content;max-width:300px;min-width:160px;width:auto;background-color:${colorNeutralBackground1};border:1px solid ${colorTransparentStroke};border-radius:${borderRadiusMedium};box-shadow:${shadow16};padding:4px;row-gap:2px}`;
 
 function menuTemplate$1() {
-  return html`<template focusgroup=menu slot=${(x) => x.slot ? x.slot : x.isNestedMenu() ? "submenu" : void 0}><slot ${slotted("items")}></slot></template>`;
+  return html`<template focusgroup=menu><slot ${slotted("items")}></slot></template>`;
 }
 const template$j = menuTemplate$1();
 
@@ -9882,7 +10579,7 @@ __decorateClass$n([
 const styles$i = css`${display("inline-block")} ::slotted([slot='trigger']){anchor-name:--menu-trigger}::slotted([popover]){margin:0;max-height:var(--menu-max-height,auto);position-anchor:--menu-trigger;position-area:block-end span-inline-end;position-try-fallbacks:flip-block;position:absolute;z-index:1}:host([split]) ::slotted([popover]){position-area:block-end span-inline-start}::slotted([popover]:popover-open){inset:unset}::slotted([popover]:not(:popover-open)){display:none}:host([split]){display:inline-flex}:host([split]) ::slotted([slot='primary-action']){border-inline-end:${strokeWidthThin} solid ${colorNeutralStroke1};border-start-end-radius:0;border-end-end-radius:0}:host([split]) ::slotted([slot='primary-action']:focus-visible){z-index:1}:host([split]) ::slotted([slot='primary-action'][appearance='primary']){border-inline-end:${strokeWidthThin} solid white}:host([split]) ::slotted([slot='trigger']){border-inline-start:0;border-start-start-radius:0;border-end-start-radius:0}`;
 
 function menuTemplate() {
-  return html`<template ?open-on-hover=${(x) => x.openOnHover} ?open-on-context=${(x) => x.openOnContext} ?close-on-scroll=${(x) => x.closeOnScroll} ?persist-on-item-click=${(x) => x.persistOnItemClick} @keydown=${(x, c) => x.menuKeydownHandler(c.event)}><slot name=primary-action ${ref("primaryAction")}></slot><slot name=trigger ${slotted({ property: "slottedTriggers", filter: elements() })}></slot><slot ${slotted({ property: "slottedMenuList", filter: elements() })}></slot></template>`;
+  return html`<template @keydown=${(x, c) => x.menuKeydownHandler(c.event)}><slot name=primary-action ${ref("primaryAction")}></slot><slot name=trigger ${slotted({ property: "slottedTriggers", filter: elements() })}></slot><slot ${slotted({ property: "slottedMenuList", filter: elements() })}></slot></template>`;
 }
 const template$i = menuTemplate();
 
@@ -12274,9 +12971,11 @@ class BaseTextArea extends FASTElement {
     this.controlEl.addEventListener("input", () => this.userInteracted = true, { once: true });
   }
   defaultSlottedNodesChanged() {
-    const next = this.getContent();
-    this.defaultValue = next;
-    this.value = next;
+    Updates.enqueue(() => {
+      const next = this.getContent();
+      this.defaultValue = next;
+      this.value = next;
+    });
   }
   labelSlottedNodesChanged() {
     this.filteredLabelSlottedNodes = this.labelSlottedNodes.filter(whitespaceFilter);
@@ -12313,8 +13012,8 @@ class BaseTextArea extends FASTElement {
     return this.elementInternals.labels;
   }
   readOnlyChanged() {
-    this.elementInternals.ariaReadOnly = `${!!this.readOnly}`;
-    if (this.$fastController.isConnected) {
+    if (this.elementInternals) {
+      this.elementInternals.ariaReadOnly = `${!!this.readOnly}`;
       this.setValidity();
     }
   }
@@ -12493,7 +13192,7 @@ class BaseTextArea extends FASTElement {
    * @public
    */
   setCustomValidity(message) {
-    this.elementInternals.setValidity({ customError: !!message }, !!message ? message.toString() : void 0);
+    this.elementInternals?.setValidity({ customError: !!message }, !!message ? message.toString() : void 0);
     this.reportValidity();
   }
   /**
@@ -12506,15 +13205,15 @@ class BaseTextArea extends FASTElement {
    * @internal
    */
   setValidity(flags, message, anchor) {
-    if (!this.$fastController.isConnected) {
+    if (!this.elementInternals) {
       return;
     }
     if (this.disabled || this.readOnly) {
       this.elementInternals.setValidity({});
     } else {
       this.elementInternals.setValidity(
-        flags ?? this.controlEl.validity,
-        message ?? this.controlEl.validationMessage,
+        flags ?? this.controlEl?.validity,
+        message ?? this.controlEl?.validationMessage,
         anchor ?? this.controlEl
       );
     }
@@ -12534,7 +13233,7 @@ class BaseTextArea extends FASTElement {
    * Gets the content inside the light DOM, if any HTML element is present, use its `outerHTML` value.
    */
   getContent() {
-    return this.defaultSlottedNodes.map((node) => {
+    return this.defaultSlottedNodes?.map((node) => {
       switch (node.nodeType) {
         case Node.ELEMENT_NODE:
           return node.outerHTML;
@@ -12911,7 +13610,7 @@ class BaseTextInput extends FASTElement {
   }
   set value(value) {
     this.currentValue = value;
-    if (this.$fastController.isConnected) {
+    if (this.elementInternals && this.control) {
       this.control.value = value ?? "";
       this.setFormValue(value);
       this.setValidity();
@@ -12937,17 +13636,6 @@ class BaseTextInput extends FASTElement {
    */
   get form() {
     return this.elementInternals.form;
-  }
-  /**
-   * Handles the internal control's `keypress` event.
-   *
-   * @internal
-   */
-  beforeinputHandler(e) {
-    if (e.inputType === "insertLineBreak") {
-      this.implicitSubmit();
-    }
-    return true;
   }
   /**
    * Change event handler for inner control.
@@ -13101,7 +13789,7 @@ class BaseTextInput extends FASTElement {
    * @internal
    */
   setFormValue(value, state) {
-    this.elementInternals.setFormValue(value, value ?? state);
+    this.elementInternals?.setFormValue(value, value ?? state);
   }
   /**
    * Sets the validity of the control.
@@ -13113,7 +13801,7 @@ class BaseTextInput extends FASTElement {
    * @internal
    */
   setValidity(flags, message, anchor) {
-    if (this.$fastController.isConnected && this.control) {
+    if (this.elementInternals && this.control) {
       if (this.disabled) {
         this.elementInternals.setValidity({});
         return;
@@ -13228,7 +13916,7 @@ applyMixins(TextInput, StartEnd);
 const styles$5 = css`${display("block")} :host{font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};max-width:400px}.label{display:flex;color:${colorNeutralForeground1};padding-bottom:${spacingVerticalXS};flex-shrink:0;padding-inline-end:${spacingHorizontalXS}}.label[hidden],:host(:empty) .label{display:none}.root{align-items:center;background-color:${colorNeutralBackground1};border:${strokeWidthThin} solid ${colorNeutralStroke1};border-bottom-color:${colorNeutralStrokeAccessible};border-radius:${borderRadiusMedium};box-sizing:border-box;height:32px;display:inline-flex;flex-direction:row;gap:${spacingHorizontalXXS};padding:0 ${spacingHorizontalMNudge};position:relative;width:100%}:has(.control:user-invalid){border-color:${colorPaletteRedBorder2}}.root::after{box-sizing:border-box;content:'';position:absolute;left:-1px;bottom:0px;right:-1px;height:max(2px,${borderRadiusMedium});border-radius:0 0 ${borderRadiusMedium} ${borderRadiusMedium};border-bottom:2px solid ${colorCompoundBrandStroke};clip-path:inset(calc(100% - 2px) 1px 0px);transform:scaleX(0);transition-property:transform;transition-duration:${durationUltraFast};transition-delay:${curveAccelerateMid}}.control{width:100%;height:100%;box-sizing:border-box;color:${colorNeutralForeground1};border-radius:${borderRadiusMedium};background:${colorTransparentBackground};font-family:${fontFamilyBase};font-weight:${fontWeightRegular};font-size:${fontSizeBase300};border:none;vertical-align:center}.control:focus-visible{outline:0;border:0}.control::placeholder{color:${colorNeutralForeground4}}:host ::slotted([slot='start']),:host ::slotted([slot='end']){display:flex;align-items:center;justify-content:center;color:${colorNeutralForeground3};font-size:${fontSizeBase500}}:host ::slotted([slot='start']){padding-right:${spacingHorizontalXXS}}:host ::slotted([slot='end']){padding-left:${spacingHorizontalXXS};gap:${spacingHorizontalXS}}:host(:hover) .root{border-color:${colorNeutralStroke1Hover};border-bottom-color:${colorNeutralStrokeAccessibleHover}}:host(:active) .root{border-color:${colorNeutralStroke1Pressed}}:host(:focus-within) .root{outline:transparent solid 2px;border-bottom:0}:host(:focus-within) .root::after{transform:scaleX(1);transition-property:transform;transition-duration:${durationNormal};transition-delay:${curveDecelerateMid}}:host(:focus-within:active) .root:after{border-bottom-color:${colorCompoundBrandStrokePressed}}:host([appearance='outline']:focus-within) .root{border:${strokeWidthThin} solid ${colorNeutralStroke1}}:host(:focus-within) .control{color:${colorNeutralForeground1}}:host([disabled]) .root{background:${colorTransparentBackground};border:${strokeWidthThin} solid ${colorNeutralStrokeDisabled}}:host([disabled]) .control::placeholder,:host([disabled]) ::slotted([slot='start']),:host([disabled]) ::slotted([slot='end']){color:${colorNeutralForegroundDisabled}}::selection{color:${colorNeutralForegroundInverted};background-color:${colorNeutralBackgroundInverted}}:host([control-size='small']) .control{font-size:${fontSizeBase200};font-weight:${fontWeightRegular};line-height:${lineHeightBase200}}:host([control-size='small']) .root{height:24px;gap:${spacingHorizontalXXS};padding:0 ${spacingHorizontalSNudge}}:host([control-size='small']) ::slotted([slot='start']),:host([control-size='small']) ::slotted([slot='end']){font-size:${fontSizeBase400}}:host([control-size='large']) .control{font-size:${fontSizeBase400};font-weight:${fontWeightRegular};line-height:${lineHeightBase400}}:host([control-size='large']) .root{height:40px;gap:${spacingHorizontalS};padding:0 ${spacingHorizontalM}}:host([control-size='large']) ::slotted([slot='start']),:host([control-size='large']) ::slotted([slot='end']){font-size:${fontSizeBase600}}:host([appearance='underline']) .root{background:${colorTransparentBackground};border:0;border-radius:0;border-bottom:${strokeWidthThin} solid ${colorNeutralStrokeAccessible}}:host([appearance='underline']:hover) .root{border-bottom-color:${colorNeutralStrokeAccessibleHover}}:host([appearance='underline']:active) .root{border-bottom-color:${colorNeutralStrokeAccessiblePressed}}:host([appearance='underline']:focus-within) .root{border:0;border-bottom-color:${colorNeutralStrokeAccessiblePressed}}:host([appearance='underline'][disabled]) .root{border-bottom-color:${colorNeutralStrokeDisabled}}:host([appearance='filled-lighter']) .root,:host([appearance='filled-darker']) .root{border:${strokeWidthThin} solid ${colorTransparentStroke};box-shadow:${shadow2}}:host([appearance='filled-lighter']) .root{background:${colorNeutralBackground1}}:host([appearance='filled-darker']) .root{background:${colorNeutralBackground3}}:host([appearance='filled-lighter']:hover) .root,:host([appearance='filled-darker']:hover) .root{border-color:${colorTransparentStrokeInteractive}}:host([appearance='filled-lighter']:active) .root,:host([appearance='filled-darker']:active) .root{border-color:${colorTransparentStrokeInteractive};background:${colorNeutralBackground3}}`;
 
 function textInputTemplate(options = {}) {
-  return html`<template @beforeinput=${(x, c) => x.beforeinputHandler(c.event)} @focusin=${(x, c) => x.focusinHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)}><label part=label for=control class=label ${ref("controlLabel")}><slot ${slotted("defaultSlottedNodes")}></slot></label><div class=root part=root>${startSlotTemplate(options)} <input class=control part=control id=control @change=${(x, c) => x.changeHandler(c.event)} @input=${(x, c) => x.inputHandler(c.event)} ?autofocus=${(x) => x.autofocus} autocomplete=${(x) => x.autocomplete} ?disabled=${(x) => x.disabled} list=${(x) => x.list} maxlength=${(x) => x.maxlength} minlength=${(x) => x.minlength} ?multiple=${(x) => x.multiple} name=${(x) => x.name} pattern=${(x) => x.pattern} placeholder=${(x) => x.placeholder} ?readonly=${(x) => x.readOnly} ?required=${(x) => x.required} size=${(x) => x.size} spellcheck=${(x) => x.spellcheck} type=${(x) => x.type} value=${(x) => x.initialValue} ${ref("control")}> ${endSlotTemplate(options)}</div></template>`;
+  return html`<template @focusin=${(x, c) => x.focusinHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)}><label part=label for=control class=label ${ref("controlLabel")}><slot ${slotted("defaultSlottedNodes")}></slot></label><div class=root part=root>${startSlotTemplate(options)} <input class=control part=control id=control @change=${(x, c) => x.changeHandler(c.event)} @input=${(x, c) => x.inputHandler(c.event)} ?autofocus=${(x) => x.autofocus} autocomplete=${(x) => x.autocomplete} ?disabled=${(x) => x.disabled} list=${(x) => x.list} maxlength=${(x) => x.maxlength} minlength=${(x) => x.minlength} ?multiple=${(x) => x.multiple} name=${(x) => x.name} pattern=${(x) => x.pattern} placeholder=${(x) => x.placeholder} ?readonly=${(x) => x.readOnly} ?required=${(x) => x.required} size=${(x) => x.size} spellcheck=${(x) => x.spellcheck} type=${(x) => x.type} value=${(x) => x.value} ${ref("control")}> ${endSlotTemplate(options)}</div></template>`;
 }
 const template$5 = textInputTemplate();
 
@@ -13396,9 +14084,8 @@ class ToggleButton extends Button {
    * @internal
    */
   setPressedState() {
-    if (this.$fastController.isConnected) {
-      const ariaPressed = `${this.mixed ? "mixed" : !!this.pressed}`;
-      this.elementInternals.ariaPressed = ariaPressed;
+    if (this.elementInternals) {
+      this.elementInternals.ariaPressed = `${this.mixed ? "mixed" : !!this.pressed}`;
       toggleState(this.elementInternals, "pressed", !!this.pressed || !!this.mixed);
     }
   }
@@ -13410,7 +14097,7 @@ __decorateClass$5([
   attr({ mode: "boolean" })
 ], ToggleButton.prototype, "mixed", 2);
 
-const styles$3 = css`${styles$C} :host(${pressedState}){border-color:${colorNeutralStroke1};background-color:${colorNeutralBackground1Selected};color:${colorNeutralForeground1};border-width:${strokeWidthThin}}:host(${pressedState}:hover){border-color:${colorNeutralStroke1Hover};background-color:${colorNeutralBackground1Hover}}:host(${pressedState}:active){border-color:${colorNeutralStroke1Pressed};background-color:${colorNeutralBackground1Pressed}}:host(${pressedState}[appearance='primary']:not(:focus-visible)){border-color:transparent}:host(${pressedState}[appearance='primary']){background-color:${colorBrandBackgroundSelected};color:${colorNeutralForegroundOnBrand}}:host(${pressedState}[appearance='primary']:hover){background-color:${colorBrandBackgroundHover}}:host(${pressedState}[appearance='primary']:active){background-color:${colorBrandBackgroundPressed}}:host(${pressedState}[appearance='subtle']){border-color:transparent;background-color:${colorSubtleBackgroundSelected};color:${colorNeutralForeground2Selected}}:host(${pressedState}[appearance='subtle']:hover){background-color:${colorSubtleBackgroundHover};color:${colorNeutralForeground2Hover}}:host(${pressedState}[appearance='subtle']:active){background-color:${colorSubtleBackgroundPressed};color:${colorNeutralForeground2Pressed}}:host(${pressedState}[appearance='outline']),:host(${pressedState}[appearance='transparent']){background-color:${colorTransparentBackgroundSelected}}:host(${pressedState}[appearance='outline']:hover),:host(${pressedState}[appearance='transparent']:hover){background-color:${colorTransparentBackgroundHover}}:host(${pressedState}[appearance='outline']:active),:host(${pressedState}[appearance='transparent']:active){background-color:${colorTransparentBackgroundPressed}}:host(${pressedState}[appearance='transparent']){border-color:transparent;color:${colorNeutralForeground2BrandSelected}}:host(${pressedState}[appearance='transparent']:hover){color:${colorNeutralForeground2BrandHover}}:host(${pressedState}[appearance='transparent']:active){color:${colorNeutralForeground2BrandPressed}}@media (forced-colors:active){:host(${pressedState}),:host( ${pressedState}:is([appearance='primary'],[appearance='subtle'],[appearance='outline'],[appearance='transparent']) ){background:SelectedItem;color:SelectedItemText}}`;
+const styles$3 = css`${styles$D} :host(${pressedState}){border-color:${colorNeutralStroke1};background-color:${colorNeutralBackground1Selected};color:${colorNeutralForeground1};border-width:${strokeWidthThin}}:host(${pressedState}:hover){border-color:${colorNeutralStroke1Hover};background-color:${colorNeutralBackground1Hover}}:host(${pressedState}:active){border-color:${colorNeutralStroke1Pressed};background-color:${colorNeutralBackground1Pressed}}:host(${pressedState}[appearance='primary']:not(:focus-visible)){border-color:transparent}:host(${pressedState}[appearance='primary']){background-color:${colorBrandBackgroundSelected};color:${colorNeutralForegroundOnBrand}}:host(${pressedState}[appearance='primary']:hover){background-color:${colorBrandBackgroundHover}}:host(${pressedState}[appearance='primary']:active){background-color:${colorBrandBackgroundPressed}}:host(${pressedState}[appearance='subtle']){border-color:transparent;background-color:${colorSubtleBackgroundSelected};color:${colorNeutralForeground2Selected}}:host(${pressedState}[appearance='subtle']:hover){background-color:${colorSubtleBackgroundHover};color:${colorNeutralForeground2Hover}}:host(${pressedState}[appearance='subtle']:active){background-color:${colorSubtleBackgroundPressed};color:${colorNeutralForeground2Pressed}}:host(${pressedState}[appearance='outline']),:host(${pressedState}[appearance='transparent']){background-color:${colorTransparentBackgroundSelected}}:host(${pressedState}[appearance='outline']:hover),:host(${pressedState}[appearance='transparent']:hover){background-color:${colorTransparentBackgroundHover}}:host(${pressedState}[appearance='outline']:active),:host(${pressedState}[appearance='transparent']:active){background-color:${colorTransparentBackgroundPressed}}:host(${pressedState}[appearance='transparent']){border-color:transparent;color:${colorNeutralForeground2BrandSelected}}:host(${pressedState}[appearance='transparent']:hover){color:${colorNeutralForeground2BrandHover}}:host(${pressedState}[appearance='transparent']:active){color:${colorNeutralForeground2BrandPressed}}@media (forced-colors:active){:host(${pressedState}),:host( ${pressedState}:is([appearance='primary'],[appearance='subtle'],[appearance='outline'],[appearance='transparent']) ){background:SelectedItem;color:SelectedItemText}}`;
 
 const template$3 = buttonTemplate$1();
 
@@ -13483,6 +14170,11 @@ class Tooltip extends FASTElement {
      * Hide the tooltip on blur
      */
     this.blurAnchorHandler = () => this.hideTooltip(0);
+    /**
+     * Indicates whether the tooltip styles have been applied for browsers that do not support anchor positioning.
+     * @internal
+     */
+    this.anchorPositioningReady = false;
     this.elementInternals.role = "tooltip";
   }
   /**
@@ -13491,9 +14183,7 @@ class Tooltip extends FASTElement {
    * @internal
    */
   positioningChanged() {
-    if (!AnchorPositioningCSSSupported) {
-      this.setFallbackStyles();
-    }
+    this.setFallbackStyles();
   }
   /**
    * Reference to the anchor element
@@ -13505,6 +14195,7 @@ class Tooltip extends FASTElement {
   }
   connectedCallback() {
     super.connectedCallback();
+    this.popover ?? (this.popover = "auto");
     if (!this.anchorElement) {
       return;
     }
@@ -13525,11 +14216,20 @@ class Tooltip extends FASTElement {
     Updates.enqueue(() => this.setFallbackStyles());
   }
   disconnectedCallback() {
-    super.disconnectedCallback();
     this.anchorElement?.removeEventListener("focus", this.focusAnchorHandler);
     this.anchorElement?.removeEventListener("blur", this.blurAnchorHandler);
     this.anchorElement?.removeEventListener("mouseenter", this.mouseenterAnchorHandler);
     this.anchorElement?.removeEventListener("mouseleave", this.mouseleaveAnchorHandler);
+    if (this.anchorElement) {
+      const describedBy = this.anchorElement.getAttribute("aria-describedby") ?? "";
+      const ids = describedBy.trim().split(/\s+/).filter((id) => id !== this.id);
+      if (ids.length) {
+        this.anchorElement.setAttribute("aria-describedby", ids.join(" "));
+      } else {
+        this.anchorElement.removeAttribute("aria-describedby");
+      }
+    }
+    super.disconnectedCallback();
   }
   /**
    * Shows the tooltip
@@ -13537,6 +14237,12 @@ class Tooltip extends FASTElement {
    * @internal
    */
   showTooltip(delay = this.defaultDelay) {
+    if (!this.anchorPositioningReady) {
+      this.setFallbackStyles().then(() => {
+        this.showTooltip(delay);
+      });
+      return;
+    }
     setTimeout(() => {
       this.setAttribute("aria-hidden", "false");
       this.showPopover();
@@ -13557,7 +14263,15 @@ class Tooltip extends FASTElement {
       this.hidePopover();
     }, delay);
   }
-  setFallbackStyles() {
+  /**
+   * Sets fallback styles for the tooltip for browsers that do not support CSS anchor positioning.
+   * @internal
+   */
+  async setFallbackStyles() {
+    if (AnchorPositioningCSSSupported) {
+      this.anchorPositioningReady = true;
+      return;
+    }
     if (!this.anchorElement) {
       return;
     }
@@ -13605,7 +14319,8 @@ class Tooltip extends FASTElement {
       }
     `;
     if (window.CSS_ANCHOR_POLYFILL) {
-      window.CSS_ANCHOR_POLYFILL.call({ element: this.anchorPositioningStyleElement });
+      await window.CSS_ANCHOR_POLYFILL({ elements: [this.anchorPositioningStyleElement] });
+      this.anchorPositioningReady = true;
     }
   }
 }
@@ -13721,6 +14436,8 @@ class BaseTree extends FASTElement {
         if (item?.childTreeItems?.length) {
           if (!item.expanded) {
             item.expanded = true;
+          } else {
+            return true;
           }
         }
         return;
@@ -13845,7 +14562,7 @@ class Tree extends BaseTree {
       this.fg = new FocusGroup(this, this.fgItems, {
         definition: {
           behavior: "menu",
-          axis: "block",
+          axis: void 0,
           memory: false
         }
       });
@@ -13884,7 +14601,7 @@ __decorateClass$2([
 
 const styles$1 = css`${display("block")} :host{outline:none}`;
 
-const template$1 = html`<template focusgroup="menu nowrap nomemory" @click=${(x, c) => x.clickHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)} @change=${(x, c) => x.changeHandler(c.event)} @toggle=${(x, c) => x.itemToggleHandler()}><slot ${ref("defaultSlot")} @slotchange=${(x) => x.handleDefaultSlotChange()}></slot></template>`;
+const template$1 = html`<template tabindex=0 focusgroup="menu inline block nowrap nomemory" @click=${(x, c) => x.clickHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)} @change=${(x, c) => x.changeHandler(c.event)} @toggle=${(x, c) => x.itemToggleHandler()}><slot ${ref("defaultSlot")} @slotchange=${(x) => x.handleDefaultSlotChange()}></slot></template>`;
 
 const definition$1 = Tree.compose({
   name: tagName$1,
@@ -13927,6 +14644,13 @@ class BaseTreeItem extends FASTElement {
   itemSlotChanged() {
     this.handleItemSlotChange();
   }
+  connectedCallback() {
+    super.connectedCallback();
+    this.tabIndex = Number(this.getAttribute("tabindex") || "0");
+    if (isTreeItem(this.parentElement)) {
+      this.slot || (this.slot = "item");
+    }
+  }
   /**
    * Handles changes to the expanded attribute
    * @param prev - the previous state
@@ -13940,7 +14664,7 @@ class BaseTreeItem extends FASTElement {
       newState: next ? "open" : "closed"
     });
     toggleState(this.elementInternals, "expanded", next);
-    if (this.childTreeItems && this.childTreeItems.length > 0) {
+    if (this.childTreeItems?.length) {
       this.elementInternals.ariaExpanded = next ? "true" : "false";
       requestAnimationFrame(() => {
         const walker = document.createTreeWalker(
@@ -13971,8 +14695,10 @@ class BaseTreeItem extends FASTElement {
    */
   selectedChanged(prev, next) {
     this.$emit("change");
-    toggleState(this.elementInternals, "selected", next);
-    this.elementInternals.ariaSelected = next ? "true" : "false";
+    if (this.elementInternals) {
+      toggleState(this.elementInternals, "selected", next);
+      this.elementInternals.ariaSelected = next ? "true" : "false";
+    }
   }
   dataIndentChanged(prev, next) {
     if (this.styles !== void 0) {
@@ -14134,7 +14860,7 @@ __decorateClass([
 const styles = css`${display("block")} :host{outline:none;font-size:${fontSizeBase300};line-height:${lineHeightBase300}}:host(:focus-visible) .positioning-region{box-shadow:${spacingVerticalNone} ${spacingVerticalNone} ${spacingVerticalNone} ${spacingVerticalXXS} ${colorStrokeFocus2} inset}.positioning-region{display:flex;align-items:center;justify-content:space-between;cursor:pointer;height:${spacingVerticalXXXL};padding-inline-start:calc(var(--indent) * ${spacingHorizontalXXL});padding-inline-end:${spacingVerticalS};border-radius:${borderRadiusMedium};background-color:${colorSubtleBackground};color:${colorNeutralForeground2};gap:${spacingHorizontalXS}}@media (prefers-contrast:more){:host(:focus-visible) .positioning-region{outline:1px solid ${colorStrokeFocus2}}}.content{display:flex;align-items:center;gap:${spacingHorizontalXS}}.chevron{display:flex;align-items:center;flex-shrink:0;justify-content:center;width:${spacingHorizontalXXL};height:${spacingVerticalXXL};transition:transform ${durationFaster} ${curveEasyEaseMax};transform:rotate(0deg)}.chevron:dir(rtl){transform:rotate(180deg)}.chevron svg{inline-size:12px;block-size:12px}.aside{display:flex;align-items:center}.positioning-region:hover{background-color:${colorSubtleBackgroundHover};color:${colorNeutralForeground2Hover}}.positioning-region:active{background-color:${colorSubtleBackgroundPressed};color:${colorNeutralForeground2Pressed}}::slotted([slot='start']),::slotted([slot='end']),::slotted(:not([slot])){display:flex;align-items:center;min-width:0}::slotted([slot='start']){flex-shrink:0}::slotted(:not([slot])){padding-inline:${spacingHorizontalXXS}}.items{display:none}:host([expanded]) .items{display:block}:host([empty]) .chevron,:host([empty]) .items{visibility:hidden}:host([selected]) .positioning-region{background-color:${colorSubtleBackgroundSelected};color:${colorNeutralForeground2Selected}}:host([selected]) .content,:host([selected]) .chevron{color:${colorNeutralForeground3Selected}}:host([size='small']) .positioning-region{height:${spacingVerticalXXL};padding-inline-start:calc(var(--indent) * ${spacingHorizontalM})}:host([appearance='subtle-alpha']) .positioning-region:hover{background-color:${colorSubtleBackgroundLightAlphaHover}}:host([appearance='subtle-alpha']) .positioning-region:active{background-color:${colorSubtleBackgroundLightAlphaPressed}}:host([appearance='subtle-alpha'][selected]) .positioning-region{background-color:${colorSubtleBackgroundLightAlphaSelected};color:${colorNeutralForeground2Selected}}:host([appearance='transparent']) .positioning-region{background-color:${colorTransparentBackground}}:host([appearance='transparent']) .positioning-region:hover{background-color:${colorTransparentBackgroundHover}}:host([appearance='transparent']) .positioning-region:active{background-color:${colorTransparentBackgroundPressed}}:host([appearance='transparent'][selected]) .positioning-region{background-color:${colorTransparentBackgroundSelected};color:${colorNeutralForeground2Selected}}:host([expanded]) .chevron{transform:rotate(90deg)}`;
 
 const chevronIcon = html`<svg viewBox="0 0 12 12" fill=currentColor><path d="M4.65 2.15a.5.5 0 000 .7L7.79 6 4.65 9.15a.5.5 0 10.7.7l3.5-3.5a.5.5 0 000-.7l-3.5-3.5a.5.5 0 00-.7 0z"></path></svg>`;
-const template = html`<template slot=${(x) => x.isNestedItem ? "item" : void 0} tabindex=0 ?focusgroupstart=${(x) => x.selected}><div class=positioning-region part=positioning-region><div class=content part=content><span class=chevron part=chevron aria-hidden=true><slot name=chevron>${chevronIcon}</slot></span><slot name=start></slot><slot></slot><slot name=end></slot></div><div class=aside part=aside><slot name=aside></slot></div></div><div role=group class=items part=items><slot name=item ${ref("itemSlot")} @slotchange=${(x) => x.handleItemSlotChange()}></slot></div></template>`;
+const template = html`<template tabindex=0 ?focusgroupstart=${(x) => x.selected}><div class=positioning-region part=positioning-region><div class=content part=content><span class=chevron part=chevron aria-hidden=true><slot name=chevron>${chevronIcon}</slot></span><slot name=start></slot><slot></slot><slot name=end></slot></div><div class=aside part=aside><slot name=aside></slot></div></div><div role=group class=items part=items><slot name=item ${ref("itemSlot")} @slotchange=${(x) => x.handleItemSlotChange()}></slot></div></template>`;
 
 const definition = TreeItem.compose({
   name: tagName,
@@ -14275,4 +15001,4 @@ function forceRepaint(element) {
 
 globalThis.Fluent = { ...globalThis.Fluent, setTheme };
 
-export { Accordion, AccordionExpandMode, AccordionItem, AccordionItemMarkerPosition, AccordionItemSize, AnchorButton, AnchorButtonAppearance, definition$D as AnchorButtonDefinition, AnchorButtonShape, AnchorButtonSize, template$D as AnchorButtonTemplate, AnchorTarget, Avatar, AvatarActive, AvatarAppearance, AvatarColor, definition$C as AvatarDefinition, AvatarNamedColor, AvatarShape, AvatarSize, styles$A as AvatarStyles, template$C as AvatarTemplate, Badge, BadgeAppearance, BadgeColor, definition$B as BadgeDefinition, BadgeShape, BadgeSize, styles$z as BadgeStyles, template$B as BadgeTemplate, BaseAccordionItem, BaseAnchor, BaseAvatar, BaseButton, BaseCheckbox, BaseDivider, BaseDropdown, BaseField, BaseMenuList, BaseProgressBar, BaseRadioGroup, BaseRatingDisplay, BaseSpinner, BaseTablist, BaseTextArea, BaseTextInput, BaseTree, Button, ButtonAppearance, definition$A as ButtonDefinition, ButtonFormTarget, ButtonShape, ButtonSize, styles$C as ButtonStyles, template$A as ButtonTemplate, ButtonType, Checkbox, definition$z as CheckboxDefinition, CheckboxShape, CheckboxSize, styles$y as CheckboxStyles, template$z as CheckboxTemplate, CompoundButton, CompoundButtonAppearance, definition$y as CompoundButtonDefinition, CompoundButtonShape, CompoundButtonSize, styles$x as CompoundButtonStyles, template$y as CompoundButtonTemplate, CounterBadge, CounterBadgeAppearance, CounterBadgeColor, definition$x as CounterBadgeDefinition, CounterBadgeShape, CounterBadgeSize, styles$w as CounterBadgeStyles, template$x as CounterBadgeTemplate, Dialog, DialogBody, definition$v as DialogBodyDefinition, styles$u as DialogBodyStyles, template$v as DialogBodyTemplate, definition$w as DialogDefinition, styles$v as DialogStyles, template$w as DialogTemplate, DialogType, Direction, Divider, DividerAlignContent, DividerAppearance, definition$u as DividerDefinition, DividerOrientation, DividerRole, styles$t as DividerStyles, template$u as DividerTemplate, Drawer, DrawerBody, definition$s as DrawerBodyDefinition, styles$r as DrawerBodyStyles, template$s as DrawerBodyTemplate, definition$t as DrawerDefinition, DrawerPosition, DrawerSize, styles$s as DrawerStyles, template$t as DrawerTemplate, DrawerType, Dropdown, DropdownAppearance, definition$r as DropdownDefinition, DropdownOption, definition$g as DropdownOptionDefinition, styles$g as DropdownOptionStyles, template$g as DropdownOptionTemplate, DropdownSize, styles$q as DropdownStyles, template$r as DropdownTemplate, DropdownType, Field, definition$q as FieldDefinition, LabelPosition as FieldLabelPosition, styles$p as FieldStyles, template$q as FieldTemplate, FluentDesignSystem, Image, definition$p as ImageDefinition, ImageFit, ImageShape, styles$o as ImageStyles, template$p as ImageTemplate, Label, definition$o as LabelDefinition, LabelSize, styles$n as LabelStyles, template$o as LabelTemplate, LabelWeight, Link, LinkAppearance, definition$n as LinkDefinition, styles$m as LinkStyles, LinkTarget, template$n as LinkTemplate, Listbox, definition$m as ListboxDefinition, styles$l as ListboxStyles, template$m as ListboxTemplate, Menu, MenuButton, MenuButtonAppearance, definition$l as MenuButtonDefinition, MenuButtonShape, MenuButtonSize, styles$C as MenuButtonStyles, template$l as MenuButtonTemplate, definition$i as MenuDefinition, MenuItem, definition$k as MenuItemDefinition, MenuItemRole, styles$k as MenuItemStyles, template$k as MenuItemTemplate, MenuList, definition$j as MenuListDefinition, styles$j as MenuListStyles, template$j as MenuListTemplate, styles$i as MenuStyles, template$i as MenuTemplate, MessageBar, definition$h as MessageBarDefinition, MessageBarIntent, MessageBarLayout, MessageBarShape, styles$h as MessageBarStyles, template$h as MessageBarTemplate, Orientation, ProgressBar, definition$f as ProgressBarDefinition, ProgressBarShape, styles$f as ProgressBarStyles, template$f as ProgressBarTemplate, ProgressBarThickness, ProgressBarValidationState, Radio, definition$d as RadioDefinition, RadioGroup, definition$e as RadioGroupDefinition, RadioGroupOrientation, styles$e as RadioGroupStyles, template$e as RadioGroupTemplate, styles$d as RadioStyles, template$d as RadioTemplate, RatingDisplay, RatingDisplayColor, definition$c as RatingDisplayDefinition, RatingDisplaySize, styles$c as RatingDisplayStyles, template$c as RatingDisplayTemplate, Slider, definition$b as SliderDefinition, SliderMode, SliderOrientation, SliderSize, styles$b as SliderStyles, template$b as SliderTemplate, Spinner, SpinnerAppearance, definition$a as SpinnerDefinition, SpinnerSize, styles$a as SpinnerStyles, template$a as SpinnerTemplate, StartEnd, Switch, definition$9 as SwitchDefinition, SwitchLabelPosition, styles$9 as SwitchStyles, template$9 as SwitchTemplate, Tab, definition$8 as TabDefinition, styles$8 as TabStyles, template$8 as TabTemplate, Tablist, TablistAppearance, definition$7 as TablistDefinition, TablistOrientation, TablistSize, styles$7 as TablistStyles, template$7 as TablistTemplate, Text, TextAlign, TextArea, TextAreaAppearance, TextAreaAppearancesForDisplayShadow, TextAreaAutocomplete, definition$6 as TextAreaDefinition, TextAreaResize, TextAreaSize, styles$6 as TextAreaStyles, template$6 as TextAreaTemplate, definition$4 as TextDefinition, TextFont, TextInput, TextInputAppearance, TextInputControlSize, definition$5 as TextInputDefinition, styles$5 as TextInputStyles, template$5 as TextInputTemplate, TextInputType, TextSize, styles$4 as TextStyles, template$4 as TextTemplate, TextWeight, ToggleButton, ToggleButtonAppearance, definition$3 as ToggleButtonDefinition, ToggleButtonShape, ToggleButtonSize, styles$3 as ToggleButtonStyles, template$3 as ToggleButtonTemplate, Tooltip, definition$2 as TooltipDefinition, TooltipPositioningOption, styles$2 as TooltipStyles, template$2 as TooltipTemplate, Tree, definition$1 as TreeDefinition, TreeItem, definition as TreeItemDefinition, styles as TreeItemStyles, template as TreeItemTemplate, styles$1 as TreeStyles, template$1 as TreeTemplate, ValidationFlags, definition$E as accordionDefinition, definition$F as accordionItemDefinition, styles$E as accordionItemStyles, template$F as accordionItemTemplate, styles$D as accordionStyles, template$E as accordionTemplate, borderRadius2XLarge, borderRadius3XLarge, borderRadius4XLarge, borderRadius5XLarge, borderRadius6XLarge, borderRadiusCircular, borderRadiusLarge, borderRadiusMedium, borderRadiusNone, borderRadiusSmall, borderRadiusXLarge, colorBackgroundOverlay, colorBrandBackground, colorBrandBackground2, colorBrandBackground2Hover, colorBrandBackground2Pressed, colorBrandBackground3Static, colorBrandBackground4Static, colorBrandBackgroundHover, colorBrandBackgroundInverted, colorBrandBackgroundInvertedHover, colorBrandBackgroundInvertedPressed, colorBrandBackgroundInvertedSelected, colorBrandBackgroundPressed, colorBrandBackgroundSelected, colorBrandBackgroundStatic, colorBrandForeground1, colorBrandForeground2, colorBrandForeground2Hover, colorBrandForeground2Pressed, colorBrandForegroundInverted, colorBrandForegroundInvertedHover, colorBrandForegroundInvertedPressed, colorBrandForegroundLink, colorBrandForegroundLinkHover, colorBrandForegroundLinkPressed, colorBrandForegroundLinkSelected, colorBrandForegroundOnLight, colorBrandForegroundOnLightHover, colorBrandForegroundOnLightPressed, colorBrandForegroundOnLightSelected, colorBrandShadowAmbient, colorBrandShadowKey, colorBrandStroke1, colorBrandStroke2, colorBrandStroke2Contrast, colorBrandStroke2Hover, colorBrandStroke2Pressed, colorCompoundBrandBackground, colorCompoundBrandBackgroundHover, colorCompoundBrandBackgroundPressed, colorCompoundBrandForeground1, colorCompoundBrandForeground1Hover, colorCompoundBrandForeground1Pressed, colorCompoundBrandStroke, colorCompoundBrandStrokeHover, colorCompoundBrandStrokePressed, colorNeutralBackground1, colorNeutralBackground1Hover, colorNeutralBackground1Pressed, colorNeutralBackground1Selected, colorNeutralBackground2, colorNeutralBackground2Hover, colorNeutralBackground2Pressed, colorNeutralBackground2Selected, colorNeutralBackground3, colorNeutralBackground3Hover, colorNeutralBackground3Pressed, colorNeutralBackground3Selected, colorNeutralBackground4, colorNeutralBackground4Hover, colorNeutralBackground4Pressed, colorNeutralBackground4Selected, colorNeutralBackground5, colorNeutralBackground5Hover, colorNeutralBackground5Pressed, colorNeutralBackground5Selected, colorNeutralBackground6, colorNeutralBackground7, colorNeutralBackground7Hover, colorNeutralBackground7Pressed, colorNeutralBackground7Selected, colorNeutralBackground8, colorNeutralBackgroundAlpha, colorNeutralBackgroundAlpha2, colorNeutralBackgroundDisabled, colorNeutralBackgroundDisabled2, colorNeutralBackgroundInverted, colorNeutralBackgroundInvertedDisabled, colorNeutralBackgroundInvertedHover, colorNeutralBackgroundInvertedPressed, colorNeutralBackgroundInvertedSelected, colorNeutralBackgroundStatic, colorNeutralCardBackground, colorNeutralCardBackgroundDisabled, colorNeutralCardBackgroundHover, colorNeutralCardBackgroundPressed, colorNeutralCardBackgroundSelected, colorNeutralForeground1, colorNeutralForeground1Hover, colorNeutralForeground1Pressed, colorNeutralForeground1Selected, colorNeutralForeground1Static, colorNeutralForeground2, colorNeutralForeground2BrandHover, colorNeutralForeground2BrandPressed, colorNeutralForeground2BrandSelected, colorNeutralForeground2Hover, colorNeutralForeground2Link, colorNeutralForeground2LinkHover, colorNeutralForeground2LinkPressed, colorNeutralForeground2LinkSelected, colorNeutralForeground2Pressed, colorNeutralForeground2Selected, colorNeutralForeground3, colorNeutralForeground3BrandHover, colorNeutralForeground3BrandPressed, colorNeutralForeground3BrandSelected, colorNeutralForeground3Hover, colorNeutralForeground3Pressed, colorNeutralForeground3Selected, colorNeutralForeground4, colorNeutralForeground5, colorNeutralForeground5Hover, colorNeutralForeground5Pressed, colorNeutralForeground5Selected, colorNeutralForegroundDisabled, colorNeutralForegroundInverted, colorNeutralForegroundInverted2, colorNeutralForegroundInvertedDisabled, colorNeutralForegroundInvertedHover, colorNeutralForegroundInvertedLink, colorNeutralForegroundInvertedLinkHover, colorNeutralForegroundInvertedLinkPressed, colorNeutralForegroundInvertedLinkSelected, colorNeutralForegroundInvertedPressed, colorNeutralForegroundInvertedSelected, colorNeutralForegroundOnBrand, colorNeutralForegroundStaticInverted, colorNeutralShadowAmbient, colorNeutralShadowAmbientDarker, colorNeutralShadowAmbientLighter, colorNeutralShadowKey, colorNeutralShadowKeyDarker, colorNeutralShadowKeyLighter, colorNeutralStencil1, colorNeutralStencil1Alpha, colorNeutralStencil2, colorNeutralStencil2Alpha, colorNeutralStroke1, colorNeutralStroke1Hover, colorNeutralStroke1Pressed, colorNeutralStroke1Selected, colorNeutralStroke2, colorNeutralStroke3, colorNeutralStroke4, colorNeutralStroke4Hover, colorNeutralStroke4Pressed, colorNeutralStroke4Selected, colorNeutralStrokeAccessible, colorNeutralStrokeAccessibleHover, colorNeutralStrokeAccessiblePressed, colorNeutralStrokeAccessibleSelected, colorNeutralStrokeAlpha, colorNeutralStrokeAlpha2, colorNeutralStrokeDisabled, colorNeutralStrokeDisabled2, colorNeutralStrokeInvertedDisabled, colorNeutralStrokeOnBrand, colorNeutralStrokeOnBrand2, colorNeutralStrokeOnBrand2Hover, colorNeutralStrokeOnBrand2Pressed, colorNeutralStrokeOnBrand2Selected, colorNeutralStrokeSubtle, colorPaletteAnchorBackground2, colorPaletteAnchorBorderActive, colorPaletteAnchorForeground2, colorPaletteBeigeBackground2, colorPaletteBeigeBorderActive, colorPaletteBeigeForeground2, colorPaletteBerryBackground1, colorPaletteBerryBackground2, colorPaletteBerryBackground3, colorPaletteBerryBorder1, colorPaletteBerryBorder2, colorPaletteBerryBorderActive, colorPaletteBerryForeground1, colorPaletteBerryForeground2, colorPaletteBerryForeground3, colorPaletteBlueBackground2, colorPaletteBlueBorderActive, colorPaletteBlueForeground2, colorPaletteBrassBackground2, colorPaletteBrassBorderActive, colorPaletteBrassForeground2, colorPaletteBrownBackground2, colorPaletteBrownBorderActive, colorPaletteBrownForeground2, colorPaletteCornflowerBackground2, colorPaletteCornflowerBorderActive, colorPaletteCornflowerForeground2, colorPaletteCranberryBackground2, colorPaletteCranberryBorderActive, colorPaletteCranberryForeground2, colorPaletteDarkGreenBackground2, colorPaletteDarkGreenBorderActive, colorPaletteDarkGreenForeground2, colorPaletteDarkOrangeBackground1, colorPaletteDarkOrangeBackground2, colorPaletteDarkOrangeBackground3, colorPaletteDarkOrangeBorder1, colorPaletteDarkOrangeBorder2, colorPaletteDarkOrangeBorderActive, colorPaletteDarkOrangeForeground1, colorPaletteDarkOrangeForeground2, colorPaletteDarkOrangeForeground3, colorPaletteDarkRedBackground2, colorPaletteDarkRedBorderActive, colorPaletteDarkRedForeground2, colorPaletteForestBackground2, colorPaletteForestBorderActive, colorPaletteForestForeground2, colorPaletteGoldBackground2, colorPaletteGoldBorderActive, colorPaletteGoldForeground2, colorPaletteGrapeBackground2, colorPaletteGrapeBorderActive, colorPaletteGrapeForeground2, colorPaletteGreenBackground1, colorPaletteGreenBackground2, colorPaletteGreenBackground3, colorPaletteGreenBorder1, colorPaletteGreenBorder2, colorPaletteGreenBorderActive, colorPaletteGreenForeground1, colorPaletteGreenForeground2, colorPaletteGreenForeground3, colorPaletteGreenForegroundInverted, colorPaletteLavenderBackground2, colorPaletteLavenderBorderActive, colorPaletteLavenderForeground2, colorPaletteLightGreenBackground1, colorPaletteLightGreenBackground2, colorPaletteLightGreenBackground3, colorPaletteLightGreenBorder1, colorPaletteLightGreenBorder2, colorPaletteLightGreenBorderActive, colorPaletteLightGreenForeground1, colorPaletteLightGreenForeground2, colorPaletteLightGreenForeground3, colorPaletteLightTealBackground2, colorPaletteLightTealBorderActive, colorPaletteLightTealForeground2, colorPaletteLilacBackground2, colorPaletteLilacBorderActive, colorPaletteLilacForeground2, colorPaletteMagentaBackground2, colorPaletteMagentaBorderActive, colorPaletteMagentaForeground2, colorPaletteMarigoldBackground1, colorPaletteMarigoldBackground2, colorPaletteMarigoldBackground3, colorPaletteMarigoldBorder1, colorPaletteMarigoldBorder2, colorPaletteMarigoldBorderActive, colorPaletteMarigoldForeground1, colorPaletteMarigoldForeground2, colorPaletteMarigoldForeground3, colorPaletteMinkBackground2, colorPaletteMinkBorderActive, colorPaletteMinkForeground2, colorPaletteNavyBackground2, colorPaletteNavyBorderActive, colorPaletteNavyForeground2, colorPalettePeachBackground2, colorPalettePeachBorderActive, colorPalettePeachForeground2, colorPalettePinkBackground2, colorPalettePinkBorderActive, colorPalettePinkForeground2, colorPalettePlatinumBackground2, colorPalettePlatinumBorderActive, colorPalettePlatinumForeground2, colorPalettePlumBackground2, colorPalettePlumBorderActive, colorPalettePlumForeground2, colorPalettePumpkinBackground2, colorPalettePumpkinBorderActive, colorPalettePumpkinForeground2, colorPalettePurpleBackground2, colorPalettePurpleBorderActive, colorPalettePurpleForeground2, colorPaletteRedBackground1, colorPaletteRedBackground2, colorPaletteRedBackground3, colorPaletteRedBorder1, colorPaletteRedBorder2, colorPaletteRedBorderActive, colorPaletteRedForeground1, colorPaletteRedForeground2, colorPaletteRedForeground3, colorPaletteRedForegroundInverted, colorPaletteRoyalBlueBackground2, colorPaletteRoyalBlueBorderActive, colorPaletteRoyalBlueForeground2, colorPaletteSeafoamBackground2, colorPaletteSeafoamBorderActive, colorPaletteSeafoamForeground2, colorPaletteSteelBackground2, colorPaletteSteelBorderActive, colorPaletteSteelForeground2, colorPaletteTealBackground2, colorPaletteTealBorderActive, colorPaletteTealForeground2, colorPaletteYellowBackground1, colorPaletteYellowBackground2, colorPaletteYellowBackground3, colorPaletteYellowBorder1, colorPaletteYellowBorder2, colorPaletteYellowBorderActive, colorPaletteYellowForeground1, colorPaletteYellowForeground2, colorPaletteYellowForeground3, colorPaletteYellowForegroundInverted, colorScrollbarOverlay, colorStatusDangerBackground1, colorStatusDangerBackground2, colorStatusDangerBackground3, colorStatusDangerBackground3Hover, colorStatusDangerBackground3Pressed, colorStatusDangerBorder1, colorStatusDangerBorder2, colorStatusDangerBorderActive, colorStatusDangerForeground1, colorStatusDangerForeground2, colorStatusDangerForeground3, colorStatusDangerForegroundInverted, colorStatusSuccessBackground1, colorStatusSuccessBackground2, colorStatusSuccessBackground3, colorStatusSuccessBorder1, colorStatusSuccessBorder2, colorStatusSuccessBorderActive, colorStatusSuccessForeground1, colorStatusSuccessForeground2, colorStatusSuccessForeground3, colorStatusSuccessForegroundInverted, colorStatusWarningBackground1, colorStatusWarningBackground2, colorStatusWarningBackground3, colorStatusWarningBorder1, colorStatusWarningBorder2, colorStatusWarningBorderActive, colorStatusWarningForeground1, colorStatusWarningForeground2, colorStatusWarningForeground3, colorStatusWarningForegroundInverted, colorStrokeFocus1, colorStrokeFocus2, colorSubtleBackground, colorSubtleBackgroundHover, colorSubtleBackgroundInverted, colorSubtleBackgroundInvertedHover, colorSubtleBackgroundInvertedPressed, colorSubtleBackgroundInvertedSelected, colorSubtleBackgroundLightAlphaHover, colorSubtleBackgroundLightAlphaPressed, colorSubtleBackgroundLightAlphaSelected, colorSubtleBackgroundPressed, colorSubtleBackgroundSelected, colorTransparentBackground, colorTransparentBackgroundHover, colorTransparentBackgroundPressed, colorTransparentBackgroundSelected, colorTransparentStroke, colorTransparentStrokeDisabled, colorTransparentStrokeInteractive, curveAccelerateMax, curveAccelerateMid, curveAccelerateMin, curveDecelerateMax, curveDecelerateMid, curveDecelerateMin, curveEasyEase, curveEasyEaseMax, curveLinear, display, dropdownButtonTemplate, dropdownInputTemplate, durationFast, durationFaster, durationGentle, durationNormal, durationSlow, durationSlower, durationUltraFast, durationUltraSlow, endSlotTemplate, fontFamilyBase, fontFamilyMonospace, fontFamilyNumeric, fontSizeBase100, fontSizeBase200, fontSizeBase300, fontSizeBase400, fontSizeBase500, fontSizeBase600, fontSizeHero1000, fontSizeHero700, fontSizeHero800, fontSizeHero900, fontWeightBold, fontWeightMedium, fontWeightRegular, fontWeightSemibold, getDirection, isDialog, isDropdown, isDropdownOption, isListbox, isTab, lineHeightBase100, lineHeightBase200, lineHeightBase300, lineHeightBase400, lineHeightBase500, lineHeightBase600, lineHeightHero1000, lineHeightHero700, lineHeightHero800, lineHeightHero900, listboxTemplate, roleForMenuItem, setTheme, shadow16, shadow16Brand, shadow2, shadow28, shadow28Brand, shadow2Brand, shadow4, shadow4Brand, shadow64, shadow64Brand, shadow8, shadow8Brand, spacingHorizontalL, spacingHorizontalM, spacingHorizontalMNudge, spacingHorizontalNone, spacingHorizontalS, spacingHorizontalSNudge, spacingHorizontalXL, spacingHorizontalXS, spacingHorizontalXXL, spacingHorizontalXXS, spacingHorizontalXXXL, spacingVerticalL, spacingVerticalM, spacingVerticalMNudge, spacingVerticalNone, spacingVerticalS, spacingVerticalSNudge, spacingVerticalXL, spacingVerticalXS, spacingVerticalXXL, spacingVerticalXXS, spacingVerticalXXXL, startSlotTemplate, strokeWidthThick, strokeWidthThicker, strokeWidthThickest, strokeWidthThin, typographyBody1StrongStyles, typographyBody1StrongerStyles, typographyBody1Styles, typographyBody2Styles, typographyCaption1StrongStyles, typographyCaption1StrongerStyles, typographyCaption1Styles, typographyCaption2StrongStyles, typographyCaption2Styles, typographyDisplayStyles, typographyLargeTitleStyles, typographySubtitle1Styles, typographySubtitle2StrongerStyles, typographySubtitle2Styles, typographyTitle1Styles, typographyTitle2Styles, typographyTitle3Styles, zIndexBackground, zIndexContent, zIndexDebug, zIndexFloating, zIndexMessages, zIndexOverlay, zIndexPopup, zIndexPriority };
+export { Accordion, AccordionExpandMode, AccordionItem, AccordionItemMarkerPosition, AccordionItemSize, AnchorButton, AnchorButtonAppearance, definition$D as AnchorButtonDefinition, AnchorButtonShape, AnchorButtonSize, template$D as AnchorButtonTemplate, AnchorTarget, Avatar, AvatarActive, AvatarAppearance, AvatarColor, definition$C as AvatarDefinition, AvatarNamedColor, AvatarShape, AvatarSize, styles$B as AvatarStyles, template$C as AvatarTemplate, Badge, BadgeAppearance, BadgeColor, definition$B as BadgeDefinition, BadgeShape, BadgeSize, styles$A as BadgeStyles, template$B as BadgeTemplate, BaseAccordionItem, BaseAnchor, BaseAvatar, BaseButton, BaseCheckbox, BaseCounterBadge, BaseDivider, BaseDropdown, BaseField, BaseMenuList, BaseProgressBar, BaseRadioGroup, BaseRatingDisplay, BaseSpinner, BaseTablist, BaseTextArea, BaseTextInput, BaseTree, Button, ButtonAppearance, definition$A as ButtonDefinition, ButtonFormTarget, ButtonShape, ButtonSize, styles$D as ButtonStyles, template$A as ButtonTemplate, ButtonType, Checkbox, definition$z as CheckboxDefinition, CheckboxShape, CheckboxSize, styles$z as CheckboxStyles, template$z as CheckboxTemplate, CompoundButton, CompoundButtonAppearance, definition$y as CompoundButtonDefinition, CompoundButtonShape, CompoundButtonSize, styles$y as CompoundButtonStyles, template$y as CompoundButtonTemplate, CounterBadge, CounterBadgeAppearance, CounterBadgeColor, definition$x as CounterBadgeDefinition, CounterBadgeShape, CounterBadgeSize, styles$x as CounterBadgeStyles, tagName$x as CounterBadgeTagName, template$x as CounterBadgeTemplate, Dialog, DialogBody, definition$v as DialogBodyDefinition, styles$v as DialogBodyStyles, template$v as DialogBodyTemplate, definition$w as DialogDefinition, styles$w as DialogStyles, template$w as DialogTemplate, DialogType, Direction, Divider, DividerAlignContent, DividerAppearance, definition$u as DividerDefinition, DividerOrientation, DividerRole, styles$u as DividerStyles, template$u as DividerTemplate, Drawer, DrawerBody, definition$s as DrawerBodyDefinition, styles$s as DrawerBodyStyles, template$s as DrawerBodyTemplate, definition$t as DrawerDefinition, DrawerPosition, DrawerSize, styles$t as DrawerStyles, template$t as DrawerTemplate, DrawerType, Dropdown, DropdownAppearance, definition$r as DropdownDefinition, DropdownOption, definition$g as DropdownOptionDefinition, styles$g as DropdownOptionStyles, template$g as DropdownOptionTemplate, DropdownSize, styles$r as DropdownStyles, template$r as DropdownTemplate, DropdownType, Field, definition$q as FieldDefinition, LabelPosition as FieldLabelPosition, styles$q as FieldStyles, template$q as FieldTemplate, FluentDesignSystem, Image, definition$p as ImageDefinition, ImageFit, ImageShape, styles$p as ImageStyles, template$p as ImageTemplate, Label, definition$o as LabelDefinition, LabelSize, styles$o as LabelStyles, template$o as LabelTemplate, LabelWeight, Link, LinkAppearance, definition$n as LinkDefinition, styles$n as LinkStyles, LinkTarget, template$n as LinkTemplate, Listbox, definition$m as ListboxDefinition, styles$m as ListboxStyles, template$m as ListboxTemplate, Menu, MenuButton, MenuButtonAppearance, definition$l as MenuButtonDefinition, MenuButtonShape, MenuButtonSize, styles$D as MenuButtonStyles, template$l as MenuButtonTemplate, definition$i as MenuDefinition, MenuItem, definition$k as MenuItemDefinition, MenuItemRole, styles$k as MenuItemStyles, template$k as MenuItemTemplate, MenuList, definition$j as MenuListDefinition, styles$j as MenuListStyles, template$j as MenuListTemplate, styles$i as MenuStyles, template$i as MenuTemplate, MessageBar, definition$h as MessageBarDefinition, MessageBarIntent, MessageBarLayout, MessageBarShape, styles$h as MessageBarStyles, template$h as MessageBarTemplate, Orientation, ProgressBar, definition$f as ProgressBarDefinition, ProgressBarShape, styles$f as ProgressBarStyles, template$f as ProgressBarTemplate, ProgressBarThickness, ProgressBarValidationState, Radio, definition$d as RadioDefinition, RadioGroup, definition$e as RadioGroupDefinition, RadioGroupOrientation, styles$e as RadioGroupStyles, template$e as RadioGroupTemplate, styles$d as RadioStyles, template$d as RadioTemplate, RatingDisplay, RatingDisplayColor, definition$c as RatingDisplayDefinition, RatingDisplaySize, styles$c as RatingDisplayStyles, template$c as RatingDisplayTemplate, Slider, definition$b as SliderDefinition, SliderMode, SliderOrientation, SliderSize, styles$b as SliderStyles, template$b as SliderTemplate, Spinner, SpinnerAppearance, definition$a as SpinnerDefinition, SpinnerSize, styles$a as SpinnerStyles, template$a as SpinnerTemplate, StartEnd, Switch, definition$9 as SwitchDefinition, SwitchLabelPosition, styles$9 as SwitchStyles, template$9 as SwitchTemplate, Tab, definition$8 as TabDefinition, styles$8 as TabStyles, template$8 as TabTemplate, Tablist, TablistAppearance, definition$7 as TablistDefinition, TablistOrientation, TablistSize, styles$7 as TablistStyles, template$7 as TablistTemplate, Text, TextAlign, TextArea, TextAreaAppearance, TextAreaAppearancesForDisplayShadow, TextAreaAutocomplete, definition$6 as TextAreaDefinition, TextAreaResize, TextAreaSize, styles$6 as TextAreaStyles, template$6 as TextAreaTemplate, definition$4 as TextDefinition, TextFont, TextInput, TextInputAppearance, TextInputControlSize, definition$5 as TextInputDefinition, styles$5 as TextInputStyles, template$5 as TextInputTemplate, TextInputType, TextSize, styles$4 as TextStyles, template$4 as TextTemplate, TextWeight, ToggleButton, ToggleButtonAppearance, definition$3 as ToggleButtonDefinition, ToggleButtonShape, ToggleButtonSize, styles$3 as ToggleButtonStyles, template$3 as ToggleButtonTemplate, Tooltip, definition$2 as TooltipDefinition, TooltipPositioningOption, styles$2 as TooltipStyles, template$2 as TooltipTemplate, Tree, definition$1 as TreeDefinition, TreeItem, definition as TreeItemDefinition, styles as TreeItemStyles, template as TreeItemTemplate, styles$1 as TreeStyles, template$1 as TreeTemplate, ValidationFlags, definition$E as accordionDefinition, definition$F as accordionItemDefinition, styles$F as accordionItemStyles, template$F as accordionItemTemplate, styles$E as accordionStyles, template$E as accordionTemplate, borderRadius2XLarge, borderRadius3XLarge, borderRadius4XLarge, borderRadius5XLarge, borderRadius6XLarge, borderRadiusCircular, borderRadiusLarge, borderRadiusMedium, borderRadiusNone, borderRadiusSmall, borderRadiusXLarge, colorBackgroundOverlay, colorBrandBackground, colorBrandBackground2, colorBrandBackground2Hover, colorBrandBackground2Pressed, colorBrandBackground3Static, colorBrandBackground4Static, colorBrandBackgroundHover, colorBrandBackgroundInverted, colorBrandBackgroundInvertedHover, colorBrandBackgroundInvertedPressed, colorBrandBackgroundInvertedSelected, colorBrandBackgroundPressed, colorBrandBackgroundSelected, colorBrandBackgroundStatic, colorBrandForeground1, colorBrandForeground2, colorBrandForeground2Hover, colorBrandForeground2Pressed, colorBrandForegroundInverted, colorBrandForegroundInvertedHover, colorBrandForegroundInvertedPressed, colorBrandForegroundLink, colorBrandForegroundLinkHover, colorBrandForegroundLinkPressed, colorBrandForegroundLinkSelected, colorBrandForegroundOnLight, colorBrandForegroundOnLightHover, colorBrandForegroundOnLightPressed, colorBrandForegroundOnLightSelected, colorBrandShadowAmbient, colorBrandShadowKey, colorBrandStroke1, colorBrandStroke2, colorBrandStroke2Contrast, colorBrandStroke2Hover, colorBrandStroke2Pressed, colorCompoundBrandBackground, colorCompoundBrandBackgroundHover, colorCompoundBrandBackgroundPressed, colorCompoundBrandForeground1, colorCompoundBrandForeground1Hover, colorCompoundBrandForeground1Pressed, colorCompoundBrandStroke, colorCompoundBrandStrokeHover, colorCompoundBrandStrokePressed, colorNeutralBackground1, colorNeutralBackground1Hover, colorNeutralBackground1Pressed, colorNeutralBackground1Selected, colorNeutralBackground2, colorNeutralBackground2Hover, colorNeutralBackground2Pressed, colorNeutralBackground2Selected, colorNeutralBackground3, colorNeutralBackground3Hover, colorNeutralBackground3Pressed, colorNeutralBackground3Selected, colorNeutralBackground4, colorNeutralBackground4Hover, colorNeutralBackground4Pressed, colorNeutralBackground4Selected, colorNeutralBackground5, colorNeutralBackground5Hover, colorNeutralBackground5Pressed, colorNeutralBackground5Selected, colorNeutralBackground6, colorNeutralBackground7, colorNeutralBackground7Hover, colorNeutralBackground7Pressed, colorNeutralBackground7Selected, colorNeutralBackground8, colorNeutralBackgroundAlpha, colorNeutralBackgroundAlpha2, colorNeutralBackgroundDisabled, colorNeutralBackgroundDisabled2, colorNeutralBackgroundInverted, colorNeutralBackgroundInvertedDisabled, colorNeutralBackgroundInvertedHover, colorNeutralBackgroundInvertedPressed, colorNeutralBackgroundInvertedSelected, colorNeutralBackgroundStatic, colorNeutralCardBackground, colorNeutralCardBackgroundDisabled, colorNeutralCardBackgroundHover, colorNeutralCardBackgroundPressed, colorNeutralCardBackgroundSelected, colorNeutralForeground1, colorNeutralForeground1Hover, colorNeutralForeground1Pressed, colorNeutralForeground1Selected, colorNeutralForeground1Static, colorNeutralForeground2, colorNeutralForeground2BrandHover, colorNeutralForeground2BrandPressed, colorNeutralForeground2BrandSelected, colorNeutralForeground2Hover, colorNeutralForeground2Link, colorNeutralForeground2LinkHover, colorNeutralForeground2LinkPressed, colorNeutralForeground2LinkSelected, colorNeutralForeground2Pressed, colorNeutralForeground2Selected, colorNeutralForeground3, colorNeutralForeground3BrandHover, colorNeutralForeground3BrandPressed, colorNeutralForeground3BrandSelected, colorNeutralForeground3Hover, colorNeutralForeground3Pressed, colorNeutralForeground3Selected, colorNeutralForeground4, colorNeutralForeground5, colorNeutralForeground5Hover, colorNeutralForeground5Pressed, colorNeutralForeground5Selected, colorNeutralForegroundDisabled, colorNeutralForegroundInverted, colorNeutralForegroundInverted2, colorNeutralForegroundInvertedDisabled, colorNeutralForegroundInvertedHover, colorNeutralForegroundInvertedLink, colorNeutralForegroundInvertedLinkHover, colorNeutralForegroundInvertedLinkPressed, colorNeutralForegroundInvertedLinkSelected, colorNeutralForegroundInvertedPressed, colorNeutralForegroundInvertedSelected, colorNeutralForegroundOnBrand, colorNeutralForegroundStaticInverted, colorNeutralShadowAmbient, colorNeutralShadowAmbientDarker, colorNeutralShadowAmbientLighter, colorNeutralShadowKey, colorNeutralShadowKeyDarker, colorNeutralShadowKeyLighter, colorNeutralStencil1, colorNeutralStencil1Alpha, colorNeutralStencil2, colorNeutralStencil2Alpha, colorNeutralStroke1, colorNeutralStroke1Hover, colorNeutralStroke1Pressed, colorNeutralStroke1Selected, colorNeutralStroke2, colorNeutralStroke3, colorNeutralStroke4, colorNeutralStroke4Hover, colorNeutralStroke4Pressed, colorNeutralStroke4Selected, colorNeutralStrokeAccessible, colorNeutralStrokeAccessibleHover, colorNeutralStrokeAccessiblePressed, colorNeutralStrokeAccessibleSelected, colorNeutralStrokeAlpha, colorNeutralStrokeAlpha2, colorNeutralStrokeDisabled, colorNeutralStrokeDisabled2, colorNeutralStrokeInvertedDisabled, colorNeutralStrokeOnBrand, colorNeutralStrokeOnBrand2, colorNeutralStrokeOnBrand2Hover, colorNeutralStrokeOnBrand2Pressed, colorNeutralStrokeOnBrand2Selected, colorNeutralStrokeSubtle, colorPaletteAnchorBackground2, colorPaletteAnchorBorderActive, colorPaletteAnchorForeground2, colorPaletteBeigeBackground2, colorPaletteBeigeBorderActive, colorPaletteBeigeForeground2, colorPaletteBerryBackground1, colorPaletteBerryBackground2, colorPaletteBerryBackground3, colorPaletteBerryBorder1, colorPaletteBerryBorder2, colorPaletteBerryBorderActive, colorPaletteBerryForeground1, colorPaletteBerryForeground2, colorPaletteBerryForeground3, colorPaletteBlueBackground2, colorPaletteBlueBorderActive, colorPaletteBlueForeground2, colorPaletteBrassBackground2, colorPaletteBrassBorderActive, colorPaletteBrassForeground2, colorPaletteBrownBackground2, colorPaletteBrownBorderActive, colorPaletteBrownForeground2, colorPaletteCornflowerBackground2, colorPaletteCornflowerBorderActive, colorPaletteCornflowerForeground2, colorPaletteCranberryBackground2, colorPaletteCranberryBorderActive, colorPaletteCranberryForeground2, colorPaletteDarkGreenBackground2, colorPaletteDarkGreenBorderActive, colorPaletteDarkGreenForeground2, colorPaletteDarkOrangeBackground1, colorPaletteDarkOrangeBackground2, colorPaletteDarkOrangeBackground3, colorPaletteDarkOrangeBorder1, colorPaletteDarkOrangeBorder2, colorPaletteDarkOrangeBorderActive, colorPaletteDarkOrangeForeground1, colorPaletteDarkOrangeForeground2, colorPaletteDarkOrangeForeground3, colorPaletteDarkRedBackground2, colorPaletteDarkRedBorderActive, colorPaletteDarkRedForeground2, colorPaletteForestBackground2, colorPaletteForestBorderActive, colorPaletteForestForeground2, colorPaletteGoldBackground2, colorPaletteGoldBorderActive, colorPaletteGoldForeground2, colorPaletteGrapeBackground2, colorPaletteGrapeBorderActive, colorPaletteGrapeForeground2, colorPaletteGreenBackground1, colorPaletteGreenBackground2, colorPaletteGreenBackground3, colorPaletteGreenBorder1, colorPaletteGreenBorder2, colorPaletteGreenBorderActive, colorPaletteGreenForeground1, colorPaletteGreenForeground2, colorPaletteGreenForeground3, colorPaletteGreenForegroundInverted, colorPaletteLavenderBackground2, colorPaletteLavenderBorderActive, colorPaletteLavenderForeground2, colorPaletteLightGreenBackground1, colorPaletteLightGreenBackground2, colorPaletteLightGreenBackground3, colorPaletteLightGreenBorder1, colorPaletteLightGreenBorder2, colorPaletteLightGreenBorderActive, colorPaletteLightGreenForeground1, colorPaletteLightGreenForeground2, colorPaletteLightGreenForeground3, colorPaletteLightTealBackground2, colorPaletteLightTealBorderActive, colorPaletteLightTealForeground2, colorPaletteLilacBackground2, colorPaletteLilacBorderActive, colorPaletteLilacForeground2, colorPaletteMagentaBackground2, colorPaletteMagentaBorderActive, colorPaletteMagentaForeground2, colorPaletteMarigoldBackground1, colorPaletteMarigoldBackground2, colorPaletteMarigoldBackground3, colorPaletteMarigoldBorder1, colorPaletteMarigoldBorder2, colorPaletteMarigoldBorderActive, colorPaletteMarigoldForeground1, colorPaletteMarigoldForeground2, colorPaletteMarigoldForeground3, colorPaletteMinkBackground2, colorPaletteMinkBorderActive, colorPaletteMinkForeground2, colorPaletteNavyBackground2, colorPaletteNavyBorderActive, colorPaletteNavyForeground2, colorPalettePeachBackground2, colorPalettePeachBorderActive, colorPalettePeachForeground2, colorPalettePinkBackground2, colorPalettePinkBorderActive, colorPalettePinkForeground2, colorPalettePlatinumBackground2, colorPalettePlatinumBorderActive, colorPalettePlatinumForeground2, colorPalettePlumBackground2, colorPalettePlumBorderActive, colorPalettePlumForeground2, colorPalettePumpkinBackground2, colorPalettePumpkinBorderActive, colorPalettePumpkinForeground2, colorPalettePurpleBackground2, colorPalettePurpleBorderActive, colorPalettePurpleForeground2, colorPaletteRedBackground1, colorPaletteRedBackground2, colorPaletteRedBackground3, colorPaletteRedBorder1, colorPaletteRedBorder2, colorPaletteRedBorderActive, colorPaletteRedForeground1, colorPaletteRedForeground2, colorPaletteRedForeground3, colorPaletteRedForegroundInverted, colorPaletteRoyalBlueBackground2, colorPaletteRoyalBlueBorderActive, colorPaletteRoyalBlueForeground2, colorPaletteSeafoamBackground2, colorPaletteSeafoamBorderActive, colorPaletteSeafoamForeground2, colorPaletteSteelBackground2, colorPaletteSteelBorderActive, colorPaletteSteelForeground2, colorPaletteTealBackground2, colorPaletteTealBorderActive, colorPaletteTealForeground2, colorPaletteYellowBackground1, colorPaletteYellowBackground2, colorPaletteYellowBackground3, colorPaletteYellowBorder1, colorPaletteYellowBorder2, colorPaletteYellowBorderActive, colorPaletteYellowForeground1, colorPaletteYellowForeground2, colorPaletteYellowForeground3, colorPaletteYellowForegroundInverted, colorScrollbarOverlay, colorStatusDangerBackground1, colorStatusDangerBackground2, colorStatusDangerBackground3, colorStatusDangerBackground3Hover, colorStatusDangerBackground3Pressed, colorStatusDangerBorder1, colorStatusDangerBorder2, colorStatusDangerBorderActive, colorStatusDangerForeground1, colorStatusDangerForeground2, colorStatusDangerForeground3, colorStatusDangerForegroundInverted, colorStatusSuccessBackground1, colorStatusSuccessBackground2, colorStatusSuccessBackground3, colorStatusSuccessBorder1, colorStatusSuccessBorder2, colorStatusSuccessBorderActive, colorStatusSuccessForeground1, colorStatusSuccessForeground2, colorStatusSuccessForeground3, colorStatusSuccessForegroundInverted, colorStatusWarningBackground1, colorStatusWarningBackground2, colorStatusWarningBackground3, colorStatusWarningBorder1, colorStatusWarningBorder2, colorStatusWarningBorderActive, colorStatusWarningForeground1, colorStatusWarningForeground2, colorStatusWarningForeground3, colorStatusWarningForegroundInverted, colorStrokeFocus1, colorStrokeFocus2, colorSubtleBackground, colorSubtleBackgroundHover, colorSubtleBackgroundInverted, colorSubtleBackgroundInvertedHover, colorSubtleBackgroundInvertedPressed, colorSubtleBackgroundInvertedSelected, colorSubtleBackgroundLightAlphaHover, colorSubtleBackgroundLightAlphaPressed, colorSubtleBackgroundLightAlphaSelected, colorSubtleBackgroundPressed, colorSubtleBackgroundSelected, colorTransparentBackground, colorTransparentBackgroundHover, colorTransparentBackgroundPressed, colorTransparentBackgroundSelected, colorTransparentStroke, colorTransparentStrokeDisabled, colorTransparentStrokeInteractive, curveAccelerateMax, curveAccelerateMid, curveAccelerateMin, curveDecelerateMax, curveDecelerateMid, curveDecelerateMin, curveEasyEase, curveEasyEaseMax, curveLinear, display, dropdownButtonTemplate, dropdownInputTemplate, durationFast, durationFaster, durationGentle, durationNormal, durationSlow, durationSlower, durationUltraFast, durationUltraSlow, endSlotTemplate, fontFamilyBase, fontFamilyMonospace, fontFamilyNumeric, fontSizeBase100, fontSizeBase200, fontSizeBase300, fontSizeBase400, fontSizeBase500, fontSizeBase600, fontSizeHero1000, fontSizeHero700, fontSizeHero800, fontSizeHero900, fontWeightBold, fontWeightMedium, fontWeightRegular, fontWeightSemibold, getDirection, isDialog, isDropdown, isDropdownOption, isListbox, isTab, lineHeightBase100, lineHeightBase200, lineHeightBase300, lineHeightBase400, lineHeightBase500, lineHeightBase600, lineHeightHero1000, lineHeightHero700, lineHeightHero800, lineHeightHero900, listboxTemplate, roleForMenuItem, setTheme, shadow16, shadow16Brand, shadow2, shadow28, shadow28Brand, shadow2Brand, shadow4, shadow4Brand, shadow64, shadow64Brand, shadow8, shadow8Brand, spacingHorizontalL, spacingHorizontalM, spacingHorizontalMNudge, spacingHorizontalNone, spacingHorizontalS, spacingHorizontalSNudge, spacingHorizontalXL, spacingHorizontalXS, spacingHorizontalXXL, spacingHorizontalXXS, spacingHorizontalXXXL, spacingVerticalL, spacingVerticalM, spacingVerticalMNudge, spacingVerticalNone, spacingVerticalS, spacingVerticalSNudge, spacingVerticalXL, spacingVerticalXS, spacingVerticalXXL, spacingVerticalXXS, spacingVerticalXXXL, startSlotTemplate, strokeWidthThick, strokeWidthThicker, strokeWidthThickest, strokeWidthThin, typographyBody1StrongStyles, typographyBody1StrongerStyles, typographyBody1Styles, typographyBody2Styles, typographyCaption1StrongStyles, typographyCaption1StrongerStyles, typographyCaption1Styles, typographyCaption2StrongStyles, typographyCaption2Styles, typographyDisplayStyles, typographyLargeTitleStyles, typographySubtitle1Styles, typographySubtitle2StrongerStyles, typographySubtitle2Styles, typographyTitle1Styles, typographyTitle2Styles, typographyTitle3Styles, zIndexBackground, zIndexContent, zIndexDebug, zIndexFloating, zIndexMessages, zIndexOverlay, zIndexPopup, zIndexPriority };

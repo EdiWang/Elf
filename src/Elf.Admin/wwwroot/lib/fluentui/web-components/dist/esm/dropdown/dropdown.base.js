@@ -129,7 +129,7 @@ export class BaseDropdown extends FASTElement {
             const notifier = Observable.getNotifier(this);
             notifier.subscribe(next);
             notifier.notify('multiple');
-            waitForConnectedDescendants(next, () => {
+            Updates.enqueue(() => {
                 this.options.forEach(option => {
                     option.disabled = option.disabledAttribute || this.disabled;
                     option.name = this.name;
@@ -140,7 +140,7 @@ export class BaseDropdown extends FASTElement {
                     x.selected = this.multiple || i === 0;
                 });
                 this.setValidity();
-            }, { idleCallback: true });
+            });
             if (AnchorPositioningCSSSupported) {
                 // The `anchor-name` property seems to not be isolated between instances in Safari Technology Preview 220 (18.4).
                 // It's unclear if the spec requires the `anchor-name` to be unique when styled on the `:host`.
@@ -210,7 +210,8 @@ export class BaseDropdown extends FASTElement {
      * @public
      */
     get enabledOptions() {
-        return this.listbox?.enabledOptions ?? [];
+        return (this.listbox?.enabledOptions ??
+            Array.from(this.querySelectorAll('*')).filter((o) => isDropdownOption(o) && !o.disabled));
     }
     /**
      * The form-associated flag.
@@ -249,7 +250,7 @@ export class BaseDropdown extends FASTElement {
      * @public
      */
     get options() {
-        return this.listbox?.options ?? [];
+        return (this.listbox?.options ?? Array.from(this.querySelectorAll('*')).filter(o => isDropdownOption(o)));
     }
     /**
      * The index of the first selected option, scoped to the enabled options.

@@ -1615,6 +1615,61 @@ export declare class BaseCheckbox extends FASTElement {
 }
 
 /**
+ * The base class used for constructing a fluent-counter-badge custom element.
+ * Contains the count-related state and display logic, without any visual
+ * appearance attributes.
+ *
+ * @public
+ */
+export declare class BaseCounterBadge extends FASTElement {
+    /**
+     * The internal {@link https://developer.mozilla.org/docs/Web/API/ElementInternals | `ElementInternals`} instance for the component.
+     *
+     * @internal
+     */
+    elementInternals: ElementInternals;
+    /**
+     * The count to be displayed in the badge.
+     *
+     * @public
+     * @remarks
+     * HTML Attribute: `count`
+     */
+    count: number;
+    /**
+     * The maximum count to be displayed before showing the overflow count (e.g. "99+").
+     *
+     * @public
+     * @remarks
+     * HTML Attribute: `overflow-count`
+     */
+    overflowCount: number;
+    /**
+     * Whether to show the badge when the count is zero. By default, the badge will be hidden when the count is zero.
+     *
+     * @public
+     * @remarks
+     * HTML Attribute: `show-zero`
+     */
+    showZero: boolean;
+    /**
+     * Whether to display the badge as a dot. When true, the badge will be displayed as a dot and the count will not be
+     * shown.
+     *
+     * @public
+     * @remarks
+     * HTML Attribute: `dot`
+     */
+    dot: boolean;
+    /**
+     * The value to be displayed in the badge, which is determined by the `count`, `overflow-count`, and `show-zero` attributes.
+     *
+     * @public
+     */
+    get displayValue(): string | undefined;
+}
+
+/**
  * A Divider Custom HTML Element.
  * A divider groups sections of content to create visual rhythm and hierarchy. Use dividers along with spacing and headers to organize content in your layout.
  *
@@ -3527,12 +3582,6 @@ export declare class BaseTextInput extends FASTElement {
      */
     get form(): HTMLFormElement | null;
     /**
-     * Handles the internal control's `keypress` event.
-     *
-     * @internal
-     */
-    beforeinputHandler(e: InputEvent): boolean | void;
-    /**
      * Change event handler for inner control.
      *
      * @internal
@@ -3706,6 +3755,7 @@ declare class BaseTreeItem extends FASTElement {
      */
     itemSlotChanged(): void;
     constructor();
+    connectedCallback(): void;
     /**
      * When true, the control will be appear expanded by user interaction.
      * When true, the control will be appear expanded by user interaction.
@@ -6401,24 +6451,20 @@ export declare const CompoundButtonStyles: ElementStyles;
 
 /**
  * The template for the Button component.
+ *
  * @public
  */
 export declare const CompoundButtonTemplate: ElementViewTemplate<CompoundButton>;
 
 /**
- * The base class used for constructing a fluent-badge custom element
+ * A CounterBadge Custom HTML Element.
+ * Based on BaseCounterBadge and includes style and layout specific attributes.
  *
  * @tag fluent-counter-badge
  *
  * @public
  */
-export declare class CounterBadge extends FASTElement {
-    /**
-     * The internal {@link https://developer.mozilla.org/docs/Web/API/ElementInternals | `ElementInternals`} instance for the component.
-     *
-     * @internal
-     */
-    elementInternals: ElementInternals;
+export declare class CounterBadge extends BaseCounterBadge {
     /**
      * The appearance the badge should have.
      *
@@ -6451,61 +6497,14 @@ export declare class CounterBadge extends FASTElement {
      * HTML Attribute: size
      */
     size?: CounterBadgeSize;
-    /**
-     * The count the badge should have.
-     *
-     * @public
-     * @remarks
-     * HTML Attribute: count
-     */
-    count: number;
-    protected countChanged(): void;
-    /**
-     * Max number to be displayed
-     *
-     * @public
-     * @remarks
-     * HTML Attribute: overflow-count
-     */
-    overflowCount: number;
-    protected overflowCountChanged(): void;
-    /**
-     * If the badge should be shown when count is 0
-     *
-     * @public
-     * @remarks
-     * HTML Attribute: show-zero
-     */
-    showZero: boolean;
-    /**
-     * If a dot should be displayed without the count
-     *
-     * @public
-     * @remarks
-     * HTML Attribute: dot
-     */
-    dot: boolean;
-    /**
-     * Function to set the count
-     * This is the default slotted content for the counter badge
-     * If children are slotted, that will override the value returned
-     *
-     * @internal
-     */
-    setCount(): string | void;
 }
 
-/**
- * Mark internal because exporting class and interface of the same name
- * confuses API extractor.
- * TODO: Below will be unnecessary when Badge class gets updated
- * @internal
- */
 export declare interface CounterBadge extends StartEnd {
 }
 
 /**
- * CounterBadgeAppearance constants
+ * Values for the `appearance` attribute on CounterBadge elements.
+ *
  * @public
  */
 export declare const CounterBadgeAppearance: {
@@ -6514,13 +6513,14 @@ export declare const CounterBadgeAppearance: {
 };
 
 /**
- * A CounterBadge can have an appearance of filled or ghost
+ * Type for the `appearance` attribute on CounterBadge elements, based on the CounterBadgeAppearance constants.
  * @public
  */
 export declare type CounterBadgeAppearance = ValuesOf<typeof CounterBadgeAppearance>;
 
 /**
- * CounterBadgeColor constants
+ * Values for the `color` attribute on CounterBadge elements.
+ *
  * @public
  */
 export declare const CounterBadgeColor: {
@@ -6535,7 +6535,7 @@ export declare const CounterBadgeColor: {
 };
 
 /**
- * A CounterBadge can be one of preset colors
+ * Type for the `color` attribute on CounterBadge elements, based on the CounterBadgeColor constants.
  * @public
  */
 export declare type CounterBadgeColor = ValuesOf<typeof CounterBadgeColor>;
@@ -6548,7 +6548,8 @@ export declare type CounterBadgeColor = ValuesOf<typeof CounterBadgeColor>;
 export declare const CounterBadgeDefinition: FASTElementDefinition<typeof CounterBadge>;
 
 /**
- * A CounterBadge shape can be circular or rounded.
+ * Values for the `shape` attribute on CounterBadge elements.
+ *
  * @public
  */
 export declare const CounterBadgeShape: {
@@ -6557,13 +6558,15 @@ export declare const CounterBadgeShape: {
 };
 
 /**
- * A CounterBadge can be one of preset colors
+ * Type for the `shape` attribute on CounterBadge elements, based on the CounterBadgeShape constants.
+ *
  * @public
  */
 export declare type CounterBadgeShape = ValuesOf<typeof CounterBadgeShape>;
 
 /**
- * A CounterBadge can be square, circular or rounded.
+ * Values for the `size` attribute on CounterBadge elements.
+ *
  * @public
  */
 export declare const CounterBadgeSize: {
@@ -6576,7 +6579,8 @@ export declare const CounterBadgeSize: {
 };
 
 /**
- * A CounterBadge can be on of several preset sizes.
+ * Type for the `size` attribute on CounterBadge elements, based on the CounterBadgeSize constants.
+ *
  * @public
  */
 export declare type CounterBadgeSize = ValuesOf<typeof CounterBadgeSize>;
@@ -6587,7 +6591,15 @@ export declare type CounterBadgeSize = ValuesOf<typeof CounterBadgeSize>;
 export declare const CounterBadgeStyles: ElementStyles;
 
 /**
- * The template for the Counter Badge component.
+ * The tag name for the counter badge element.
+ *
+ * @public
+ */
+export declare const CounterBadgeTagName: "fluent-counter-badge";
+
+/**
+ * The template for the fluent-counter-badge component.
+ *
  * @public
  */
 export declare const CounterBadgeTemplate: ElementViewTemplate<CounterBadge>;
@@ -6666,7 +6678,6 @@ export declare class Dialog extends FASTElement {
      * @public
      */
     dialog: HTMLDialogElement;
-    protected dialogChanged(): void;
     /**
      * The ID of the element that describes the dialog
      *
@@ -6691,14 +6702,49 @@ export declare class Dialog extends FASTElement {
      * @public
      */
     type: DialogType;
-    protected typeChanged(prev: DialogType | undefined, next: DialogType): void;
+    /**
+     * The `aria-describedby` attribute value for the dialog, which is determined by the `ariaDescribedby` property. This
+     * is used to ensure that the dialog's accessible description is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogDescribedby(): string | undefined;
+    /**
+     * The `aria-label` attribute value for the dialog, which is determined by the `ariaLabel` property. This is used to
+     * ensure that the dialog's accessible name is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogLabel(): string | null | undefined;
+    /**
+     * The `aria-labelledby` attribute value for the dialog, which is determined by the `ariaLabelledby` property. This is
+     * used to ensure that the dialog's accessible name is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogLabelledby(): string | undefined;
+    /**
+     * The modal state of the dialog, which is determined by the `type` property. If the dialog is not a non-modal dialog,
+     * the modal state will be true, otherwise it will be undefined.
+     *
+     * @internal
+     */
+    get dialogModal(): boolean | undefined;
+    /**
+     * The role of the dialog, which is determined by the `type` property. If the dialog is an alert dialog, the role will
+     * be 'alertdialog', otherwise it will be undefined.
+     *
+     * @internal
+     */
+    get dialogRole(): string | undefined;
+    connectedCallback(): void;
     /**
      * Method to emit an event before the dialog's open state changes
      * HTML spec proposal: https://github.com/whatwg/html/issues/9733
      *
      * @public
      */
-    emitBeforeToggle: () => void;
+    emitBeforeToggle(): void;
     /**
      * Method to emit an event after the dialog's open state changes
      * HTML spec proposal: https://github.com/whatwg/html/issues/9733
@@ -6726,12 +6772,6 @@ export declare class Dialog extends FASTElement {
      * @returns boolean
      */
     clickHandler(event: Event): boolean;
-    /**
-     * Updates the internal dialog element's attributes based on its type.
-     *
-     * @internal
-     */
-    protected updateDialogAttributes(): void;
 }
 
 /**
@@ -6976,7 +7016,6 @@ export declare const DividerTemplate: ElementViewTemplate<Divider>;
  * @tag fluent-drawer
  */
 export declare class Drawer extends FASTElement {
-    protected roleAttrObserver: MutationObserver;
     /**
      * Determines whether the drawer should be displayed as modal or non-modal
      * When rendered as a modal, an overlay is applied over the rest of the view.
@@ -6984,7 +7023,6 @@ export declare class Drawer extends FASTElement {
      * @public
      */
     type: DrawerType;
-    protected typeChanged(): void;
     /**
      * The ID of the element that labels the drawer.
      *
@@ -7004,6 +7042,7 @@ export declare class Drawer extends FASTElement {
      * @defaultValue start
      */
     position: DrawerPosition;
+    role: string | null;
     /**
      * @public
      * @defaultValue medium
@@ -7016,10 +7055,42 @@ export declare class Drawer extends FASTElement {
      * @public
      */
     dialog: HTMLDialogElement;
-    /** @internal */
+    /**
+     * The `aria-describedby` attribute value for the dialog, which is determined by the `ariaDescribedby` property. This
+     * is used to ensure that the dialog's accessible description is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogDescribedby(): string | undefined;
+    /**
+     * The `aria-label` attribute value for the dialog, which is determined by the `ariaLabel` property. This is used to
+     * ensure that the dialog's accessible name is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogLabel(): string | null | undefined;
+    /**
+     * The `aria-labelledby` attribute value for the dialog, which is determined by the `ariaLabelledby` property. This is
+     * used to ensure that the dialog's accessible name is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogLabelledby(): string | undefined;
+    /**
+     * The modal state of the dialog, which is determined by the `type` property. If the dialog is not a non-modal dialog,
+     * the modal state will be true, otherwise it will be undefined.
+     *
+     * @internal
+     */
+    get dialogModal(): boolean | undefined;
+    /**
+     * The role of the dialog, which is determined by the `type` property. If the dialog is an alert dialog, the role will
+     * be 'alertdialog', otherwise it will be undefined.
+     *
+     * @internal
+     */
+    get dialogRole(): string | null;
     connectedCallback(): void;
-    /** @internal */
-    disconnectedCallback(): void;
     /**
      * Method to emit an event after the dialog's open state changes
      * HTML spec proposal: https://github.com/whatwg/html/issues/9733
@@ -7059,8 +7130,6 @@ export declare class Drawer extends FASTElement {
      * @public
      */
     cancelHandler(): void;
-    protected observeRoleAttr(): void;
-    protected updateDialogRole(): void;
 }
 
 /**
@@ -11037,6 +11106,15 @@ export declare class Tooltip extends FASTElement {
      * Hide the tooltip on blur
      */
     blurAnchorHandler: () => void;
+    /**
+     * Indicates whether the tooltip styles have been applied for browsers that do not support anchor positioning.
+     * @internal
+     */
+    private anchorPositioningReady;
+    /**
+     * Sets fallback styles for the tooltip for browsers that do not support CSS anchor positioning.
+     * @internal
+     */
     private setFallbackStyles;
 }
 

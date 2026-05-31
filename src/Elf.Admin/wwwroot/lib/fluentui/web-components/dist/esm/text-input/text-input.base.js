@@ -145,7 +145,7 @@ export class BaseTextInput extends FASTElement {
     }
     set value(value) {
         this.currentValue = value;
-        if (this.$fastController.isConnected) {
+        if (this.elementInternals && this.control) {
             this.control.value = value ?? '';
             this.setFormValue(value);
             this.setValidity();
@@ -171,17 +171,6 @@ export class BaseTextInput extends FASTElement {
      */
     get form() {
         return this.elementInternals.form;
-    }
-    /**
-     * Handles the internal control's `keypress` event.
-     *
-     * @internal
-     */
-    beforeinputHandler(e) {
-        if (e.inputType === 'insertLineBreak') {
-            this.implicitSubmit();
-        }
-        return true;
     }
     /**
      * Change event handler for inner control.
@@ -335,7 +324,7 @@ export class BaseTextInput extends FASTElement {
      * @internal
      */
     setFormValue(value, state) {
-        this.elementInternals.setFormValue(value, value ?? state);
+        this.elementInternals?.setFormValue(value, value ?? state);
     }
     /**
      * Sets the validity of the control.
@@ -347,7 +336,7 @@ export class BaseTextInput extends FASTElement {
      * @internal
      */
     setValidity(flags, message, anchor) {
-        if (this.$fastController.isConnected && this.control) {
+        if (this.elementInternals && this.control) {
             if (this.disabled) {
                 this.elementInternals.setValidity({});
                 return;

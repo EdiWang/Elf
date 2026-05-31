@@ -15,6 +15,8 @@
     <File Path="Directory.Build.props" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="Elf.Admin.Tests/Elf.Admin.Tests.csproj" />
+    <Project Path="Elf.Api.Tests/Elf.Api.Tests.csproj" />
     <Project Path="Elf.Shared.Tests/Elf.Shared.Tests.csproj" />
     <Project Path="Elf.TokenGenerator.Tests/Elf.TokenGenerator.Tests.csproj" />
   </Folder>

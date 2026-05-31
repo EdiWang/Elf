@@ -14,7 +14,6 @@ export declare class Dialog extends FASTElement {
      * @public
      */
     dialog: HTMLDialogElement;
-    protected dialogChanged(): void;
     /**
      * The ID of the element that describes the dialog
      *
@@ -39,14 +38,49 @@ export declare class Dialog extends FASTElement {
      * @public
      */
     type: DialogType;
-    protected typeChanged(prev: DialogType | undefined, next: DialogType): void;
+    /**
+     * The `aria-describedby` attribute value for the dialog, which is determined by the `ariaDescribedby` property. This
+     * is used to ensure that the dialog's accessible description is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogDescribedby(): string | undefined;
+    /**
+     * The `aria-label` attribute value for the dialog, which is determined by the `ariaLabel` property. This is used to
+     * ensure that the dialog's accessible name is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogLabel(): string | null | undefined;
+    /**
+     * The `aria-labelledby` attribute value for the dialog, which is determined by the `ariaLabelledby` property. This is
+     * used to ensure that the dialog's accessible name is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogLabelledby(): string | undefined;
+    /**
+     * The modal state of the dialog, which is determined by the `type` property. If the dialog is not a non-modal dialog,
+     * the modal state will be true, otherwise it will be undefined.
+     *
+     * @internal
+     */
+    get dialogModal(): boolean | undefined;
+    /**
+     * The role of the dialog, which is determined by the `type` property. If the dialog is an alert dialog, the role will
+     * be 'alertdialog', otherwise it will be undefined.
+     *
+     * @internal
+     */
+    get dialogRole(): string | undefined;
+    connectedCallback(): void;
     /**
      * Method to emit an event before the dialog's open state changes
      * HTML spec proposal: https://github.com/whatwg/html/issues/9733
      *
      * @public
      */
-    emitBeforeToggle: () => void;
+    emitBeforeToggle(): void;
     /**
      * Method to emit an event after the dialog's open state changes
      * HTML spec proposal: https://github.com/whatwg/html/issues/9733
@@ -74,10 +108,4 @@ export declare class Dialog extends FASTElement {
      * @returns boolean
      */
     clickHandler(event: Event): boolean;
-    /**
-     * Updates the internal dialog element's attributes based on its type.
-     *
-     * @internal
-     */
-    protected updateDialogAttributes(): void;
 }

@@ -85,14 +85,14 @@ export declare class Tooltip extends FASTElement {
      * Hide the tooltip on blur
      */
     blurAnchorHandler: () => void;
+    /**
+     * Indicates whether the tooltip styles have been applied for browsers that do not support anchor positioning.
+     * @internal
+     */
+    private anchorPositioningReady;
+    /**
+     * Sets fallback styles for the tooltip for browsers that do not support CSS anchor positioning.
+     * @internal
+     */
     private setFallbackStyles;
-}
-declare global {
-    interface Window {
-        CSS_ANCHOR_POLYFILL?: {
-            call: (options: {
-                element: HTMLStyleElement;
-            }) => void;
-        };
-    }
 }

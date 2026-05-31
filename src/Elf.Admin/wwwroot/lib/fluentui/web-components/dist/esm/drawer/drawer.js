@@ -1,5 +1,5 @@
 import { __decorate } from "tslib";
-import { attr, FASTElement, observable, Updates } from '@microsoft/fast-element';
+import { attr, FASTElement, observable, Updates, volatile } from '@microsoft/fast-element';
 import { DrawerPosition, DrawerSize, DrawerType } from './drawer.options.js';
 /**
  * A Drawer component that allows content to be displayed in a side panel. It can be rendered as modal or non-modal.
@@ -35,13 +35,6 @@ import { DrawerPosition, DrawerSize, DrawerType } from './drawer.options.js';
 export class Drawer extends FASTElement {
     constructor() {
         super(...arguments);
-        /**
-         * Determines whether the drawer should be displayed as modal or non-modal
-         * When rendered as a modal, an overlay is applied over the rest of the view.
-         *
-         * @public
-         */
-        this.type = DrawerType.modal;
         /**
          * Sets the position of the drawer (start/end).
          *
@@ -80,28 +73,67 @@ export class Drawer extends FASTElement {
             });
         };
     }
-    typeChanged() {
-        if (!this.dialog) {
-            return;
-        }
-        this.updateDialogRole();
-        if (this.type === DrawerType.modal) {
-            this.dialog.setAttribute('aria-modal', 'true');
-        }
-        else {
-            this.dialog.removeAttribute('aria-modal');
+    /**
+     * The `aria-describedby` attribute value for the dialog, which is determined by the `ariaDescribedby` property. This
+     * is used to ensure that the dialog's accessible description is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogDescribedby() {
+        if (this.dialog) {
+            return this.ariaDescribedby;
         }
     }
-    /** @internal */
+    /**
+     * The `aria-label` attribute value for the dialog, which is determined by the `ariaLabel` property. This is used to
+     * ensure that the dialog's accessible name is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogLabel() {
+        if (this.dialog) {
+            return this.ariaLabel;
+        }
+    }
+    /**
+     * The `aria-labelledby` attribute value for the dialog, which is determined by the `ariaLabelledby` property. This is
+     * used to ensure that the dialog's accessible name is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogLabelledby() {
+        if (this.dialog) {
+            return this.ariaLabelledby;
+        }
+    }
+    /**
+     * The modal state of the dialog, which is determined by the `type` property. If the dialog is not a non-modal dialog,
+     * the modal state will be true, otherwise it will be undefined.
+     *
+     * @internal
+     */
+    get dialogModal() {
+        if (this.dialog && this.type === DrawerType.modal) {
+            return true;
+        }
+    }
+    /**
+     * The role of the dialog, which is determined by the `type` property. If the dialog is an alert dialog, the role will
+     * be 'alertdialog', otherwise it will be undefined.
+     *
+     * @internal
+     */
+    get dialogRole() {
+        if (this.dialog && this.type === DrawerType.modal) {
+            return 'dialog';
+        }
+        return this.role;
+    }
     connectedCallback() {
         super.connectedCallback();
-        this.typeChanged();
-        this.observeRoleAttr();
-    }
-    /** @internal */
-    disconnectedCallback() {
-        super.disconnectedCallback();
-        this.roleAttrObserver.disconnect();
+        Updates.enqueue(() => {
+            this.type = this.type ?? DrawerType.modal;
+        });
     }
     /**
      * Method to show the drawer
@@ -150,24 +182,6 @@ export class Drawer extends FASTElement {
     cancelHandler() {
         this.hide();
     }
-    observeRoleAttr() {
-        if (this.roleAttrObserver) {
-            return;
-        }
-        this.roleAttrObserver = new MutationObserver(() => {
-            this.updateDialogRole();
-        });
-        this.roleAttrObserver.observe(this, {
-            attributes: true,
-            attributeFilter: ['role'],
-        });
-    }
-    updateDialogRole() {
-        if (!this.dialog) {
-            return;
-        }
-        this.dialog.role = this.type === DrawerType.modal ? 'dialog' : this.role;
-    }
 }
 __decorate([
     attr
@@ -182,9 +196,27 @@ __decorate([
     attr
 ], Drawer.prototype, "position", void 0);
 __decorate([
+    observable
+], Drawer.prototype, "role", void 0);
+__decorate([
     attr({ attribute: 'size' })
 ], Drawer.prototype, "size", void 0);
 __decorate([
     observable
 ], Drawer.prototype, "dialog", void 0);
+__decorate([
+    volatile
+], Drawer.prototype, "dialogDescribedby", null);
+__decorate([
+    volatile
+], Drawer.prototype, "dialogLabel", null);
+__decorate([
+    volatile
+], Drawer.prototype, "dialogLabelledby", null);
+__decorate([
+    volatile
+], Drawer.prototype, "dialogModal", null);
+__decorate([
+    volatile
+], Drawer.prototype, "dialogRole", null);
 //# sourceMappingURL=drawer.js.map

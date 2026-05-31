@@ -8,7 +8,6 @@ import { endSlotTemplate, startSlotTemplate } from '../patterns/start-end.js';
 export function textInputTemplate(options = {}) {
     return html `
     <template
-      @beforeinput="${(x, c) => x.beforeinputHandler(c.event)}"
       @focusin="${(x, c) => x.focusinHandler(c.event)}"
       @keydown="${(x, c) => x.keydownHandler(c.event)}"
     >
@@ -38,7 +37,7 @@ export function textInputTemplate(options = {}) {
           size="${x => x.size}"
           spellcheck="${x => x.spellcheck}"
           type="${x => x.type}"
-          value="${x => x.initialValue}"
+          value="${x => x.value}"
           ${ref('control')}
         />
         ${endSlotTemplate(options)}

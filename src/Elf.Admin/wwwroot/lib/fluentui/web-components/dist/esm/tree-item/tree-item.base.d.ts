@@ -16,6 +16,7 @@ export declare class BaseTreeItem extends FASTElement {
      */
     itemSlotChanged(): void;
     constructor();
+    connectedCallback(): void;
     /**
      * When true, the control will be appear expanded by user interaction.
      * When true, the control will be appear expanded by user interaction.

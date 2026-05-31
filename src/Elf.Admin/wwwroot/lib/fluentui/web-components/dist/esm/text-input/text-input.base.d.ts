@@ -297,12 +297,6 @@ export declare class BaseTextInput extends FASTElement {
      */
     get form(): HTMLFormElement | null;
     /**
-     * Handles the internal control's `keypress` event.
-     *
-     * @internal
-     */
-    beforeinputHandler(e: InputEvent): boolean | void;
-    /**
      * Change event handler for inner control.
      *
      * @internal

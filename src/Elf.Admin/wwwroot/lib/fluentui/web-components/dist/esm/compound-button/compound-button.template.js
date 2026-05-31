@@ -1,12 +1,16 @@
 import { html, slotted } from '@microsoft/fast-element';
 import { endSlotTemplate, startSlotTemplate } from '../patterns/start-end.js';
 /**
- * The template for the Compound Button component.
+ * Generates a template for the Button component.
+ *
  * @public
  */
 export function buttonTemplate(options = {}) {
     return html `
-    <template ?disabled="${x => x.disabled}" tabindex="${x => (x.disabled ? null : x.tabIndex ?? 0)}">
+    <template
+      @click="${(x, c) => x.clickHandler(c.event)}"
+      @keypress="${(x, c) => x.keypressHandler(c.event)}"
+    >
       ${startSlotTemplate(options)}
       <span class="content" part="content">
         <slot ${slotted('defaultSlottedContent')}></slot>
@@ -18,6 +22,7 @@ export function buttonTemplate(options = {}) {
 }
 /**
  * The template for the Button component.
+ *
  * @public
  */
 export const template = buttonTemplate();

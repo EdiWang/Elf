@@ -1,5 +1,5 @@
 import { __decorate } from "tslib";
-import { FASTElement, observable, Updates } from '@microsoft/fast-element';
+import { FASTElement, Observable, observable, Updates } from '@microsoft/fast-element';
 import { isHTMLElement } from '../utils/typings.js';
 import { isMenuItem, MenuItemRole } from '../menu-item/menu-item.options.js';
 /**
@@ -77,6 +77,9 @@ export class BaseMenuList extends FASTElement {
      */
     connectedCallback() {
         super.connectedCallback();
+        if (!this.slot && this.isNestedMenu()) {
+            this.slot = 'submenu';
+        }
         Updates.enqueue(() => {
             // wait until children have had a chance to
             // connect before setting/checking their props/attributes
@@ -89,6 +92,9 @@ export class BaseMenuList extends FASTElement {
      */
     disconnectedCallback() {
         super.disconnectedCallback();
+        Array.from(this.children).forEach(child => {
+            Observable.getNotifier(child).unsubscribe(this, 'hidden');
+        });
         this.menuChildren = undefined;
         this.removeEventListener('change', this.changedMenuItemHandler);
     }
@@ -110,6 +116,9 @@ export class BaseMenuList extends FASTElement {
     }
     setItems() {
         const children = Array.from(this.children);
+        children.forEach((child) => {
+            Observable.getNotifier(child).subscribe(this, 'hidden');
+        });
         this.menuChildren = children.filter(child => !child.hasAttribute('hidden'));
         /**
          * Set the indent attribute on MenuItem elements based on their
