@@ -17,7 +17,7 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue
     {
         var options = new BoundedChannelOptions(1024)
         {
-            FullMode = BoundedChannelFullMode.DropWrite,
+            FullMode = BoundedChannelFullMode.Wait,
             SingleReader = true,
             SingleWriter = false
         };
