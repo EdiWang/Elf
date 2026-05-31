@@ -1,6 +1,5 @@
 ﻿using Elf.Admin.Features;
 using Elf.Admin.Models;
-using Elf.Api.Features;
 using Elf.Shared;
 using Elf.Shared.Models;
 using LiteBus.Commands.Abstractions;

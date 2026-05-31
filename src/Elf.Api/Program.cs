@@ -183,14 +183,14 @@ static string GetIPv6Subnet(IPAddress ipv6Address)
     }
 
     var addressBytes = ipv6Address.GetAddressBytes();
-    
+
     // Use /64 subnet for rate limiting (first 8 bytes)
     // This is a common IPv6 subnet boundary that groups related addresses
     // while still providing reasonable granularity for rate limiting
     var subnetBytes = new byte[16];
     Array.Copy(addressBytes, 0, subnetBytes, 0, 8);
     // Fill remaining bytes with zeros (already done by default)
-    
+
     var subnetAddress = new IPAddress(subnetBytes);
     return $"{subnetAddress}/64";
 }

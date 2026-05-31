@@ -12,14 +12,14 @@ public class LinkEntity
         Tags = new HashSet<TagEntity>();
     }
 
-    public int Id { get; set; } // int
-    public string OriginUrl { get; set; } // nvarchar(256)
-    public string FwToken { get; set; } // varchar(32)
-    public string Note { get; set; } // nvarchar(max)
-    public bool IsEnabled { get; set; } // bit
-    public DateTime UpdateTimeUtc { get; set; } // datetime
-    public string AkaName { get; set; } // varchar(32)
-    public int? TTL { get; set; } // int
+    public int Id { get; set; }
+    public string OriginUrl { get; set; }
+    public string FwToken { get; set; }
+    public string Note { get; set; }
+    public bool IsEnabled { get; set; }
+    public DateTime UpdateTimeUtc { get; set; }
+    public string AkaName { get; set; }
+    public int? TTL { get; set; }
 
     [JsonIgnore]
     public virtual ICollection<LinkTrackingEntity> LinkTrackings { get; set; }

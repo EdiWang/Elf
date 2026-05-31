@@ -1,7 +1,6 @@
 ﻿using Elf.Shared;
-using System.Net;
-using System.Net.Http.Json;
 using Microsoft.Net.Http.Headers;
+using System.Net;
 using System.Text.Json.Serialization;
 
 namespace Elf.Api.Services;

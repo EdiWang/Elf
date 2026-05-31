@@ -16,7 +16,6 @@ public class ListLinkQueryHandler(ElfDbContext dbContext) : IQueryHandler<ListLi
 
         var query = dbContext.Link.AsNoTracking();
 
-        // Apply filtering if keyword is provided
         if (!string.IsNullOrWhiteSpace(noteKeyword))
         {
             query = query.Where(l =>
@@ -24,11 +23,9 @@ public class ListLinkQueryHandler(ElfDbContext dbContext) : IQueryHandler<ListLi
                 (l.FwToken != null && l.FwToken.Contains(noteKeyword)));
         }
 
-        // Get total count asynchronously before applying pagination
         var totalRows = await query.CountAsync(ct);
         if (totalRows == 0) return (new List<LinkModel>(), 0);
 
-        // Apply pagination and projection
         var data = await query
             .OrderByDescending(p => p.UpdateTimeUtc)
             .ThenByDescending(p => p.Id)

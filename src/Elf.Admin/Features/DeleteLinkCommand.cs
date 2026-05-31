@@ -1,7 +1,7 @@
 ﻿using Elf.Admin.Data;
 using LiteBus.Commands.Abstractions;
 
-namespace Elf.Api.Features;
+namespace Elf.Admin.Features;
 
 public record DeleteLinkCommand(int Id) : ICommand;
 
@@ -9,7 +9,7 @@ public class DeleteLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<
 {
     public async Task HandleAsync(DeleteLinkCommand request, CancellationToken ct)
     {
-        var link = await dbContext.Link.FindAsync(request.Id);
+        var link = await dbContext.Link.FindAsync([request.Id], ct);
         if (link != null)
         {
             link.Tags.Clear();
