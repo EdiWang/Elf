@@ -83,6 +83,57 @@ public class DataIntegrityCommandTests
         Assert.Equal(1, await dbContext.Tag.CountAsync(TestContext.Current.CancellationToken));
     }
 
+    [Fact]
+    public async Task CreateTag_NormalizesNameToLowercase()
+    {
+        await using var dbContext = CreateDbContext();
+        var handler = new CreateTagCommandHandler(dbContext);
+
+        await handler.HandleAsync(new CreateTagCommand(" DOCS "), TestContext.Current.CancellationToken);
+
+        var tag = Assert.Single(await dbContext.Tag.ToListAsync(TestContext.Current.CancellationToken));
+        Assert.Equal("docs", tag.Name);
+    }
+
+    [Fact]
+    public async Task EditLink_NormalizesTagsToLowercaseAndDistinctValues()
+    {
+        await using var dbContext = CreateDbContext();
+        await SeedLinkAsync(dbContext, id: 1, fwToken: "abc12345", akaName: "docs");
+        var handler = new EditLinkCommandHandler(dbContext);
+
+        await handler.HandleAsync(new EditLinkCommand(1, new LinkEditModel
+        {
+            OriginUrl = "https://example.com/docs",
+            AkaName = "docs",
+            IsEnabled = true,
+            Tags = [" DOCS ", "docs", "Blog"]
+        }), TestContext.Current.CancellationToken);
+
+        var tags = await dbContext.Tag.OrderBy(t => t.Name).Select(t => t.Name).ToListAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(["blog", "docs"], tags);
+    }
+
+    [Fact]
+    public async Task CreateLink_WhenAkaNameHasInvalidFormat_ThrowsValidationException()
+    {
+        await using var dbContext = CreateDbContext();
+        var handler = new CreateLinkCommandHandler(
+            dbContext,
+            new FixedTokenGenerator("abc12345"),
+            NullLogger<CreateLinkCommandHandler>.Instance);
+
+        var command = new CreateLinkCommand(new LinkEditModel
+        {
+            OriginUrl = "https://example.com/new",
+            AkaName = "Docs-",
+            IsEnabled = true
+        });
+
+        await Assert.ThrowsAsync<System.ComponentModel.DataAnnotations.ValidationException>(() =>
+            handler.HandleAsync(command, TestContext.Current.CancellationToken));
+    }
+
     private static async Task SeedLinkAsync(ElfDbContext dbContext, int id, string fwToken, string akaName)
     {
         dbContext.Link.Add(new LinkEntity

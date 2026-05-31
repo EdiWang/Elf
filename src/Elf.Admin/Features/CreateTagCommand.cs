@@ -1,17 +1,22 @@
 ﻿using Elf.Admin.Data;
+using Elf.Shared;
 using LiteBus.Commands.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Admin.Features;
 
-public record CreateTagCommand([Required][MaxLength(32)] string Name) : ICommand;
+public record CreateTagCommand([Required][MinLength(1)][MaxLength(32)] string Name) : ICommand;
 
 public class CreateTagCommandHandler(ElfDbContext dbContext) : ICommandHandler<CreateTagCommand>
 {
     public async Task HandleAsync(CreateTagCommand request, CancellationToken ct)
     {
-        var name = request.Name.Trim();
+        var name = IdentifierRules.NormalizeTagName(request.Name);
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ValidationException("Tag name is required.");
+        }
 
         var exists = await dbContext.Tag.AnyAsync(p => p.Name == name, ct);
         if (exists) return;

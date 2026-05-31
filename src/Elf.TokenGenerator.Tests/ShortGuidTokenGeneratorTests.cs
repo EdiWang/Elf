@@ -36,7 +36,7 @@ public class ShortGuidTokenGeneratorTests
         var token = _tokenGenerator.GenerateToken();
 
         // Assert
-        Assert.True(token.All(c => char.IsDigit(c) || (c >= 'a' && c <= 'f') || c == '-'));
+        Assert.True(token.All(c => char.IsDigit(c) || c is >= 'a' and <= 'f'));
     }
 
     [Fact]
@@ -90,35 +90,19 @@ public class ShortGuidTokenGeneratorTests
     }
 
     [Theory]
-    [InlineData("ABCDEF12")] // Uppercase - should still parse
-    [InlineData("AbCdEf12")] // Mixed case - should still parse
-    [InlineData("12345678")] // Numbers only
-    [InlineData("abcdefgh")] // Letters only
-    [InlineData("!@#$%^&*")] // Special characters - should still parse (current implementation doesn't validate format)
-    public void TryParseToken_VariousFormats_ShouldParseBasedOnLengthOnly(string input)
+    [InlineData("ABCDEF12")]
+    [InlineData("AbCdEf12")]
+    [InlineData("abcdefgh")]
+    [InlineData("!@#$%^&*")]
+    [InlineData("        ")]
+    public void TryParseToken_InvalidFormat_ShouldReturnFalseAndNullToken(string input)
     {
         // Act
         var result = _tokenGenerator.TryParseToken(input, out var token);
 
         // Assert
-        // Current implementation only checks length, not format
-        Assert.True(result);
-        Assert.Equal(input, token);
-    }
-
-    [Fact]
-    public void TryParseToken_WhitespaceOnlyString_ShouldReturnFalseAndNullToken()
-    {
-        // Arrange
-        var input = "        "; // 8 spaces
-
-        // Act
-        var result = _tokenGenerator.TryParseToken(input, out var token);
-
-        // Assert
-        // Current implementation accepts whitespace as valid if length is correct
-        Assert.True(result);
-        Assert.Equal(input, token);
+        Assert.False(result);
+        Assert.Null(token);
     }
 
     [Fact]
@@ -169,7 +153,7 @@ public class ShortGuidTokenGeneratorTests
         // Act & Assert
         // Verify it's a valid 8-character substring that could come from a GUID
         Assert.Equal(8, token.Length);
-        Assert.True(token.All(c => char.IsLetterOrDigit(c) || c == '-'));
+        Assert.True(token.All(c => char.IsDigit(c) || c is >= 'a' and <= 'f'));
     }
 
     [Fact]

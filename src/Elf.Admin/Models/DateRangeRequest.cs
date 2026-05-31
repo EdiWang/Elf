@@ -10,6 +10,10 @@ public class DateRangeRequest : IValidatableObject
     [Required]
     public DateTime EndDateUtc { get; set; } = DateTime.UtcNow.Date;
 
+    public DateTime StartDateInclusiveUtc => StartDateUtc.Date;
+
+    public DateTime EndDateExclusiveUtc => EndDateUtc.Date.AddDays(1);
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (EndDateUtc < StartDateUtc)

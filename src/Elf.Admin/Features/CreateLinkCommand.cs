@@ -1,8 +1,10 @@
 ﻿using Elf.Admin.Data;
 using Elf.Admin.Models;
+using Elf.Shared;
 using Elf.TokenGenerator;
 using LiteBus.Commands.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Admin.Features;
 
@@ -74,6 +76,11 @@ public class CreateLinkCommandHandler(
         }
 
         var normalizedAkaName = akaName.Trim();
+        if (!IdentifierRules.IsValidAkaName(normalizedAkaName))
+        {
+            throw new ValidationException("Aka can only contain lowercase letters, numbers, and hyphens, and cannot start or end with a hyphen.");
+        }
+
         var exists = await dbContext.Link.AnyAsync(p => p.AkaName == normalizedAkaName, ct);
         if (exists)
         {
@@ -149,7 +156,7 @@ public class CreateLinkCommandHandler(
     }
 
     private static string[] NormalizeTagNames(string[] tagNames) => tagNames
-        .Select(tagName => tagName?.Trim())
+        .Select(IdentifierRules.NormalizeTagName)
         .Where(tagName => !string.IsNullOrWhiteSpace(tagName))
         .Distinct()
         .ToArray();

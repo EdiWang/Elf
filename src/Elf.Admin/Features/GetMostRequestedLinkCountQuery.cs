@@ -12,9 +12,13 @@ public class GetMostRequestedLinkCountQueryHandler(ElfDbContext dbContext) :
 {
     public async Task<List<MostRequestedLinkCount>> HandleAsync(GetMostRequestedLinkCountQuery request, CancellationToken ct)
     {
+        var startDateUtc = request.Request.StartDateInclusiveUtc;
+        var endDateUtc = request.Request.EndDateExclusiveUtc;
+
         var data = await dbContext.LinkTracking
-                        .Where(p => p.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
-                                    p.RequestTimeUtc >= request.Request.StartDateUtc.Date)
+                        .AsNoTracking()
+                        .Where(p => p.RequestTimeUtc >= startDateUtc &&
+                                    p.RequestTimeUtc < endDateUtc)
                         .GroupBy(lt => new { lt.Link.FwToken, lt.Link.Note })
                         .Select(g => new MostRequestedLinkCount
                         {
@@ -22,7 +26,6 @@ public class GetMostRequestedLinkCountQueryHandler(ElfDbContext dbContext) :
                             FwToken = g.Key.FwToken,
                             RequestCount = g.Count()
                         })
-                        .AsNoTracking()
                         .ToListAsync(ct);
 
         return data;

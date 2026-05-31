@@ -1,7 +1,9 @@
 ﻿using Elf.Admin.Data;
 using Elf.Admin.Models;
+using Elf.Shared;
 using LiteBus.Commands.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Admin.Features;
 
@@ -12,7 +14,11 @@ public class UpdateTagCommandHandler(ElfDbContext dbContext) : ICommandHandler<U
     public async Task<int> HandleAsync(UpdateTagCommand request, CancellationToken ct)
     {
         var (id, payload) = request;
-        var name = payload.Name.Trim();
+        var name = IdentifierRules.NormalizeTagName(payload.Name);
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ValidationException("Tag name is required.");
+        }
 
         var duplicateExists = await dbContext.Tag.AnyAsync(p => p.Id != id && p.Name == name, ct);
         if (duplicateExists)
