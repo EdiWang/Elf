@@ -68,14 +68,18 @@ void ConfigureServices(IServiceCollection services)
     });
 
     // Elf
-    services.AddSingleton<CannonService>();
+    services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+    services.AddHostedService<QueuedBackgroundService>();
 
     services.AddScoped<IDatabaseSchemaRunner, DatabaseSchemaRunner>();
     services.AddScoped<IStartUpInitializer, StartUpInitializer>();
     services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
     services.AddScoped<ILinkVerifier, LinkVerifier>();
 
-    services.AddHttpClient<IIPLocationService, IPLocationService>()
+    services.AddHttpClient<IIPLocationService, IPLocationService>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(3);
+            })
             .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(3, retryCount => TimeSpan.FromSeconds(Math.Pow(2, retryCount))));
     services.AddScoped<IDbConnection>(provider =>
     {

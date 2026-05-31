@@ -26,8 +26,7 @@ public class ForwardController(
         ILinkVerifier linkVerifier,
         IFeatureManager featureManager,
         IQueryMediator queryMediator,
-        IIPLocationService ipLocationService,
-        CannonService cannonService) : ControllerBase
+        IBackgroundTaskQueue backgroundTaskQueue) : ControllerBase
 {
     private StringValues UserAgent => Request.Headers.UserAgent;
 
@@ -111,7 +110,7 @@ public class ForwardController(
 
             case LinkVerifyResult.InvalidFormat:
                 logger.LogError("Invalid URL format for link ID {LinkId}: {OriginUrl}", link.Id, link.OriginUrl);
-                throw new UriFormatException($"OriginUrl '{link.OriginUrl}' is not a valid URL, link ID: {link.Id}");
+                return null;
 
             case LinkVerifyResult.InvalidLocal:
                 logger.LogWarning("Local redirection blocked for link: {Link}", JsonSerializer.Serialize(link));
@@ -147,9 +146,14 @@ public class ForwardController(
         var allowSelfRedirection = await featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
         var verificationResult = linkVerifier.Verify(defaultRedirectionUrl, Url, Request, allowSelfRedirection);
 
-        return verificationResult == LinkVerifyResult.Valid
-            ? Redirect(defaultRedirectionUrl)
-            : throw new UriFormatException("DefaultRedirectionUrl is not a valid URL.");
+        if (verificationResult == LinkVerifyResult.Valid)
+        {
+            return Redirect(defaultRedirectionUrl);
+        }
+
+        logger.LogError("DefaultRedirectionUrl is invalid or blocked. Result: {VerificationResult}, Url: {DefaultRedirectionUrl}",
+            verificationResult, defaultRedirectionUrl);
+        return NotFound();
     }
 
     private async Task TrackLinkRequestIfEnabledAsync(string ip, int linkId)
@@ -160,24 +164,37 @@ public class ForwardController(
         }
 
         Response.Headers.Append("X-Elf-Tracking-For", ip);
-        var userAgent = UserAgent;
-
-        cannonService.Fire(async (ICommandMediator commandMediator) =>
+        var userAgent = UserAgent.ToString();
+        var queued = backgroundTaskQueue.TryQueue(async (serviceProvider, ct) =>
         {
+            var commandMediator = serviceProvider.GetRequiredService<ICommandMediator>();
+            var ipLocationService = serviceProvider.GetRequiredService<IIPLocationService>();
+
             try
             {
-                var location = await ipLocationService.GetLocationAsync(ip, userAgent);
+                var location = await ipLocationService.GetLocationAsync(ip, userAgent, ct);
                 var request = new LinkTrackingRequest(ip, userAgent, linkId);
-                await commandMediator.SendAsync(new TrackSucessRedirectionCommand(request, location));
+                await commandMediator.SendAsync(new TrackSucessRedirectionCommand(request, location), ct);
             }
             catch (Exception ex)
             {
                 logger.LogWarning(ex, "Failed to track link request for IP: {IP}, LinkId: {LinkId}", ip, linkId);
 
-                // Send tracking without location data if location service fails
-                var request = new LinkTrackingRequest(ip, userAgent, linkId);
-                await commandMediator.SendAsync(new TrackSucessRedirectionCommand(request, null));
+                try
+                {
+                    var request = new LinkTrackingRequest(ip, userAgent, linkId);
+                    await commandMediator.SendAsync(new TrackSucessRedirectionCommand(request, null), ct);
+                }
+                catch (Exception fallbackEx)
+                {
+                    logger.LogError(fallbackEx, "Failed to track link request without location for IP: {IP}, LinkId: {LinkId}", ip, linkId);
+                }
             }
         });
+
+        if (!queued)
+        {
+            logger.LogWarning("Tracking queue is full. Dropped tracking request for IP: {IP}, LinkId: {LinkId}", ip, linkId);
+        }
     }
 }

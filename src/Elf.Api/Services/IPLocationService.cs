@@ -1,13 +1,14 @@
 ﻿using Elf.Shared;
+using System.Net;
+using System.Net.Http.Json;
 using Microsoft.Net.Http.Headers;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Elf.Api.Services;
 
 public interface IIPLocationService
 {
-    Task<IPLocation> GetLocationAsync(string ip, string userAgent);
+    Task<IPLocation> GetLocationAsync(string ip, string userAgent, CancellationToken ct = default);
 }
 
 public class IPLocationService : IIPLocationService
@@ -26,24 +27,28 @@ public class IPLocationService : IIPLocationService
         _logger = logger;
     }
 
-    public async Task<IPLocation> GetLocationAsync(string ip, string userAgent)
+    public async Task<IPLocation> GetLocationAsync(string ip, string userAgent, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(ip) || Utils.IsPrivateIP(ip) || ip == "::1")
+        if (string.IsNullOrWhiteSpace(ip) ||
+            !IPAddress.TryParse(ip, out var ipAddress) ||
+            IPAddress.IsLoopback(ipAddress) ||
+            Utils.IsPrivateIP(ip))
         {
             return null;
         }
 
-        _httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, userAgent);
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"{Uri.EscapeDataString(ip)}/json");
+        if (!string.IsNullOrWhiteSpace(userAgent))
+        {
+            request.Headers.TryAddWithoutValidation(HeaderNames.UserAgent, userAgent);
+        }
 
-        _logger.LogInformation($"Requesting IP Location: {_httpClient.BaseAddress}/{ip}/json");
+        _logger.LogInformation("Requesting IP location for {IP}", ip);
 
-        var response = await _httpClient.GetAsync($"{ip}/json");
+        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
         if (!response.IsSuccessStatusCode) return null;
 
-        var json = await response.Content.ReadAsStringAsync();
-        var obj = JsonSerializer.Deserialize<IPLocation>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
-
-        return obj;
+        return await response.Content.ReadFromJsonAsync<IPLocation>(cancellationToken: ct);
     }
 }
 
