@@ -13,6 +13,8 @@ public class GetClientTypeCountsQueryHandler(ElfDbContext dbContext) : IQueryHan
     public async Task<List<ClientTypeCount>> HandleAsync(GetClientTypeCountsQuery request, CancellationToken ct)
     {
         var uaParser = Parser.GetDefault();
+        var startDateUtc = request.Request.StartDateInclusiveUtc;
+        var endDateUtc = request.Request.EndDateExclusiveUtc;
 
         string GetClientTypeName(string userAgent)
         {
@@ -22,16 +24,25 @@ public class GetClientTypeCountsQueryHandler(ElfDbContext dbContext) : IQueryHan
             return $"{c.OS.Family}-{c.UA.Family}";
         }
 
-        var uac = await dbContext.LinkTracking
+        IQueryable<UserAgentCount> query = dbContext.LinkTracking
+                .AsNoTracking()
                 .Where(p =>
-                    p.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
-                    p.RequestTimeUtc >= request.Request.StartDateUtc.Date)
+                    p.RequestTimeUtc >= startDateUtc &&
+                    p.RequestTimeUtc < endDateUtc)
                 .GroupBy(p => p.UserAgent)
                 .Select(p => new UserAgentCount
                 {
                     RequestCount = p.Count(),
                     UserAgent = p.Key
-                }).AsNoTracking().ToListAsync(ct);
+                })
+                .OrderByDescending(p => p.RequestCount);
+
+        if (request.TopTypes > 0)
+        {
+            query = query.Take(Math.Max(request.TopTypes * 20, 100));
+        }
+
+        var uac = await query.ToListAsync(ct);
 
         if (uac.Any())
         {

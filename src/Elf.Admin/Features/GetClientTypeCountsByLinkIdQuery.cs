@@ -28,18 +28,30 @@ public class GetClientTypeCountsByLinkIdQueryHandler(ElfDbContext dbContext) : I
         // Apply date range filter if provided
         if (request.Request is not null)
         {
+            var startDateUtc = request.Request.StartDateInclusiveUtc;
+            var endDateUtc = request.Request.EndDateExclusiveUtc;
+
             query = query.Where(p =>
-                p.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
-                p.RequestTimeUtc >= request.Request.StartDateUtc.Date);
+                p.RequestTimeUtc >= startDateUtc &&
+                p.RequestTimeUtc < endDateUtc);
         }
 
-        var uac = await query
+        IQueryable<UserAgentCount> userAgentQuery = query
+            .AsNoTracking()
             .GroupBy(p => p.UserAgent)
             .Select(p => new UserAgentCount
             {
                 RequestCount = p.Count(),
                 UserAgent = p.Key
-            }).AsNoTracking().ToListAsync(ct);
+            })
+            .OrderByDescending(p => p.RequestCount);
+
+        if (request.TopTypes > 0)
+        {
+            userAgentQuery = userAgentQuery.Take(Math.Max(request.TopTypes * 20, 100));
+        }
+
+        var uac = await userAgentQuery.ToListAsync(ct);
 
         if (uac.Any())
         {

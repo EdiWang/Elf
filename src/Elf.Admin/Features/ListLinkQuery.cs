@@ -14,16 +14,14 @@ public class ListLinkQueryHandler(ElfDbContext dbContext) : IQueryHandler<ListLi
     {
         var (offset, take, noteKeyword) = request;
 
-        // Build base query with all necessary includes
-        var query = dbContext.Link
-            .Include(l => l.LinkTrackings)
-            .Include(l => l.Tags)
-            .AsQueryable();
+        var query = dbContext.Link.AsNoTracking();
 
         // Apply filtering if keyword is provided
         if (!string.IsNullOrWhiteSpace(noteKeyword))
         {
-            query = query.Where(l => l.Note.Contains(noteKeyword) || l.FwToken.Contains(noteKeyword));
+            query = query.Where(l =>
+                (l.Note != null && l.Note.Contains(noteKeyword)) ||
+                (l.FwToken != null && l.FwToken.Contains(noteKeyword)));
         }
 
         // Get total count asynchronously before applying pagination
@@ -33,9 +31,9 @@ public class ListLinkQueryHandler(ElfDbContext dbContext) : IQueryHandler<ListLi
         // Apply pagination and projection
         var data = await query
             .OrderByDescending(p => p.UpdateTimeUtc)
+            .ThenByDescending(p => p.Id)
             .Skip(offset)
             .Take(take)
-            .AsNoTracking()
             .Select(p => new LinkModel
             {
                 Id = p.Id,
@@ -46,8 +44,10 @@ public class ListLinkQueryHandler(ElfDbContext dbContext) : IQueryHandler<ListLi
                 AkaName = p.AkaName,
                 FwToken = p.FwToken,
                 IsEnabled = p.IsEnabled,
-                Tags = p.Tags.ToArray(),
-                Hits = p.LinkTrackings.Count
+                Tags = p.Tags
+                    .Select(t => new TagEntity { Id = t.Id, Name = t.Name })
+                    .ToArray(),
+                Hits = p.LinkTrackings.Count()
             })
             .ToListAsync(ct);
 

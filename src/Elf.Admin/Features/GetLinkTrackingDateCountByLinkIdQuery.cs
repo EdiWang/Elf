@@ -18,19 +18,23 @@ public class GetLinkTrackingDateCountByLinkIdQueryHandler(ElfDbContext dbContext
         // Apply date range filter if provided
         if (request.Request is not null)
         {
+            var startDateUtc = request.Request.StartDateInclusiveUtc;
+            var endDateUtc = request.Request.EndDateExclusiveUtc;
+
             query = query.Where(lt =>
-                lt.RequestTimeUtc <= request.Request.EndDateUtc.Date &&
-                lt.RequestTimeUtc >= request.Request.StartDateUtc.Date);
+                lt.RequestTimeUtc >= startDateUtc &&
+                lt.RequestTimeUtc < endDateUtc);
         }
 
         var data = await query
+            .AsNoTracking()
             .GroupBy(lt => lt.RequestTimeUtc.Date)
             .Select(g => new LinkTrackingDateCount
             {
                 TrackingDateUtc = g.Key,
                 RequestCount = g.Count()
             })
-            .AsNoTracking()
+            .OrderBy(g => g.TrackingDateUtc)
             .ToListAsync(ct);
 
         return data;
