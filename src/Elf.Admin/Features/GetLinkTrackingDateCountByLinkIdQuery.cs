@@ -12,10 +12,8 @@ public class GetLinkTrackingDateCountByLinkIdQueryHandler(ElfDbContext dbContext
 {
     public async Task<List<LinkTrackingDateCount>> HandleAsync(GetLinkTrackingDateCountByLinkIdQuery request, CancellationToken ct)
     {
-        // Build base query filtered by LinkId
         var query = dbContext.LinkTracking.Where(lt => lt.LinkId == request.LinkId);
 
-        // Apply date range filter if provided
         if (request.Request is not null)
         {
             var startDateUtc = request.Request.StartDateInclusiveUtc;

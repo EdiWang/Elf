@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Elf.Shared;
+﻿using Elf.Shared;
+using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Admin.Models;
 

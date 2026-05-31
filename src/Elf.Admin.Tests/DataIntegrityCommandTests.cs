@@ -134,6 +134,45 @@ public class DataIntegrityCommandTests
             handler.HandleAsync(command, TestContext.Current.CancellationToken));
     }
 
+    [Fact]
+    public async Task DeleteLink_RemovesLinkAndClearsTagRelationship()
+    {
+        await using var dbContext = CreateDbContext();
+        var tag = new TagEntity { Id = 1, Name = "docs" };
+        var link = new LinkEntity
+        {
+            Id = 1,
+            OriginUrl = "https://example.com/docs",
+            FwToken = "abc12345",
+            AkaName = "docs",
+            IsEnabled = true,
+            UpdateTimeUtc = DateTime.UtcNow
+        };
+        link.Tags.Add(tag);
+        dbContext.Link.Add(link);
+        await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var handler = new DeleteLinkCommandHandler(dbContext);
+
+        await handler.HandleAsync(new DeleteLinkCommand(1), TestContext.Current.CancellationToken);
+
+        Assert.Empty(await dbContext.Link.ToListAsync(TestContext.Current.CancellationToken));
+        var remainingTag = Assert.Single(await dbContext.Tag.Include(t => t.Links).ToListAsync(TestContext.Current.CancellationToken));
+        Assert.Equal("docs", remainingTag.Name);
+        Assert.Empty(remainingTag.Links);
+    }
+
+    [Fact]
+    public async Task DeleteLink_WhenLinkDoesNotExist_DoesNotThrow()
+    {
+        await using var dbContext = CreateDbContext();
+        var handler = new DeleteLinkCommandHandler(dbContext);
+
+        await handler.HandleAsync(new DeleteLinkCommand(404), TestContext.Current.CancellationToken);
+
+        Assert.Empty(await dbContext.Link.ToListAsync(TestContext.Current.CancellationToken));
+    }
+
     private static async Task SeedLinkAsync(ElfDbContext dbContext, int id, string fwToken, string akaName)
     {
         dbContext.Link.Add(new LinkEntity

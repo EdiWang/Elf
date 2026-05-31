@@ -19,7 +19,6 @@ public class CreateLinkCommandHandler(
     {
         await EnsureAkaNameIsAvailableAsync(request.Payload.AkaName, ct);
 
-        // Check if link already exists and handle early return
         var existingLink = await dbContext.Link
             .FirstOrDefaultAsync(p => p.OriginUrl == request.Payload.OriginUrl, ct);
 
@@ -35,18 +34,14 @@ public class CreateLinkCommandHandler(
                 existingLink.FwToken, request.Payload.OriginUrl);
         }
 
-        // Generate unique token
         var token = await GenerateUniqueTokenAsync(ct);
         logger.LogInformation("Generated Token '{Token}' for url '{Url}'", token, request.Payload.OriginUrl);
 
-        // Use database transaction for consistency
         using var transaction = await dbContext.Database.BeginTransactionAsync(ct);
         try
         {
-            // Create and configure link entity
             var link = CreateLinkEntity(request.Payload, token);
 
-            // Handle tags if provided
             if (request.Payload.Tags is { Length: > 0 })
             {
                 await ProcessTagsAsync(link, request.Payload.Tags, ct);
@@ -131,7 +126,6 @@ public class CreateLinkCommandHandler(
             return;
         }
 
-        // Get existing tags in batch
         var existingTags = await dbContext.Tag
             .Where(t => normalizedTagNames.Contains(t.Name))
             .ToListAsync(ct);
@@ -139,16 +133,14 @@ public class CreateLinkCommandHandler(
         var existingTagNames = existingTags.Select(t => t.Name).ToHashSet();
         var newTagNames = normalizedTagNames.Except(existingTagNames).ToList();
 
-        // Create new tags if needed
         if (newTagNames.Count > 0)
         {
             var newTags = newTagNames.Select(name => new TagEntity { Name = name }).ToList();
             await dbContext.Tag.AddRangeAsync(newTags, ct);
-            await dbContext.SaveChangesAsync(ct); // Save to get IDs
+            await dbContext.SaveChangesAsync(ct);
             existingTags.AddRange(newTags);
         }
 
-        // Add all tags to link
         foreach (var tag in existingTags)
         {
             link.Tags.Add(tag);

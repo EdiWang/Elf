@@ -15,7 +15,6 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
     {
         var (id, payload) = request;
 
-        // Use Include to load tags in a single query
         var link = await dbContext.Link
             .Include(l => l.Tags)
             .FirstOrDefaultAsync(l => l.Id == id, ct);
@@ -24,15 +23,13 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
 
         await EnsureAkaNameIsAvailableAsync(id, payload.AkaName, ct);
 
-        // Update link properties
         link.OriginUrl = payload.OriginUrl;
         link.Note = payload.Note;
         link.AkaName = string.IsNullOrWhiteSpace(payload.AkaName) ? null : payload.AkaName.Trim();
         link.IsEnabled = payload.IsEnabled;
         link.TTL = payload.TTL;
-        link.UpdateTimeUtc = DateTime.UtcNow; // Update timestamp
+        link.UpdateTimeUtc = DateTime.UtcNow;
 
-        // Handle tags efficiently
         await UpdateLinkTagsAsync(link, payload.Tags, ct);
 
         try
@@ -69,19 +66,16 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
 
     private async Task UpdateLinkTagsAsync(LinkEntity link, string[] newTags, CancellationToken ct)
     {
-        // Clear existing tags
         link.Tags.Clear();
 
         var normalizedTagNames = NormalizeTagNames(newTags);
         if (normalizedTagNames.Length == 0)
             return;
 
-        // Get all existing tags that match the new tag names in a single query
         var existingTags = await dbContext.Tag
             .Where(t => normalizedTagNames.Contains(t.Name))
             .ToDictionaryAsync(t => t.Name, t => t, ct);
 
-        // Identify new tags that need to be created
         var newTagNames = normalizedTagNames.Except(existingTags.Keys).ToArray();
 
         if (newTagNames.Length > 0)
@@ -90,14 +84,12 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
             await dbContext.Tag.AddRangeAsync(tagsToAdd, ct);
             await dbContext.SaveChangesAsync(ct);
 
-            // Add newly created tags to the dictionary
             foreach (var tag in tagsToAdd)
             {
                 existingTags[tag.Name] = tag;
             }
         }
 
-        // Add all tags to the link
         foreach (var tagName in normalizedTagNames)
         {
             if (existingTags.TryGetValue(tagName, out var tag))

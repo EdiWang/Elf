@@ -19,6 +19,14 @@ will be translate to `https://yourdomain/fw/token` or `https://yourdomain/aka/na
 
 ![image](./docs/screenshot.png)
 
+## Development
+
+Run the full test suite from the repository root:
+
+```bash
+dotnet test src/Elf.slnx
+```
+
 ## Forwarder Logic
 
 ```mermaid
@@ -43,7 +51,7 @@ flowchart TD
     H -->|Unsafe| G
     Q --> R[Redirect to Origin URL]
     O -->|Valid| S[Redirect to Default URL]
-    O -->|Invalid| T[Server Error 500]
+    O -->|Invalid| T[Not Found 404]
     
     %% Style the terminal nodes
     E:::error
