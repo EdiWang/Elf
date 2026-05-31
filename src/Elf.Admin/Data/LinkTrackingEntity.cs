@@ -44,6 +44,9 @@ internal class LinkTrackingEntityConfiguration : IEntityTypeConfiguration<LinkTr
         builder.Property(e => e.Id).ValueGeneratedNever();
         builder.Property(e => e.RequestTimeUtc).HasColumnType("datetime");
 
+        builder.HasIndex(e => new { e.LinkId, e.RequestTimeUtc });
+        builder.HasIndex(e => e.RequestTimeUtc);
+
         builder.HasOne(d => d.Link)
             .WithMany(p => p.LinkTrackings)
             .HasForeignKey(d => d.LinkId);

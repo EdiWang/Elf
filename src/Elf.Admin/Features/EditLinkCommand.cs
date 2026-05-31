@@ -20,10 +20,12 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
 
         if (link is null) return null;
 
+        await EnsureAkaNameIsAvailableAsync(id, payload.AkaName, ct);
+
         // Update link properties
         link.OriginUrl = payload.OriginUrl;
         link.Note = payload.Note;
-        link.AkaName = string.IsNullOrWhiteSpace(payload.AkaName) ? null : payload.AkaName;
+        link.AkaName = string.IsNullOrWhiteSpace(payload.AkaName) ? null : payload.AkaName.Trim();
         link.IsEnabled = payload.IsEnabled;
         link.TTL = payload.TTL;
         link.UpdateTimeUtc = DateTime.UtcNow; // Update timestamp
@@ -31,8 +33,31 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
         // Handle tags efficiently
         await UpdateLinkTagsAsync(link, payload.Tags, ct);
 
-        await dbContext.SaveChangesAsync(ct);
+        try
+        {
+            await dbContext.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException ex) when (ex.IsUniqueConstraintViolation())
+        {
+            throw new DuplicateResourceException("The link token, aka name, or tag already exists.");
+        }
+
         return link.FwToken;
+    }
+
+    private async Task EnsureAkaNameIsAvailableAsync(int id, string akaName, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(akaName))
+        {
+            return;
+        }
+
+        var normalizedAkaName = akaName.Trim();
+        var exists = await dbContext.Link.AnyAsync(p => p.Id != id && p.AkaName == normalizedAkaName, ct);
+        if (exists)
+        {
+            throw new DuplicateResourceException($"Aka '{normalizedAkaName}' is already used by another link.");
+        }
     }
 
     private async Task UpdateLinkTagsAsync(LinkEntity link, string[] newTags, CancellationToken ct)
@@ -40,16 +65,17 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
         // Clear existing tags
         link.Tags.Clear();
 
-        if (newTags is null or { Length: 0 })
+        var normalizedTagNames = NormalizeTagNames(newTags);
+        if (normalizedTagNames.Length == 0)
             return;
 
         // Get all existing tags that match the new tag names in a single query
         var existingTags = await dbContext.Tag
-            .Where(t => newTags.Contains(t.Name))
+            .Where(t => normalizedTagNames.Contains(t.Name))
             .ToDictionaryAsync(t => t.Name, t => t, ct);
 
         // Identify new tags that need to be created
-        var newTagNames = newTags.Except(existingTags.Keys).ToArray();
+        var newTagNames = normalizedTagNames.Except(existingTags.Keys).ToArray();
 
         if (newTagNames.Length > 0)
         {
@@ -65,7 +91,7 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
         }
 
         // Add all tags to the link
-        foreach (var tagName in newTags)
+        foreach (var tagName in normalizedTagNames)
         {
             if (existingTags.TryGetValue(tagName, out var tag))
             {
@@ -73,4 +99,10 @@ public class EditLinkCommandHandler(ElfDbContext dbContext) : ICommandHandler<Ed
             }
         }
     }
+
+    private static string[] NormalizeTagNames(string[] tagNames) => (tagNames ?? [])
+        .Select(tagName => tagName?.Trim())
+        .Where(tagName => !string.IsNullOrWhiteSpace(tagName))
+        .Distinct()
+        .ToArray();
 }

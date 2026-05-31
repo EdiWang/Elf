@@ -15,6 +15,8 @@ public class CreateLinkCommandHandler(
 {
     public async Task HandleAsync(CreateLinkCommand request, CancellationToken ct)
     {
+        await EnsureAkaNameIsAvailableAsync(request.Payload.AkaName, ct);
+
         // Check if link already exists and handle early return
         var existingLink = await dbContext.Link
             .FirstOrDefaultAsync(p => p.OriginUrl == request.Payload.OriginUrl, ct);
@@ -52,10 +54,30 @@ public class CreateLinkCommandHandler(
             await dbContext.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
         }
+        catch (DbUpdateException ex) when (ex.IsUniqueConstraintViolation())
+        {
+            await transaction.RollbackAsync(ct);
+            throw new DuplicateResourceException("The link token, aka name, or tag already exists.");
+        }
         catch
         {
             await transaction.RollbackAsync(ct);
             throw;
+        }
+    }
+
+    private async Task EnsureAkaNameIsAvailableAsync(string akaName, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(akaName))
+        {
+            return;
+        }
+
+        var normalizedAkaName = akaName.Trim();
+        var exists = await dbContext.Link.AnyAsync(p => p.AkaName == normalizedAkaName, ct);
+        if (exists)
+        {
+            throw new DuplicateResourceException($"Aka '{normalizedAkaName}' is already used by another link.");
         }
     }
 
@@ -87,7 +109,7 @@ public class CreateLinkCommandHandler(
             FwToken = token,
             IsEnabled = payload.IsEnabled,
             Note = payload.Note,
-            AkaName = string.IsNullOrWhiteSpace(payload.AkaName) ? null : payload.AkaName,
+            AkaName = string.IsNullOrWhiteSpace(payload.AkaName) ? null : payload.AkaName.Trim(),
             OriginUrl = payload.OriginUrl,
             UpdateTimeUtc = DateTime.UtcNow,
             TTL = payload.TTL
@@ -96,13 +118,19 @@ public class CreateLinkCommandHandler(
 
     private async Task ProcessTagsAsync(LinkEntity link, string[] tagNames, CancellationToken ct)
     {
+        var normalizedTagNames = NormalizeTagNames(tagNames);
+        if (normalizedTagNames.Length == 0)
+        {
+            return;
+        }
+
         // Get existing tags in batch
         var existingTags = await dbContext.Tag
-            .Where(t => tagNames.Contains(t.Name))
+            .Where(t => normalizedTagNames.Contains(t.Name))
             .ToListAsync(ct);
 
         var existingTagNames = existingTags.Select(t => t.Name).ToHashSet();
-        var newTagNames = tagNames.Except(existingTagNames).ToList();
+        var newTagNames = normalizedTagNames.Except(existingTagNames).ToList();
 
         // Create new tags if needed
         if (newTagNames.Count > 0)
@@ -119,4 +147,10 @@ public class CreateLinkCommandHandler(
             link.Tags.Add(tag);
         }
     }
+
+    private static string[] NormalizeTagNames(string[] tagNames) => tagNames
+        .Select(tagName => tagName?.Trim())
+        .Where(tagName => !string.IsNullOrWhiteSpace(tagName))
+        .Distinct()
+        .ToArray();
 }

@@ -22,9 +22,18 @@ public class TagController(ICommandMediator commandMediator, IQueryMediator quer
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create(CreateTagCommand command)
     {
-        await commandMediator.SendAsync(command);
+        try
+        {
+            await commandMediator.SendAsync(command);
+        }
+        catch (DuplicateResourceException ex)
+        {
+            return Conflict(ex.Message);
+        }
+
         return NoContent();
     }
 
@@ -32,9 +41,19 @@ public class TagController(ICommandMediator commandMediator, IQueryMediator quer
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(int id, UpdateTagRequest request)
     {
-        var code = await commandMediator.SendAsync(new UpdateTagCommand(id, request));
+        int code;
+        try
+        {
+            code = await commandMediator.SendAsync(new UpdateTagCommand(id, request));
+        }
+        catch (DuplicateResourceException ex)
+        {
+            return Conflict(ex.Message);
+        }
+
         if (code == -1) return NotFound();
 
         return NoContent();

@@ -24,6 +24,7 @@ public class LinkController(
     [HttpPost("create")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create(LinkEditModel model)
     {
         var flag = await featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
@@ -38,13 +39,22 @@ public class LinkController(
                 return BadRequest("Can not use url pointing to this site.");
         }
 
-        await commandMediator.SendAsync(new CreateLinkCommand(model));
+        try
+        {
+            await commandMediator.SendAsync(new CreateLinkCommand(model));
+        }
+        catch (DuplicateResourceException ex)
+        {
+            return Conflict(ex.Message);
+        }
+
         return NoContent();
     }
 
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Edit(int id, LinkEditModel model)
     {
         var flag = await featureManager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection));
@@ -59,7 +69,16 @@ public class LinkController(
                 return BadRequest("Can not use url from this site.");
         }
 
-        var token = await commandMediator.SendAsync(new EditLinkCommand(id, model));
+        string token;
+        try
+        {
+            token = await commandMediator.SendAsync(new EditLinkCommand(id, model));
+        }
+        catch (DuplicateResourceException ex)
+        {
+            return Conflict(ex.Message);
+        }
+
         if (token is not null) await cache.RemoveAsync(token);
         return NoContent();
     }

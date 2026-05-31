@@ -36,5 +36,9 @@ internal class LinkEntityConfiguration : IEntityTypeConfiguration<LinkEntity>
         builder.Property(e => e.FwToken).HasMaxLength(32);
         builder.Property(e => e.AkaName).HasMaxLength(32);
         builder.Property(e => e.UpdateTimeUtc).HasColumnType("datetime");
+
+        builder.HasIndex(e => e.FwToken).IsUnique().HasFilter("[FwToken] IS NOT NULL");
+        builder.HasIndex(e => e.AkaName).IsUnique().HasFilter("[AkaName] IS NOT NULL");
+        builder.HasIndex(e => e.UpdateTimeUtc);
     }
 }

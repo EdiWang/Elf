@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Elf.Admin.Data;
 
@@ -18,4 +20,13 @@ public class TagEntity
 
     [JsonIgnore]
     public virtual ICollection<LinkEntity> Links { get; set; }
+}
+
+internal class TagEntityConfiguration : IEntityTypeConfiguration<TagEntity>
+{
+    public void Configure(EntityTypeBuilder<TagEntity> builder)
+    {
+        builder.Property(e => e.Name).HasMaxLength(32);
+        builder.HasIndex(e => e.Name).IsUnique();
+    }
 }

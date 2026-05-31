@@ -11,15 +11,24 @@ public class CreateTagCommandHandler(ElfDbContext dbContext) : ICommandHandler<C
 {
     public async Task HandleAsync(CreateTagCommand request, CancellationToken ct)
     {
-        var exists = await dbContext.Tag.AnyAsync(p => p.Name == request.Name, ct);
+        var name = request.Name.Trim();
+
+        var exists = await dbContext.Tag.AnyAsync(p => p.Name == name, ct);
         if (exists) return;
 
         var tag = new TagEntity
         {
-            Name = request.Name.Trim()
+            Name = name
         };
 
         await dbContext.AddAsync(tag, ct);
-        await dbContext.SaveChangesAsync(ct);
+        try
+        {
+            await dbContext.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException ex) when (ex.IsUniqueConstraintViolation())
+        {
+            throw new DuplicateResourceException($"Tag '{name}' already exists.");
+        }
     }
 }
