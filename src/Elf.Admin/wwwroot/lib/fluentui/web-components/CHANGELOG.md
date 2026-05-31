@@ -1,12 +1,55 @@
 # Change Log - @fluentui/web-components
 
-This log was last generated on Mon, 11 May 2026 04:08:54 GMT and should not be manually modified.
+This log was last generated on Thu, 28 May 2026 04:09:30 GMT and should not be manually modified.
 
 <!-- Start content -->
 
+## [3.0.0-rc.22](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.22)
+
+Thu, 28 May 2026 04:09:30 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.21..@fluentui/web-components_v3.0.0-rc.22)
+
+### Changes
+
+- prevent text input from submitting its associated form twice when Enter is pressed ([PR #36240](https://github.com/microsoft/fluentui/pull/36240) by machi@microsoft.com)
+- remove tooltip id from target’s aria-describedby attribute when the tooltip is removed from DOM ([PR #36241](https://github.com/microsoft/fluentui/pull/36241) by machi@microsoft.com)
+- feat(web-components): add SSR support via Declarative Shadow DOM modules ([PR #36247](https://github.com/microsoft/fluentui/pull/36247) by 863023+radium-v@users.noreply.github.com)
+
+## [3.0.0-rc.21](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.21)
+
+Wed, 27 May 2026 04:07:54 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.20..@fluentui/web-components_v3.0.0-rc.21)
+
+### Changes
+
+- feat(web-components): switch e2e test harness to @microsoft/fast-test-harness ([PR #36105](https://github.com/microsoft/fluentui/pull/36105) by 863023+radium-v@users.noreply.github.com)
+
+## [3.0.0-rc.20](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.20)
+
+Tue, 19 May 2026 04:10:54 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.19..@fluentui/web-components_v3.0.0-rc.20)
+
+### Changes
+
+- Adds white-space normal to dropdown .control div to prevent text overflow issues. ([PR #36210](https://github.com/microsoft/fluentui/pull/36210) by mibaraka@microsoft.com)
+- feat: implement BaseCounterBadge class and update CounterBadge component structure ([PR #36209](https://github.com/microsoft/fluentui/pull/36209) by 863023+radium-v@users.noreply.github.com)
+
+## [3.0.0-rc.19](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.19)
+
+Wed, 13 May 2026 04:08:40 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.18..@fluentui/web-components_v3.0.0-rc.19)
+
+### Changes
+
+- fix: remove hoisted peer dependency entries ([PR #36184](https://github.com/microsoft/fluentui/pull/36184) by 863023+radium-v@users.noreply.github.com)
+- fix: enhance accessibility attributes for drawer component ([PR #36191](https://github.com/microsoft/fluentui/pull/36191) by 863023+radium-v@users.noreply.github.com)
+- fix keyboard navigation regressions for tree and menu-list ([PR #36118](https://github.com/microsoft/fluentui/pull/36118) by machi@microsoft.com)
+- fix: synchronize compound-button template with button template ([PR #36191](https://github.com/microsoft/fluentui/pull/36191) by 863023+radium-v@users.noreply.github.com)
+- fix: enhance accessibility attributes for dialog component ([PR #36191](https://github.com/microsoft/fluentui/pull/36191) by 863023+radium-v@users.noreply.github.com)
+
 ## [3.0.0-rc.18](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.18)
 
-Mon, 11 May 2026 04:08:54 GMT 
+Mon, 11 May 2026 04:09:08 GMT 
 [Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.17..@fluentui/web-components_v3.0.0-rc.18)
 
 ### Changes

@@ -6,7 +6,7 @@ export { Badge, BadgeAppearance, BadgeColor, BadgeDefinition, BadgeShape, BadgeS
 export { BaseButton, Button, ButtonAppearance, ButtonDefinition, ButtonFormTarget, ButtonShape, ButtonSize, ButtonStyles, ButtonTemplate, ButtonType, } from './button/index.js';
 export { BaseCheckbox, Checkbox, CheckboxDefinition, CheckboxShape, CheckboxSize, CheckboxStyles, CheckboxTemplate, } from './checkbox/index.js';
 export { CompoundButton, CompoundButtonAppearance, CompoundButtonDefinition, CompoundButtonShape, CompoundButtonSize, CompoundButtonStyles, CompoundButtonTemplate, } from './compound-button/index.js';
-export { CounterBadge, CounterBadgeAppearance, CounterBadgeColor, CounterBadgeDefinition, CounterBadgeShape, CounterBadgeSize, CounterBadgeStyles, CounterBadgeTemplate, } from './counter-badge/index.js';
+export { BaseCounterBadge, CounterBadge, CounterBadgeAppearance, CounterBadgeColor, CounterBadgeDefinition, CounterBadgeShape, CounterBadgeSize, CounterBadgeStyles, CounterBadgeTagName, CounterBadgeTemplate, } from './counter-badge/index.js';
 export { Dialog, DialogType, DialogDefinition, DialogTemplate, DialogStyles, isDialog } from './dialog/index.js';
 export { DialogBody, DialogBodyDefinition, DialogBodyTemplate, DialogBodyStyles } from './dialog-body/index.js';
 export { BaseDivider, Divider, DividerAlignContent, DividerAppearance, DividerDefinition, DividerOrientation, DividerRole, DividerStyles, DividerTemplate, } from './divider/index.js';

@@ -1,6 +1,7 @@
 import { FluentDesignSystem } from '../fluent-design-system.js';
 /**
- * CounterBadgeAppearance constants
+ * Values for the `appearance` attribute on CounterBadge elements.
+ *
  * @public
  */
 export const CounterBadgeAppearance = {
@@ -8,7 +9,8 @@ export const CounterBadgeAppearance = {
     ghost: 'ghost',
 };
 /**
- * CounterBadgeColor constants
+ * Values for the `color` attribute on CounterBadge elements.
+ *
  * @public
  */
 export const CounterBadgeColor = {
@@ -22,7 +24,8 @@ export const CounterBadgeColor = {
     warning: 'warning',
 };
 /**
- * A CounterBadge shape can be circular or rounded.
+ * Values for the `shape` attribute on CounterBadge elements.
+ *
  * @public
  */
 export const CounterBadgeShape = {
@@ -30,7 +33,8 @@ export const CounterBadgeShape = {
     rounded: 'rounded',
 };
 /**
- * A CounterBadge can be square, circular or rounded.
+ * Values for the `size` attribute on CounterBadge elements.
+ *
  * @public
  */
 export const CounterBadgeSize = {

@@ -13175,11 +13175,129 @@
     },
     {
       "kind": "javascript-module",
+      "path": "./dist/esm/counter-badge/counter-badge.base.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "The base class used for constructing a fluent-counter-badge custom element.\nContains the count-related state and display logic, without any visual\nappearance attributes.",
+          "name": "BaseCounterBadge",
+          "members": [
+            {
+              "kind": "field",
+              "name": "count",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "public",
+              "default": "0",
+              "description": "The count to be displayed in the badge."
+            },
+            {
+              "kind": "field",
+              "name": "overflowCount",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "public",
+              "default": "99",
+              "description": "The maximum count to be displayed before showing the overflow count (e.g. \"99+\")."
+            },
+            {
+              "kind": "field",
+              "name": "showZero",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether to show the badge when the count is zero. By default, the badge will be hidden when the count is zero."
+            },
+            {
+              "kind": "field",
+              "name": "dot",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether to display the badge as a dot. When true, the badge will be displayed as a dot and the count will not be\nshown."
+            },
+            {
+              "kind": "field",
+              "name": "displayValue",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "public",
+              "description": "The value to be displayed in the badge, which is determined by the `count`, `overflow-count`, and `show-zero` attributes.",
+              "readonly": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "count",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "description": "The count to be displayed in the badge.",
+              "fieldName": "count"
+            },
+            {
+              "name": "overflow-count",
+              "type": {
+                "text": "number"
+              },
+              "default": "99",
+              "description": "The maximum count to be displayed before showing the overflow count (e.g. \"99+\").",
+              "fieldName": "overflowCount"
+            },
+            {
+              "name": "show-zero",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether to show the badge when the count is zero. By default, the badge will be hidden when the count is zero.",
+              "fieldName": "showZero"
+            },
+            {
+              "name": "dot",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether to display the badge as a dot. When true, the badge will be displayed as a dot and the count will not be\nshown.",
+              "fieldName": "dot"
+            }
+          ],
+          "superclass": {
+            "name": "FASTElement",
+            "package": "@microsoft/fast-element"
+          },
+          "customElement": true,
+          "modulePath": "./dist/esm/counter-badge/counter-badge.base.js",
+          "definitionPath": "./dist/esm/counter-badge/define.js"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "BaseCounterBadge",
+          "declaration": {
+            "name": "BaseCounterBadge",
+            "module": "src/counter-badge/counter-badge.base.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "./dist/esm/counter-badge/counter-badge.js",
       "declarations": [
         {
           "kind": "class",
-          "description": "The base class used for constructing a fluent-badge custom element",
+          "description": "A CounterBadge Custom HTML Element.\nBased on BaseCounterBadge and includes style and layout specific attributes.",
           "name": "CounterBadge",
           "members": [
             {
@@ -13238,12 +13356,11 @@
               },
               "privacy": "public",
               "default": "0",
-              "description": "The count the badge should have."
-            },
-            {
-              "kind": "method",
-              "name": "countChanged",
-              "privacy": "protected"
+              "description": "The count to be displayed in the badge.",
+              "inheritedFrom": {
+                "name": "BaseCounterBadge",
+                "module": "src/counter-badge/counter-badge.base.ts"
+              }
             },
             {
               "kind": "field",
@@ -13253,12 +13370,11 @@
               },
               "privacy": "public",
               "default": "99",
-              "description": "Max number to be displayed"
-            },
-            {
-              "kind": "method",
-              "name": "overflowCountChanged",
-              "privacy": "protected"
+              "description": "The maximum count to be displayed before showing the overflow count (e.g. \"99+\").",
+              "inheritedFrom": {
+                "name": "BaseCounterBadge",
+                "module": "src/counter-badge/counter-badge.base.ts"
+              }
             },
             {
               "kind": "field",
@@ -13268,7 +13384,11 @@
               },
               "privacy": "public",
               "default": "false",
-              "description": "If the badge should be shown when count is 0"
+              "description": "Whether to show the badge when the count is zero. By default, the badge will be hidden when the count is zero.",
+              "inheritedFrom": {
+                "name": "BaseCounterBadge",
+                "module": "src/counter-badge/counter-badge.base.ts"
+              }
             },
             {
               "kind": "field",
@@ -13278,7 +13398,25 @@
               },
               "privacy": "public",
               "default": "false",
-              "description": "If a dot should be displayed without the count"
+              "description": "Whether to display the badge as a dot. When true, the badge will be displayed as a dot and the count will not be\nshown.",
+              "inheritedFrom": {
+                "name": "BaseCounterBadge",
+                "module": "src/counter-badge/counter-badge.base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "displayValue",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "public",
+              "description": "The value to be displayed in the badge, which is determined by the `count`, `overflow-count`, and `show-zero` attributes.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "BaseCounterBadge",
+                "module": "src/counter-badge/counter-badge.base.ts"
+              }
             }
           ],
           "attributes": [
@@ -13332,8 +13470,12 @@
                 "text": "number"
               },
               "default": "0",
-              "description": "The count the badge should have.",
-              "fieldName": "count"
+              "description": "The count to be displayed in the badge.",
+              "fieldName": "count",
+              "inheritedFrom": {
+                "name": "BaseCounterBadge",
+                "module": "src/counter-badge/counter-badge.base.ts"
+              }
             },
             {
               "name": "overflow-count",
@@ -13341,8 +13483,12 @@
                 "text": "number"
               },
               "default": "99",
-              "description": "Max number to be displayed",
-              "fieldName": "overflowCount"
+              "description": "The maximum count to be displayed before showing the overflow count (e.g. \"99+\").",
+              "fieldName": "overflowCount",
+              "inheritedFrom": {
+                "name": "BaseCounterBadge",
+                "module": "src/counter-badge/counter-badge.base.ts"
+              }
             },
             {
               "name": "show-zero",
@@ -13350,8 +13496,12 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "If the badge should be shown when count is 0",
-              "fieldName": "showZero"
+              "description": "Whether to show the badge when the count is zero. By default, the badge will be hidden when the count is zero.",
+              "fieldName": "showZero",
+              "inheritedFrom": {
+                "name": "BaseCounterBadge",
+                "module": "src/counter-badge/counter-badge.base.ts"
+              }
             },
             {
               "name": "dot",
@@ -13359,18 +13509,27 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "If a dot should be displayed without the count",
-              "fieldName": "dot"
+              "description": "Whether to display the badge as a dot. When true, the badge will be displayed as a dot and the count will not be\nshown.",
+              "fieldName": "dot",
+              "inheritedFrom": {
+                "name": "BaseCounterBadge",
+                "module": "src/counter-badge/counter-badge.base.ts"
+              }
             }
           ],
           "superclass": {
-            "name": "FASTElement",
-            "package": "@microsoft/fast-element"
+            "name": "BaseCounterBadge",
+            "module": "/src/counter-badge/counter-badge.base.js"
           },
           "tagName": "fluent-counter-badge",
           "customElement": true,
           "modulePath": "./dist/esm/counter-badge/counter-badge.js",
-          "definitionPath": "./dist/esm/counter-badge/define.js"
+          "definitionPath": "./dist/esm/counter-badge/define.js",
+          "cssProperties": [],
+          "cssParts": [],
+          "cssStates": [],
+          "events": [],
+          "slots": []
         }
       ],
       "exports": [
@@ -13401,11 +13560,6 @@
               },
               "privacy": "public",
               "description": "The dialog element"
-            },
-            {
-              "kind": "method",
-              "name": "dialogChanged",
-              "privacy": "protected"
             },
             {
               "kind": "field",
@@ -13448,32 +13602,13 @@
             },
             {
               "kind": "method",
-              "name": "typeChanged",
-              "privacy": "protected",
+              "name": "emitBeforeToggle",
+              "privacy": "public",
               "return": {
                 "type": {
                   "text": "void"
                 }
               },
-              "parameters": [
-                {
-                  "name": "prev",
-                  "type": {
-                    "text": "DialogType | undefined"
-                  }
-                },
-                {
-                  "name": "next",
-                  "type": {
-                    "text": "DialogType"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "field",
-              "name": "emitBeforeToggle",
-              "privacy": "public",
               "description": "Method to emit an event before the dialog's open state changes\nHTML spec proposal: https://github.com/whatwg/html/issues/9733"
             },
             {
@@ -13896,14 +14031,6 @@
           "members": [
             {
               "kind": "field",
-              "name": "roleAttrObserver",
-              "type": {
-                "text": "MutationObserver"
-              },
-              "privacy": "protected"
-            },
-            {
-              "kind": "field",
               "name": "type",
               "type": {
                 "text": "DrawerType"
@@ -13913,11 +14040,6 @@
               "parsedType": {
                 "text": "'inline' | 'modal' | 'non-modal'"
               }
-            },
-            {
-              "kind": "method",
-              "name": "typeChanged",
-              "privacy": "protected"
             },
             {
               "kind": "field",
@@ -13948,6 +14070,14 @@
               "parsedType": {
                 "text": "'start' | 'end'"
               }
+            },
+            {
+              "kind": "field",
+              "name": "role",
+              "type": {
+                "text": "string | null"
+              },
+              "privacy": "public"
             },
             {
               "kind": "field",
@@ -14027,16 +14157,6 @@
               "name": "cancelHandler",
               "privacy": "public",
               "description": "Handles cancel events on the drawer."
-            },
-            {
-              "kind": "method",
-              "name": "observeRoleAttr",
-              "privacy": "protected"
-            },
-            {
-              "kind": "method",
-              "name": "updateDialogRole",
-              "privacy": "protected"
             }
           ],
           "events": [
@@ -27117,16 +27237,6 @@
               "description": "Hide the tooltip on blur"
             },
             {
-              "kind": "method",
-              "name": "setFallbackStyles",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            },
-            {
               "kind": "field",
               "name": "role",
               "type": {
@@ -28020,6 +28130,838 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/accordion/accordion.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "declarativeDefinition",
+          "type": {
+            "text": "{\n  name: tagName,\n  templateOptions: 'defer-and-hydrate',\n}"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-accordion element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "declarativeDefinition",
+          "declaration": {
+            "name": "declarativeDefinition",
+            "module": "src/accordion/accordion.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/accordion/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/accordion-item/accordion-item.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-accordion-item element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/accordion-item/accordion-item.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/accordion-item/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/anchor-button/anchor-button.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-anchor-button element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/anchor-button/anchor-button.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/anchor-button/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/button/button.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-button element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/button/button.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/button/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/avatar/avatar.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-avatar element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/avatar/avatar.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/avatar/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/badge/badge.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-badge element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/badge/badge.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/badge/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/checkbox/checkbox.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-checkbox element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/checkbox/checkbox.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/checkbox/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/compound-button/compound-button.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-compound-button element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/compound-button/compound-button.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/compound-button/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/counter-badge/counter-badge.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-counter-badge element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/counter-badge/counter-badge.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/counter-badge/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/dialog/dialog.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-dialog element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/dialog/dialog.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/dialog/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/dialog-body/dialog-body.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-dialog-body element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/dialog-body/dialog-body.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/dialog-body/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/divider/divider.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-divider element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/divider/divider.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/divider/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/drawer/drawer.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-drawer element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/drawer/drawer.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/drawer/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/drawer-body/drawer-body.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-drawer-body element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/drawer-body/drawer-body.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/drawer-body/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/dropdown/dropdown.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-dropdown element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/dropdown/dropdown.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/dropdown/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/field/field.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', shadowOptions: { delegatesFocus: true, }, }",
+          "description": "The async definition configuration for the fluent-field element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/field/field.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/field/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/image/image.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-image element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/image/image.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/image/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/label/label.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-label element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/label/label.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/label/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/link/link.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-link element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/link/link.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/link/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/listbox/listbox.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-listbox element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/listbox/listbox.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/listbox/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/menu/menu.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-menu element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/menu/menu.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/menu/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/menu-button/menu-button.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-menu-button element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/menu-button/menu-button.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/menu-button/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/menu-item/menu-item.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-menu-item element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/menu-item/menu-item.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/menu-item/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/menu-list/menu-list.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-menu-list element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/menu-list/menu-list.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/menu-list/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/message-bar/message-bar.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-message-bar element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/message-bar/message-bar.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/message-bar/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/option/option.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-option element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/option/option.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/option/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/patterns/aria-globals.ts",
       "declarations": [
         {
@@ -28368,6 +29310,518 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/progress-bar/progress-bar.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-progress-bar element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/progress-bar/progress-bar.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/progress-bar/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/radio/radio.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-radio element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/radio/radio.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/radio/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/radio-group/radio-group.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-radio-group element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/radio-group/radio-group.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/radio-group/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/rating-display/rating-display.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-rating-display element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/rating-display/rating-display.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/rating-display/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/slider/slider.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-slider element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/slider/slider.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/slider/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/spinner/spinner.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-spinner element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/spinner/spinner.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/spinner/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/switch/switch.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-switch element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/switch/switch.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/switch/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/tab/tab.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-tab element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/tab/tab.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/tab/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/tablist/tablist.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-tablist element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/tablist/tablist.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/tablist/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/text/text.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-text element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/text/text.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/text/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/text-input/text-input.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', shadowOptions: { delegatesFocus: true, }, }",
+          "description": "The async definition configuration for the fluent-text-input element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/text-input/text-input.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/text-input/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/textarea/textarea.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', shadowOptions: { delegatesFocus: true, }, }",
+          "description": "The async definition configuration for the fluent-textarea element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/textarea/textarea.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/textarea/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/toggle-button/toggle-button.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-toggle-button element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/toggle-button/toggle-button.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/toggle-button/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/tooltip/tooltip.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-tooltip element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/tooltip/tooltip.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/tooltip/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/tree/tree.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-tree element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/tree/tree.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/tree/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/tree-item/tree-item.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "definition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
+          "description": "The async definition configuration for the fluent-tree-item element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "definition",
+          "declaration": {
+            "name": "definition",
+            "module": "src/tree-item/tree-item.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/tree-item/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/utils/benchmark-wrapper.ts",
       "declarations": [
         {
@@ -28693,6 +30147,22 @@
           "declaration": {
             "name": "CompoundButton",
             "module": "./dist/esm/compound-button/compound-button.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "./dist/esm/counter-badge/define.js",
+      "deprecated": false,
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "BaseCounterBadge",
+          "declaration": {
+            "name": "BaseCounterBadge",
+            "module": "./dist/esm/counter-badge/counter-badge.base.js"
           }
         }
       ]

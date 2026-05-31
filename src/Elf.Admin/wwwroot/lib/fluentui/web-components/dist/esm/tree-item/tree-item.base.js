@@ -42,6 +42,13 @@ export class BaseTreeItem extends FASTElement {
         this.childTreeItems = [];
         this.elementInternals.role = 'treeitem';
     }
+    connectedCallback() {
+        super.connectedCallback();
+        this.tabIndex = Number(this.getAttribute('tabindex') || '0');
+        if (isTreeItem(this.parentElement)) {
+            this.slot ||= 'item';
+        }
+    }
     /**
      * Handles changes to the expanded attribute
      * @param prev - the previous state
@@ -55,7 +62,7 @@ export class BaseTreeItem extends FASTElement {
             newState: next ? 'open' : 'closed',
         });
         toggleState(this.elementInternals, 'expanded', next);
-        if (this.childTreeItems && this.childTreeItems.length > 0) {
+        if (this.childTreeItems?.length) {
             this.elementInternals.ariaExpanded = next ? 'true' : 'false';
             // Update focusgroup attributes after subtree show/hide rendering is done.
             requestAnimationFrame(() => {
@@ -84,8 +91,10 @@ export class BaseTreeItem extends FASTElement {
      */
     selectedChanged(prev, next) {
         this.$emit('change');
-        toggleState(this.elementInternals, 'selected', next);
-        this.elementInternals.ariaSelected = next ? 'true' : 'false';
+        if (this.elementInternals) {
+            toggleState(this.elementInternals, 'selected', next);
+            this.elementInternals.ariaSelected = next ? 'true' : 'false';
+        }
     }
     dataIndentChanged(prev, next) {
         if (this.styles !== undefined) {

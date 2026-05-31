@@ -32,7 +32,6 @@ import { DrawerPosition, DrawerSize, DrawerType } from './drawer.options.js';
  * @tag fluent-drawer
  */
 export declare class Drawer extends FASTElement {
-    protected roleAttrObserver: MutationObserver;
     /**
      * Determines whether the drawer should be displayed as modal or non-modal
      * When rendered as a modal, an overlay is applied over the rest of the view.
@@ -40,7 +39,6 @@ export declare class Drawer extends FASTElement {
      * @public
      */
     type: DrawerType;
-    protected typeChanged(): void;
     /**
      * The ID of the element that labels the drawer.
      *
@@ -60,6 +58,7 @@ export declare class Drawer extends FASTElement {
      * @defaultValue start
      */
     position: DrawerPosition;
+    role: string | null;
     /**
      * @public
      * @defaultValue medium
@@ -72,10 +71,42 @@ export declare class Drawer extends FASTElement {
      * @public
      */
     dialog: HTMLDialogElement;
-    /** @internal */
+    /**
+     * The `aria-describedby` attribute value for the dialog, which is determined by the `ariaDescribedby` property. This
+     * is used to ensure that the dialog's accessible description is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogDescribedby(): string | undefined;
+    /**
+     * The `aria-label` attribute value for the dialog, which is determined by the `ariaLabel` property. This is used to
+     * ensure that the dialog's accessible name is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogLabel(): string | null | undefined;
+    /**
+     * The `aria-labelledby` attribute value for the dialog, which is determined by the `ariaLabelledby` property. This is
+     * used to ensure that the dialog's accessible name is properly announced by assistive technologies.
+     *
+     * @internal
+     */
+    get dialogLabelledby(): string | undefined;
+    /**
+     * The modal state of the dialog, which is determined by the `type` property. If the dialog is not a non-modal dialog,
+     * the modal state will be true, otherwise it will be undefined.
+     *
+     * @internal
+     */
+    get dialogModal(): boolean | undefined;
+    /**
+     * The role of the dialog, which is determined by the `type` property. If the dialog is an alert dialog, the role will
+     * be 'alertdialog', otherwise it will be undefined.
+     *
+     * @internal
+     */
+    get dialogRole(): string | null;
     connectedCallback(): void;
-    /** @internal */
-    disconnectedCallback(): void;
     /**
      * Method to emit an event after the dialog's open state changes
      * HTML spec proposal: https://github.com/whatwg/html/issues/9733
@@ -115,6 +146,4 @@ export declare class Drawer extends FASTElement {
      * @public
      */
     cancelHandler(): void;
-    protected observeRoleAttr(): void;
-    protected updateDialogRole(): void;
 }

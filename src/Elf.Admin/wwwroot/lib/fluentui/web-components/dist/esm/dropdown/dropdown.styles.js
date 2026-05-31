@@ -36,6 +36,7 @@ export const styles = css `
     min-width: 160px;
     overflow: hidden;
     padding: ${spacingVerticalSNudge} ${spacingHorizontalMNudge};
+    white-space: normal;
     position: relative;
     text-align: start;
     width: 100%;

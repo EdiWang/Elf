@@ -1,5 +1,5 @@
 import { __decorate } from "tslib";
-import { attr, FASTElement, nullableNumberConverter, observable } from '@microsoft/fast-element';
+import { attr, FASTElement, nullableNumberConverter, observable, Updates } from '@microsoft/fast-element';
 import { whitespaceFilter } from '../utils/whitespace-filter.js';
 import { hasMatchingState, swapStates, toggleState } from '../utils/element-internals.js';
 import { TextAreaResize } from './textarea.options.js';
@@ -42,9 +42,11 @@ export class BaseTextArea extends FASTElement {
         this.controlEl.addEventListener('input', () => (this.userInteracted = true), { once: true });
     }
     defaultSlottedNodesChanged() {
-        const next = this.getContent();
-        this.defaultValue = next;
-        this.value = next;
+        Updates.enqueue(() => {
+            const next = this.getContent();
+            this.defaultValue = next;
+            this.value = next;
+        });
     }
     labelSlottedNodesChanged() {
         this.filteredLabelSlottedNodes = this.labelSlottedNodes.filter(whitespaceFilter);
@@ -81,8 +83,8 @@ export class BaseTextArea extends FASTElement {
         return this.elementInternals.labels;
     }
     readOnlyChanged() {
-        this.elementInternals.ariaReadOnly = `${!!this.readOnly}`;
-        if (this.$fastController.isConnected) {
+        if (this.elementInternals) {
+            this.elementInternals.ariaReadOnly = `${!!this.readOnly}`;
             this.setValidity();
         }
     }
@@ -341,7 +343,7 @@ export class BaseTextArea extends FASTElement {
      * @public
      */
     setCustomValidity(message) {
-        this.elementInternals.setValidity({ customError: !!message }, !!message ? message.toString() : undefined);
+        this.elementInternals?.setValidity({ customError: !!message }, !!message ? message.toString() : undefined);
         this.reportValidity();
     }
     /**
@@ -354,14 +356,14 @@ export class BaseTextArea extends FASTElement {
      * @internal
      */
     setValidity(flags, message, anchor) {
-        if (!this.$fastController.isConnected) {
+        if (!this.elementInternals) {
             return;
         }
         if (this.disabled || this.readOnly) {
             this.elementInternals.setValidity({});
         }
         else {
-            this.elementInternals.setValidity(flags ?? this.controlEl.validity, message ?? this.controlEl.validationMessage, anchor ?? this.controlEl);
+            this.elementInternals.setValidity(flags ?? this.controlEl?.validity, message ?? this.controlEl?.validationMessage, anchor ?? this.controlEl);
         }
         if (this.userInteracted) {
             this.toggleUserValidityState();
@@ -380,7 +382,7 @@ export class BaseTextArea extends FASTElement {
      */
     getContent() {
         return (this.defaultSlottedNodes
-            .map(node => {
+            ?.map(node => {
             switch (node.nodeType) {
                 case Node.ELEMENT_NODE:
                     return node.outerHTML;

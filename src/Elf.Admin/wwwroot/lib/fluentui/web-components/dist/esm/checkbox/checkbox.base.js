@@ -126,7 +126,7 @@ export class BaseCheckbox extends FASTElement {
      * @internal
      */
     requiredChanged(prev, next) {
-        if (this.$fastController.isConnected) {
+        if (this.elementInternals) {
             this.setValidity();
             this.elementInternals.ariaRequired = this.required ? 'true' : 'false';
         }
@@ -165,7 +165,7 @@ export class BaseCheckbox extends FASTElement {
      * Reflects the {@link https://developer.mozilla.org/docs/Web/API/ElementInternals/validationMessage | `ElementInternals.validationMessage`} property.
      */
     get validationMessage() {
-        if (this.elementInternals.validationMessage) {
+        if (this.elementInternals?.validationMessage) {
             return this.elementInternals.validationMessage;
         }
         if (!this._validationFallbackMessage) {
@@ -198,11 +198,11 @@ export class BaseCheckbox extends FASTElement {
     }
     set value(value) {
         this._value = value;
-        if (this.$fastController.isConnected) {
+        if (this.elementInternals) {
             this.setFormValue(value);
             this.setValidity();
-            Observable.notify(this, 'value');
         }
+        Observable.notify(this, 'value');
     }
     /**
      * Determines if the control can be submitted for constraint validation.
@@ -313,7 +313,9 @@ export class BaseCheckbox extends FASTElement {
      * @internal
      */
     setAriaChecked(value = this.checked) {
-        this.elementInternals.ariaChecked = value ? 'true' : 'false';
+        if (this.elementInternals) {
+            this.elementInternals.ariaChecked = value ? 'true' : 'false';
+        }
     }
     /**
      * Reflects the {@link https://developer.mozilla.org/docs/Web/API/ElementInternals/setFormValue | `ElementInternals.setFormValue()`} method.
@@ -321,7 +323,7 @@ export class BaseCheckbox extends FASTElement {
      * @internal
      */
     setFormValue(value, state) {
-        this.elementInternals.setFormValue(value, value ?? state);
+        this.elementInternals?.setFormValue(value, value ?? state);
     }
     /**
      * Sets a custom validity message.
@@ -343,7 +345,7 @@ export class BaseCheckbox extends FASTElement {
      * @internal
      */
     setValidity(flags, message, anchor) {
-        if (this.$fastController.isConnected) {
+        if (this.elementInternals) {
             if (this.disabled || !this.required) {
                 this.elementInternals.setValidity({});
                 return;

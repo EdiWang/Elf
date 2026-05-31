@@ -29,7 +29,7 @@ export class Accordion extends FASTElement {
          */
         this.setItems = () => {
             waitForConnectedDescendants(this, () => {
-                if (this.slottedAccordionItems.length === 0) {
+                if (!this.slottedAccordionItems?.length) {
                     return;
                 }
                 // Get all existing children and remove event listeners

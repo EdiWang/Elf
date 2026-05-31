@@ -46,9 +46,8 @@ export class ToggleButton extends Button {
      * @internal
      */
     setPressedState() {
-        if (this.$fastController.isConnected) {
-            const ariaPressed = `${this.mixed ? 'mixed' : !!this.pressed}`;
-            this.elementInternals.ariaPressed = ariaPressed;
+        if (this.elementInternals) {
+            this.elementInternals.ariaPressed = `${this.mixed ? 'mixed' : !!this.pressed}`;
             toggleState(this.elementInternals, 'pressed', !!this.pressed || !!this.mixed);
         }
     }
