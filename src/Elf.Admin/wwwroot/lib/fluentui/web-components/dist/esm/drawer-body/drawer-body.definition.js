@@ -1,16 +1,16 @@
+import { FluentDesignSystem } from '../fluent-design-system.js';
 import { tagName } from './drawer-body.options.js';
-import { DrawerBody } from './drawer-body.js';
 import { styles } from './drawer-body.styles.js';
 import { template } from './drawer-body.template.js';
 /**
+ * The definition for the `<fluent-drawer-body>` element.
  *
  * @public
- * @remarks
- * HTML Element: <fluent-drawer>
  */
-export const definition = DrawerBody.compose({
+export const definition = {
     name: tagName,
-    template,
+    registry: FluentDesignSystem.registry,
     styles,
-});
+    template,
+};
 //# sourceMappingURL=drawer-body.definition.js.map

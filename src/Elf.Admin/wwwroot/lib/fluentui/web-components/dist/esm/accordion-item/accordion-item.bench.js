@@ -1,6 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
-import { definition } from './accordion-item.definition.js';
-definition.define(FluentDesignSystem.registry);
+import './define.js';
 const itemRenderer = () => {
     const item = document.createElement('fluent-accordion-item');
     const text = document.createElement('span');

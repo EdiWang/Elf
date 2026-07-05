@@ -1,12 +1,13 @@
 <f-template name="fluent-tree" shadowrootmode="open">
-<template
+  <template
     tabindex="0"
     focusgroup="menu inline block nowrap nomemory"
     @click="{clickHandler($e)}"
     @keydown="{keydownHandler($e)}"
     @change="{changeHandler($e)}"
     @toggle="{itemToggleHandler()}"
-  >{{styles}}
+  >
+    {{styles}}
     <slot f-ref="{defaultSlot}" @slotchange="{handleDefaultSlotChange()}"></slot>
   </template>
 </f-template>

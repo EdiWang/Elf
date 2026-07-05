@@ -1,15 +1,16 @@
+import { FluentDesignSystem } from '../fluent-design-system.js';
 import { tagName } from './compound-button.options.js';
-import { CompoundButton } from './compound-button.js';
 import { styles } from './compound-button.styles.js';
 import { template } from './compound-button.template.js';
 /**
+ * The definition for the `<fluent-compound-button>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-comopund-button\>
  */
-export const definition = CompoundButton.compose({
+export const definition = {
     name: tagName,
-    template,
+    registry: FluentDesignSystem.registry,
     styles,
-});
+    template,
+};
 //# sourceMappingURL=compound-button.definition.js.map

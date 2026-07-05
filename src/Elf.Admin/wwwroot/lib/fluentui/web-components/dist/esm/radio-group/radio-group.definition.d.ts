@@ -1,10 +1,7 @@
-import { RadioGroup } from './radio-group.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent RadioGroup Element.
- *
+ * The definition for the `<fluent-radio-group>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-radio-group\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof RadioGroup>;
+export declare const definition: PartialFASTElementDefinition;

@@ -91,5 +91,6 @@ export const styles = css `
       position: sticky;
       z-index: 2;
     }
+  }
 `;
 //# sourceMappingURL=dialog-body.styles.js.map

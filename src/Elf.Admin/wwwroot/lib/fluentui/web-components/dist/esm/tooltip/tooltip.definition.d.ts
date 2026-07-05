@@ -1,9 +1,7 @@
-import { Tooltip } from './tooltip.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The {@link Tooltip } custom element definition.
+ * The definition for the `<fluent-tooltip>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-tooltip>`
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Tooltip>;
+export declare const definition: PartialFASTElementDefinition;

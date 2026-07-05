@@ -1,6 +1,6 @@
-export { AccordionItem, accordionItemDefinition, AccordionItemMarkerPosition, AccordionItemSize, accordionItemStyles, accordionItemTemplate, BaseAccordionItem, } from './accordion-item/index.js';
+export { AccordionItem, AccordionItemDefinition, AccordionItemMarkerPosition, AccordionItemSize, AccordionItemStyles, AccordionItemTemplate, BaseAccordionItem, } from './accordion-item/index.js';
 export type { AccordionItemOptions } from './accordion-item/index.js';
-export { Accordion, accordionDefinition, AccordionExpandMode, accordionStyles, accordionTemplate, } from './accordion/index.js';
+export { Accordion, AccordionDefinition, AccordionExpandMode, AccordionStyles, AccordionTemplate, } from './accordion/index.js';
 export { Link, LinkAppearance, LinkDefinition, LinkTemplate, LinkStyles, LinkTarget } from './link/index.js';
 export { Avatar, AvatarActive, AvatarAppearance, AvatarColor, AvatarDefinition, AvatarNamedColor, AvatarShape, AvatarSize, AvatarStyles, AvatarTemplate, BaseAvatar, } from './avatar/index.js';
 export { Badge, BadgeAppearance, BadgeColor, BadgeDefinition, BadgeShape, BadgeSize, BadgeStyles, BadgeTemplate, } from './badge/index.js';

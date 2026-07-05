@@ -1,41 +1,45 @@
+:host([hidden]) {
+  display: none;
+}
+:host {
+  display: flex;
+}
 
-  :host([hidden]){display:none}:host{display:flex}
+:host {
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  gap: var(--spacingVerticalL);
+}
 
-  :host {
-    -webkit-tap-highlight-color: transparent;
-    cursor: pointer;
-    gap: var(--spacingVerticalL);
-  }
+:host([orientation='vertical']) {
+  flex-direction: column;
+  justify-content: flex-start;
+}
 
-  :host([orientation='vertical']) {
-    flex-direction: column;
-    justify-content: flex-start;
-  }
+:host([orientation='horizontal']) {
+  flex-direction: row;
+}
 
-  :host([orientation='horizontal']) {
-    flex-direction: row;
-  }
+::slotted(*) {
+  color: var(--colorNeutralForeground3);
+}
 
-  ::slotted(*) {
-    color: var(--colorNeutralForeground3);
-  }
+::slotted(:hover) {
+  color: var(--colorNeutralForeground2);
+}
 
-  ::slotted(:hover) {
-    color: var(--colorNeutralForeground2);
-  }
+::slotted(:active) {
+  color: var(--colorNeutralForeground1);
+}
 
-  ::slotted(:active) {
-    color: var(--colorNeutralForeground1);
-  }
+::slotted(:state(disabled)) {
+  color: var(--colorNeutralForegroundDisabled);
+}
 
-  ::slotted(:state(disabled)) {
-    color: var(--colorNeutralForegroundDisabled);
-  }
+::slotted(:state(checked)) {
+  color: var(--colorNeutralForeground1);
+}
 
-  ::slotted(:state(checked)) {
-    color: var(--colorNeutralForeground1);
-  }
-
-  :host([slot='input']) {
-    margin: var(--spacingVerticalS) var(--spacingHorizontalS);
-  }
+:host([slot='input']) {
+  margin: var(--spacingVerticalS) var(--spacingHorizontalS);
+}

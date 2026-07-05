@@ -6,6 +6,10 @@ import { DialogType } from './dialog.options.js';
  *
  * @tag fluent-dialog
  *
+ * @fires { ToggleEvent } toggle - Event emitted after the dialog's open state changes.
+ * @fires { ToggleEvent } beforetoggle - Event emitted before the dialog's open state changes.
+ * @slot - The default slot. {@link (DialogBody:class)} element recommended.
+ *
  * @public
  */
 export class Dialog extends FASTElement {
@@ -111,6 +115,10 @@ export class Dialog extends FASTElement {
             else if (this.type === DialogType.nonModal) {
                 this.dialog.show();
             }
+            // Using `autofocus` inside a `<dialog>` is implemented inconsistently
+            // across browsers, so artificially focusing here. See details:
+            // https://codepen.io/marchbox/pen/PwbRmXE
+            this.querySelector('[autofocus]')?.focus?.();
             this.emitToggle();
         });
     }

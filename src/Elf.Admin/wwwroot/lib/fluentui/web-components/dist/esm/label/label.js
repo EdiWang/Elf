@@ -5,6 +5,9 @@ import { attr, FASTElement } from '@microsoft/fast-element';
  *
  * @tag fluent-label
  *
+ * @slot - The default slot. Accepts the content of the label.
+ * @csspart asterisk - The required-field asterisk indicator.
+ *
  * @public
  */
 export class Label extends FASTElement {

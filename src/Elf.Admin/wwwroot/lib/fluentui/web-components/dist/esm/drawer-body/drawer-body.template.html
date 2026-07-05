@@ -1,5 +1,7 @@
 <f-template name="fluent-drawer-body" shadowrootmode="open">
-<template>{{styles}}<div class="header" part="header">
+  <template>
+    {{styles}}
+    <div class="header" part="header">
       <slot name="title"></slot>
       <slot name="close" @click="{clickHandler($e)}"></slot>
     </div>
@@ -8,5 +10,6 @@
     </div>
     <div class="footer" part="footer">
       <slot name="footer"></slot>
-    </div></template>
+    </div>
+  </template>
 </f-template>

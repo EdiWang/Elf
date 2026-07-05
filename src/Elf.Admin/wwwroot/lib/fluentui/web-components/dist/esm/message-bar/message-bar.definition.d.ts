@@ -1,9 +1,7 @@
-import { MessageBar } from './message-bar.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent MessageBar Element definition.
+ * The definition for the `<fluent-message-bar>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-message-bar>`
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof MessageBar>;
+export declare const definition: PartialFASTElementDefinition;

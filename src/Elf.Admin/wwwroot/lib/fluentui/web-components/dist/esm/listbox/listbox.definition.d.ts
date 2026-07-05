@@ -1,9 +1,7 @@
-import { Listbox } from './listbox.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Listbox Element
+ * The definition for the `<fluent-listbox>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-listbox>`
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Listbox>;
+export declare const definition: PartialFASTElementDefinition;

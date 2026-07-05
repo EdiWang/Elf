@@ -1,10 +1,7 @@
-import { ProgressBar } from './progress-bar.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent ProgressBar Element.
- *
+ * The definition for the `<fluent-progress-bar>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-progress-bar\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof ProgressBar>;
+export declare const definition: PartialFASTElementDefinition;

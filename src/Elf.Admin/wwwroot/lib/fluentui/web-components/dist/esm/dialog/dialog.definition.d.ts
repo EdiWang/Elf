@@ -1,9 +1,7 @@
-import { Dialog } from './dialog.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Dialog Element
+ * The definition for the `<fluent-dialog>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-dialog\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Dialog>;
+export declare const definition: PartialFASTElementDefinition;

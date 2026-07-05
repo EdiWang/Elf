@@ -1,9 +1,7 @@
-import { DialogBody } from './dialog-body.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Dialog Body Element
+ * The definition for the `<fluent-dialog-body>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-dialog-body\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof DialogBody>;
+export declare const definition: PartialFASTElementDefinition;

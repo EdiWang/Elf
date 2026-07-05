@@ -1,7 +1,7 @@
-import { CounterBadge } from './counter-badge.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
+ * The definition for the `<fluent-counter-badge>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-counter-badge\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof CounterBadge>;
+export declare const definition: PartialFASTElementDefinition;

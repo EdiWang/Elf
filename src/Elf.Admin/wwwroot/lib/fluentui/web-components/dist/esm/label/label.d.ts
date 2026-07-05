@@ -5,6 +5,9 @@ import { LabelSize, LabelWeight } from './label.options.js';
  *
  * @tag fluent-label
  *
+ * @slot - The default slot. Accepts the content of the label.
+ * @csspart asterisk - The required-field asterisk indicator.
+ *
  * @public
  */
 export declare class Label extends FASTElement {

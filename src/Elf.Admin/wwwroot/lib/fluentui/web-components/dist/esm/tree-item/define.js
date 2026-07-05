@@ -1,4 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
 import { definition } from './tree-item.definition.js';
-definition.define(FluentDesignSystem.registry);
+import { TreeItem } from './tree-item.js';
+TreeItem.define(definition);
 //# sourceMappingURL=define.js.map

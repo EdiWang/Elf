@@ -7,6 +7,9 @@ import { CounterBadgeAppearance, CounterBadgeColor, CounterBadgeShape, CounterBa
  *
  * @tag fluent-counter-badge
  *
+ * @slot start - Content which can be provided before the badge content.
+ * @slot end - Content which can be provided after the badge content.
+ *
  * @public
  */
 export declare class CounterBadge extends BaseCounterBadge {

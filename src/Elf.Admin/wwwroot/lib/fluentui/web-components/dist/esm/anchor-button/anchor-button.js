@@ -9,6 +9,8 @@ import { AnchorButtonAppearance, AnchorButtonShape, AnchorButtonSize } from './a
  * An Anchor Custom HTML Element.
  * Based on BaseAnchor and includes style and layout specific attributes
  *
+ * @tag fluent-anchor-button
+ *
  * @public
  */
 export class AnchorButton extends BaseAnchor {

@@ -1,4 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
 import { definition } from './label.definition.js';
-definition.define(FluentDesignSystem.registry);
+import { Label } from './label.js';
+Label.define(definition);
 //# sourceMappingURL=define.js.map

@@ -1,8 +1,7 @@
-import { ToggleButton } from './toggle-button.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
+ * The definition for the `<fluent-toggle-button>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-toggle-button\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof ToggleButton>;
+export declare const definition: PartialFASTElementDefinition;

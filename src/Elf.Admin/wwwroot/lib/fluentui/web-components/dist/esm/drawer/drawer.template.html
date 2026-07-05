@@ -1,5 +1,7 @@
 <f-template name="fluent-drawer" shadowrootmode="open">
-<template>{{styles}}<dialog
+  <template>
+    {{styles}}
+    <dialog
       class="dialog"
       part="dialog"
       aria-describedby="{{dialogDescribedby}}"
@@ -14,5 +16,6 @@
       f-ref="{dialog}"
     >
       <slot></slot>
-    </dialog></template>
+    </dialog>
+  </template>
 </f-template>

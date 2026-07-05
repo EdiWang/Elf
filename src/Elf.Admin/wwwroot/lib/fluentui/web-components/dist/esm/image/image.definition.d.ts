@@ -1,9 +1,7 @@
-import { Image } from './image.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Image Element
+ * The definition for the `<fluent-image>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-image\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Image>;
+export declare const definition: PartialFASTElementDefinition;

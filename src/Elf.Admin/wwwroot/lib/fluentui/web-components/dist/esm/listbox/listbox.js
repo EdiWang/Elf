@@ -81,7 +81,9 @@ export class Listbox extends FASTElement {
      * @internal
      */
     get enabledOptions() {
-        return this.options?.filter(x => !x.disabled) ?? [];
+        return (this.options?.filter(x => !x.disabled) ??
+            Array.from(this.querySelectorAll('*')).filter((o) => isDropdownOption(o) && !o.disabled) ??
+            []);
     }
     /**
      * The collection of child options that are selected.

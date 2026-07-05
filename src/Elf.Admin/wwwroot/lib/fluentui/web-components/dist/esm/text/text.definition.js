@@ -1,18 +1,16 @@
+import { FluentDesignSystem } from '../fluent-design-system.js';
 import { tagName } from './text.options.js';
-import { Text } from './text.js';
 import { styles } from './text.styles.js';
 import { template } from './text.template.js';
 /**
- * The Fluent Text Element.
- *
+ * The definition for the `<fluent-text>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-text\>
  */
-export const definition = Text.compose({
+export const definition = {
     name: tagName,
-    template,
+    registry: FluentDesignSystem.registry,
     styles,
-});
+    template,
+};
 //# sourceMappingURL=text.definition.js.map

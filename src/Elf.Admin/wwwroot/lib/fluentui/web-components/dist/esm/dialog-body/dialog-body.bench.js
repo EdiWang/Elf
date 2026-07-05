@@ -1,6 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
-import { definition } from './dialog-body.definition.js';
-definition.define(FluentDesignSystem.registry);
+import './define.js';
 const itemRenderer = () => {
     const dialogBody = document.createElement('fluent-dialog-body');
     dialogBody.appendChild(document.createTextNode('DialogBody'));

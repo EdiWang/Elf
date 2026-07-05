@@ -1,9 +1,7 @@
-import { RatingDisplay } from './rating-display.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The definition for the Fluent Rating Display component.
+ * The definition for the `<fluent-rating-display>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-rating-display>`
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof RatingDisplay>;
+export declare const definition: PartialFASTElementDefinition;

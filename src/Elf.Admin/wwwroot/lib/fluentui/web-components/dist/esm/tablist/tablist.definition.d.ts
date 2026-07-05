@@ -1,7 +1,7 @@
-import { Tablist } from './tablist.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
+ * The definition for the `<fluent-tablist>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-tablist\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Tablist>;
+export declare const definition: PartialFASTElementDefinition;

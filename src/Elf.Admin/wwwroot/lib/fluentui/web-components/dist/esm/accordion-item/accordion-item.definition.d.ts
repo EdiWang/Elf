@@ -1,8 +1,7 @@
-import { AccordionItem } from './accordion-item.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
+ * The definition configuration for the `<fluent-accordion-item>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-accordion-item\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof AccordionItem>;
+export declare const definition: PartialFASTElementDefinition;

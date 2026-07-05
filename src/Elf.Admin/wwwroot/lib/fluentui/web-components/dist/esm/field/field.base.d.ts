@@ -6,7 +6,18 @@ import { type SlottableInput } from './field.options.js';
  * @public
  */
 export declare class BaseField extends FASTElement {
-    private slottedInputObserver;
+    /**
+     * The mutation observer for the slotted input.
+     *
+     * @internal
+     */
+    private _slottedInputObserver?;
+    /**
+     * Gets the mutation observer for the slotted input, creating it if it doesn't exist.
+     *
+     * @internal
+     */
+    protected get slottedInputObserver(): MutationObserver;
     /**
      * The slotted label elements.
      *

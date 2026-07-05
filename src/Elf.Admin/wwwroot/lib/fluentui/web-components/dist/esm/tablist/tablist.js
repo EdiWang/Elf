@@ -8,6 +8,7 @@ import { TablistAppearance } from './tablist.options.js';
  * A Tablist component.
  *
  * @tag fluent-tablist
+ * @fires { Event } change - Fired when the active tab changes.
  *
  * @public
  */

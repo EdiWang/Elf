@@ -211,429 +211,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/utils/template-helpers.ts",
-      "declarations": [
-        {
-          "kind": "function",
-          "name": "staticallyCompose",
-          "return": {
-            "type": {
-              "text": "CaptureType<TSource, TParent>"
-            }
-          },
-          "parameters": [
-            {
-              "name": "item",
-              "type": {
-                "text": "StaticallyComposableHTML<TSource, TParent>"
-              }
-            }
-          ],
-          "description": "A function to compose template options.",
-          "privacy": "public"
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "staticallyCompose",
-          "declaration": {
-            "name": "staticallyCompose",
-            "module": "src/utils/template-helpers.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/patterns/start-end.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "A mixin class implementing start slots.",
-          "name": "Start",
-          "members": [
-            {
-              "kind": "field",
-              "name": "start",
-              "type": {
-                "text": "HTMLSlotElement"
-              },
-              "privacy": "public"
-            }
-          ]
-        },
-        {
-          "kind": "class",
-          "description": "A mixin class implementing end slots.",
-          "name": "End",
-          "members": [
-            {
-              "kind": "field",
-              "name": "end",
-              "type": {
-                "text": "HTMLSlotElement"
-              },
-              "privacy": "public"
-            }
-          ]
-        },
-        {
-          "kind": "class",
-          "description": "A mixin class implementing start and end slots.\nThese are generally used to decorate text elements with icons or other visual indicators.",
-          "name": "StartEnd",
-          "members": [
-            {
-              "kind": "field",
-              "name": "start",
-              "type": {
-                "text": "HTMLSlotElement"
-              },
-              "privacy": "public"
-            },
-            {
-              "kind": "field",
-              "name": "end",
-              "type": {
-                "text": "HTMLSlotElement"
-              },
-              "privacy": "public"
-            }
-          ]
-        },
-        {
-          "kind": "function",
-          "name": "endSlotTemplate",
-          "return": {
-            "type": {
-              "text": "CaptureType<TSource, TParent>"
-            }
-          },
-          "parameters": [
-            {
-              "name": "options",
-              "type": {
-                "text": "EndOptions<TSource, TParent>"
-              }
-            }
-          ],
-          "description": "The template for the end slot.\nFor use with StartEnd",
-          "privacy": "public"
-        },
-        {
-          "kind": "function",
-          "name": "startSlotTemplate",
-          "return": {
-            "type": {
-              "text": "CaptureType<TSource, TParent>"
-            }
-          },
-          "parameters": [
-            {
-              "name": "options",
-              "type": {
-                "text": "StartOptions<TSource, TParent>"
-              }
-            }
-          ],
-          "description": "The template for the start slots.\nFor use with StartEnd",
-          "privacy": "public"
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "Start",
-          "declaration": {
-            "name": "Start",
-            "module": "src/patterns/start-end.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "End",
-          "declaration": {
-            "name": "End",
-            "module": "src/patterns/start-end.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "StartEnd",
-          "declaration": {
-            "name": "StartEnd",
-            "module": "src/patterns/start-end.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "endSlotTemplate",
-          "declaration": {
-            "name": "endSlotTemplate",
-            "module": "src/patterns/start-end.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "startSlotTemplate",
-          "declaration": {
-            "name": "startSlotTemplate",
-            "module": "src/patterns/start-end.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/utils/apply-mixins.ts",
-      "declarations": [],
-      "exports": []
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/accordion-item/accordion-item.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "An Accordion Item Custom HTML Element.\nBased on BaseAccordionItem and includes style and layout specific attributes",
-          "name": "AccordionItem",
-          "members": [
-            {
-              "kind": "field",
-              "name": "size",
-              "type": {
-                "text": "AccordionItemSize | undefined"
-              },
-              "privacy": "public",
-              "description": "Defines accordion header font size.",
-              "parsedType": {
-                "text": "'small' | 'medium' | 'large' | 'extra-large' | undefined"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "markerPosition",
-              "type": {
-                "text": "AccordionItemMarkerPosition | undefined"
-              },
-              "privacy": "public",
-              "description": "Sets expand and collapsed icon position.",
-              "parsedType": {
-                "text": "'start' | 'end' | undefined"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "block",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Sets the width of the focus state."
-            },
-            {
-              "kind": "field",
-              "name": "headinglevel",
-              "type": {
-                "text": "1 | 2 | 3 | 4 | 5 | 6"
-              },
-              "privacy": "public",
-              "default": "2",
-              "description": "Configures the https://www.w3.org/TR/wai-aria-1.1/#aria-level | level of the\nheading element.",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Expands or collapses the item.",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Disables an accordion item",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            }
-          ],
-          "attributes": [
-            {
-              "name": "size",
-              "type": {
-                "text": "AccordionItemSize | undefined"
-              },
-              "description": "Defines accordion header font size.",
-              "fieldName": "size",
-              "parsedType": {
-                "text": "'small' | 'medium' | 'large' | 'extra-large' | undefined"
-              }
-            },
-            {
-              "name": "marker-position",
-              "type": {
-                "text": "AccordionItemMarkerPosition | undefined"
-              },
-              "description": "Sets expand and collapsed icon position.",
-              "fieldName": "markerPosition",
-              "parsedType": {
-                "text": "'start' | 'end' | undefined"
-              }
-            },
-            {
-              "name": "block",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Sets the width of the focus state.",
-              "fieldName": "block"
-            },
-            {
-              "name": "heading-level",
-              "type": {
-                "text": "1 | 2 | 3 | 4 | 5 | 6"
-              },
-              "default": "2",
-              "description": "Configures the https://www.w3.org/TR/wai-aria-1.1/#aria-level | level of the\nheading element.",
-              "fieldName": "headinglevel",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            },
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Expands or collapses the item.",
-              "fieldName": "expanded",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            },
-            {
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Disables an accordion item",
-              "fieldName": "disabled",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            }
-          ],
-          "superclass": {
-            "name": "BaseAccordionItem",
-            "module": "/src/accordion-item/accordion-item.base.js"
-          },
-          "slots": [
-            {
-              "description": "Content positioned before heading in the collapsed state",
-              "name": "start",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            },
-            {
-              "description": "Content which serves as the accordion item heading and text of the expand button",
-              "name": "heading",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            },
-            {
-              "description": "The default slot for accordion item content",
-              "name": "",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            },
-            {
-              "description": "The expanded icon",
-              "name": "marker-expanded",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            },
-            {
-              "description": "The collapsed icon",
-              "name": "marker-collapsed",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            }
-          ],
-          "cssParts": [
-            {
-              "description": "Wraps the button",
-              "name": "heading",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            },
-            {
-              "description": "The button which serves to invoke the item",
-              "name": "button",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            },
-            {
-              "description": "The wrapper for the accordion item content",
-              "name": "content",
-              "inheritedFrom": {
-                "name": "BaseAccordionItem",
-                "module": "src/accordion-item/accordion-item.base.ts"
-              }
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AccordionItem",
-          "declaration": {
-            "name": "AccordionItem",
-            "module": "src/accordion-item/accordion-item.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/utils/display.ts",
       "declarations": [
         {
@@ -9102,6 +8679,436 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/utils/template-helpers.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "staticallyCompose",
+          "return": {
+            "type": {
+              "text": "CaptureType<TSource, TParent>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "item",
+              "type": {
+                "text": "StaticallyComposableHTML<TSource, TParent>"
+              }
+            }
+          ],
+          "description": "A function to compose template options.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "staticallyCompose",
+          "declaration": {
+            "name": "staticallyCompose",
+            "module": "src/utils/template-helpers.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/patterns/start-end.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A mixin class implementing start slots.",
+          "name": "Start",
+          "members": [
+            {
+              "kind": "field",
+              "name": "start",
+              "type": {
+                "text": "HTMLSlotElement"
+              },
+              "privacy": "public"
+            }
+          ]
+        },
+        {
+          "kind": "class",
+          "description": "A mixin class implementing end slots.",
+          "name": "End",
+          "members": [
+            {
+              "kind": "field",
+              "name": "end",
+              "type": {
+                "text": "HTMLSlotElement"
+              },
+              "privacy": "public"
+            }
+          ]
+        },
+        {
+          "kind": "class",
+          "description": "A mixin class implementing start and end slots.\nThese are generally used to decorate text elements with icons or other visual indicators.",
+          "name": "StartEnd",
+          "members": [
+            {
+              "kind": "field",
+              "name": "start",
+              "type": {
+                "text": "HTMLSlotElement"
+              },
+              "privacy": "public"
+            },
+            {
+              "kind": "field",
+              "name": "end",
+              "type": {
+                "text": "HTMLSlotElement"
+              },
+              "privacy": "public"
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "endSlotTemplate",
+          "return": {
+            "type": {
+              "text": "CaptureType<TSource, TParent>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "text": "EndOptions<TSource, TParent>"
+              }
+            }
+          ],
+          "description": "The template for the end slot.\nFor use with StartEnd",
+          "privacy": "public"
+        },
+        {
+          "kind": "function",
+          "name": "startSlotTemplate",
+          "return": {
+            "type": {
+              "text": "CaptureType<TSource, TParent>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "text": "StartOptions<TSource, TParent>"
+              }
+            }
+          ],
+          "description": "The template for the start slots.\nFor use with StartEnd",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Start",
+          "declaration": {
+            "name": "Start",
+            "module": "src/patterns/start-end.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "End",
+          "declaration": {
+            "name": "End",
+            "module": "src/patterns/start-end.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "StartEnd",
+          "declaration": {
+            "name": "StartEnd",
+            "module": "src/patterns/start-end.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "endSlotTemplate",
+          "declaration": {
+            "name": "endSlotTemplate",
+            "module": "src/patterns/start-end.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "startSlotTemplate",
+          "declaration": {
+            "name": "startSlotTemplate",
+            "module": "src/patterns/start-end.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/utils/apply-mixins.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "./dist/esm/accordion-item/accordion-item.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "An Accordion Item Custom HTML Element.\nBased on BaseAccordionItem and includes style and layout specific attributes",
+          "name": "AccordionItem",
+          "members": [
+            {
+              "kind": "field",
+              "name": "size",
+              "type": {
+                "text": "AccordionItemSize | undefined"
+              },
+              "privacy": "public",
+              "description": "Defines accordion header font size.",
+              "parsedType": {
+                "text": "'small' | 'medium' | 'large' | 'extra-large' | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "markerPosition",
+              "type": {
+                "text": "AccordionItemMarkerPosition | undefined"
+              },
+              "privacy": "public",
+              "description": "Sets expand and collapsed icon position.",
+              "parsedType": {
+                "text": "'start' | 'end' | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "block",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Sets the width of the focus state."
+            },
+            {
+              "kind": "field",
+              "name": "headinglevel",
+              "type": {
+                "text": "1 | 2 | 3 | 4 | 5 | 6"
+              },
+              "privacy": "public",
+              "default": "2",
+              "description": "Configures the https://www.w3.org/TR/wai-aria-1.1/#aria-level | level of the\nheading element.",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Expands or collapses the item.",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Disables an accordion item",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "size",
+              "type": {
+                "text": "AccordionItemSize | undefined"
+              },
+              "description": "Defines accordion header font size.",
+              "fieldName": "size",
+              "parsedType": {
+                "text": "'small' | 'medium' | 'large' | 'extra-large' | undefined"
+              }
+            },
+            {
+              "name": "marker-position",
+              "type": {
+                "text": "AccordionItemMarkerPosition | undefined"
+              },
+              "description": "Sets expand and collapsed icon position.",
+              "fieldName": "markerPosition",
+              "parsedType": {
+                "text": "'start' | 'end' | undefined"
+              }
+            },
+            {
+              "name": "block",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Sets the width of the focus state.",
+              "fieldName": "block"
+            },
+            {
+              "name": "heading-level",
+              "type": {
+                "text": "1 | 2 | 3 | 4 | 5 | 6"
+              },
+              "default": "2",
+              "description": "Configures the https://www.w3.org/TR/wai-aria-1.1/#aria-level | level of the\nheading element.",
+              "fieldName": "headinglevel",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Expands or collapses the item.",
+              "fieldName": "expanded",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables an accordion item",
+              "fieldName": "disabled",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "BaseAccordionItem",
+            "module": "/src/accordion-item/accordion-item.base.js"
+          },
+          "tagName": "fluent-accordion-item",
+          "customElement": true,
+          "slots": [
+            {
+              "description": "Content positioned before heading in the collapsed state",
+              "name": "start",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            },
+            {
+              "description": "Content which serves as the accordion item heading and text of the expand button",
+              "name": "heading",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            },
+            {
+              "description": "The default slot for accordion item content",
+              "name": "",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            },
+            {
+              "description": "The expanded icon",
+              "name": "marker-expanded",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            },
+            {
+              "description": "The collapsed icon",
+              "name": "marker-collapsed",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "Wraps the button",
+              "name": "heading",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            },
+            {
+              "description": "The button which serves to invoke the item",
+              "name": "button",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            },
+            {
+              "description": "The wrapper for the accordion item content",
+              "name": "content",
+              "inheritedFrom": {
+                "name": "BaseAccordionItem",
+                "module": "src/accordion-item/accordion-item.base.ts"
+              }
+            }
+          ],
+          "modulePath": "./dist/esm/accordion-item/accordion-item.js",
+          "definitionPath": "./dist/esm/accordion-item/define.js",
+          "cssProperties": [],
+          "cssStates": [],
+          "events": []
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AccordionItem",
+          "declaration": {
+            "name": "AccordionItem",
+            "module": "src/accordion-item/accordion-item.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/utils/request-idle-callback.ts",
       "declarations": [
         {
@@ -9353,6 +9360,9 @@
           ],
           "events": [
             {
+              "type": {
+                "text": "Event"
+              },
               "description": "Fires a custom 'change' event when the active item changes",
               "name": "change"
             }
@@ -9393,6 +9403,35 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/utils/autofocus.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "maybeSetAutoFocus",
+          "parameters": [
+            {
+              "name": "element",
+              "type": {
+                "text": "HTMLElement"
+              }
+            }
+          ],
+          "description": "Artificial sets the focus to the given element, if no other element in the\ndocument is currently focused and the given element meets the following\nconditions:\n\n- is connected to DOM\n- has `autofocus` attribute\n- is visible\n\nFor more details of this issue, see https://codepen.io/editor/marchbox/pen/019e9ab9-cd81-7c21-a3ae-1b7fe2d3458a"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "maybeSetAutoFocus",
+          "declaration": {
+            "name": "maybeSetAutoFocus",
+            "module": "src/utils/autofocus.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "./dist/esm/button/button.base.js",
       "declarations": [
         {
@@ -9420,15 +9459,6 @@
             }
           ],
           "members": [
-            {
-              "kind": "field",
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Indicates the button should be focused when the page is loaded."
-            },
             {
               "kind": "field",
               "name": "defaultSlottedContent",
@@ -9629,14 +9659,6 @@
           ],
           "attributes": [
             {
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "Indicates the button should be focused when the page is loaded.",
-              "fieldName": "autofocus"
-            },
-            {
               "name": "disabled",
               "type": {
                 "text": "boolean"
@@ -9806,19 +9828,6 @@
               "privacy": "public",
               "default": "false",
               "description": "Indicates that the button should only display as an icon with no text content."
-            },
-            {
-              "kind": "field",
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Indicates the button should be focused when the page is loaded.",
-              "inheritedFrom": {
-                "name": "BaseButton",
-                "module": "src/button/button.base.ts"
-              }
             },
             {
               "kind": "field",
@@ -10136,18 +10145,6 @@
               "default": "false",
               "description": "Indicates that the button should only display as an icon with no text content.",
               "fieldName": "iconOnly"
-            },
-            {
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "Indicates the button should be focused when the page is loaded.",
-              "fieldName": "autofocus",
-              "inheritedFrom": {
-                "name": "BaseButton",
-                "module": "src/button/button.base.ts"
-              }
             },
             {
               "name": "disabled",
@@ -10681,7 +10678,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/anchor-button/anchor-button.ts",
+      "path": "./dist/esm/anchor-button/anchor-button.js",
       "declarations": [
         {
           "kind": "class",
@@ -11127,6 +11124,8 @@
             "name": "BaseAnchor",
             "module": "/src/anchor-button/anchor-button.base.js"
           },
+          "tagName": "fluent-anchor-button",
+          "customElement": true,
           "slots": [
             {
               "description": "Content which can be provided before the anchor content",
@@ -11170,7 +11169,12 @@
                 "module": "src/anchor-button/anchor-button.base.ts"
               }
             }
-          ]
+          ],
+          "modulePath": "./dist/esm/anchor-button/anchor-button.js",
+          "definitionPath": "./dist/esm/anchor-button/define.js",
+          "cssProperties": [],
+          "cssStates": [],
+          "events": []
         }
       ],
       "exports": [
@@ -11272,6 +11276,12 @@
           "kind": "class",
           "description": "An Avatar Custom HTML Element.\nBased on BaseAvatar and includes style and layout specific attributes",
           "name": "Avatar",
+          "slots": [
+            {
+              "description": "Optional badge content displayed with the avatar.",
+              "name": "badge"
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -11506,8 +11516,7 @@
           "cssProperties": [],
           "cssParts": [],
           "cssStates": [],
-          "events": [],
-          "slots": []
+          "events": []
         }
       ],
       "exports": [
@@ -11529,6 +11538,20 @@
           "kind": "class",
           "description": "The base class used for constructing a fluent-badge custom element",
           "name": "Badge",
+          "slots": [
+            {
+              "description": "Content which can be provided inside the badge.",
+              "name": ""
+            },
+            {
+              "description": "Content which can be provided before the badge content.",
+              "name": "start"
+            },
+            {
+              "description": "Content which can be provided after the badge content.",
+              "name": "end"
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -11629,6 +11652,7 @@
             "name": "FASTElement",
             "package": "@microsoft/fast-element"
           },
+          "tagName": "fluent-badge",
           "customElement": true,
           "modulePath": "./dist/esm/badge/badge.js",
           "definitionPath": "./dist/esm/badge/define.js"
@@ -11750,15 +11774,6 @@
           "description": "The base class for a component with a toggleable checked state.",
           "name": "BaseCheckbox",
           "members": [
-            {
-              "kind": "field",
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Indicates that the element should get focus after the page finishes loading."
-            },
             {
               "kind": "field",
               "name": "checked",
@@ -11966,15 +11981,23 @@
               "description": "Toggles the checked state of the control."
             }
           ],
-          "attributes": [
+          "events": [
             {
-              "name": "autofocus",
               "type": {
-                "text": "boolean"
+                "text": "Event"
               },
-              "description": "Indicates that the element should get focus after the page finishes loading.",
-              "fieldName": "autofocus"
+              "description": "Fires a custom 'change' event when the checked state changes",
+              "name": "change"
             },
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fires a custom 'input' event when the checked state changes",
+              "name": "input"
+            }
+          ],
+          "attributes": [
             {
               "name": "disabled",
               "type": {
@@ -12129,19 +12152,6 @@
                 "text": "string"
               },
               "default": "'checkbox'"
-            },
-            {
-              "kind": "field",
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Indicates that the element should get focus after the page finishes loading.",
-              "inheritedFrom": {
-                "name": "BaseCheckbox",
-                "module": "src/checkbox/checkbox.base.ts"
-              }
             },
             {
               "kind": "field",
@@ -12403,12 +12413,26 @@
           ],
           "events": [
             {
+              "type": {
+                "text": "Event"
+              },
               "description": "Emits a custom change event when the checked state changes",
-              "name": "change"
+              "name": "change",
+              "inheritedFrom": {
+                "name": "BaseCheckbox",
+                "module": "src/checkbox/checkbox.base.ts"
+              }
             },
             {
+              "type": {
+                "text": "Event"
+              },
               "description": "Emits a custom input event when the checked state changes",
-              "name": "input"
+              "name": "input",
+              "inheritedFrom": {
+                "name": "BaseCheckbox",
+                "module": "src/checkbox/checkbox.base.ts"
+              }
             }
           ],
           "attributes": [
@@ -12432,18 +12456,6 @@
               "fieldName": "size",
               "parsedType": {
                 "text": "'medium' | 'large' | undefined"
-              }
-            },
-            {
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "Indicates that the element should get focus after the page finishes loading.",
-              "fieldName": "autofocus",
-              "inheritedFrom": {
-                "name": "BaseCheckbox",
-                "module": "src/checkbox/checkbox.base.ts"
               }
             },
             {
@@ -12552,13 +12564,19 @@
           "kind": "class",
           "description": "The base class used for constructing a fluent-compound-button custom element",
           "name": "CompoundButton",
-          "superclass": {
-            "name": "Button",
-            "module": "/src/button/button.js"
-          },
-          "tagName": "fluent-compound-button",
-          "customElement": true,
           "slots": [
+            {
+              "description": "The default slot for the main content of the compound button",
+              "name": "",
+              "inheritedFrom": {
+                "name": "BaseButton",
+                "module": "src/button/button.base.ts"
+              }
+            },
+            {
+              "description": "The description of the compound button, shown below the main content",
+              "name": "description"
+            },
             {
               "description": "Content which can be provided before the button content",
               "name": "start",
@@ -12574,16 +12592,14 @@
                 "name": "BaseButton",
                 "module": "src/button/button.base.ts"
               }
-            },
-            {
-              "description": "The default slot for button content",
-              "name": "",
-              "inheritedFrom": {
-                "name": "BaseButton",
-                "module": "src/button/button.base.ts"
-              }
             }
           ],
+          "superclass": {
+            "name": "Button",
+            "module": "/src/button/button.js"
+          },
+          "tagName": "fluent-compound-button",
+          "customElement": true,
           "cssParts": [
             {
               "description": "The button content container",
@@ -12651,18 +12667,6 @@
               "inheritedFrom": {
                 "name": "Button",
                 "module": "src/button/button.ts"
-              }
-            },
-            {
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "Indicates the button should be focused when the page is loaded.",
-              "fieldName": "autofocus",
-              "inheritedFrom": {
-                "name": "BaseButton",
-                "module": "src/button/button.base.ts"
               }
             },
             {
@@ -12866,19 +12870,6 @@
               "inheritedFrom": {
                 "name": "Button",
                 "module": "src/button/button.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Indicates the button should be focused when the page is loaded.",
-              "inheritedFrom": {
-                "name": "BaseButton",
-                "module": "src/button/button.base.ts"
               }
             },
             {
@@ -13299,6 +13290,16 @@
           "kind": "class",
           "description": "A CounterBadge Custom HTML Element.\nBased on BaseCounterBadge and includes style and layout specific attributes.",
           "name": "CounterBadge",
+          "slots": [
+            {
+              "description": "Content which can be provided before the badge content.",
+              "name": "start"
+            },
+            {
+              "description": "Content which can be provided after the badge content.",
+              "name": "end"
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -13528,8 +13529,7 @@
           "cssProperties": [],
           "cssParts": [],
           "cssStates": [],
-          "events": [],
-          "slots": []
+          "events": []
         }
       ],
       "exports": [
@@ -13551,6 +13551,12 @@
           "kind": "class",
           "description": "A Dialog Custom HTML Element.",
           "name": "Dialog",
+          "slots": [
+            {
+              "description": "The default slot. {@link (DialogBody:class)} element recommended.",
+              "name": ""
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -13660,6 +13666,22 @@
               "description": "Handles click events on the dialog overlay for light-dismiss"
             }
           ],
+          "events": [
+            {
+              "type": {
+                "text": "ToggleEvent"
+              },
+              "description": "Event emitted after the dialog's open state changes.",
+              "name": "toggle"
+            },
+            {
+              "type": {
+                "text": "ToggleEvent"
+              },
+              "description": "Event emitted before the dialog's open state changes.",
+              "name": "beforetoggle"
+            }
+          ],
           "attributes": [
             {
               "name": "aria-describedby",
@@ -13726,6 +13748,42 @@
           "kind": "class",
           "description": "Dialog Body component that extends the FASTElement class.",
           "name": "DialogBody",
+          "cssParts": [
+            {
+              "description": "The title container.",
+              "name": "title"
+            },
+            {
+              "description": "The content container.",
+              "name": "content"
+            },
+            {
+              "description": "The actions container.",
+              "name": "actions"
+            }
+          ],
+          "slots": [
+            {
+              "description": "Content for the dialog title.",
+              "name": "title"
+            },
+            {
+              "description": "Content for actions shown near the title.",
+              "name": "title-action"
+            },
+            {
+              "description": "Content for the close action.",
+              "name": "close"
+            },
+            {
+              "description": "Content for footer actions.",
+              "name": "action"
+            },
+            {
+              "description": "Default dialog body content.",
+              "name": ""
+            }
+          ],
           "superclass": {
             "name": "FASTElement",
             "package": "@microsoft/fast-element"
@@ -14016,6 +14074,12 @@
           "kind": "class",
           "description": "A Drawer component that allows content to be displayed in a side panel. It can be rendered as modal or non-modal.",
           "name": "Drawer",
+          "cssProperties": [
+            {
+              "description": "Sets the width of the drawer to a custom value (e.g., 300px).",
+              "name": "--drawer-width"
+            }
+          ],
           "cssParts": [
             {
               "description": "The dialog element of the drawer.",
@@ -14161,10 +14225,16 @@
           ],
           "events": [
             {
+              "type": {
+                "text": "ToggleEvent"
+              },
               "description": "Event emitted after the dialog's open state changes.",
               "name": "toggle"
             },
             {
+              "type": {
+                "text": "ToggleEvent"
+              },
               "description": "Event emitted before the dialog's open state changes.",
               "name": "beforetoggle"
             }
@@ -14257,68 +14327,6 @@
           "declaration": {
             "name": "Drawer",
             "module": "src/drawer/drawer.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "./dist/esm/drawer-body/drawer-body.js",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "A DrawerBody component to layout drawer content",
-          "name": "DrawerBody",
-          "cssParts": [
-            {
-              "description": "The header part of the drawer",
-              "name": "header"
-            },
-            {
-              "description": "The content part of the drawer",
-              "name": "content"
-            },
-            {
-              "description": "The footer part of the drawer",
-              "name": "footer"
-            }
-          ],
-          "slots": [
-            {
-              "description": "The title slot",
-              "name": "title"
-            },
-            {
-              "description": "The close button slot",
-              "name": "close"
-            },
-            {
-              "description": "The default content slot",
-              "name": ""
-            },
-            {
-              "description": "The footer slot",
-              "name": "footer"
-            }
-          ],
-          "superclass": {
-            "name": "FASTElement",
-            "package": "@microsoft/fast-element"
-          },
-          "tagName": "fluent-drawer-body",
-          "customElement": true,
-          "summary": "A component that provides a drawer body for displaying content in a side panel.",
-          "modulePath": "./dist/esm/drawer-body/drawer-body.js",
-          "definitionPath": "./dist/esm/drawer-body/define.js"
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "DrawerBody",
-          "declaration": {
-            "name": "DrawerBody",
-            "module": "src/drawer-body/drawer-body.ts"
           }
         }
       ]
@@ -14605,6 +14613,68 @@
     },
     {
       "kind": "javascript-module",
+      "path": "./dist/esm/drawer-body/drawer-body.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A DrawerBody component to layout drawer content",
+          "name": "DrawerBody",
+          "cssParts": [
+            {
+              "description": "The header part of the drawer",
+              "name": "header"
+            },
+            {
+              "description": "The content part of the drawer",
+              "name": "content"
+            },
+            {
+              "description": "The footer part of the drawer",
+              "name": "footer"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The title slot",
+              "name": "title"
+            },
+            {
+              "description": "The close button slot",
+              "name": "close"
+            },
+            {
+              "description": "The default content slot",
+              "name": ""
+            },
+            {
+              "description": "The footer slot",
+              "name": "footer"
+            }
+          ],
+          "superclass": {
+            "name": "FASTElement",
+            "package": "@microsoft/fast-element"
+          },
+          "tagName": "fluent-drawer-body",
+          "customElement": true,
+          "summary": "A component that provides a drawer body for displaying content in a side panel.",
+          "modulePath": "./dist/esm/drawer-body/drawer-body.js",
+          "definitionPath": "./dist/esm/drawer-body/define.js"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DrawerBody",
+          "declaration": {
+            "name": "DrawerBody",
+            "module": "src/drawer-body/drawer-body.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/utils/unique-id.ts",
       "declarations": [
         {
@@ -14645,10 +14715,24 @@
           "kind": "class",
           "description": "A DropdownOption Custom HTML Element.\nImplements the https://w3c.github.io/aria/#option | ARIA option  role.",
           "name": "DropdownOption",
+          "cssParts": [
+            {
+              "description": "The wrapper for the option content.",
+              "name": "content"
+            },
+            {
+              "description": "The wrapper for the option description.",
+              "name": "description"
+            }
+          ],
           "slots": [
             {
               "description": "The default slot for the option's content.",
               "name": ""
+            },
+            {
+              "description": "Optional content shown at the start of the option.",
+              "name": "start"
             },
             {
               "description": "The checked indicator.",
@@ -15581,6 +15665,16 @@
               "description": "Inserts the control element based on the dropdown type."
             },
             {
+              "kind": "field",
+              "name": "searchTimeoutMs",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "protected",
+              "default": "500",
+              "description": "The duration in milliseconds after the last character search keystroke before the search string is cleared."
+            },
+            {
               "kind": "method",
               "name": "keydownHandler",
               "privacy": "public",
@@ -15646,6 +15740,15 @@
                 "text": "string"
               },
               "default": "'presentation'"
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fires a custom 'change' event when the selected option changes",
+              "name": "change"
             }
           ],
           "attributes": [
@@ -16266,6 +16369,20 @@
               }
             },
             {
+              "kind": "field",
+              "name": "searchTimeoutMs",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "protected",
+              "default": "500",
+              "description": "The duration in milliseconds after the last character search keystroke before the search string is cleared.",
+              "inheritedFrom": {
+                "name": "BaseDropdown",
+                "module": "src/dropdown/dropdown.base.ts"
+              }
+            },
+            {
               "kind": "method",
               "name": "keydownHandler",
               "privacy": "public",
@@ -16492,12 +16609,24 @@
           },
           "tagName": "fluent-dropdown",
           "customElement": true,
+          "events": [
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fires a custom 'change' event when the selected option changes",
+              "name": "change",
+              "inheritedFrom": {
+                "name": "BaseDropdown",
+                "module": "src/dropdown/dropdown.base.ts"
+              }
+            }
+          ],
           "modulePath": "./dist/esm/dropdown/dropdown.js",
           "definitionPath": "./dist/esm/dropdown/define.js",
           "cssProperties": [],
           "cssParts": [],
-          "cssStates": [],
-          "events": []
+          "cssStates": []
         }
       ],
       "exports": [
@@ -16520,14 +16649,6 @@
           "description": "A Field Custom HTML Element.",
           "name": "BaseField",
           "members": [
-            {
-              "kind": "field",
-              "name": "slottedInputObserver",
-              "type": {
-                "text": "MutationObserver"
-              },
-              "privacy": "private"
-            },
             {
               "kind": "method",
               "name": "labelSlotChanged",
@@ -16626,6 +16747,34 @@
           "kind": "class",
           "description": "A Field Custom HTML Element.\nBased on BaseField and includes style and layout specific attributes",
           "name": "Field",
+          "cssParts": [
+            {
+              "description": "The label slot container.",
+              "name": "label"
+            },
+            {
+              "description": "The input slot container.",
+              "name": "input"
+            },
+            {
+              "description": "The message slot container.",
+              "name": "message"
+            }
+          ],
+          "slots": [
+            {
+              "description": "Label content associated with the control.",
+              "name": "label"
+            },
+            {
+              "description": "Input control content.",
+              "name": "input"
+            },
+            {
+              "description": "Validation and helper message content.",
+              "name": "message"
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -16637,18 +16786,6 @@
               "description": "The position of the label relative to the input.",
               "parsedType": {
                 "text": "'above' | 'after' | 'before'"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "slottedInputObserver",
-              "type": {
-                "text": "MutationObserver"
-              },
-              "privacy": "private",
-              "inheritedFrom": {
-                "name": "BaseField",
-                "module": "src/field/field.base.ts"
               }
             },
             {
@@ -16763,10 +16900,8 @@
           "modulePath": "./dist/esm/field/field.js",
           "definitionPath": "./dist/esm/field/define.js",
           "cssProperties": [],
-          "cssParts": [],
           "cssStates": [],
-          "events": [],
-          "slots": []
+          "events": []
         }
       ],
       "exports": [
@@ -16788,6 +16923,12 @@
           "kind": "class",
           "description": "The base class used for constucting a fluent image custom element",
           "name": "Image",
+          "slots": [
+            {
+              "description": "The default slot. Accepts any `<img>`, `<picture>`, `<video>`, or `<canvas>` element.",
+              "name": ""
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -16918,6 +17059,18 @@
           "kind": "class",
           "description": "The base class used for constructing a fluent-label custom element",
           "name": "Label",
+          "cssParts": [
+            {
+              "description": "The required-field asterisk indicator.",
+              "name": "asterisk"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The default slot. Accepts the content of the label.",
+              "name": ""
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -17515,18 +17668,6 @@
               }
             },
             {
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "Indicates the button should be focused when the page is loaded.",
-              "fieldName": "autofocus",
-              "inheritedFrom": {
-                "name": "BaseButton",
-                "module": "src/button/button.base.ts"
-              }
-            },
-            {
               "name": "disabled",
               "type": {
                 "text": "boolean"
@@ -17727,19 +17868,6 @@
               "inheritedFrom": {
                 "name": "Button",
                 "module": "src/button/button.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Indicates the button should be focused when the page is loaded.",
-              "inheritedFrom": {
-                "name": "BaseButton",
-                "module": "src/button/button.base.ts"
               }
             },
             {
@@ -18189,6 +18317,9 @@
           ],
           "events": [
             {
+              "type": {
+                "text": "Event"
+              },
               "description": "Fires a custom 'change' event when a non-submenu item with a role of `menuitemcheckbox`, `menuitemradio`, or `menuitem` is invoked",
               "name": "change"
             }
@@ -19202,6 +19333,10 @@
               "name": "dismiss"
             },
             {
+              "description": "Content that can be provided for the leading icon",
+              "name": "icon"
+            },
+            {
               "description": "The default slot for the content",
               "name": ""
             }
@@ -19256,6 +19391,15 @@
                 "text": "string"
               },
               "default": "'status'"
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent"
+              },
+              "description": "Fired when the message bar is dismissed.",
+              "name": "dismiss"
             }
           ],
           "attributes": [
@@ -19359,6 +19503,24 @@
               "description": "Handles changes to validation-state attribute custom states"
             },
             {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "number | undefined"
+              },
+              "privacy": "public",
+              "description": "The value of the progress\nThe value of the progress\n\nHTML Attribute: `value`"
+            },
+            {
+              "kind": "field",
+              "name": "min",
+              "type": {
+                "text": "number | undefined"
+              },
+              "privacy": "public",
+              "description": "The minimum value\nThe minimum value\n\nHTML Attribute: `min`"
+            },
+            {
               "kind": "method",
               "name": "minChanged",
               "privacy": "protected",
@@ -19387,6 +19549,15 @@
             },
             {
               "kind": "field",
+              "name": "max",
+              "type": {
+                "text": "number | undefined"
+              },
+              "privacy": "public",
+              "description": "The maximum value\nThe maximum value\n\nHTML Attribute: `max`"
+            },
+            {
+              "kind": "field",
               "name": "role",
               "type": {
                 "text": "string"
@@ -19406,6 +19577,30 @@
               "parsedType": {
                 "text": "'success' | 'warning' | 'error' | null"
               }
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "The value of the progress\nThe value of the progress\n\nHTML Attribute: `value`",
+              "fieldName": "value"
+            },
+            {
+              "name": "min",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "The minimum value\nThe minimum value\n\nHTML Attribute: `min`",
+              "fieldName": "min"
+            },
+            {
+              "name": "max",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "The maximum value\nThe maximum value\n\nHTML Attribute: `max`",
+              "fieldName": "max"
             }
           ],
           "superclass": {
@@ -19436,6 +19631,12 @@
           "kind": "class",
           "description": "A Progress HTML Element.\nBased on BaseProgressBar and includes style and layout specific attributes",
           "name": "ProgressBar",
+          "cssParts": [
+            {
+              "description": "The internal progress indicator element.",
+              "name": "indicator"
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -19505,6 +19706,32 @@
               }
             },
             {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "number | undefined"
+              },
+              "privacy": "public",
+              "description": "The value of the progress\nThe value of the progress\n\nHTML Attribute: `value`",
+              "inheritedFrom": {
+                "name": "BaseProgressBar",
+                "module": "src/progress-bar/progress-bar.base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "min",
+              "type": {
+                "text": "number | undefined"
+              },
+              "privacy": "public",
+              "description": "The minimum value\nThe minimum value\n\nHTML Attribute: `min`",
+              "inheritedFrom": {
+                "name": "BaseProgressBar",
+                "module": "src/progress-bar/progress-bar.base.ts"
+              }
+            },
+            {
               "kind": "method",
               "name": "minChanged",
               "privacy": "protected",
@@ -19530,6 +19757,19 @@
                 }
               ],
               "description": "Updates the percent complete when the `min` property changes.",
+              "inheritedFrom": {
+                "name": "BaseProgressBar",
+                "module": "src/progress-bar/progress-bar.base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "max",
+              "type": {
+                "text": "number | undefined"
+              },
+              "privacy": "public",
+              "description": "The maximum value\nThe maximum value\n\nHTML Attribute: `max`",
               "inheritedFrom": {
                 "name": "BaseProgressBar",
                 "module": "src/progress-bar/progress-bar.base.ts"
@@ -19586,6 +19826,42 @@
                 "name": "BaseProgressBar",
                 "module": "src/progress-bar/progress-bar.base.ts"
               }
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "The value of the progress\nThe value of the progress\n\nHTML Attribute: `value`",
+              "fieldName": "value",
+              "inheritedFrom": {
+                "name": "BaseProgressBar",
+                "module": "src/progress-bar/progress-bar.base.ts"
+              }
+            },
+            {
+              "name": "min",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "The minimum value\nThe minimum value\n\nHTML Attribute: `min`",
+              "fieldName": "min",
+              "inheritedFrom": {
+                "name": "BaseProgressBar",
+                "module": "src/progress-bar/progress-bar.base.ts"
+              }
+            },
+            {
+              "name": "max",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "The maximum value\nThe maximum value\n\nHTML Attribute: `max`",
+              "fieldName": "max",
+              "inheritedFrom": {
+                "name": "BaseProgressBar",
+                "module": "src/progress-bar/progress-bar.base.ts"
+              }
             }
           ],
           "superclass": {
@@ -19597,7 +19873,6 @@
           "modulePath": "./dist/esm/progress-bar/progress-bar.js",
           "definitionPath": "./dist/esm/progress-bar/define.js",
           "cssProperties": [],
-          "cssParts": [],
           "cssStates": [],
           "events": [],
           "slots": []
@@ -19661,19 +19936,6 @@
                 "text": "string"
               },
               "default": "'radio'"
-            },
-            {
-              "kind": "field",
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Indicates that the element should get focus after the page finishes loading.",
-              "inheritedFrom": {
-                "name": "BaseCheckbox",
-                "module": "src/checkbox/checkbox.base.ts"
-              }
             },
             {
               "kind": "field",
@@ -19935,12 +20197,33 @@
           ],
           "events": [
             {
+              "type": {
+                "text": "Event"
+              },
               "description": "Emits a custom change event when the checked state changes",
-              "name": "change"
+              "name": "change",
+              "inheritedFrom": {
+                "name": "BaseCheckbox",
+                "module": "src/checkbox/checkbox.base.ts"
+              }
             },
             {
+              "type": {
+                "text": "Event"
+              },
               "description": "Emits a custom input event when the checked state changes",
-              "name": "input"
+              "name": "input",
+              "inheritedFrom": {
+                "name": "BaseCheckbox",
+                "module": "src/checkbox/checkbox.base.ts"
+              }
+            },
+            {
+              "type": {
+                "text": "CustomEvent"
+              },
+              "description": "Emits a custom disabled event when the disabled state changes",
+              "name": "disabled"
             }
           ],
           "superclass": {
@@ -19950,18 +20233,6 @@
           "tagName": "fluent-radio",
           "customElement": true,
           "attributes": [
-            {
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "Indicates that the element should get focus after the page finishes loading.",
-              "fieldName": "autofocus",
-              "inheritedFrom": {
-                "name": "BaseCheckbox",
-                "module": "src/checkbox/checkbox.base.ts"
-              }
-            },
             {
               "name": "disabled",
               "type": {
@@ -20355,6 +20626,15 @@
             {
               "kind": "field",
               "name": "ariaOrientation"
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fires a custom 'change' event when the checked radio changes",
+              "name": "change"
             }
           ],
           "attributes": [
@@ -20833,6 +21113,19 @@
               }
             }
           ],
+          "events": [
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fired when the selected radio changes.",
+              "name": "change",
+              "inheritedFrom": {
+                "name": "BaseRadioGroup",
+                "module": "src/radio-group/radio-group.base.ts"
+              }
+            }
+          ],
           "superclass": {
             "name": "BaseRadioGroup",
             "module": "/src/radio-group/radio-group.base.js"
@@ -20908,8 +21201,7 @@
           "definitionPath": "./dist/esm/radio-group/define.js",
           "cssProperties": [],
           "cssParts": [],
-          "cssStates": [],
-          "events": []
+          "cssStates": []
         }
       ],
       "exports": [
@@ -22047,6 +22339,9 @@
           ],
           "events": [
             {
+              "type": {
+                "text": "Event"
+              },
               "description": "Fires a custom 'change' event when the value changes.",
               "name": "change"
             }
@@ -22293,6 +22588,12 @@
           "kind": "class",
           "description": "A Switch Custom HTML Element.\nBased on BaseCheckbox and includes style and layout specific attributes",
           "name": "Switch",
+          "cssParts": [
+            {
+              "description": "The internal switch indicator element.",
+              "name": "checked-indicator"
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -22301,19 +22602,6 @@
                 "text": "string"
               },
               "default": "'switch'"
-            },
-            {
-              "kind": "field",
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Indicates that the element should get focus after the page finishes loading.",
-              "inheritedFrom": {
-                "name": "BaseCheckbox",
-                "module": "src/checkbox/checkbox.base.ts"
-              }
             },
             {
               "kind": "field",
@@ -22606,18 +22894,6 @@
           "customElement": true,
           "attributes": [
             {
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "Indicates that the element should get focus after the page finishes loading.",
-              "fieldName": "autofocus",
-              "inheritedFrom": {
-                "name": "BaseCheckbox",
-                "module": "src/checkbox/checkbox.base.ts"
-              }
-            },
-            {
               "name": "disabled",
               "type": {
                 "text": "boolean | undefined"
@@ -22691,12 +22967,34 @@
               }
             }
           ],
+          "events": [
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fires a custom 'change' event when the checked state changes",
+              "name": "change",
+              "inheritedFrom": {
+                "name": "BaseCheckbox",
+                "module": "src/checkbox/checkbox.base.ts"
+              }
+            },
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fires a custom 'input' event when the checked state changes",
+              "name": "input",
+              "inheritedFrom": {
+                "name": "BaseCheckbox",
+                "module": "src/checkbox/checkbox.base.ts"
+              }
+            }
+          ],
           "modulePath": "./dist/esm/switch/switch.js",
           "definitionPath": "./dist/esm/switch/define.js",
           "cssProperties": [],
-          "cssParts": [],
           "cssStates": [],
-          "events": [],
           "slots": []
         }
       ],
@@ -23224,6 +23522,15 @@
               }
             }
           ],
+          "events": [
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fired when the active tab changes.",
+              "name": "change"
+            }
+          ],
           "attributes": [
             {
               "name": "appearance",
@@ -23299,7 +23606,6 @@
           "cssProperties": [],
           "cssParts": [],
           "cssStates": [],
-          "events": [],
           "slots": []
         }
       ],
@@ -23807,10 +24113,16 @@
           ],
           "events": [
             {
+              "type": {
+                "text": "Event"
+              },
               "description": "Fires after the control loses focus, if the content has changed.",
               "name": "change"
             },
             {
+              "type": {
+                "text": "Event"
+              },
               "description": "Fires when the `select()` method is called.",
               "name": "select"
             }
@@ -24862,6 +25174,9 @@
           ],
           "events": [
             {
+              "type": {
+                "text": "Event"
+              },
               "description": "Fires after the control loses focus, if the content has changed.",
               "name": "change",
               "inheritedFrom": {
@@ -24870,6 +25185,9 @@
               }
             },
             {
+              "type": {
+                "text": "Event"
+              },
               "description": "Fires when the `select()` method is called.",
               "name": "select",
               "inheritedFrom": {
@@ -24940,15 +25258,6 @@
               },
               "privacy": "public",
               "description": "Indicates the element's autocomplete state."
-            },
-            {
-              "kind": "field",
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Indicates that the element should get focus after the page finishes loading."
             },
             {
               "kind": "field",
@@ -25200,26 +25509,6 @@
             },
             {
               "kind": "method",
-              "name": "focusinHandler",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "boolean | void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "e",
-                  "type": {
-                    "text": "FocusEvent"
-                  },
-                  "description": "the event object"
-                }
-              ],
-              "description": "Focuses the inner control when the component is focused."
-            },
-            {
-              "kind": "method",
               "name": "select",
               "privacy": "public",
               "return": {
@@ -25261,6 +25550,22 @@
               "description": "Reports the validity of the element."
             }
           ],
+          "events": [
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fires a custom 'change' event when the value changes and the input loses focus",
+              "name": "change"
+            },
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fires when the `select()` method is called.",
+              "name": "select"
+            }
+          ],
           "attributes": [
             {
               "name": "autocomplete",
@@ -25269,14 +25574,6 @@
               },
               "description": "Indicates the element's autocomplete state.",
               "fieldName": "autocomplete"
-            },
-            {
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "Indicates that the element should get focus after the page finishes loading.",
-              "fieldName": "autofocus"
             },
             {
               "name": "current-value",
@@ -25479,19 +25776,6 @@
               },
               "privacy": "public",
               "description": "Indicates the element's autocomplete state.",
-              "inheritedFrom": {
-                "name": "BaseTextInput",
-                "module": "src/text-input/text-input.base.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Indicates that the element should get focus after the page finishes loading.",
               "inheritedFrom": {
                 "name": "BaseTextInput",
                 "module": "src/text-input/text-input.base.ts"
@@ -25847,30 +26131,6 @@
             },
             {
               "kind": "method",
-              "name": "focusinHandler",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "boolean | void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "e",
-                  "type": {
-                    "text": "FocusEvent"
-                  },
-                  "description": "the event object"
-                }
-              ],
-              "description": "Focuses the inner control when the component is focused.",
-              "inheritedFrom": {
-                "name": "BaseTextInput",
-                "module": "src/text-input/text-input.base.ts"
-              }
-            },
-            {
-              "kind": "method",
               "name": "select",
               "privacy": "public",
               "return": {
@@ -25924,6 +26184,30 @@
               }
             }
           ],
+          "events": [
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fired when the input value is committed via a change event.",
+              "name": "change",
+              "inheritedFrom": {
+                "name": "BaseTextInput",
+                "module": "src/text-input/text-input.base.ts"
+              }
+            },
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fires when the `select()` method is called.",
+              "name": "select",
+              "inheritedFrom": {
+                "name": "BaseTextInput",
+                "module": "src/text-input/text-input.base.ts"
+              }
+            }
+          ],
           "attributes": [
             {
               "name": "appearance",
@@ -25954,18 +26238,6 @@
               },
               "description": "Indicates the element's autocomplete state.",
               "fieldName": "autocomplete",
-              "inheritedFrom": {
-                "name": "BaseTextInput",
-                "module": "src/text-input/text-input.base.ts"
-              }
-            },
-            {
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "Indicates that the element should get focus after the page finishes loading.",
-              "fieldName": "autofocus",
               "inheritedFrom": {
                 "name": "BaseTextInput",
                 "module": "src/text-input/text-input.base.ts"
@@ -26240,8 +26512,7 @@
           "modulePath": "./dist/esm/text-input/text-input.js",
           "definitionPath": "./dist/esm/text-input/define.js",
           "cssProperties": [],
-          "cssStates": [],
-          "events": []
+          "cssStates": []
         }
       ],
       "exports": [
@@ -26263,6 +26534,12 @@
           "kind": "class",
           "description": "The base class used for constructing a fluent-text custom element",
           "name": "Text",
+          "slots": [
+            {
+              "description": "The default slot for the text content of the component. Can be any valid HTML element, but is typically a semantic element such as a heading or paragraph.",
+              "name": ""
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -26600,19 +26877,6 @@
             },
             {
               "kind": "field",
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Indicates the button should be focused when the page is loaded.",
-              "inheritedFrom": {
-                "name": "BaseButton",
-                "module": "src/button/button.base.ts"
-              }
-            },
-            {
-              "kind": "field",
               "name": "defaultSlottedContent",
               "type": {
                 "text": "HTMLElement[]"
@@ -26946,18 +27210,6 @@
               }
             },
             {
-              "name": "autofocus",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "Indicates the button should be focused when the page is loaded.",
-              "fieldName": "autofocus",
-              "inheritedFrom": {
-                "name": "BaseButton",
-                "module": "src/button/button.base.ts"
-              }
-            },
-            {
               "name": "disabled",
               "type": {
                 "text": "boolean"
@@ -27165,6 +27417,12 @@
           "kind": "class",
           "description": "A Tooltip Custom HTML Element.\nBased on ARIA APG Tooltip Pattern https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/ ",
           "name": "Tooltip",
+          "slots": [
+            {
+              "description": "The default slot. Accepts the content of the tooltip.",
+              "name": ""
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -27310,7 +27568,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "",
+          "description": "Base class for Tree Item Custom HTML Element.\nBased largely on the https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li | `<li>` element.",
           "name": "BaseTreeItem",
           "members": [
             {
@@ -27451,6 +27709,22 @@
               "default": "'treeitem'"
             }
           ],
+          "events": [
+            {
+              "type": {
+                "text": "ToggleEvent"
+              },
+              "description": "Fires when the expanded state changes",
+              "name": "toggle"
+            },
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fires when the selected state changes",
+              "name": "change"
+            }
+          ],
           "attributes": [
             {
               "name": "expanded",
@@ -27515,6 +27789,50 @@
           "kind": "class",
           "description": "The Fluent Tree Item Element. Implements @microsoft/fast-foundation#BaseTreeItem.",
           "name": "TreeItem",
+          "cssParts": [
+            {
+              "description": "The container for item content and aside regions.",
+              "name": "positioning-region"
+            },
+            {
+              "description": "The item content region.",
+              "name": "content"
+            },
+            {
+              "description": "The expand/collapse indicator region.",
+              "name": "chevron"
+            },
+            {
+              "description": "The trailing aside region.",
+              "name": "aside"
+            },
+            {
+              "description": "The child items group region.",
+              "name": "items"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The default slot. Accepts the content of the tree item.",
+              "name": ""
+            },
+            {
+              "description": "Content shown before the item label.",
+              "name": "start"
+            },
+            {
+              "description": "Content shown after the item label.",
+              "name": "end"
+            },
+            {
+              "description": "Content shown at the far end of the row.",
+              "name": "aside"
+            },
+            {
+              "description": "Child tree items.",
+              "name": "item"
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -27732,6 +28050,30 @@
               }
             }
           ],
+          "events": [
+            {
+              "type": {
+                "text": "ToggleEvent"
+              },
+              "description": "Fired when expanded state toggles.",
+              "name": "toggle",
+              "inheritedFrom": {
+                "name": "BaseTreeItem",
+                "module": "src/tree-item/tree-item.base.ts"
+              }
+            },
+            {
+              "type": {
+                "text": "Event"
+              },
+              "description": "Fired when selected state changes.",
+              "name": "change",
+              "inheritedFrom": {
+                "name": "BaseTreeItem",
+                "module": "src/tree-item/tree-item.base.ts"
+              }
+            }
+          ],
           "attributes": [
             {
               "name": "size",
@@ -27815,10 +28157,7 @@
           "modulePath": "./dist/esm/tree-item/tree-item.js",
           "definitionPath": "./dist/esm/tree-item/define.js",
           "cssProperties": [],
-          "cssParts": [],
-          "cssStates": [],
-          "events": [],
-          "slots": []
+          "cssStates": []
         }
       ],
       "exports": [
@@ -28136,10 +28475,10 @@
           "kind": "variable",
           "name": "declarativeDefinition",
           "type": {
-            "text": "{\n  name: tagName,\n  templateOptions: 'defer-and-hydrate',\n}"
+            "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-accordion element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-accordion>` element.",
           "privacy": "public"
         }
       ],
@@ -28166,21 +28505,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-accordion-item element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-accordion-item>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/accordion-item/accordion-item.definition-async.ts"
           }
         }
@@ -28198,21 +28537,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-anchor-button element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-anchor-button>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/anchor-button/anchor-button.definition-async.ts"
           }
         }
@@ -28226,25 +28565,57 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/button/button.definition-async.ts",
+      "path": "src/badge/badge.definition-async.ts",
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-button element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-badge>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
+            "module": "src/badge/badge.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/badge/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/button/button.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "declarativeDefinition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-button>` element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "declarativeDefinition",
+          "declaration": {
+            "name": "declarativeDefinition",
             "module": "src/button/button.definition-async.ts"
           }
         }
@@ -28262,21 +28633,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-avatar element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-avatar>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/avatar/avatar.definition-async.ts"
           }
         }
@@ -28290,57 +28661,25 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/badge/badge.definition-async.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "definition",
-          "type": {
-            "text": "PartialFASTElementDefinition"
-          },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-badge element.",
-          "privacy": "public"
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "definition",
-          "declaration": {
-            "name": "definition",
-            "module": "src/badge/badge.definition-async.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/badge/define-async.ts",
-      "declarations": [],
-      "exports": []
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/checkbox/checkbox.definition-async.ts",
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-checkbox element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-checkbox>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/checkbox/checkbox.definition-async.ts"
           }
         }
@@ -28358,21 +28697,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-compound-button element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-compound-button>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/compound-button/compound-button.definition-async.ts"
           }
         }
@@ -28390,21 +28729,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-counter-badge element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-counter-badge>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/counter-badge/counter-badge.definition-async.ts"
           }
         }
@@ -28422,21 +28761,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-dialog element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-dialog>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/dialog/dialog.definition-async.ts"
           }
         }
@@ -28454,21 +28793,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-dialog-body element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-dialog-body>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/dialog-body/dialog-body.definition-async.ts"
           }
         }
@@ -28486,21 +28825,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-divider element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-divider>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/divider/divider.definition-async.ts"
           }
         }
@@ -28518,21 +28857,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-drawer element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-drawer>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/drawer/drawer.definition-async.ts"
           }
         }
@@ -28550,21 +28889,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-drawer-body element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-drawer-body>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/drawer-body/drawer-body.definition-async.ts"
           }
         }
@@ -28582,21 +28921,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-dropdown element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-dropdown>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/dropdown/dropdown.definition-async.ts"
           }
         }
@@ -28614,21 +28953,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', shadowOptions: { delegatesFocus: true, }, }",
-          "description": "The async definition configuration for the fluent-field element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, shadowOptions: { delegatesFocus: true, }, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-field>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/field/field.definition-async.ts"
           }
         }
@@ -28646,21 +28985,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-image element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-image>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/image/image.definition-async.ts"
           }
         }
@@ -28678,21 +29017,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-label element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-label>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/label/label.definition-async.ts"
           }
         }
@@ -28710,21 +29049,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-link element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-link>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/link/link.definition-async.ts"
           }
         }
@@ -28742,21 +29081,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-listbox element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-listbox>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/listbox/listbox.definition-async.ts"
           }
         }
@@ -28774,21 +29113,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-menu element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-menu>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/menu/menu.definition-async.ts"
           }
         }
@@ -28806,21 +29145,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-menu-button element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-menu-button>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/menu-button/menu-button.definition-async.ts"
           }
         }
@@ -28838,21 +29177,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-menu-item element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-menu-item>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/menu-item/menu-item.definition-async.ts"
           }
         }
@@ -28870,21 +29209,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-menu-list element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-menu-list>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/menu-list/menu-list.definition-async.ts"
           }
         }
@@ -28902,21 +29241,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-message-bar element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-message-bar>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/message-bar/message-bar.definition-async.ts"
           }
         }
@@ -28934,21 +29273,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-option element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-option>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/option/option.definition-async.ts"
           }
         }
@@ -29314,21 +29653,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-progress-bar element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-progress-bar>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/progress-bar/progress-bar.definition-async.ts"
           }
         }
@@ -29346,21 +29685,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-radio element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-radio>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/radio/radio.definition-async.ts"
           }
         }
@@ -29378,21 +29717,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-radio-group element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-radio-group>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/radio-group/radio-group.definition-async.ts"
           }
         }
@@ -29410,21 +29749,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-rating-display element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-rating-display>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/rating-display/rating-display.definition-async.ts"
           }
         }
@@ -29442,21 +29781,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-slider element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-slider>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/slider/slider.definition-async.ts"
           }
         }
@@ -29474,21 +29813,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-spinner element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-spinner>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/spinner/spinner.definition-async.ts"
           }
         }
@@ -29506,21 +29845,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-switch element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-switch>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/switch/switch.definition-async.ts"
           }
         }
@@ -29538,21 +29877,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-tab element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-tab>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/tab/tab.definition-async.ts"
           }
         }
@@ -29570,21 +29909,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-tablist element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, shadowOptions: { delegatesFocus: true, }, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-tablist>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/tablist/tablist.definition-async.ts"
           }
         }
@@ -29602,21 +29941,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-text element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-text>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/text/text.definition-async.ts"
           }
         }
@@ -29634,21 +29973,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', shadowOptions: { delegatesFocus: true, }, }",
-          "description": "The async definition configuration for the fluent-text-input element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, shadowOptions: { delegatesFocus: true, }, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-text-input>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/text-input/text-input.definition-async.ts"
           }
         }
@@ -29666,21 +30005,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', shadowOptions: { delegatesFocus: true, }, }",
-          "description": "The async definition configuration for the fluent-textarea element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, shadowOptions: { delegatesFocus: true, }, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-textarea>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/textarea/textarea.definition-async.ts"
           }
         }
@@ -29698,21 +30037,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-toggle-button element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-toggle-button>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/toggle-button/toggle-button.definition-async.ts"
           }
         }
@@ -29730,21 +30069,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-tooltip element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-tooltip>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/tooltip/tooltip.definition-async.ts"
           }
         }
@@ -29762,21 +30101,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-tree element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-tree>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/tree/tree.definition-async.ts"
           }
         }
@@ -29794,21 +30133,21 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "type": {
             "text": "PartialFASTElementDefinition"
           },
-          "default": "{ name: tagName, templateOptions: 'defer-and-hydrate', }",
-          "description": "The async definition configuration for the fluent-tree-item element.",
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition for the `<fluent-tree-item>` element.",
           "privacy": "public"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "definition",
+          "name": "declarativeDefinition",
           "declaration": {
-            "name": "definition",
+            "name": "declarativeDefinition",
             "module": "src/tree-item/tree-item.definition-async.ts"
           }
         }
@@ -29993,6 +30332,22 @@
     },
     {
       "kind": "javascript-module",
+      "path": "./dist/esm/accordion-item/define.js",
+      "deprecated": false,
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "fluent-accordion-item",
+          "declaration": {
+            "name": "AccordionItem",
+            "module": "./dist/esm/accordion-item/accordion-item.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "./dist/esm/accordion/define.js",
       "deprecated": false,
       "declarations": [],
@@ -30057,6 +30412,22 @@
     },
     {
       "kind": "javascript-module",
+      "path": "./dist/esm/anchor-button/define.js",
+      "deprecated": false,
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "fluent-anchor-button",
+          "declaration": {
+            "name": "AnchorButton",
+            "module": "./dist/esm/anchor-button/anchor-button.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "./dist/esm/avatar/define.js",
       "deprecated": false,
       "declarations": [],
@@ -30095,7 +30466,7 @@
       "exports": [
         {
           "kind": "custom-element-definition",
-          "name": "Badge",
+          "name": "fluent-badge",
           "declaration": {
             "name": "Badge",
             "module": "./dist/esm/badge/badge.js"

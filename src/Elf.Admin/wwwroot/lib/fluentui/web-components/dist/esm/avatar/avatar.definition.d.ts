@@ -1,9 +1,7 @@
-import { Avatar } from './avatar.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Avatar Element.
+ * The definition for the `<fluent-avatar>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-badge\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Avatar>;
+export declare const definition: PartialFASTElementDefinition;

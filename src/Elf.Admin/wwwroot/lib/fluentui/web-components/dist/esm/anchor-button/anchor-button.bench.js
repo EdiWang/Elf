@@ -1,6 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
-import { definition } from './anchor-button.definition.js';
-definition.define(FluentDesignSystem.registry);
+import './define.js';
 const itemRenderer = () => {
     const btn = document.createElement('fluent-anchor-button');
     btn.appendChild(document.createTextNode('Anchor button'));

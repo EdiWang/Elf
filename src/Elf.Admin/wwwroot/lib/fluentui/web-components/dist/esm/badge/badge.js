@@ -5,6 +5,12 @@ import { StartEnd } from '../patterns/start-end.js';
 import { BadgeAppearance, BadgeColor } from './badge.options.js';
 /**
  * The base class used for constructing a fluent-badge custom element
+ * @tag fluent-badge
+ *
+ * @slot - Content which can be provided inside the badge.
+ * @slot start - Content which can be provided before the badge content.
+ * @slot end - Content which can be provided after the badge content.
+ *
  * @public
  */
 export class Badge extends FASTElement {
@@ -13,7 +19,6 @@ export class Badge extends FASTElement {
         /**
          * The appearance the badge should have.
          *
-         * @tag fluent-badge
          *
          * @public
          * @remarks

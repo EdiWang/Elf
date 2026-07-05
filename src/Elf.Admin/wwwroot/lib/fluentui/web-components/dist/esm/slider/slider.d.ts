@@ -10,7 +10,7 @@ import { type SliderConfiguration, SliderMode, SliderSize } from './slider.optio
  * @slot thumb - The slot for a custom thumb element.
  * @csspart thumb-container - The container element of the thumb.
  * @csspart track-container - The container element of the track.
- * @fires change - Fires a custom 'change' event when the value changes.
+ * @fires { Event } change - Fires a custom 'change' event when the value changes.
  *
  * @public
  */

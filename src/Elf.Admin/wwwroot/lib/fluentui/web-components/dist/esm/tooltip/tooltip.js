@@ -8,6 +8,8 @@ import { AnchorPositioningCSSSupported, AnchorPositioningHTMLSupported } from '.
  *
  * @tag fluent-tooltip
  *
+ * @slot - The default slot. Accepts the content of the tooltip.
+ *
  * @public
  */
 export class Tooltip extends FASTElement {
@@ -208,7 +210,7 @@ export class Tooltip extends FASTElement {
       #${this.id} {
         inset: unset;
         position-anchor: ${anchorName};
-        position: absolute;
+        position: fixed;
         ${directionCSS}
         ${alignmentCSS}
       }

@@ -1,2 +1,7 @@
-import { Tab } from './tab.js';
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Tab>;
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
+/**
+ * The definition for the `<fluent-tab>` element.
+ *
+ * @public
+ */
+export declare const definition: PartialFASTElementDefinition;

@@ -21,50 +21,25 @@ function isAccordionItem(element, tagName2 = "-accordion-item") {
 }
 const tagName$F = `${FluentDesignSystem.prefix}-accordion-item`;
 
-let kernelMode;
-const kernelAttr = "fast-kernel";
-try {
-    if (document.currentScript) {
-        kernelMode = document.currentScript.getAttribute(kernelAttr);
+/**
+ * Captures a binding expression along with related information and capabilities.
+ *
+ * @public
+ */
+class Binding {
+    /**
+     * Creates a binding.
+     * @param evaluate - Evaluates the binding.
+     * @param policy - The security policy to associate with this binding.
+     * @param isVolatile - Indicates whether the binding is volatile.
+     */
+    constructor(evaluate, policy, isVolatile = false) {
+        this.evaluate = evaluate;
+        this.policy = policy;
+        this.isVolatile = isVolatile;
     }
-    else {
-        const scripts = document.getElementsByTagName("script");
-        const currentScript = scripts[scripts.length - 1];
-        kernelMode = currentScript.getAttribute(kernelAttr);
-    }
 }
-catch (e) {
-    kernelMode = "isolate";
-}
-let KernelServiceId;
-switch (kernelMode) {
-    case "share": // share the kernel across major versions
-        KernelServiceId = Object.freeze({
-            updateQueue: 1,
-            observable: 2,
-            contextEvent: 3,
-            elementRegistry: 4,
-        });
-        break;
-    case "share-v2": // only share the kernel with other v2 instances
-        KernelServiceId = Object.freeze({
-            updateQueue: 1.2,
-            observable: 2.2,
-            contextEvent: 3.2,
-            elementRegistry: 4.2,
-        });
-        break;
-    default:
-        // fully isolate the kernel from all other FAST instances
-        const postfix = `-${Math.random().toString(36).substring(2, 8)}`;
-        KernelServiceId = Object.freeze({
-            updateQueue: `1.2${postfix}`,
-            observable: `2.2${postfix}`,
-            contextEvent: `3.2${postfix}`,
-            elementRegistry: `4.2${postfix}`,
-        });
-        break;
-}
+
 /**
  * Warning and error messages.
  * @internal
@@ -84,6 +59,8 @@ var Message;
     Message[Message["onlySetTemplatePolicyOnce"] = 1207] = "onlySetTemplatePolicyOnce";
     Message[Message["cannotSetTemplatePolicyAfterCompilation"] = 1208] = "cannotSetTemplatePolicyAfterCompilation";
     Message[Message["blockedByDOMPolicy"] = 1209] = "blockedByDOMPolicy";
+    Message[Message["invalidHydrationAttributeMarker"] = 1210] = "invalidHydrationAttributeMarker";
+    Message[Message["duplicateRenderInstruction"] = 1211] = "duplicateRenderInstruction";
     // 1301 - 1400 Styles
     // 1401 - 1500 Components
     Message[Message["missingElementDefinition"] = 1401] = "missingElementDefinition";
@@ -119,102 +96,34 @@ const isString = (object) => typeof object === "string";
  */
 const noop = () => void 0;
 
-var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-(function ensureGlobalThis() {
-    if (typeof globalThis !== "undefined") {
-        // We're running in a modern environment.
-        return;
-    }
-    // @ts-ignore
-    if (typeof commonjsGlobal !== "undefined") {
-        // We're running in NodeJS
-        // @ts-ignore
-        commonjsGlobal.globalThis = commonjsGlobal;
-    }
-    else if (typeof self !== "undefined") {
-        self.globalThis = self;
-    }
-    else if (typeof window !== "undefined") {
-        // We're running in the browser's main thread.
-        window.globalThis = window;
-    }
-    else {
-        // Hopefully we never get here...
-        // Not all environments allow eval and Function. Use only as a last resort:
-        // eslint-disable-next-line no-new-func
-        const result = new Function("return this")();
-        result.globalThis = result;
-    }
-})();
-(function requestIdleCallbackPolyfill() {
-    if ("requestIdleCallback" in globalThis) {
-        return;
-    }
-    /**
-     * A polyfill for requestIdleCallback that falls back to setTimeout.
-     *
-     * @param callback - The function to call when the browser is idle.
-     * @param options - Options object that may contain a timeout property.
-     * @returns An ID that can be used to cancel the callback.
-     * @public
-     */
-    globalThis.requestIdleCallback = function requestIdleCallback(callback, options) {
-        const start = Date.now();
-        return setTimeout(() => {
-            callback({
-                didTimeout: (options === null || options === void 0 ? void 0 : options.timeout)
-                    ? Date.now() - start >= options.timeout
-                    : false,
-                timeRemaining: () => 0,
-            });
-        }, 1);
-    };
-    /**
-     * A polyfill for cancelIdleCallback that falls back to clearTimeout.
-     *
-     * @param id - The ID of the callback to cancel.
-     * @public
-     */
-    globalThis.cancelIdleCallback = function cancelIdleCallback(id) {
-        clearTimeout(id);
-    };
-})();
-
-// ensure FAST global - duplicated debug.ts
-const propConfig = {
-    configurable: false,
-    enumerable: false,
-    writable: false,
-};
-if (globalThis.FAST === void 0) {
-    Reflect.defineProperty(globalThis, "FAST", Object.assign({ value: Object.create(null) }, propConfig));
-}
+const debugMessages = Object.create(null);
 /**
- * The FAST global.
+ * The FAST messaging API for warnings and errors.
  * @public
  */
-const FAST = globalThis.FAST;
-if (FAST.getById === void 0) {
-    const storage = Object.create(null);
-    Reflect.defineProperty(FAST, "getById", Object.assign({ value(id, initialize) {
-            let found = storage[id];
-            if (found === void 0) {
-                found = initialize ? (storage[id] = initialize()) : null;
-            }
-            return found;
-        } }, propConfig));
-}
-if (FAST.error === void 0) {
-    Object.assign(FAST, {
-        warn() { },
-        error(code) {
-            return new Error(`Error ${code}`);
-        },
-        addMessages() { },
-    });
-}
+const FAST = {
+    /**
+     * Sends a warning to the developer.
+     * @param code - The warning code to send.
+     * @param values - Values relevant for the warning message.
+     */
+    warn(_code, _values) { },
+    /**
+     * Creates an error from a code.
+     * @param code - The error code.
+     * @param values - Values relevant for the error message.
+     */
+    error(code, _values) {
+        return new Error(`Error ${code}`);
+    },
+    /**
+     * Adds debug messages for errors and warnings.
+     * @param messages - The message dictionary to add.
+     */
+    addMessages(messages) {
+        Object.assign(debugMessages, messages);
+    },
+};
 /**
  * A readonly, empty array.
  * @remarks
@@ -278,105 +187,25 @@ function makeSerializationNoop(type) {
     type.prototype.toJSON = noop;
 }
 
+class OneTimeBinding extends Binding {
+    createObserver() {
+        return this;
+    }
+    bind(controller) {
+        return this.evaluate(controller.source, controller.context);
+    }
+}
+makeSerializationNoop(OneTimeBinding);
 /**
- * The type of HTML aspect to target.
+ * Creates a one time binding
+ * @param expression - The binding to refresh when signaled.
+ * @param policy - The security policy to associate with th binding.
+ * @returns A binding configuration.
  * @public
  */
-const DOMAspect = Object.freeze({
-    /**
-     * Not aspected.
-     */
-    none: 0,
-    /**
-     * An attribute.
-     */
-    attribute: 1,
-    /**
-     * A boolean attribute.
-     */
-    booleanAttribute: 2,
-    /**
-     * A property.
-     */
-    property: 3,
-    /**
-     * Content
-     */
-    content: 4,
-    /**
-     * A token list.
-     */
-    tokenList: 5,
-    /**
-     * An event.
-     */
-    event: 6,
-});
-const createHTML$1 = html => html;
-const fastTrustedType = globalThis.trustedTypes
-    ? globalThis.trustedTypes.createPolicy("fast-html", { createHTML: createHTML$1 })
-    : { createHTML: createHTML$1 };
-let defaultPolicy = Object.freeze({
-    createHTML(value) {
-        return fastTrustedType.createHTML(value);
-    },
-    protect(tagName, aspect, aspectName, sink) {
-        return sink;
-    },
-});
-const fastPolicy = defaultPolicy;
-/**
- * Common DOM APIs.
- * @public
- */
-const DOM = Object.freeze({
-    /**
-     * Gets the dom policy used by the templating system.
-     */
-    get policy() {
-        return defaultPolicy;
-    },
-    /**
-     * Sets the dom policy used by the templating system.
-     * @param policy - The policy to set.
-     * @remarks
-     * This API can only be called once, for security reasons. It should be
-     * called by the application developer at the start of their program.
-     */
-    setPolicy(value) {
-        if (defaultPolicy !== fastPolicy) {
-            throw FAST.error(Message.onlySetDOMPolicyOnce);
-        }
-        defaultPolicy = value;
-    },
-    /**
-     * Sets an attribute value on an element.
-     * @param element - The element to set the attribute value on.
-     * @param attributeName - The attribute name to set.
-     * @param value - The value of the attribute to set.
-     * @remarks
-     * If the value is `null` or `undefined`, the attribute is removed, otherwise
-     * it is set to the provided value using the standard `setAttribute` API.
-     */
-    setAttribute(element, attributeName, value) {
-        value === null || value === undefined
-            ? element.removeAttribute(attributeName)
-            : element.setAttribute(attributeName, value);
-    },
-    /**
-     * Sets a boolean attribute value.
-     * @param element - The element to set the boolean attribute value on.
-     * @param attributeName - The attribute name to set.
-     * @param value - The value of the attribute to set.
-     * @remarks
-     * If the value is true, the attribute is added; otherwise it is removed.
-     */
-    setBooleanAttribute(element, attributeName, value) {
-        value
-            ? element.setAttribute(attributeName, "")
-            : element.removeAttribute(attributeName);
-    },
-});
+function oneTime(expression, policy) {
+    return new OneTimeBinding(expression, policy);
+}
 
 /**
  * An implementation of {@link Notifier} that efficiently keeps track of
@@ -518,12 +347,10 @@ class PropertyChangeNotifier {
         var _a, _b;
         let subscribers;
         if (propertyToWatch) {
-            subscribers =
-                (_a = this.subscribers[propertyToWatch]) !== null && _a !== void 0 ? _a : (this.subscribers[propertyToWatch] = new SubscriberSet(this.subject));
+            subscribers = (_a = this.subscribers[propertyToWatch]) !== null && _a !== void 0 ? _a : (this.subscribers[propertyToWatch] = new SubscriberSet(this.subject));
         }
         else {
-            subscribers =
-                (_b = this.subjectSubscribers) !== null && _b !== void 0 ? _b : (this.subjectSubscribers = new SubscriberSet(this.subject));
+            subscribers = (_b = this.subjectSubscribers) !== null && _b !== void 0 ? _b : (this.subjectSubscribers = new SubscriberSet(this.subject));
         }
         subscribers.subscribe(subscriber);
     }
@@ -543,70 +370,61 @@ class PropertyChangeNotifier {
     }
 }
 
+const tasks = [];
+const pendingErrors = [];
+const rAF = globalThis.requestAnimationFrame;
+let updateAsync = true;
+function throwFirstError() {
+    if (pendingErrors.length) {
+        throw pendingErrors.shift();
+    }
+}
+function tryRunTask(task) {
+    try {
+        task.call();
+    }
+    catch (error) {
+        if (updateAsync) {
+            pendingErrors.push(error);
+            setTimeout(throwFirstError, 0);
+        }
+        else {
+            tasks.length = 0;
+            throw error;
+        }
+    }
+}
+function process() {
+    const capacity = 1024;
+    let index = 0;
+    while (index < tasks.length) {
+        tryRunTask(tasks[index]);
+        index++;
+        if (index > capacity) {
+            for (let scan = 0, newLength = tasks.length - index; scan < newLength; scan++) {
+                tasks[scan] = tasks[scan + index];
+            }
+            tasks.length -= index;
+            index = 0;
+        }
+    }
+    tasks.length = 0;
+}
+function enqueue(callable) {
+    tasks.push(callable);
+    if (tasks.length < 2) {
+        updateAsync ? rAF(process) : process();
+    }
+}
 /**
  * The default UpdateQueue.
  * @public
  */
-const Updates = FAST.getById(KernelServiceId.updateQueue, () => {
-    const tasks = [];
-    const pendingErrors = [];
-    const rAF = globalThis.requestAnimationFrame;
-    let updateAsync = true;
-    function throwFirstError() {
-        if (pendingErrors.length) {
-            throw pendingErrors.shift();
-        }
-    }
-    function tryRunTask(task) {
-        try {
-            task.call();
-        }
-        catch (error) {
-            if (updateAsync) {
-                pendingErrors.push(error);
-                setTimeout(throwFirstError, 0);
-            }
-            else {
-                tasks.length = 0;
-                throw error;
-            }
-        }
-    }
-    function process() {
-        const capacity = 1024;
-        let index = 0;
-        while (index < tasks.length) {
-            tryRunTask(tasks[index]);
-            index++;
-            // Prevent leaking memory for long chains of recursive calls to `enqueue`.
-            // If we call `enqueue` within a task scheduled by `enqueue`, the queue will
-            // grow, but to avoid an O(n) walk for every task we execute, we don't
-            // shift tasks off the queue after they have been executed.
-            // Instead, we periodically shift 1024 tasks off the queue.
-            if (index > capacity) {
-                // Manually shift all values starting at the index back to the
-                // beginning of the queue.
-                for (let scan = 0, newLength = tasks.length - index; scan < newLength; scan++) {
-                    tasks[scan] = tasks[scan + index];
-                }
-                tasks.length -= index;
-                index = 0;
-            }
-        }
-        tasks.length = 0;
-    }
-    function enqueue(callable) {
-        tasks.push(callable);
-        if (tasks.length < 2) {
-            updateAsync ? rAF(process) : process();
-        }
-    }
-    return Object.freeze({
-        enqueue,
-        next: () => new Promise(enqueue),
-        process,
-        setMode: (isAsync) => (updateAsync = isAsync),
-    });
+const Updates = Object.freeze({
+    enqueue,
+    next: () => new Promise(enqueue),
+    process,
+    setMode: (isAsync) => (updateAsync = isAsync),
 });
 
 /**
@@ -628,7 +446,7 @@ const SourceLifetime = Object.freeze({
  * Common Observable APIs.
  * @public
  */
-const Observable = FAST.getById(KernelServiceId.observable, () => {
+const Observable = (() => {
     const queueUpdate = Updates.enqueue;
     const volatileRegex = /(:|&&|\|\||if|\?\.)/;
     const notifierLookup = new WeakMap();
@@ -691,7 +509,6 @@ const Observable = FAST.getById(KernelServiceId.observable, () => {
             this.isAsync = this.needsQueue = isAsync;
         }
         bind(controller) {
-            this.controller = controller;
             const value = this.observe(controller.source, controller.context);
             if (!controller.isBound && this.requiresUnbind(controller)) {
                 controller.onUnbind(this);
@@ -750,11 +567,10 @@ const Observable = FAST.getById(KernelServiceId.observable, () => {
                     // Declaring the variable prior to assignment below circumvents
                     // a bug in Angular's optimization process causing infinite recursion
                     // of this watch() method. Details https://github.com/microsoft/fast/issues/4969
+                    // biome-ignore lint/style/useConst: see above
                     let prevValue;
                     watcher = void 0;
-                    /* eslint-disable-next-line */
                     prevValue = prev.propertySource[prev.propertyName];
-                    /* eslint-disable-next-line */
                     watcher = this;
                     if (propertySource === prevValue) {
                         this.needsRefresh = true;
@@ -871,7 +687,7 @@ const Observable = FAST.getById(KernelServiceId.observable, () => {
             return volatileRegex.test(expression.toString());
         },
     });
-});
+})();
 /**
  * Decorator: Defines an observable property on the target.
  * @param target - The target to define the observable on.
@@ -881,22 +697,7 @@ const Observable = FAST.getById(KernelServiceId.observable, () => {
 function observable(target, nameOrAccessor) {
     Observable.defineProperty(target, nameOrAccessor);
 }
-/**
- * Decorator: Marks a property getter as having volatile observable dependencies.
- * @param target - The target that the property is defined on.
- * @param name - The property name.
- * @param name - The existing descriptor.
- * @public
- */
-function volatile(target, name, descriptor) {
-    return Object.assign({}, descriptor, {
-        get() {
-            Observable.trackVolatile();
-            return descriptor.get.apply(this);
-        },
-    });
-}
-const contextEvent = FAST.getById(KernelServiceId.contextEvent, () => {
+const contextEvent = (() => {
     let current = null;
     return {
         get() {
@@ -906,7 +707,7 @@ const contextEvent = FAST.getById(KernelServiceId.contextEvent, () => {
             current = event;
         },
     };
-});
+})();
 /**
  * Provides additional contextual information available to behaviors and expressions.
  * @public
@@ -944,25 +745,6 @@ const ExecutionContext = Object.freeze({
     },
 });
 
-/**
- * Captures a binding expression along with related information and capabilities.
- *
- * @public
- */
-class Binding {
-    /**
-     * Creates a binding.
-     * @param evaluate - Evaluates the binding.
-     * @param policy - The security policy to associate with this binding.
-     * @param isVolatile - Indicates whether the binding is volatile.
-     */
-    constructor(evaluate, policy, isVolatile = false) {
-        this.evaluate = evaluate;
-        this.policy = policy;
-        this.isVolatile = isVolatile;
-    }
-}
-
 class OneWayBinding extends Binding {
     createObserver(subscriber) {
         return Observable.binding(this.evaluate, subscriber, this.isVolatile);
@@ -980,134 +762,317 @@ function oneWay(expression, policy, isVolatile = Observable.isVolatileBinding(ex
     return new OneWayBinding(expression, policy, isVolatile);
 }
 
-class OneTimeBinding extends Binding {
-    createObserver() {
-        return this;
-    }
-    bind(controller) {
-        return this.evaluate(controller.source, controller.context);
-    }
-}
-makeSerializationNoop(OneTimeBinding);
 /**
- * Creates a one time binding
- * @param expression - The binding to refresh when signaled.
- * @param policy - The security policy to associate with th binding.
- * @returns A binding configuration.
+ * The type of HTML aspect to target.
  * @public
  */
-function oneTime(expression, policy) {
-    return new OneTimeBinding(expression, policy);
-}
-
-const registry$1 = createTypeRegistry();
+const DOMAspect = Object.freeze({
+    /**
+     * Not aspected.
+     */
+    none: 0,
+    /**
+     * An attribute.
+     */
+    attribute: 1,
+    /**
+     * A boolean attribute.
+     */
+    booleanAttribute: 2,
+    /**
+     * A property.
+     */
+    property: 3,
+    /**
+     * Content
+     */
+    content: 4,
+    /**
+     * A token list.
+     */
+    tokenList: 5,
+    /**
+     * An event.
+     */
+    event: 6,
+});
+const createHTML$1 = html => html;
+const fastTrustedType = globalThis.trustedTypes
+    ? globalThis.trustedTypes.createPolicy("fast-element", { createHTML: createHTML$1 })
+    : { createHTML: createHTML$1 };
+let defaultPolicy = Object.freeze({
+    createHTML(value) {
+        return fastTrustedType.createHTML(value);
+    },
+    protect(tagName, aspect, aspectName, sink) {
+        return sink;
+    },
+});
+const fastPolicy = defaultPolicy;
 /**
- * Instructs the css engine to provide dynamic styles or
- * associate behaviors with styles.
+ * Common DOM APIs.
  * @public
  */
-const CSSDirective = Object.freeze({
+const DOM = Object.freeze({
     /**
-     * Gets the directive definition associated with the instance.
-     * @param instance - The directive instance to retrieve the definition for.
+     * Gets the dom policy used by the templating system.
      */
-    getForInstance: registry$1.getForInstance,
+    get policy() {
+        return defaultPolicy;
+    },
     /**
-     * Gets the directive definition associated with the specified type.
-     * @param type - The directive type to retrieve the definition for.
+     * Sets the dom policy used by the templating system.
+     * @param policy - The policy to set.
+     * @remarks
+     * This API can only be called once, for security reasons. It should be
+     * called by the application developer at the start of their program.
      */
-    getByType: registry$1.getByType,
+    setPolicy(value) {
+        if (defaultPolicy !== fastPolicy) {
+            throw FAST.error(Message.onlySetDOMPolicyOnce);
+        }
+        defaultPolicy = value;
+    },
     /**
-     * Defines a CSSDirective.
-     * @param type - The type to define as a directive.
+     * Sets an attribute value on an element.
+     * @param element - The element to set the attribute value on.
+     * @param attributeName - The attribute name to set.
+     * @param value - The value of the attribute to set.
+     * @remarks
+     * If the value is `null` or `undefined`, the attribute is removed, otherwise
+     * it is set to the provided value using the standard `setAttribute` API.
      */
-    define(type) {
-        registry$1.register({ type });
-        return type;
+    setAttribute(element, attributeName, value) {
+        value === null || value === undefined
+            ? element.removeAttribute(attributeName)
+            : element.setAttribute(attributeName, value);
+    },
+    /**
+     * Sets a boolean attribute value.
+     * @param element - The element to set the boolean attribute value on.
+     * @param attributeName - The attribute name to set.
+     * @param value - The value of the attribute to set.
+     * @remarks
+     * If the value is true, the attribute is added; otherwise it is removed.
+     */
+    setBooleanAttribute(element, attributeName, value) {
+        value
+            ? element.setAttribute(attributeName, "")
+            : element.removeAttribute(attributeName);
     },
 });
 
-function handleChange(directive, controller, observer) {
-    controller.source.style.setProperty(directive.targetAspect, observer.bind(controller));
-}
+const booleanMode = "boolean";
+const reflectMode = "reflect";
 /**
- * Enables bindings in CSS.
- *
+ * Metadata used to configure a custom attribute's behavior.
  * @public
  */
-class CSSBindingDirective {
+const AttributeConfiguration = Object.freeze({
     /**
-     * Creates an instance of CSSBindingDirective.
-     * @param dataBinding - The binding to use in CSS.
-     * @param targetAspect - The CSS property to target.
+     * Locates all attribute configurations associated with a type.
      */
-    constructor(dataBinding, targetAspect) {
-        this.dataBinding = dataBinding;
-        this.targetAspect = targetAspect;
+    locate: createMetadataLocator(),
+});
+/**
+ * A {@link ValueConverter} that converts to and from `boolean` values.
+ * @remarks
+ * Used automatically when the `boolean` {@link AttributeMode} is selected.
+ * @public
+ */
+const booleanConverter = {
+    toView(value) {
+        return value ? "" : null;
+    },
+    fromView(value) {
+        return !!value;
+    },
+};
+function toNumber(value) {
+    if (value === null || value === undefined) {
+        return null;
+    }
+    const number = value * 1;
+    return isNaN(number) ? null : number;
+}
+/**
+ * A {@link ValueConverter} that converts to and from `number` values.
+ * @remarks
+ * This converter allows for nullable numbers, returning `null` if the
+ * input was `null`, `undefined`, or `NaN`.
+ * @public
+ */
+const nullableNumberConverter = {
+    toView(value) {
+        const output = toNumber(value);
+        return output ? output.toString() : output;
+    },
+    fromView: toNumber,
+};
+/**
+ * An implementation of {@link Accessor} that supports reactivity,
+ * change callbacks, attribute reflection, and type conversion for
+ * custom elements.
+ * @public
+ */
+class AttributeDefinition {
+    /**
+     * Creates an instance of AttributeDefinition.
+     * @param Owner - The class constructor that owns this attribute.
+     * @param name - The name of the property associated with the attribute.
+     * @param attribute - The name of the attribute in HTML.
+     * @param mode - The {@link AttributeMode} that describes the behavior of this attribute.
+     * @param converter - A {@link ValueConverter} that integrates with the property getter/setter
+     * to convert values to and from a DOM string.
+     */
+    constructor(Owner, name, attribute = name.toLowerCase(), mode = reflectMode, converter) {
+        this.guards = new Set();
+        this.Owner = Owner;
+        this.name = name;
+        this.attribute = attribute;
+        this.mode = mode;
+        this.converter = converter;
+        this.fieldName = `_${name}`;
+        this.callbackName = `${name}Changed`;
+        this.hasCallback = this.callbackName in Owner.prototype;
+        if (mode === booleanMode && converter === void 0) {
+            this.converter = booleanConverter;
+        }
     }
     /**
-     * Creates a CSS fragment to interpolate into the CSS document.
-     * @returns - the string to interpolate into CSS
+     * Sets the value of the attribute/property on the source element.
+     * @param source - The source element to access.
+     * @param newValue - The value to set the attribute/property to.
      */
-    createCSS(add) {
-        add(this);
-        return `var(${this.targetAspect})`;
+    setValue(source, newValue) {
+        const oldValue = source[this.fieldName];
+        const converter = this.converter;
+        if (converter !== void 0) {
+            newValue = converter.fromView(newValue);
+        }
+        if (oldValue !== newValue) {
+            source[this.fieldName] = newValue;
+            this.tryReflectToAttribute(source);
+            if (this.hasCallback) {
+                source[this.callbackName](oldValue, newValue);
+            }
+            source.$fastController.notify(this.name);
+        }
     }
     /**
-     * Executed when this behavior is attached to a controller.
-     * @param controller - Controls the behavior lifecycle.
+     * Gets the value of the attribute/property on the source element.
+     * @param source - The source element to access.
      */
-    addedCallback(controller) {
-        var _a;
-        const element = controller.source;
-        if (!element.$cssBindings) {
-            element.$cssBindings = new Map();
-            const setAttribute = element.setAttribute;
-            element.setAttribute = (attr, value) => {
-                setAttribute.call(element, attr, value);
-                if (attr === "style") {
-                    element.$cssBindings.forEach((v, k) => handleChange(k, v.controller, v.observer));
+    getValue(source) {
+        Observable.track(source, this.name);
+        return source[this.fieldName];
+    }
+    /** @internal */
+    onAttributeChangedCallback(element, value) {
+        if (this.guards.has(element)) {
+            return;
+        }
+        this.guards.add(element);
+        if (this.mode === booleanMode) {
+            // Native HTML boolean attribute semantics: presence of the attribute
+            // (any string value, including "") means `true`; `null` (the value
+            // passed by the platform on `removeAttribute`) means `false`.
+            this.setValue(element, value !== null);
+        }
+        else {
+            this.setValue(element, value);
+        }
+        this.guards.delete(element);
+    }
+    tryReflectToAttribute(element) {
+        const mode = this.mode;
+        const guards = this.guards;
+        if (guards.has(element) || mode === "fromView") {
+            return;
+        }
+        Updates.enqueue(() => {
+            guards.add(element);
+            const latestValue = element[this.fieldName];
+            switch (mode) {
+                case reflectMode: {
+                    const converter = this.converter;
+                    DOM.setAttribute(element, this.attribute, converter !== void 0
+                        ? converter.toView(latestValue)
+                        : latestValue);
+                    break;
                 }
-            };
-        }
-        const observer = (_a = controller[this.targetAspect]) !== null && _a !== void 0 ? _a : (controller[this.targetAspect] = this.dataBinding.createObserver(this, this));
-        observer.controller = controller;
-        controller.source.$cssBindings.set(this, { controller, observer });
+                case booleanMode:
+                    DOM.setBooleanAttribute(element, this.attribute, latestValue);
+                    break;
+            }
+            guards.delete(element);
+        });
     }
     /**
-     * Executed when this behavior's host is connected.
-     * @param controller - Controls the behavior lifecycle.
-     */
-    connectedCallback(controller) {
-        handleChange(this, controller, controller[this.targetAspect]);
-    }
-    /**
-     * Executed when this behavior is detached from a controller.
-     * @param controller - Controls the behavior lifecycle.
-     */
-    removedCallback(controller) {
-        if (controller.source.$cssBindings) {
-            controller.source.$cssBindings.delete(this);
-        }
-    }
-    /**
-     * Called when a subject this instance has subscribed to changes.
-     * @param subject - The subject of the change.
-     * @param args - The event args detailing the change that occurred.
-     *
+     * Collects all attribute definitions associated with the owner.
+     * @param Owner - The class constructor to collect attribute for.
+     * @param attributeLists - Any existing attributes to collect and merge with those associated with the owner.
      * @internal
      */
-    handleChange(_, observer) {
-        handleChange(this, observer.controller, observer);
+    static collect(Owner, ...attributeLists) {
+        const attributes = [];
+        attributeLists.push(AttributeConfiguration.locate(Owner));
+        for (let i = 0, ii = attributeLists.length; i < ii; ++i) {
+            const list = attributeLists[i];
+            if (list === void 0) {
+                continue;
+            }
+            for (let j = 0, jj = list.length; j < jj; ++j) {
+                const config = list[j];
+                if (isString(config)) {
+                    attributes.push(new AttributeDefinition(Owner, config));
+                }
+                else {
+                    attributes.push(new AttributeDefinition(Owner, config.property, config.attribute, config.mode, config.converter));
+                }
+            }
+        }
+        return attributes;
     }
 }
-CSSDirective.define(CSSBindingDirective);
+function attr(configOrTarget, prop) {
+    let config;
+    function decorator($target, $prop) {
+        if (arguments.length > 1) {
+            // Non invocation:
+            // - @attr
+            // Invocation with or w/o opts:
+            // - @attr()
+            // - @attr({...opts})
+            config.property = $prop;
+        }
+        AttributeConfiguration.locate($target.constructor).push(config);
+    }
+    if (arguments.length > 1) {
+        // Non invocation:
+        // - @attr
+        config = {};
+        decorator(configOrTarget, prop);
+        return;
+    }
+    // Invocation with or w/o opts:
+    // - @attr()
+    // - @attr({...opts})
+    config = configOrTarget === void 0 ? {} : configOrTarget;
+    return decorator;
+}
 
 let DefaultStyleStrategy;
 function reduceStyles(styles) {
-    return styles
-        .map((x) => x instanceof ElementStyles ? reduceStyles(x.styles) : [x])
-        .reduce((prev, curr) => prev.concat(curr), []);
+    return styles.reduce((reduced, current) => {
+        if (current instanceof ElementStyles) {
+            reduced.push(...reduceStyles(current.styles));
+        }
+        else {
+            reduced.push(current);
+        }
+        return reduced;
+    }, []);
 }
 /**
  * Represents styles that can be applied to a custom element.
@@ -1119,6 +1084,11 @@ class ElementStyles {
      */
     get strategy() {
         if (this._strategy === null) {
+            if (!DefaultStyleStrategy) {
+                ElementStyles.setDefaultStrategy(ElementStyles.supportsAdoptedStyleSheets
+                    ? createAdoptedSheetsStrategy()
+                    : createStyleElementStrategy());
+            }
             this.withStrategy(DefaultStyleStrategy);
         }
         return this._strategy;
@@ -1131,9 +1101,6 @@ class ElementStyles {
         this.styles = styles;
         this.targets = new WeakSet();
         this._strategy = null;
-        this.behaviors = styles
-            .map((x) => x instanceof ElementStyles ? x.behaviors : null)
-            .reduce((prev, curr) => (curr === null ? prev : prev === null ? curr : prev.concat(curr)), null);
     }
     /** @internal */
     addStylesTo(target) {
@@ -1148,15 +1115,6 @@ class ElementStyles {
     /** @internal */
     isAttachedTo(target) {
         return this.targets.has(target);
-    }
-    /**
-     * Associates behaviors with this set of styles.
-     * @param behaviors - The behaviors to associate.
-     */
-    withBehaviors(...behaviors) {
-        this.behaviors =
-            this.behaviors === null ? behaviors : this.behaviors.concat(behaviors);
-        return this;
     }
     /**
      * Sets the strategy that handles adding/removing these styles for an element.
@@ -1193,28 +1151,1284 @@ class ElementStyles {
  */
 ElementStyles.supportsAdoptedStyleSheets = Array.isArray(document.adoptedStyleSheets) &&
     "replace" in CSSStyleSheet.prototype;
+// Fallback strategy factories used when no strategy has been explicitly set
+// via ElementStyles.setDefaultStrategy (e.g. when importing only from the
+// styles.js subpath without loading element-controller.ts).
+function createAdoptedSheetsStrategy() {
+    const cache = new Map();
+    return class FallbackAdoptedSheetsStrategy {
+        constructor(styles) {
+            this.sheets = styles.map(x => {
+                if (x instanceof CSSStyleSheet) {
+                    return x;
+                }
+                let sheet = cache.get(x);
+                if (sheet === void 0) {
+                    sheet = new CSSStyleSheet();
+                    sheet.replaceSync(x);
+                    cache.set(x, sheet);
+                }
+                return sheet;
+            });
+        }
+        addStylesTo(target) {
+            const t = target;
+            t.adoptedStyleSheets = [...t.adoptedStyleSheets, ...this.sheets];
+        }
+        removeStylesFrom(target) {
+            const t = target;
+            t.adoptedStyleSheets = t.adoptedStyleSheets.filter((x) => this.sheets.indexOf(x) === -1);
+        }
+    };
+}
+let fallbackStyleId = 0;
+function createStyleElementStrategy() {
+    return class FallbackStyleElementStrategy {
+        constructor(styles) {
+            this.styles = styles;
+            this.styleClass = `fast-${++fallbackStyleId}`;
+        }
+        addStylesTo(target) {
+            const t = target === document ? document.body : target;
+            for (let i = 0; i < this.styles.length; i++) {
+                const element = document.createElement("style");
+                element.innerHTML = this.styles[i];
+                element.className = this.styleClass;
+                t.append(element);
+            }
+        }
+        removeStylesFrom(target) {
+            const t = target === document ? document.body : target;
+            const styles = t.querySelectorAll(`.${this.styleClass}`);
+            for (let i = 0, ii = styles.length; i < ii; ++i) {
+                t.removeChild(styles[i]);
+            }
+        }
+    };
+}
 
-const marker$1 = `${Math.random().toString(36).substring(2, 8)}`;
-let varId = 0;
-const nextCSSVariable = () => `--v${marker$1}${++varId}`;
+const globalRegisteredTypes = {};
+const registeredTypesByRegistry = new WeakMap();
+const typeRegistry = createTypeRegistry();
+/**
+ * The FAST custom element registry.
+ * @remarks
+ * This registry stores FAST element definitions by constructor so consumers can
+ * look up the `FASTElementDefinition` associated with an element type, instance,
+ * or registered tag name.
+ * @public
+ */
+const fastElementRegistry = Object.freeze({
+    register(definition) {
+        if (!typeRegistry.register(definition)) {
+            return false;
+        }
+        const registeredTypes = getRegisteredTypes(definition.registry);
+        if (!Object.prototype.hasOwnProperty.call(registeredTypes, definition.name)) {
+            Observable.defineProperty(registeredTypes, definition.name);
+        }
+        registeredTypes[definition.name] = definition.type;
+        return true;
+    },
+    getByType: typeRegistry.getByType,
+    getForInstance: typeRegistry.getForInstance,
+    whenRegistered,
+});
+function getRegisteredTypes(registry = customElements) {
+    if (registry === customElements) {
+        return globalRegisteredTypes;
+    }
+    let registeredTypes = registeredTypesByRegistry.get(registry);
+    if (!registeredTypes) {
+        registeredTypes = {};
+        registeredTypesByRegistry.set(registry, registeredTypes);
+    }
+    return registeredTypes;
+}
+function getDefinitionForType(type) {
+    return type === void 0 ? void 0 : fastElementRegistry.getByType(type);
+}
+function whenRegistered(name, registry = customElements) {
+    const registeredTypes = getRegisteredTypes(registry);
+    if (!Object.prototype.hasOwnProperty.call(registeredTypes, name)) {
+        Observable.defineProperty(registeredTypes, name);
+    }
+    const definition = getDefinitionForType(registeredTypes[name]);
+    if (definition !== void 0) {
+        return Promise.resolve(definition);
+    }
+    return new Promise(resolve => {
+        const notifier = Observable.getNotifier(registeredTypes);
+        const subscriber = {
+            handleChange: () => {
+                const definition = getDefinitionForType(registeredTypes[name]);
+                if (definition === void 0) {
+                    return;
+                }
+                notifier.unsubscribe(subscriber, name);
+                resolve(definition);
+            },
+        };
+        notifier.subscribe(subscriber, name);
+    });
+}
+
+const defaultShadowOptions = { mode: "open" };
+const defaultElementOptions = {};
+const fastElementBaseTypes = new Set();
+const templateResolvers = new WeakMap();
+const pendingTemplateResolutions = new WeakMap();
+const templateResolutionErrors = new WeakMap();
+const extensionRegistries = new WeakMap();
+const lateAttributeLookups = new WeakMap();
+function isFASTElementTemplateResolver(value) {
+    return isFunction(value);
+}
+function isPromiseLike$1(value) {
+    return typeof (value === null || value === void 0 ? void 0 : value.then) === "function";
+}
+function finalizeResolvedTemplate(definition, template) {
+    pendingTemplateResolutions.delete(definition);
+    if (definition.template === void 0 && template !== void 0) {
+        definition.template = template;
+    }
+    if (definition.template !== void 0) {
+        templateResolutionErrors.delete(definition);
+        templateResolvers.delete(definition);
+        return definition.template;
+    }
+    return void 0;
+}
+/**
+ * Applies extension callbacks to a FAST element definition.
+ * @internal
+ */
+function applyFASTElementExtensions(definition, registry = definition.registry, extensions) {
+    if (!(extensions === null || extensions === void 0 ? void 0 : extensions.length)) {
+        return;
+    }
+    const typedDefinition = definition;
+    let registries = extensionRegistries.get(typedDefinition);
+    if (registries === null || registries === void 0 ? void 0 : registries.has(registry)) {
+        return;
+    }
+    if (registries === void 0) {
+        registries = new WeakSet();
+        extensionRegistries.set(typedDefinition, registries);
+    }
+    registries.add(registry);
+    for (const extension of extensions) {
+        extension(definition);
+    }
+}
+/**
+ * Gets the attribute definitions that were added after platform registration.
+ * @internal
+ */
+function getLateAttributeLookup(definition) {
+    var _a;
+    return ((_a = lateAttributeLookups.get(definition)) !== null && _a !== void 0 ? _a : null);
+}
+/**
+ * Resolves the concrete template for a FAST element definition when the
+ * definition was composed with a template resolver.
+ * @internal
+ */
+function resolveFASTElementTemplate(definition) {
+    if (definition.template !== void 0) {
+        templateResolutionErrors.delete(definition);
+        return definition.template;
+    }
+    const pendingResolution = pendingTemplateResolutions.get(definition);
+    if (pendingResolution) {
+        return pendingResolution;
+    }
+    const templateResolver = templateResolvers.get(definition);
+    if (!templateResolver) {
+        return void 0;
+    }
+    templateResolutionErrors.delete(definition);
+    let template;
+    try {
+        template = templateResolver(definition);
+    }
+    catch (error) {
+        templateResolutionErrors.set(definition, error);
+        throw error;
+    }
+    if (isPromiseLike$1(template)) {
+        const resolution = Promise.resolve(template)
+            .then(resolvedTemplate => finalizeResolvedTemplate(definition, resolvedTemplate))
+            .catch(error => {
+            pendingTemplateResolutions.delete(definition);
+            templateResolutionErrors.set(definition, error);
+            throw error;
+        });
+        pendingTemplateResolutions.set(definition, resolution);
+        return resolution;
+    }
+    return finalizeResolvedTemplate(definition, template);
+}
+/**
+ * Sets or clears the template resolution error for a FAST element definition.
+ * @internal
+ */
+function setFASTElementTemplateError(definition, error) {
+    const typedDefinition = definition;
+    if (error === void 0) {
+        templateResolutionErrors.delete(typedDefinition);
+        return;
+    }
+    templateResolutionErrors.set(typedDefinition, error);
+}
+/**
+ * Defines metadata for a FASTElement.
+ * @public
+ */
+class FASTElementDefinition {
+    /**
+     * Indicates if this element has been defined in at least one registry.
+     */
+    get isDefined() {
+        return this.platformDefined;
+    }
+    constructor(type, nameOrConfig = type
+        .definition) {
+        var _a;
+        this.platformDefined = false;
+        if (isString(nameOrConfig)) {
+            nameOrConfig = { name: nameOrConfig };
+        }
+        this.type = type;
+        this.name = nameOrConfig.name;
+        this.registry = (_a = nameOrConfig.registry) !== null && _a !== void 0 ? _a : customElements;
+        if (isFASTElementTemplateResolver(nameOrConfig.template)) {
+            templateResolvers.set(this, nameOrConfig.template);
+        }
+        else {
+            this.template = nameOrConfig.template;
+        }
+        const proto = type.prototype;
+        const attributes = AttributeDefinition.collect(type, nameOrConfig.attributes);
+        const observedAttributes = new Array(attributes.length);
+        const propertyLookup = {};
+        const attributeLookup = {};
+        for (let i = 0, ii = attributes.length; i < ii; ++i) {
+            const current = attributes[i];
+            observedAttributes[i] = current.attribute;
+            propertyLookup[current.name] = current;
+            attributeLookup[current.attribute] = current;
+            Observable.defineProperty(proto, current);
+        }
+        Reflect.defineProperty(type, "observedAttributes", {
+            value: observedAttributes,
+            enumerable: true,
+        });
+        this.attributes = attributes;
+        this.propertyLookup = propertyLookup;
+        this.attributeLookup = attributeLookup;
+        this.shadowOptions =
+            nameOrConfig.shadowOptions === void 0
+                ? defaultShadowOptions
+                : nameOrConfig.shadowOptions === null
+                    ? void 0
+                    : Object.assign(Object.assign({}, defaultShadowOptions), nameOrConfig.shadowOptions);
+        this.elementOptions =
+            nameOrConfig.elementOptions === void 0
+                ? defaultElementOptions
+                : Object.assign(Object.assign({}, defaultElementOptions), nameOrConfig.elementOptions);
+        this.styles = ElementStyles.normalize(nameOrConfig.styles);
+        this.schema = nameOrConfig.schema;
+        fastElementRegistry.register(this);
+    }
+    /**
+     * Defines a custom element based on this definition.
+     * @param registry - The element registry to define the element in.
+     * @param extensions - An optional array of extension callbacks to invoke
+     * with this definition before platform registration.
+     * @remarks
+     * This operation is idempotent per registry.
+     */
+    define(registry = this.registry, extensions) {
+        const type = this.type;
+        if (!registry.get(this.name)) {
+            applyFASTElementExtensions(this, registry, extensions);
+            if (this.template === void 0 && templateResolvers.has(this)) {
+                void Promise.resolve()
+                    .then(() => resolveFASTElementTemplate(this))
+                    .then(template => {
+                    if (template !== void 0 && !registry.get(this.name)) {
+                        this.platformDefined = true;
+                        registry.define(this.name, type, this.elementOptions);
+                    }
+                })
+                    .catch(error => {
+                    setFASTElementTemplateError(this, error);
+                    Observable.notify(this, "template");
+                });
+                return this;
+            }
+            this.platformDefined = true;
+            registry.define(this.name, type, this.elementOptions);
+        }
+        return this;
+    }
+    /**
+     * Creates an instance of FASTElementDefinition.
+     * @param type - The type this definition is being created for.
+     * @param nameOrDef - The name of the element to define or a config object
+     * that describes the element to define.
+     */
+    static compose(type, nameOrDef) {
+        const definition = fastElementBaseTypes.has(type) || fastElementRegistry.getByType(type)
+            ? new FASTElementDefinition(class extends type {
+            }, nameOrDef)
+            : new FASTElementDefinition(type, nameOrDef);
+        return Promise.resolve(definition);
+    }
+    /**
+     * Registers a FASTElement base type.
+     * @param type - The type to register as a base type.
+     * @internal
+     */
+    static registerBaseType(type) {
+        fastElementBaseTypes.add(type);
+    }
+}
+/**
+ * Gets the element definition associated with the specified type.
+ * @param type - The custom element type to retrieve the definition for.
+ */
+FASTElementDefinition.getByType = fastElementRegistry.getByType;
+/**
+ * Gets the element definition associated with the instance.
+ * @param instance - The custom element instance to retrieve the definition for.
+ */
+FASTElementDefinition.getForInstance = fastElementRegistry.getForInstance;
+Observable.defineProperty(FASTElementDefinition.prototype, "template");
+
+const defaultEventOptions = {
+    bubbles: true,
+    composed: true,
+    cancelable: true,
+};
+const isConnectedPropertyName = "isConnected";
+const shadowRoots = new WeakMap();
+const lateAttributeObserver = Symbol("fast-late-attribute-observer");
+function getShadowRoot(element) {
+    var _a, _b;
+    return (_b = (_a = element.shadowRoot) !== null && _a !== void 0 ? _a : shadowRoots.get(element)) !== null && _b !== void 0 ? _b : null;
+}
+let elementControllerStrategy;
+/**
+ * The various lifecycle stages of an ElementController.
+ * @public
+ */
+var Stages;
+(function (Stages) {
+    /** The element is in the process of connecting. */
+    Stages[Stages["connecting"] = 0] = "connecting";
+    /** The element is connected. */
+    Stages[Stages["connected"] = 1] = "connected";
+    /** The element is in the process of disconnecting. */
+    Stages[Stages["disconnecting"] = 2] = "disconnecting";
+    /** The element is disconnected. */
+    Stages[Stages["disconnected"] = 3] = "disconnected";
+})(Stages || (Stages = {}));
+/**
+ * Controls the lifecycle and rendering of a `FASTElement`.
+ * @public
+ */
+class ElementController {
+    /**
+     * Indicates whether or not the custom element has been
+     * connected to the document.
+     */
+    get isConnected() {
+        Observable.track(this, isConnectedPropertyName);
+        return this.stage === Stages.connected;
+    }
+    /**
+     * The context the expression is evaluated against.
+     */
+    get context() {
+        var _a;
+        var _b;
+        return (_b = (_a = this.view) === null || _a === void 0 ? void 0 : _a.context) !== null && _b !== void 0 ? _b : ExecutionContext.default;
+    }
+    /**
+     * Indicates whether the controller is bound.
+     */
+    get isBound() {
+        var _a;
+        var _b;
+        return (_b = (_a = this.view) === null || _a === void 0 ? void 0 : _a.isBound) !== null && _b !== void 0 ? _b : false;
+    }
+    /**
+     * Indicates how the source's lifetime relates to the controller's lifetime.
+     */
+    get sourceLifetime() {
+        var _a;
+        return (_a = this.view) === null || _a === void 0 ? void 0 : _a.sourceLifetime;
+    }
+    /**
+     * Gets/sets the template used to render the component.
+     * @remarks
+     * This value can only be accurately read after connect but can be set at any time.
+     */
+    get template() {
+        var _a;
+        // 1. Template overrides take top precedence.
+        if (this._template === null) {
+            const definition = this.definition;
+            if (this.source.resolveTemplate) {
+                // 2. Allow for element instance overrides next.
+                this._template = this.source.resolveTemplate();
+            }
+            else if (definition.template) {
+                // 3. Default to the static definition.
+                this._template = (_a = definition.template) !== null && _a !== void 0 ? _a : null;
+            }
+        }
+        return this._template;
+    }
+    set template(value) {
+        if (this._template === value) {
+            return;
+        }
+        this._template = value;
+        if (!this.needsInitialization) {
+            this.renderTemplate(value);
+        }
+    }
+    /**
+     * The shadow root options for the component.
+     */
+    get shadowOptions() {
+        return this._shadowRootOptions;
+    }
+    set shadowOptions(value) {
+        // options on the shadowRoot can only be set once
+        if (this._shadowRootOptions === void 0 && value !== void 0) {
+            this._shadowRootOptions = value;
+            let shadowRoot = this.source.shadowRoot;
+            if (shadowRoot) {
+                this.hasExistingShadowRoot = true;
+            }
+            else {
+                shadowRoot = this.source.attachShadow(value);
+                if (value.mode === "closed") {
+                    shadowRoots.set(this.source, shadowRoot);
+                }
+            }
+        }
+    }
+    /**
+     * The main set of styles used for the component, independent
+     * of any dynamically added styles.
+     */
+    get mainStyles() {
+        var _a;
+        // 1. Styles overrides take top precedence.
+        if (this._mainStyles === null) {
+            const definition = this.definition;
+            if (this.source.resolveStyles) {
+                // 2. Allow for element instance overrides next.
+                this._mainStyles = this.source.resolveStyles();
+            }
+            else if (definition.styles) {
+                // 3. Default to the static definition.
+                this._mainStyles = (_a = definition.styles) !== null && _a !== void 0 ? _a : null;
+            }
+        }
+        return this._mainStyles;
+    }
+    set mainStyles(value) {
+        if (this._mainStyles === value) {
+            return;
+        }
+        if (this._mainStyles !== null) {
+            this.removeStyles(this._mainStyles);
+        }
+        this._mainStyles = value;
+        if (!this.needsInitialization) {
+            this.addStyles(value);
+        }
+    }
+    /**
+     * Creates a Controller to control the specified element.
+     * @param element - The element to be controlled by this controller.
+     * @param definition - The element definition metadata that instructs this
+     * controller in how to handle rendering and other platform integrations.
+     * @internal
+     */
+    constructor(element, definition) {
+        /**
+         * A map of observable properties that were set on the element before upgrade.
+         */
+        this.boundObservables = null;
+        /**
+         * Indicates whether the controller needs to perform initial rendering.
+         */
+        this.needsInitialization = true;
+        /**
+         * Indicates whether the element has an existing shadow root (e.g. from declarative shadow DOM).
+         */
+        this.hasExistingShadowRoot = false;
+        /**
+         * Resolves `true` when the element had an existing shadow root
+         * (from SSR or declarative shadow DOM) at connect time, `false`
+         * otherwise.
+         */
+        this.isPrerendered = new Promise(resolve => {
+            this._resolvePrerendered = resolve;
+        });
+        /**
+         * Resolves `true` after prerendered content has been successfully
+         * hydrated, or `false` when the component is client-side rendered
+         * or hydration is not enabled.
+         */
+        this.isHydrated = new Promise(resolve => {
+            this._resolveHydrated = resolve;
+        });
+        /**
+         * The template used to render the component.
+         */
+        this._template = null;
+        /**
+         * The current lifecycle stage of the controller.
+         */
+        this.stage = Stages.disconnected;
+        /**
+         * A guard against connecting behaviors multiple times
+         * during connect in scenarios where a behavior adds
+         * another behavior during it's connectedCallback
+         */
+        this.guardBehaviorConnection = false;
+        /**
+         * The behaviors associated with the component.
+         */
+        this.behaviors = null;
+        /**
+         * Tracks whether behaviors are connected so that
+         * behaviors cant be connected multiple times
+         */
+        this.behaviorsConnected = false;
+        /**
+         * The main set of styles used for the component, independent of any
+         * dynamically added styles.
+         */
+        this._mainStyles = null;
+        /**
+         * This allows Observable.getNotifier(...) to return the Controller
+         * when the notifier for the Controller itself is being requested. The
+         * result is that the Observable system does not need to create a separate
+         * instance of Notifier for observables on the Controller. The component and
+         * the controller will now share the same notifier, removing one-object construct
+         * per web component instance.
+         */
+        this.$fastController = this;
+        /**
+         * The view associated with the custom element.
+         * @remarks
+         * If `null` then the element is managing its own rendering.
+         */
+        this.view = null;
+        this._notifier = new PropertyChangeNotifier(element);
+        this.source = element;
+        this.definition = definition;
+        this.shadowOptions = definition.shadowOptions;
+        const prototype = Reflect.getPrototypeOf(element);
+        const accessors = prototype === null ? [] : Observable.getAccessors(prototype);
+        if (accessors.length > 0) {
+            const boundObservables = (this.boundObservables = Object.create(null));
+            for (let i = 0, ii = accessors.length; i < ii; ++i) {
+                const propertyName = accessors[i].name;
+                const value = element[propertyName];
+                if (value !== void 0) {
+                    delete element[propertyName];
+                    boundObservables[propertyName] = value;
+                }
+            }
+            if (Object.keys(boundObservables).length === 0) {
+                this.boundObservables = null;
+            }
+        }
+        // Capture any observable values that were set after construction but before
+        // the first connect (for example, late-defined declarative accessors).
+        this.captureBoundObservables();
+    }
+    /**
+     * The subject that subscribers will receive notifications for.
+     */
+    get subject() {
+        return this._notifier.subject;
+    }
+    /**
+     * Notifies all subscribers of a property change.
+     * @param args - The property name that changed.
+     */
+    notify(args) {
+        this._notifier.notify(args);
+    }
+    /**
+     * Subscribes to notification of changes in the element's state.
+     * @param subscriber - The object that is subscribing for change notification.
+     * @param propertyToWatch - The name of the property to watch for changes.
+     */
+    subscribe(subscriber, propertyToWatch) {
+        this._notifier.subscribe(subscriber, propertyToWatch);
+    }
+    /**
+     * Unsubscribes from notification of changes in the element's state.
+     * @param subscriber - The object that is unsubscribing from change notification.
+     * @param propertyToUnwatch - The name of the property to unsubscribe from.
+     */
+    unsubscribe(subscriber, propertyToUnwatch) {
+        this._notifier.unsubscribe(subscriber, propertyToUnwatch);
+    }
+    /**
+     * Registers an unbind handler with the controller.
+     * @param behavior - An object to call when the controller unbinds.
+     */
+    onUnbind(behavior) {
+        var _a;
+        (_a = this.view) === null || _a === void 0 ? void 0 : _a.onUnbind(behavior);
+    }
+    /**
+     * Adds the behavior to the component.
+     * @param behavior - The behavior to add.
+     */
+    addBehavior(behavior) {
+        var _a, _b;
+        const targetBehaviors = (_a = this.behaviors) !== null && _a !== void 0 ? _a : (this.behaviors = new Map());
+        const count = (_b = targetBehaviors.get(behavior)) !== null && _b !== void 0 ? _b : 0;
+        if (count === 0) {
+            targetBehaviors.set(behavior, 1);
+            behavior.addedCallback && behavior.addedCallback(this);
+            if (behavior.connectedCallback &&
+                !this.guardBehaviorConnection &&
+                (this.stage === Stages.connected || this.stage === Stages.connecting)) {
+                behavior.connectedCallback(this);
+            }
+        }
+        else {
+            targetBehaviors.set(behavior, count + 1);
+        }
+    }
+    /**
+     * Removes the behavior from the component.
+     * @param behavior - The behavior to remove.
+     * @param force - Forces removal even if this behavior was added more than once.
+     */
+    removeBehavior(behavior, force = false) {
+        const targetBehaviors = this.behaviors;
+        if (targetBehaviors === null) {
+            return;
+        }
+        const count = targetBehaviors.get(behavior);
+        if (count === void 0) {
+            return;
+        }
+        if (count === 1 || force) {
+            targetBehaviors.delete(behavior);
+            if (behavior.disconnectedCallback && this.stage !== Stages.disconnected) {
+                behavior.disconnectedCallback(this);
+            }
+            behavior.removedCallback && behavior.removedCallback(this);
+        }
+        else {
+            targetBehaviors.set(behavior, count - 1);
+        }
+    }
+    /**
+     * Adds styles to this element. Providing an HTMLStyleElement will attach the element instance to the shadowRoot.
+     * @param styles - The styles to add.
+     */
+    addStyles(styles) {
+        var _a;
+        if (!styles) {
+            return;
+        }
+        const source = this.source;
+        if (styles instanceof HTMLElement) {
+            const target = (_a = getShadowRoot(source)) !== null && _a !== void 0 ? _a : this.source;
+            target.append(styles);
+        }
+        else if (!styles.isAttachedTo(source)) {
+            styles.addStylesTo(source);
+        }
+    }
+    /**
+     * Removes styles from this element. Providing an HTMLStyleElement will detach the element instance from the shadowRoot.
+     * @param styles - the styles to remove.
+     */
+    removeStyles(styles) {
+        var _a;
+        if (!styles) {
+            return;
+        }
+        const source = this.source;
+        if (styles instanceof HTMLElement) {
+            const target = (_a = getShadowRoot(source)) !== null && _a !== void 0 ? _a : source;
+            target.removeChild(styles);
+        }
+        else if (styles.isAttachedTo(source)) {
+            styles.removeStylesFrom(source);
+        }
+    }
+    /**
+     * Runs connected lifecycle behavior on the associated element.
+     */
+    connect() {
+        if (this.stage !== Stages.disconnected) {
+            return;
+        }
+        this.stage = Stages.connecting;
+        this.captureBoundObservables();
+        this.syncLateAttributes();
+        this.observeLateAttributes();
+        this.bindObservables();
+        this.connectBehaviors();
+        if (this.needsInitialization) {
+            this.renderTemplate(this.template);
+            this.addStyles(this.mainStyles);
+            this.needsInitialization = false;
+        }
+        else if (this.view !== null) {
+            this.view.bind(this.source);
+        }
+        this.stage = Stages.connected;
+        Observable.notify(this, isConnectedPropertyName);
+    }
+    /**
+     * Binds any observables that were set before upgrade.
+     */
+    bindObservables() {
+        if (this.boundObservables !== null) {
+            const element = this.source;
+            const boundObservables = this.boundObservables;
+            const propertyNames = Object.keys(boundObservables);
+            for (let i = 0, ii = propertyNames.length; i < ii; ++i) {
+                const propertyName = propertyNames[i];
+                element[propertyName] = boundObservables[propertyName];
+            }
+            this.boundObservables = null;
+        }
+    }
+    /**
+     * Captures own-properties that shadow observable accessors on the prototype so
+     * they can be rebound through the accessor before rendering.
+     */
+    captureBoundObservables() {
+        const element = this.source;
+        const propertyNames = Object.getOwnPropertyNames(element);
+        const hasPrototypeAccessor = (propertyName) => {
+            let currentTarget = Reflect.getPrototypeOf(element);
+            while (currentTarget !== null) {
+                const descriptor = Reflect.getOwnPropertyDescriptor(currentTarget, propertyName);
+                if ((descriptor === null || descriptor === void 0 ? void 0 : descriptor.get) || (descriptor === null || descriptor === void 0 ? void 0 : descriptor.set)) {
+                    return true;
+                }
+                currentTarget = Reflect.getPrototypeOf(currentTarget);
+            }
+            return false;
+        };
+        let boundObservables = this.boundObservables;
+        for (let i = 0, ii = propertyNames.length; i < ii; ++i) {
+            const ownPropertyName = propertyNames[i];
+            const propertyName = (ownPropertyName[0] === "_" ? ownPropertyName.slice(1) : ownPropertyName);
+            if (!hasPrototypeAccessor(propertyName)) {
+                continue;
+            }
+            const value = element[propertyName];
+            const isBackingField = ownPropertyName !== propertyName;
+            const isRebindableObject = value !== null &&
+                typeof value === "object" &&
+                !(value === null || value === void 0 ? void 0 : value.$isProxy) &&
+                !(Array.isArray(value) && (value === null || value === void 0 ? void 0 : value.$fastController));
+            if (value === void 0) {
+                if (!isBackingField) {
+                    delete element[ownPropertyName];
+                }
+                continue;
+            }
+            if (isBackingField && !isRebindableObject) {
+                continue;
+            }
+            delete element[ownPropertyName];
+            (boundObservables !== null && boundObservables !== void 0 ? boundObservables : (boundObservables = this.boundObservables = Object.create(null)))[propertyName] = value;
+        }
+    }
+    /**
+     * Synchronizes late-defined attribute-map attributes from the live DOM to the
+     * associated property values before the initial render occurs.
+     */
+    syncLateAttributes() {
+        const lateAttributes = getLateAttributeLookup(this.definition);
+        if (lateAttributes === null) {
+            return;
+        }
+        for (const attributeName of Object.keys(lateAttributes)) {
+            if (!this.source.hasAttribute(attributeName)) {
+                continue;
+            }
+            this.onAttributeChangedCallback(attributeName, null, this.source.getAttribute(attributeName));
+        }
+    }
+    /**
+     * Observes late-defined attribute-map attributes that the platform does not
+     * surface through attributeChangedCallback because they were added after
+     * customElements.define() completed.
+     */
+    observeLateAttributes() {
+        const lateAttributes = getLateAttributeLookup(this.definition);
+        if (lateAttributes === null) {
+            return;
+        }
+        const element = this.source;
+        if (element[lateAttributeObserver] !== void 0) {
+            return;
+        }
+        element[lateAttributeObserver] = new MutationObserver(records => {
+            const controller = element.$fastController;
+            const lateAttributes = getLateAttributeLookup(controller.definition);
+            if (lateAttributes === null) {
+                return;
+            }
+            for (let i = 0, ii = records.length; i < ii; ++i) {
+                const attributeName = records[i].attributeName;
+                if (attributeName === null || lateAttributes[attributeName] === void 0) {
+                    continue;
+                }
+                controller.onAttributeChangedCallback(attributeName, null, element.getAttribute(attributeName));
+            }
+        });
+        element[lateAttributeObserver].observe(element, {
+            attributes: true,
+            attributeFilter: Object.keys(lateAttributes),
+        });
+    }
+    /**
+     * Connects any existing behaviors on the associated element.
+     */
+    connectBehaviors() {
+        if (this.behaviorsConnected === false) {
+            const behaviors = this.behaviors;
+            if (behaviors !== null) {
+                this.guardBehaviorConnection = true;
+                for (const key of behaviors.keys()) {
+                    key.connectedCallback && key.connectedCallback(this);
+                }
+                this.guardBehaviorConnection = false;
+            }
+            this.behaviorsConnected = true;
+        }
+    }
+    /**
+     * Disconnects any behaviors on the associated element.
+     */
+    disconnectBehaviors() {
+        if (this.behaviorsConnected === true) {
+            const behaviors = this.behaviors;
+            if (behaviors !== null) {
+                for (const key of behaviors.keys()) {
+                    key.disconnectedCallback && key.disconnectedCallback(this);
+                }
+            }
+            this.behaviorsConnected = false;
+        }
+    }
+    /**
+     * Runs disconnected lifecycle behavior on the associated element.
+     */
+    disconnect() {
+        if (this.stage !== Stages.connected) {
+            return;
+        }
+        this.stage = Stages.disconnecting;
+        Observable.notify(this, isConnectedPropertyName);
+        if (this.view !== null) {
+            this.view.unbind();
+        }
+        this.disconnectBehaviors();
+        this.stage = Stages.disconnected;
+    }
+    /**
+     * Runs the attribute changed callback for the associated element.
+     * @param name - The name of the attribute that changed.
+     * @param oldValue - The previous value of the attribute.
+     * @param newValue - The new value of the attribute.
+     */
+    onAttributeChangedCallback(name, oldValue, newValue) {
+        const attrDef = this.definition.attributeLookup[name];
+        if (attrDef !== void 0) {
+            attrDef.onAttributeChangedCallback(this.source, newValue);
+        }
+    }
+    /**
+     * Emits a custom HTML event.
+     * @param type - The type name of the event.
+     * @param detail - The event detail object to send with the event.
+     * @param options - The event options. By default bubbles and composed.
+     * @remarks
+     * Only emits events if connected.
+     */
+    emit(type, detail, options) {
+        if (this.stage === Stages.connected) {
+            return this.source.dispatchEvent(new CustomEvent(type, Object.assign(Object.assign({ detail }, defaultEventOptions), options)));
+        }
+        return false;
+    }
+    /**
+     * Renders the provided template to the element.
+     *
+     * @param template - The template to render.
+     * @remarks
+     * If `null` is provided, any existing view will be removed.
+     */
+    renderTemplate(template) {
+        var _a;
+        const element = this.source;
+        const host = (_a = getShadowRoot(element)) !== null && _a !== void 0 ? _a : element;
+        if (this.view !== null) {
+            this.view.dispose();
+            this.view = null;
+        }
+        else if (!this.needsInitialization || this.hasExistingShadowRoot) {
+            if (!this.hasExistingShadowRoot || !this.needsInitialization) {
+                for (let child = host.firstChild; child !== null; child = host.firstChild) {
+                    host.removeChild(child);
+                }
+            }
+        }
+        if (template) {
+            const hasPrerenderedContent = this.hasExistingShadowRoot && this.needsInitialization;
+            let didHydrate = false;
+            if (hasPrerenderedContent && ElementController.hydrationHook) {
+                didHydrate = ElementController.hydrationHook(this, template, element, host);
+            }
+            if (!didHydrate) {
+                this.renderClientSide(template, element, host);
+            }
+            this._resolvePrerendered(hasPrerenderedContent);
+            this._resolveHydrated(didHydrate);
+        }
+        else if (this.needsInitialization) {
+            this._resolvePrerendered(false);
+            this._resolveHydrated(false);
+        }
+    }
+    /**
+     * Standard client-side render: clears any stale content, clones the
+     * compiled fragment, binds, and appends to the host.
+     */
+    renderClientSide(template, element, host) {
+        if (this.hasExistingShadowRoot) {
+            for (let child = host.firstChild; child !== null; child = host.firstChild) {
+                host.removeChild(child);
+            }
+            this.hasExistingShadowRoot = false;
+        }
+        this.view = template.render(element, host, element);
+        this.view.sourceLifetime =
+            SourceLifetime.coupled;
+    }
+    /**
+     * Locates or creates a controller for the specified element.
+     * @param element - The element to return the controller for.
+     * @param override - Reset the controller even if one has been defined.
+     * @remarks
+     * The specified element must have a {@link FASTElementDefinition}
+     * registered either through the use of the {@link customElement}
+     * decorator or a call to `FASTElement.define`.
+     */
+    static forCustomElement(element, override = false) {
+        const controller = element.$fastController;
+        if (controller !== void 0 && !override) {
+            return controller;
+        }
+        const definition = FASTElementDefinition.getForInstance(element);
+        if (definition === void 0) {
+            throw FAST.error(Message.missingElementDefinition);
+        }
+        Observable.getNotifier(definition).subscribe({
+            handleChange: () => {
+                ElementController.forCustomElement(element, true);
+                element.$fastController.connect();
+            },
+        }, "template");
+        Observable.getNotifier(definition).subscribe({
+            handleChange: () => {
+                ElementController.forCustomElement(element, true);
+                element.$fastController.connect();
+            },
+        }, "shadowOptions");
+        return (element.$fastController = new elementControllerStrategy(element, definition));
+    }
+    /**
+     * Sets the strategy that ElementController.forCustomElement uses to construct
+     * ElementController instances for an element.
+     * @param strategy - The strategy to use.
+     */
+    static setStrategy(strategy) {
+        elementControllerStrategy = strategy;
+    }
+    /**
+     * Installs the hydration hook. Called by enableHydration().
+     * @internal
+     */
+    static installHydrationHook(hook) {
+        ElementController.hydrationHook = hook;
+    }
+}
+// --- Static hydration hook ---
+/**
+ * A hook that, when set, handles prerendered content hydration.
+ * Called by renderTemplate when an existing shadow root is detected.
+ * Returns true if hydration was performed, false to fall back to client-side.
+ * @internal
+ */
+ElementController.hydrationHook = null;
+makeSerializationNoop(ElementController);
+// Set default strategy for ElementController
+ElementController.setStrategy(ElementController);
+/**
+ * Converts a styleTarget into the operative target. When the provided target is an Element
+ * that is a FASTElement, the function will return the ShadowRoot for that element. Otherwise,
+ * it will return the root node for the element.
+ * @param target
+ * @returns
+ */
+function normalizeStyleTarget(target) {
+    var _a;
+    if ("adoptedStyleSheets" in target) {
+        return target;
+    }
+    else {
+        return ((_a = getShadowRoot(target)) !== null && _a !== void 0 ? _a : target.getRootNode());
+    }
+}
+// Default StyleStrategy implementations are defined in this module because they
+// require access to element shadowRoots, and we don't want to leak shadowRoot
+// objects out of this module.
+/**
+ * https://wicg.github.io/construct-stylesheets/
+ * https://developers.google.com/web/updates/2019/02/constructable-stylesheets
+ *
+ * @internal
+ */
+class AdoptedStyleSheetsStrategy {
+    constructor(styles) {
+        const styleSheetCache = AdoptedStyleSheetsStrategy.styleSheetCache;
+        this.sheets = styles.map((x) => {
+            if (x instanceof CSSStyleSheet) {
+                return x;
+            }
+            let sheet = styleSheetCache.get(x);
+            if (sheet === void 0) {
+                sheet = new CSSStyleSheet();
+                sheet.replaceSync(x);
+                styleSheetCache.set(x, sheet);
+            }
+            return sheet;
+        });
+    }
+    addStylesTo(target) {
+        addAdoptedStyleSheets(normalizeStyleTarget(target), this.sheets);
+    }
+    removeStylesFrom(target) {
+        removeAdoptedStyleSheets(normalizeStyleTarget(target), this.sheets);
+    }
+}
+AdoptedStyleSheetsStrategy.styleSheetCache = new Map();
+let id$1 = 0;
+const nextStyleId = () => `fast-${++id$1}`;
+function usableStyleTarget(target) {
+    return target === document ? document.body : target;
+}
+/**
+ * @internal
+ */
+class StyleElementStrategy {
+    constructor(styles) {
+        this.styles = styles;
+        this.styleClass = nextStyleId();
+    }
+    addStylesTo(target) {
+        target = usableStyleTarget(normalizeStyleTarget(target));
+        const styles = this.styles;
+        const styleClass = this.styleClass;
+        for (let i = 0; i < styles.length; i++) {
+            const element = document.createElement("style");
+            element.innerHTML = styles[i];
+            element.className = styleClass;
+            target.append(element);
+        }
+    }
+    removeStylesFrom(target) {
+        target = usableStyleTarget(normalizeStyleTarget(target));
+        const styles = target.querySelectorAll(`.${this.styleClass}`);
+        for (let i = 0, ii = styles.length; i < ii; ++i) {
+            target.removeChild(styles[i]);
+        }
+    }
+}
+let addAdoptedStyleSheets = (target, sheets) => {
+    target.adoptedStyleSheets = [...target.adoptedStyleSheets, ...sheets];
+};
+let removeAdoptedStyleSheets = (target, sheets) => {
+    target.adoptedStyleSheets = target.adoptedStyleSheets.filter((x) => sheets.indexOf(x) === -1);
+};
+if (ElementStyles.supportsAdoptedStyleSheets) {
+    try {
+        // Test if browser implementation uses FrozenArray.
+        // If not, use push / splice to alter the stylesheets
+        // in place. This circumvents a bug in Safari 16.4 where
+        // periodically, assigning the array would previously
+        // cause sheets to be removed.
+        document.adoptedStyleSheets.push();
+        document.adoptedStyleSheets.splice();
+        addAdoptedStyleSheets = (target, sheets) => {
+            target.adoptedStyleSheets.push(...sheets);
+        };
+        removeAdoptedStyleSheets = (target, sheets) => {
+            for (const sheet of sheets) {
+                const index = target.adoptedStyleSheets.indexOf(sheet);
+                if (index !== -1) {
+                    target.adoptedStyleSheets.splice(index, 1);
+                }
+            }
+        };
+    }
+    catch (_e) {
+        // Do nothing if an error is thrown, the default
+        // case handles FrozenArray.
+    }
+    ElementStyles.setDefaultStrategy(AdoptedStyleSheetsStrategy);
+}
+else {
+    ElementStyles.setDefaultStrategy(StyleElementStrategy);
+}
+
+/* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
+function createFASTElement(BaseType) {
+    const type = class extends BaseType {
+        constructor() {
+            /* eslint-disable-next-line */
+            super();
+            ElementController.forCustomElement(this);
+        }
+        $emit(type, detail, options) {
+            return this.$fastController.emit(type, detail, options);
+        }
+        connectedCallback() {
+            this.$fastController.connect();
+        }
+        disconnectedCallback() {
+            this.$fastController.disconnect();
+        }
+        attributeChangedCallback(name, oldValue, newValue) {
+            this.$fastController.onAttributeChangedCallback(name, oldValue, newValue);
+        }
+    };
+    FASTElementDefinition.registerBaseType(type);
+    return type;
+}
+function isPromiseLike(value) {
+    return typeof (value === null || value === void 0 ? void 0 : value.then) === "function";
+}
+function define(type, nameOrDef, extensions) {
+    if (Array.isArray(nameOrDef)) {
+        extensions = nameOrDef;
+        nameOrDef = undefined;
+    }
+    const composePromise = isFunction(type)
+        ? FASTElementDefinition.compose(type, nameOrDef)
+        : FASTElementDefinition.compose(this, type);
+    return composePromise.then(def => {
+        applyFASTElementExtensions(def, def.registry, extensions);
+        const template = resolveFASTElementTemplate(def);
+        if (isPromiseLike(template)) {
+            return template.then(() => def.define().type);
+        }
+        return def.define().type;
+    });
+}
+function from(BaseType) {
+    return createFASTElement(BaseType);
+}
+/**
+ * A minimal base class for FASTElements that also provides
+ * static helpers for working with FASTElements.
+ * @public
+ */
+const FASTElement = Object.assign(createFASTElement(HTMLElement), {
+    /**
+     * Creates a new FASTElement base class inherited from the
+     * provided base type.
+     * @param BaseType - The base element type to inherit from.
+     */
+    from,
+    /**
+     * Defines a platform custom element based on the provided type and definition.
+     * @param type - The custom element type to define.
+     * @param nameOrDef - The name of the element to define or a definition object
+     * that describes the element to define.
+     */
+    define,
+});
+
+/**
+ * Decorator: Marks a property getter as having volatile observable dependencies.
+ * @param target - The target that the property is defined on.
+ * @param name - The property name.
+ * @param descriptor - The existing descriptor.
+ * @public
+ */
+function volatile(target, name, descriptor) {
+    return Object.assign({}, descriptor, {
+        get() {
+            Observable.trackVolatile();
+            return descriptor.get.apply(this);
+        },
+    });
+}
+
+const registry$1 = createTypeRegistry();
+/**
+ * Instructs the css engine to provide styles during CSS template composition.
+ * @public
+ */
+const CSSDirective = Object.freeze({
+    /**
+     * Gets the directive definition associated with the instance.
+     * @param instance - The directive instance to retrieve the definition for.
+     */
+    getForInstance: registry$1.getForInstance,
+    /**
+     * Gets the directive definition associated with the specified type.
+     * @param type - The directive type to retrieve the definition for.
+     */
+    getByType: registry$1.getByType,
+    /**
+     * Defines a CSSDirective.
+     * @param type - The type to define as a directive.
+     */
+    define(type) {
+        registry$1.register({ type });
+        return type;
+    },
+});
+
 function collectStyles(strings, values) {
     const styles = [];
     let cssString = "";
-    const behaviors = [];
-    const add = (behavior) => {
-        behaviors.push(behavior);
-    };
     for (let i = 0, ii = strings.length - 1; i < ii; ++i) {
         cssString += strings[i];
         let value = values[i];
-        if (isFunction(value)) {
-            value = new CSSBindingDirective(oneWay(value), nextCSSVariable()).createCSS(add);
-        }
-        else if (value instanceof Binding) {
-            value = new CSSBindingDirective(value, nextCSSVariable()).createCSS(add);
-        }
-        else if (CSSDirective.getForInstance(value) !== void 0) {
-            value = value.createCSS(add);
+        if (CSSDirective.getForInstance(value) !== void 0) {
+            value = value.createCSS();
         }
         if (value instanceof ElementStyles || value instanceof CSSStyleSheet) {
             if (cssString.trim() !== "") {
@@ -1231,59 +2445,35 @@ function collectStyles(strings, values) {
     if (cssString.trim() !== "") {
         styles.push(cssString);
     }
-    return {
-        styles,
-        behaviors,
-    };
+    return styles;
 }
 /**
  * Transforms a template literal string into styles.
  * @param strings - The string fragments that are interpolated with the values.
  * @param values - The values that are interpolated with the string fragments.
  * @remarks
- * The css helper supports interpolation of strings and ElementStyle instances.
+ * The css helper supports interpolation of static composable styles and CSS directives.
  * @public
  */
 const css = ((strings, ...values) => {
-    const { styles, behaviors } = collectStyles(strings, values);
-    const elementStyles = new ElementStyles(styles);
-    return behaviors.length ? elementStyles.withBehaviors(...behaviors) : elementStyles;
+    return new ElementStyles(collectStyles(strings, values));
 });
 class CSSPartial {
-    constructor(styles, behaviors) {
-        this.behaviors = behaviors;
-        this.css = "";
-        const stylesheets = styles.reduce((accumulated, current) => {
-            if (isString(current)) {
-                this.css += current;
-            }
-            else {
-                accumulated.push(current);
-            }
-            return accumulated;
-        }, []);
-        if (stylesheets.length) {
-            this.styles = new ElementStyles(stylesheets);
-        }
+    constructor(styles) {
+        this.value =
+            styles.length === 0
+                ? ""
+                : styles.length === 1
+                    ? styles[0]
+                    : new ElementStyles(styles);
     }
-    createCSS(add) {
-        this.behaviors.forEach(add);
-        if (this.styles) {
-            add(this);
-        }
-        return this.css;
-    }
-    addedCallback(controller) {
-        controller.addStyles(this.styles);
-    }
-    removedCallback(controller) {
-        controller.removeStyles(this.styles);
+    createCSS() {
+        return this.value;
     }
 }
 CSSDirective.define(CSSPartial);
 css.partial = (strings, ...values) => {
-    const { styles, behaviors } = collectStyles(strings, values);
-    return new CSSPartial(styles, behaviors);
+    return new CSSPartial(collectStyles(strings, values));
 };
 
 /**
@@ -1296,9 +2486,9 @@ const marker = `fast-${Math.random().toString(36).substring(2, 8)}`;
 const interpolationStart = `${marker}{`;
 const interpolationEnd = `}${marker}`;
 const interpolationEndLength = interpolationEnd.length;
-let id$1 = 0;
+let id = 0;
 /** @internal */
-const nextId = () => `${marker}-${++id$1}`;
+const nextId = () => `${marker}-${++id}`;
 /**
  * Common APIs related to markup generation.
  * @public
@@ -1554,28 +2744,36 @@ class NodeObservationDirective extends StatelessAttachedAttributeDirective {
 }
 
 /**
- * Regex patterns for parsing hydration markers embedded as HTML comments by the SSR renderer.
- * Each marker type encodes factory indices so the client can map markers back to ViewBehaviorFactories.
+ * Data-free sequential hydration markers.
+ *
+ * All markers use the `fe:` prefix to namespace them to FAST Element. The closing
+ * marker uses `/` following HTML/XML convention. Markers carry zero
+ * embedded data — the hydration walker derives factory-to-node mappings
+ * by maintaining a sequential pointer through the factories array.
  *
  * Content binding markers bracket text/template content:
- *   <!-- fe-b$$start$$<factoryIndex>$$<uniqueId>$$fe-b -->
- *   ...content...
- *   <!-- fe-b$$end$$<factoryIndex>$$<uniqueId>$$fe-b -->
+ *   <!--fe:b--> ...content... <!--fe:/b-->
  *
- * Repeat markers bracket each repeated item:
- *   <!-- fe-repeat$$start$$<itemIndex>$$fe-repeat -->
- *   <!-- fe-repeat$$end$$<itemIndex>$$fe-repeat -->
+ * Repeat item markers bracket each repeated item:
+ *   <!--fe:r--> ...item... <!--fe:/r-->
  *
- * Element boundary markers demarcate nested custom elements so parent walkers can skip them:
- *   <!-- fe-eb$$start$$<elementId>$$fe-eb -->
- *   <!-- fe-eb$$end$$<elementId>$$fe-eb -->
+ * Element boundary markers demarcate nested custom elements:
+ *   <!--fe:e--> ...shadow content... <!--fe:/e-->
+ *
+ * Attribute bindings use a single `data-fe` attribute whose value is
+ * the count of attribute binding factories targeting the element:
+ *   <div data-fe="3"> (3 attribute bindings)
+ *
+ * WebUI versions that predate the data-free marker format still emit indexed
+ * markers. The parser below accepts those legacy markers so existing WebUI SSR
+ * output can hydrate against the newer FAST runtime.
  */
-const bindingStartMarker = /fe-b\$\$start\$\$(\d+)\$\$(.+)\$\$fe-b/;
-const bindingEndMarker = /fe-b\$\$end\$\$(\d+)\$\$(.+)\$\$fe-b/;
-const repeatViewStartMarker = /fe-repeat\$\$start\$\$(\d+)\$\$fe-repeat/;
-const repeatViewEndMarker = /fe-repeat\$\$end\$\$(\d+)\$\$fe-repeat/;
-const elementBoundaryStartMarker = /^(?:.{0,1000})fe-eb\$\$start\$\$(.+?)\$\$fe-eb/;
-const elementBoundaryEndMarker = /fe-eb\$\$end\$\$(.{0,1000})\$\$fe-eb(?:.{0,1000})$/;
+const legacyBindingStartMarker = /fe-b\$\$start\$\$(\d+)\$\$(.+)\$\$fe-b/;
+const legacyBindingEndMarker = /fe-b\$\$end\$\$(\d+)\$\$(.+)\$\$fe-b/;
+const legacyRepeatViewStartMarker = /fe-repeat\$\$start\$\$(\d+)\$\$fe-repeat/;
+const legacyRepeatViewEndMarker = /fe-repeat\$\$end\$\$(\d+)\$\$fe-repeat/;
+const legacyElementBoundaryStartMarker = /^(?:.{0,1000})fe-eb\$\$start\$\$(.+?)\$\$fe-eb/;
+const legacyElementBoundaryEndMarker = /fe-eb\$\$end\$\$(.{0,1000})\$\$fe-eb(?:.{0,1000})$/;
 function isComment$1(node) {
     return node && node.nodeType === Node.COMMENT_NODE;
 }
@@ -1584,150 +2782,143 @@ function isComment$1(node) {
  * @internal
  */
 const HydrationMarkup = Object.freeze({
-    attributeMarkerName: "data-fe-b",
-    compactAttributeMarkerName: "data-fe-c",
-    attributeBindingSeparator: " ",
-    contentBindingStartMarker(index, uniqueId) {
-        return `fe-b$$start$$${index}$$${uniqueId}$$fe-b`;
+    // Single attribute marker format (count only)
+    attributeMarkerName: "data-fe",
+    legacyAttributeMarkerName: "data-fe-b",
+    legacyCompactAttributeMarkerName: "data-fe-c",
+    // Content binding markers (no arguments)
+    contentBindingStartMarker() {
+        return "fe:b";
     },
-    contentBindingEndMarker(index, uniqueId) {
-        return `fe-b$$end$$${index}$$${uniqueId}$$fe-b`;
+    contentBindingEndMarker() {
+        return "fe:/b";
     },
-    repeatStartMarker(index) {
-        return `fe-repeat$$start$$${index}$$fe-repeat`;
+    // Repeat item markers (no arguments)
+    repeatStartMarker() {
+        return "fe:r";
     },
-    repeatEndMarker(index) {
-        return `fe-repeat$$end$$${index}$$fe-repeat`;
+    repeatEndMarker() {
+        return "fe:/r";
     },
-    isContentBindingStartMarker(content) {
-        return bindingStartMarker.test(content);
+    // Element boundary markers (no arguments)
+    elementBoundaryStartMarker() {
+        return "fe:e";
     },
-    isContentBindingEndMarker(content) {
-        return bindingEndMarker.test(content);
+    elementBoundaryEndMarker() {
+        return "fe:/e";
     },
-    isRepeatViewStartMarker(content) {
-        return repeatViewStartMarker.test(content);
+    // Detection — simple string equality
+    isContentBindingStartMarker(data) {
+        return data === "fe:b" || legacyBindingStartMarker.test(data);
     },
-    isRepeatViewEndMarker(content) {
-        return repeatViewEndMarker.test(content);
+    isContentBindingEndMarker(data) {
+        return data === "fe:/b" || legacyBindingEndMarker.test(data);
+    },
+    isRepeatViewStartMarker(data) {
+        return data === "fe:r" || legacyRepeatViewStartMarker.test(data);
+    },
+    isRepeatViewEndMarker(data) {
+        return data === "fe:/r" || legacyRepeatViewEndMarker.test(data);
     },
     isElementBoundaryStartMarker(node) {
-        return isComment$1(node) && elementBoundaryStartMarker.test(node.data.trim());
+        return (isComment$1(node) &&
+            (node.data === "fe:e" || legacyElementBoundaryStartMarker.test(node.data)));
     },
     isElementBoundaryEndMarker(node) {
-        return isComment$1(node) && elementBoundaryEndMarker.test(node.data);
+        return (isComment$1(node) &&
+            (node.data === "fe:/e" || legacyElementBoundaryEndMarker.test(node.data)));
     },
     /**
-     * Returns the indexes of the ViewBehaviorFactories affecting
-     * attributes for the element, or null if no factories were found.
+     * Returns the count of attribute bindings on the element, or null
+     * if no attribute binding marker is present.
      *
-     * This method parses the space-separated format: `data-fe-b="0 1 2"`.
+     * Parses the `data-fe="N"` attribute format where N is the count
+     * of attribute binding factories targeting this element.
      */
-    parseAttributeBinding(node) {
+    parseAttributeBindingCount(node) {
         const attr = node.getAttribute(this.attributeMarkerName);
-        return attr === null
-            ? attr
-            : attr.split(this.attributeBindingSeparator).map(i => parseInt(i));
+        if (attr === null) {
+            return null;
+        }
+        const trimmed = attr.trim();
+        if (!/^\d+$/.test(trimmed)) {
+            throw FAST.error(Message.invalidHydrationAttributeMarker, {
+                value: attr,
+            });
+        }
+        const count = parseInt(trimmed, 10);
+        if (count < 1) {
+            throw FAST.error(Message.invalidHydrationAttributeMarker, {
+                value: attr,
+            });
+        }
+        return count;
     },
-    /**
-     * Returns the indexes of the ViewBehaviorFactories affecting
-     * attributes for the element, or null if no factories were found.
-     *
-     * This method parses the enumerated format: `data-fe-b-0`, `data-fe-b-1`, `data-fe-b-2`.
-     * This is an alternative format that uses separate attributes for each binding index.
-     */
-    parseEnumeratedAttributeBinding(node) {
-        const attrs = [];
-        const prefixLength = this.attributeMarkerName.length + 1;
-        const prefix = `${this.attributeMarkerName}-`;
-        for (const attr of node.getAttributeNames()) {
-            if (attr.startsWith(prefix)) {
-                const count = Number(attr.slice(prefixLength));
-                if (!Number.isNaN(count)) {
-                    attrs.push(count);
+    parseLegacyAttributeBindingIndices(node) {
+        const indices = [];
+        const attr = node.getAttribute(this.legacyAttributeMarkerName);
+        if (attr !== null) {
+            for (const value of attr.trim().split(/\s+/)) {
+                if (value === "") {
+                    continue;
                 }
-                else {
-                    throw FAST.error(1601 /* invalidAttributeMarkerName */, {
-                        name: attr,
-                        expectedFormat: `${prefix}<number>`,
+                const index = Number(value);
+                if (!Number.isInteger(index) || index < 0) {
+                    throw FAST.error(Message.invalidHydrationAttributeMarker, {
+                        value: attr,
                     });
+                }
+                indices.push(index);
+            }
+        }
+        const enumeratedPrefix = `${this.legacyAttributeMarkerName}-`;
+        const compactPrefix = `${this.legacyCompactAttributeMarkerName}-`;
+        for (const name of node.getAttributeNames()) {
+            if (name.startsWith(enumeratedPrefix)) {
+                const index = Number(name.slice(enumeratedPrefix.length));
+                if (!Number.isInteger(index) || index < 0) {
+                    throw FAST.error(Message.invalidHydrationAttributeMarker, {
+                        value: name,
+                    });
+                }
+                indices.push(index);
+            }
+            else if (name.startsWith(compactPrefix)) {
+                const [start, count] = name
+                    .slice(compactPrefix.length)
+                    .split("-")
+                    .map(value => Number(value));
+                if (!Number.isInteger(start) ||
+                    !Number.isInteger(count) ||
+                    start < 0 ||
+                    count < 1) {
+                    throw FAST.error(Message.invalidHydrationAttributeMarker, {
+                        value: name,
+                    });
+                }
+                for (let i = 0; i < count; i++) {
+                    indices.push(start + i);
                 }
             }
         }
-        return attrs.length === 0 ? null : attrs;
+        return indices.length === 0 ? null : indices;
     },
-    /**
-     * Returns the indexes of the ViewBehaviorFactories affecting
-     * attributes for the element, or null if no factories were found.
-     *
-     * This method parses the compact format: `data-fe-c-{index}-{count}`.
-     */
-    parseCompactAttributeBinding(node) {
-        const prefix = `${this.compactAttributeMarkerName}-`;
-        const attrName = node.getAttributeNames().find(name => name.startsWith(prefix));
-        if (!attrName) {
-            return null;
+    removeLegacyAttributeBindingMarkers(node) {
+        node.removeAttribute(this.legacyAttributeMarkerName);
+        for (const name of node.getAttributeNames()) {
+            if (name.startsWith(`${this.legacyAttributeMarkerName}-`) ||
+                name.startsWith(`${this.legacyCompactAttributeMarkerName}-`)) {
+                node.removeAttribute(name);
+            }
         }
-        const suffix = attrName.slice(prefix.length);
-        const parts = suffix.split("-");
-        const startIndex = parseInt(parts[0], 10);
-        const count = parseInt(parts[1], 10);
-        if (parts.length !== 2 ||
-            Number.isNaN(startIndex) ||
-            Number.isNaN(count) ||
-            startIndex < 0 ||
-            count < 1) {
-            throw FAST.error(1604 /* invalidCompactAttributeMarkerName */, {
-                name: attrName,
-                expectedFormat: `${this.compactAttributeMarkerName}-{index}-{count}`,
-            });
-        }
-        const indexes = [];
-        for (let i = 0; i < count; i++) {
-            indexes.push(startIndex + i);
-        }
-        return indexes;
     },
-    /**
-     * Parses the ViewBehaviorFactory index from string data. Returns
-     * the binding index or null if the index cannot be retrieved.
-     */
-    parseContentBindingStartMarker(content) {
-        return parseIndexAndIdMarker(bindingStartMarker, content);
-    },
-    parseContentBindingEndMarker(content) {
-        return parseIndexAndIdMarker(bindingEndMarker, content);
-    },
-    /**
-     * Parses the index of a repeat directive from a content string.
-     */
-    parseRepeatStartMarker(content) {
-        return parseIntMarker(repeatViewStartMarker, content);
-    },
-    parseRepeatEndMarker(content) {
-        return parseIntMarker(repeatViewEndMarker, content);
-    },
-    /**
-     * Parses element Id from element boundary markers
-     */
-    parseElementBoundaryStartMarker(content) {
-        return parseStringMarker(elementBoundaryStartMarker, content.trim());
-    },
-    parseElementBoundaryEndMarker(content) {
-        return parseStringMarker(elementBoundaryEndMarker, content);
+    parseLegacyContentBindingStartIndex(data) {
+        return parseLegacyIntMarker(legacyBindingStartMarker, data);
     },
 });
-function parseIntMarker(regex, content) {
-    const match = regex.exec(content);
-    return match === null ? match : parseInt(match[1]);
-}
-function parseStringMarker(regex, content) {
-    const match = regex.exec(content);
-    return match === null ? match : match[1];
-}
-function parseIndexAndIdMarker(regex, content) {
-    const match = regex.exec(content);
-    return match === null ? match : [parseInt(match[1]), match[2]];
+function parseLegacyIntMarker(pattern, data) {
+    const match = pattern.exec(data);
+    return match === null ? null : Number(match[1]);
 }
 /**
  * @internal
@@ -1737,11 +2928,94 @@ const Hydratable = Symbol.for("fe-hydration");
 function isHydratable(value) {
     return value[Hydratable] === Hydratable;
 }
+
 /**
- * The attribute used to defer hydration of an element.
- * @beta
+ * Centralized hydration mismatch message strings used by both the default
+ * minimal `HydrationDiagnostic` and the opt-in `hydrationDebugger` rich
+ * formatter, and by the structural-error throw sites in
+ * `target-builder.ts`.
+ *
+ * Static text is exported as a plain `const`; interpolated text is exported
+ * as a small builder function. Plain `export const` declarations tree-shake
+ * better than frozen-object property bags, so unused strings drop out of
+ * bundles cleanly.
  */
-const deferHydrationAttribute = "defer-hydration";
+/**
+ * Fallback host tag name used when a hydration mismatch is detected on a
+ * node that is not inside a shadow root.
+ */
+const unknownHostName = "unknown";
+/**
+ * Default minimal hydration mismatch message used when the
+ * `hydrationDebugger` opt-in is not installed. The optional `detail` string
+ * carries the structural expectation surfaced by `target-builder.ts`.
+ */
+function formatDefaultMismatchMessage(hostName, detail) {
+    const suffix = detail ? `: ${detail}` : "";
+    return (`Hydration mismatch in <${hostName}>${suffix}. Install ` +
+        `hydrationDebugger() from "@microsoft/fast-element/hydration.js" and ` +
+        `pass it as enableHydration({ debugger: hydrationDebugger() }) for an ` +
+        `"Expected / Received" report including the SSR HTML snippet.`);
+}
+// -- Structural expectations (used by target-builder.ts throw sites) ---------
+const expectedContentAfterStartMarker = "content following `<!--fe:b-->` content binding marker";
+const expectedContentEndMarker = "matching `<!--fe:/b-->` content binding close marker";
+const expectedElementBoundaryEndMarker = "matching `<!--fe:/e-->` element boundary close marker";
+/**
+ * Builds the "no more attribute bindings" structural expectation message
+ * thrown when an element's `data-fe` count claims more attribute bindings
+ * than the compiled template defines.
+ */
+function formatNoMoreAttributeBindings(factoryCount) {
+    return `no more attribute bindings (template defines ${factoryCount})`;
+}
+/**
+ * Builds the "no more content bindings" structural expectation message
+ * thrown when the SSR DOM contains more content binding markers than the
+ * compiled template defines.
+ */
+function formatNoMoreContentBindings(factoryCount) {
+    return `no more content bindings (template defines ${factoryCount})`;
+}
+
+function formatMinimalMessage(hostName, detail) {
+    const host = (hostName !== null && hostName !== void 0 ? hostName : unknownHostName).toLowerCase();
+    return formatDefaultMismatchMessage(host, detail);
+}
+const defaultDiagnostic = {
+    formatBindingMismatch(_factory, _firstChild, _lastChild, hostName) {
+        return {
+            message: formatMinimalMessage(hostName, undefined),
+        };
+    },
+    formatStructuralError(_node, hostName, expectedDescription) {
+        return {
+            message: formatMinimalMessage(hostName, expectedDescription),
+        };
+    },
+};
+let activeDiagnostic = defaultDiagnostic;
+/**
+ * Returns the currently active {@link HydrationDiagnostic} — either the
+ * minimal default or one installed by an opt-in debugger.
+ * @internal
+ */
+function getHydrationDiagnostic() {
+    return activeDiagnostic;
+}
+/**
+ * Reads the host element's tag name from any node inside a hydration view.
+ * Returns `undefined` when the node is not inside a shadow root.
+ * @internal
+ */
+function getHostName(node) {
+    var _a;
+    if (!node) {
+        return undefined;
+    }
+    const root = node.getRootNode();
+    return (_a = root.host) === null || _a === void 0 ? void 0 : _a.nodeName;
+}
 
 class HydrationTargetElementError extends Error {
     constructor(
@@ -1756,10 +3030,24 @@ class HydrationTargetElementError extends Error {
     /**
      * The node to target factory.
      */
-    node) {
+    node, 
+    /**
+     * Structured description of the binding the hydration walk was
+     * attempting to apply when the mismatch was detected. Free-form
+     * string for structural errors that do not correspond to a single
+     * binding factory.
+     */
+    expected, 
+    /**
+     * Structured description of the server-rendered DOM that was
+     * encountered at the mismatch point.
+     */
+    received) {
         super(message);
         this.factories = factories;
         this.node = node;
+        this.expected = expected;
+        this.received = received;
     }
 }
 function isComment(node) {
@@ -1783,26 +3071,24 @@ function createRangeForNodes(first, last) {
     range.setEnd(last, isComment(last) || isText(last) ? last.data.length : last.childNodes.length);
     return range;
 }
-function isShadowRoot(node) {
-    return node instanceof DocumentFragment && "mode" in node;
-}
 /**
  * Maps compiled ViewBehaviorFactory IDs to their corresponding DOM nodes in the
  * server-rendered shadow root. Uses a TreeWalker to scan the existing DOM between
- * firstNode and lastNode, parsing hydration markers to build the targets map.
+ * firstNode and lastNode, processing data-free sequential hydration markers.
  *
- * For element nodes: parses `data-fe-b` (or variant) attributes to identify which
- * factories target each element, then removes the marker attribute.
+ * A sequential factory pointer advances through the factories array in DFS order.
+ * Since the template compiler and hydration walker both traverse the DOM in
+ * identical depth-first order, no embedded indices are needed in markers.
  *
- * For comment nodes: parses content binding markers (`fe-b$$start/end$$`) to find
- * the DOM range controlled by each content binding. Single text nodes become the
- * direct target; multi-node ranges are stored in boundaries for structural directives.
- * Element boundary markers (`fe-eb$$start/end$$`) cause the walker to skip over
- * nested custom elements that handle their own hydration.
+ * For element nodes: parses `data-fe="N"` to determine the count of attribute
+ * binding factories, then consumes N factories sequentially.
+ *
+ * For comment nodes: `fe:b` markers consume the next factory for content bindings,
+ * using balanced depth counting for nested marker pairing. `fe:e` markers cause
+ * the walker to skip nested custom element subtrees.
  *
  * Host bindings (targetNodeId='h') appear at the start of the factories array but
- * have no SSR markers — getHydrationIndexOffset() computes how many to skip so that
- * marker indices align with the correct non-host factories.
+ * have no SSR markers — getHydrationIndexOffset() computes the initial pointer value.
  *
  * @param firstNode - The first node of the view.
  * @param lastNode -  The last node of the view.
@@ -1812,7 +3098,6 @@ function isShadowRoot(node) {
 function buildViewBindingTargets(firstNode, lastNode, factories) {
     const range = createRangeForNodes(firstNode, lastNode);
     const treeRoot = range.commonAncestorContainer;
-    const hydrationIndexOffset = getHydrationIndexOffset(factories);
     const walker = document.createTreeWalker(treeRoot, NodeFilter.SHOW_ELEMENT + NodeFilter.SHOW_COMMENT + NodeFilter.SHOW_TEXT, {
         acceptNode(node) {
             return range.comparePoint(node, 0) === 0
@@ -1822,15 +3107,67 @@ function buildViewBindingTargets(firstNode, lastNode, factories) {
     });
     const targets = {};
     const boundaries = {};
+    // Sequential factory pointer — skip host bindings at the start
+    const hydrationIndexOffset = getHydrationIndexOffset(factories);
+    let factoryPointer = hydrationIndexOffset;
     let node = (walker.currentNode = firstNode);
     while (node !== null) {
         switch (node.nodeType) {
             case Node.ELEMENT_NODE: {
-                targetElement(node, factories, targets, hydrationIndexOffset);
+                const element = node;
+                const legacyIndices = HydrationMarkup.parseLegacyAttributeBindingIndices(element);
+                if (legacyIndices !== null) {
+                    for (const index of legacyIndices) {
+                        const factoryIndex = index + hydrationIndexOffset;
+                        const factory = factories[factoryIndex];
+                        if (!factory) {
+                            const expected = formatNoMoreAttributeBindings(factories.length);
+                            const result = getHydrationDiagnostic().formatStructuralError(node, getHostName(node), expected);
+                            throw new HydrationTargetElementError(result.message, factories, element, result.expected, result.received);
+                        }
+                        targetFactory(factory, node, targets);
+                        factoryPointer = Math.max(factoryPointer, factoryIndex + 1);
+                    }
+                    HydrationMarkup.removeLegacyAttributeBindingMarkers(element);
+                    break;
+                }
+                const count = HydrationMarkup.parseAttributeBindingCount(element);
+                if (count !== null) {
+                    for (let i = 0; i < count; i++) {
+                        const factory = factories[factoryPointer++];
+                        if (!factory) {
+                            const expected = formatNoMoreAttributeBindings(factories.length);
+                            const result = getHydrationDiagnostic().formatStructuralError(node, getHostName(node), expected);
+                            throw new HydrationTargetElementError(result.message, factories, node, result.expected, result.received);
+                        }
+                        targetFactory(factory, node, targets);
+                    }
+                    element.removeAttribute(HydrationMarkup.attributeMarkerName);
+                }
                 break;
             }
             case Node.COMMENT_NODE: {
-                targetComment(node, walker, factories, targets, boundaries, hydrationIndexOffset);
+                const data = node.data;
+                if (HydrationMarkup.isElementBoundaryStartMarker(node)) {
+                    // Element boundary — clear start marker and skip subtree
+                    node.data = "";
+                    skipToElementBoundaryEnd(walker, factories, node);
+                }
+                else if (HydrationMarkup.isContentBindingStartMarker(data)) {
+                    // Content binding — consume next factory
+                    const legacyIndex = HydrationMarkup.parseLegacyContentBindingStartIndex(data);
+                    const factoryIndex = legacyIndex === null
+                        ? factoryPointer++
+                        : legacyIndex + hydrationIndexOffset;
+                    const factory = factories[factoryIndex];
+                    factoryPointer = Math.max(factoryPointer, factoryIndex + 1);
+                    if (!factory) {
+                        const expected = formatNoMoreContentBindings(factories.length);
+                        const result = getHydrationDiagnostic().formatStructuralError(node, getHostName(node), expected);
+                        throw new HydrationTargetElementError(result.message, factories, node, result.expected, result.received);
+                    }
+                    targetContentBinding(node, walker, factory, factories, targets, boundaries);
+                }
                 break;
             }
         }
@@ -1839,100 +3176,88 @@ function buildViewBindingTargets(firstNode, lastNode, factories) {
     range.detach();
     return { targets, boundaries };
 }
-function targetElement(node, factories, targets, hydrationIndexOffset) {
-    var _a, _b;
-    // Check for attributes and map any factories.
-    const attrFactoryIds = (_b = (_a = HydrationMarkup.parseAttributeBinding(node)) !== null && _a !== void 0 ? _a : HydrationMarkup.parseEnumeratedAttributeBinding(node)) !== null && _b !== void 0 ? _b : HydrationMarkup.parseCompactAttributeBinding(node);
-    if (attrFactoryIds !== null) {
-        for (const id of attrFactoryIds) {
-            const factory = factories[id + hydrationIndexOffset];
-            if (!factory) {
-                throw new HydrationTargetElementError(`HydrationView was unable to successfully target factory on ${node.nodeName} inside ${node.getRootNode().host.nodeName}. This likely indicates a template mismatch between SSR rendering and hydration.`, factories, node);
+function targetContentBinding(node, walker, factory, factories, targets, boundaries) {
+    const nodes = [];
+    let current = walker.nextSibling();
+    node.data = "";
+    if (current === null) {
+        const expected = expectedContentAfterStartMarker;
+        const result = getHydrationDiagnostic().formatStructuralError(node, getHostName(node), expected);
+        throw new HydrationTargetElementError(result.message, factories, node, result.expected, result.received);
+    }
+    const first = current;
+    // Balanced depth counting for nested content markers
+    let depth = 0;
+    while (current !== null) {
+        if (isComment(current)) {
+            if (HydrationMarkup.isContentBindingStartMarker(current.data)) {
+                depth++;
             }
-            targetFactory(factory, node, targets);
-        }
-        node.removeAttribute(HydrationMarkup.attributeMarkerName);
-    }
-}
-function targetComment(node, walker, factories, targets, boundaries, hydrationIndexOffset) {
-    if (HydrationMarkup.isElementBoundaryStartMarker(node)) {
-        skipToElementBoundaryEndMarker(node, walker);
-        return;
-    }
-    if (HydrationMarkup.isContentBindingStartMarker(node.data)) {
-        const parsed = HydrationMarkup.parseContentBindingStartMarker(node.data);
-        if (parsed === null) {
-            return;
-        }
-        const [index, id] = parsed;
-        const factory = factories[index + hydrationIndexOffset];
-        const nodes = [];
-        let current = walker.nextSibling();
-        node.data = "";
-        const first = current;
-        // Search for the binding end marker that closes the binding.
-        while (current !== null) {
-            if (isComment(current)) {
-                const parsed = HydrationMarkup.parseContentBindingEndMarker(current.data);
-                if (parsed && parsed[1] === id) {
+            else if (HydrationMarkup.isContentBindingEndMarker(current.data)) {
+                if (depth === 0)
                     break;
-                }
+                depth--;
             }
-            nodes.push(current);
-            current = walker.nextSibling();
         }
-        if (current === null) {
-            const root = node.getRootNode();
-            throw new Error(`Error hydrating Comment node inside "${isShadowRoot(root) ? root.host.nodeName : root.nodeName}".`);
+        nodes.push(current);
+        current = walker.nextSibling();
+    }
+    if (current === null) {
+        const expected = expectedContentEndMarker;
+        const result = getHydrationDiagnostic().formatStructuralError(node, getHostName(node), expected);
+        throw new HydrationTargetElementError(result.message, factories, node, result.expected, result.received);
+    }
+    current.data = "";
+    if (nodes.length === 1 && isText(nodes[0])) {
+        targetFactory(factory, nodes[0], targets);
+    }
+    else {
+        // If current === first, it means there is no content in
+        // the view. This happens when a `when` directive evaluates false,
+        // or whenever a content binding returns null or undefined.
+        if (current !== first && current.previousSibling !== null) {
+            boundaries[factory.targetNodeId] = {
+                first,
+                last: current.previousSibling,
+            };
         }
-        current.data = "";
-        if (nodes.length === 1 && isText(nodes[0])) {
-            targetFactory(factory, nodes[0], targets);
-        }
-        else {
-            // If current === first, it means there is no content in
-            // the view. This happens when a `when` directive evaluates false,
-            // or whenever a content binding returns null or undefined.
-            // In that case, there will never be any content
-            // to hydrate and Binding can simply create a HTMLView
-            // whenever it needs to.
-            if (current !== first && current.previousSibling !== null) {
-                boundaries[factory.targetNodeId] = {
-                    first,
-                    last: current.previousSibling,
-                };
-            }
-            // Binding evaluates to null / undefined or a template.
-            // If binding revaluates to string, it will replace content in target
-            // So we always insert a text node to ensure that
-            // text content binding will be written to this text node instead of comment
-            const dummyTextNode = current.parentNode.insertBefore(document.createTextNode(""), current);
-            targetFactory(factory, dummyTextNode, targets);
-        }
+        // Insert a text node so text content binding targets it
+        const dummyTextNode = current.parentNode.insertBefore(document.createTextNode(""), current);
+        targetFactory(factory, dummyTextNode, targets);
     }
 }
 /**
- * Moves TreeWalker to element boundary end marker
- * @param node - element boundary start marker node
- * @param walker - tree walker
+ * Skips past a nested custom element's shadow content using balanced
+ * depth counting to handle nested element boundaries correctly.
  */
-function skipToElementBoundaryEndMarker(node, walker) {
-    const id = HydrationMarkup.parseElementBoundaryStartMarker(node.data);
+function skipToElementBoundaryEnd(walker, factories, startNode) {
+    let depth = 0;
     let current = walker.nextSibling();
     while (current !== null) {
         if (isComment(current)) {
-            const parsed = HydrationMarkup.parseElementBoundaryEndMarker(current.data);
-            if (parsed && parsed === id) {
-                break;
+            if (HydrationMarkup.isElementBoundaryStartMarker(current)) {
+                current.data = "";
+                depth++;
+            }
+            else if (HydrationMarkup.isElementBoundaryEndMarker(current)) {
+                if (depth === 0) {
+                    current.data = "";
+                    return;
+                }
+                current.data = "";
+                depth--;
             }
         }
         current = walker.nextSibling();
     }
+    const expected = expectedElementBoundaryEndMarker;
+    const result = getHydrationDiagnostic().formatStructuralError(startNode, getHostName(startNode), expected);
+    throw new HydrationTargetElementError(result.message, factories, startNode, result.expected, result.received);
 }
 /**
  * Counts how many factories at the start of the array are host bindings (targetNodeId='h').
  * Host bindings target the custom element itself and are not represented by SSR markers,
- * so the marker indices must be offset by this count to align with the correct factory.
+ * so the factory pointer must start past them.
  */
 function getHydrationIndexOffset(factories) {
     let offset = 0;
@@ -1954,7 +3279,6 @@ function targetFactory(factory, node, targets) {
     targets[factory.targetNodeId] = node;
 }
 
-var _a$1;
 function removeNodeSequence(firstNode, lastNode) {
     const parent = firstNode.parentNode;
     let current = firstNode;
@@ -1969,6 +3293,10 @@ function removeNodeSequence(firstNode, lastNode) {
     }
     parent.removeChild(lastNode);
 }
+/**
+ * The default execution context for template views.
+ * @public
+ */
 class DefaultExecutionContext {
     constructor() {
         /**
@@ -2064,6 +3392,24 @@ class HTMLView extends DefaultExecutionContext {
          */
         this.sourceLifetime = SourceLifetime.unknown;
         /**
+         * When true, directives skip attribute/booleanAttribute DOM
+         * updates during bind(). Set only during the prerendered bind
+         * window and cleared immediately after.
+         * @internal
+         */
+        this._skipAttrUpdates = false;
+        /**
+         * A promise that resolves with `true` after prerendered content
+         * has been hydrated, or `false` when the view is client-side
+         * rendered. Resolves once the first bind completes.
+         */
+        this.isPrerendered = Promise.resolve(false);
+        /**
+         * Resolves `true` after prerendered content has been hydrated,
+         * `false` when client-side rendered or hydration not enabled.
+         */
+        this.isHydrated = Promise.resolve(false);
+        /**
          * The execution context the view is running within.
          */
         this.context = this;
@@ -2144,7 +3490,7 @@ class HTMLView extends DefaultExecutionContext {
      * @param context - The execution context to run the behaviors within.
      */
     bind(source, context = this) {
-        if (this.source === source) {
+        if (this.source === source && this.context === context) {
             return;
         }
         let behaviors = this.behaviors;
@@ -2210,6 +3556,9 @@ class HTMLView extends DefaultExecutionContext {
 makeSerializationNoop(HTMLView);
 Observable.defineProperty(HTMLView.prototype, "index");
 Observable.defineProperty(HTMLView.prototype, "length");
+
+var _a;
+/** @public */
 const HydrationStage = {
     unhydrated: "unhydrated",
     hydrating: "hydrating",
@@ -2235,11 +3584,23 @@ class HydrationBindingError extends Error {
      * String representation of the HTML in the template that
      * threw the binding error.
      */
-    templateString) {
+    templateString, 
+    /**
+     * Structured description of the binding the hydration walk was
+     * attempting to apply when the mismatch was detected.
+     */
+    expected, 
+    /**
+     * Structured description of the server-rendered DOM that was
+     * encountered at the mismatch point.
+     */
+    received) {
         super(message);
         this.factory = factory;
         this.fragment = fragment;
         this.templateString = templateString;
+        this.expected = expected;
+        this.received = received;
     }
 }
 class HydrationView extends DefaultExecutionContext {
@@ -2258,7 +3619,7 @@ class HydrationView extends DefaultExecutionContext {
         this.lastChild = lastChild;
         this.sourceTemplate = sourceTemplate;
         this.hostBindingTarget = hostBindingTarget;
-        this[_a$1] = Hydratable;
+        this[_a] = Hydratable;
         this.context = this;
         this.source = null;
         this.isBound = false;
@@ -2325,12 +3686,11 @@ class HydrationView extends DefaultExecutionContext {
         fragment.appendChild(end);
     }
     bind(source, context = this) {
-        var _b;
+        if (this.source === source && this.context === context) {
+            return;
+        }
         if (this.hydrationStage !== HydrationStage.hydrated) {
             this._hydrationStage = HydrationStage.hydrating;
-        }
-        if (this.source === source) {
-            return;
         }
         let behaviors = this.behaviors;
         if (behaviors === null) {
@@ -2369,28 +3729,9 @@ class HydrationView extends DefaultExecutionContext {
                     if (typeof templateString !== "string") {
                         templateString = templateString.innerHTML;
                     }
-                    const hostElement = ((_b = this.firstChild) === null || _b === void 0 ? void 0 : _b.getRootNode())
-                        .host;
-                    const hostName = (hostElement === null || hostElement === void 0 ? void 0 : hostElement.nodeName) || "unknown";
-                    const factoryInfo = factory;
-                    // Build detailed error message
-                    const details = [
-                        `HydrationView was unable to successfully target bindings inside "<${hostName.toLowerCase()}>".`,
-                        `\nMismatch Details:`,
-                        `  - Expected target node ID: "${factory.targetNodeId}"`,
-                        `  - Available target IDs: [${Object.keys(this.targets).join(", ") || "none"}]`,
-                    ];
-                    if (factory.targetTagName) {
-                        details.push(`  - Expected tag name: "${factory.targetTagName}"`);
-                    }
-                    if (factoryInfo.sourceAspect) {
-                        details.push(`  - Source aspect: "${factoryInfo.sourceAspect}"`);
-                    }
-                    if (factoryInfo.aspectType !== undefined) {
-                        details.push(`  - Aspect type: ${factoryInfo.aspectType}`);
-                    }
-                    details.push(`\nThis usually means:`, `  1. The server-rendered HTML doesn't match the client template`, `  2. The hydration markers are missing or corrupted`, `  3. The DOM structure was modified before hydration`, `\nTemplate: ${templateString.slice(0, 200)}${templateString.length > 200 ? "..." : ""}`);
-                    throw new HydrationBindingError(details.join("\n"), factory, createRangeForNodes(this.firstChild, this.lastChild).cloneContents(), templateString);
+                    const fragment = createRangeForNodes(this.firstChild, this.lastChild).cloneContents();
+                    const result = getHydrationDiagnostic().formatBindingMismatch(factory, this.firstChild, this.lastChild, getHostName(this.firstChild));
+                    throw new HydrationBindingError(result.message, factory, fragment, templateString, result.expected, result.received);
                 }
             }
         }
@@ -2436,7 +3777,7 @@ class HydrationView extends DefaultExecutionContext {
         unbindables.length = 0;
     }
 }
-_a$1 = Hydratable;
+_a = Hydratable;
 makeSerializationNoop(HydrationView);
 
 function isContentTemplate(value) {
@@ -2591,12 +3932,12 @@ class HTMLBindingDirective {
      * @param dataBinding - The binding configuration to apply.
      */
     constructor(dataBinding) {
-        this.dataBinding = dataBinding;
         this.updateTarget = null;
         /**
          * The type of aspect to target.
          */
         this.aspectType = DOMAspect.content;
+        this.dataBinding = dataBinding;
     }
     /**
      * Creates HTML to be used within a template.
@@ -2636,9 +3977,6 @@ class HTMLBindingDirective {
     bind(controller) {
         var _a;
         const target = controller.targets[this.targetNodeId];
-        const isHydrating = isHydratable(controller) &&
-            controller.hydrationStage &&
-            controller.hydrationStage !== HydrationStage.hydrated;
         switch (this.aspectType) {
             case DOMAspect.event:
                 target[this.data] = controller;
@@ -2651,14 +3989,19 @@ class HTMLBindingDirective {
                 const observer = (_a = target[this.data]) !== null && _a !== void 0 ? _a : (target[this.data] = this.dataBinding.createObserver(this, this));
                 observer.target = target;
                 observer.controller = controller;
-                if (isHydrating &&
+                // Evaluate to establish dependency tracking
+                const value = observer.bind(controller);
+                // Skip DOM update for attribute bindings when prerendered —
+                // the server has already rendered the correct attribute values.
+                // Content, property, and tokenList bindings must still run
+                // so structural directives, host properties, and class lists
+                // are properly initialized.
+                if (controller._skipAttrUpdates &&
                     (this.aspectType === DOMAspect.attribute ||
                         this.aspectType === DOMAspect.booleanAttribute)) {
-                    observer.bind(controller);
-                    // Skip updating target during bind for attributes
                     break;
                 }
-                this.updateTarget(target, this.targetAspect, observer.bind(controller), controller);
+                this.updateTarget(target, this.targetAspect, value, controller);
                 break;
             }
         }
@@ -3033,373 +4376,6 @@ HTMLDirective.define(RefDirective);
  */
 const ref = (propertyName) => new RefDirective(propertyName);
 
-const booleanMode = "boolean";
-const reflectMode = "reflect";
-/**
- * Metadata used to configure a custom attribute's behavior.
- * @public
- */
-const AttributeConfiguration = Object.freeze({
-    /**
-     * Locates all attribute configurations associated with a type.
-     */
-    locate: createMetadataLocator(),
-});
-/**
- * A {@link ValueConverter} that converts to and from `boolean` values.
- * @remarks
- * Used automatically when the `boolean` {@link AttributeMode} is selected.
- * @public
- */
-const booleanConverter = {
-    toView(value) {
-        return value ? "true" : "false";
-    },
-    fromView(value) {
-        return !(value === null ||
-            value === void 0 ||
-            value === "false" ||
-            value === false ||
-            value === 0);
-    },
-};
-function toNumber(value) {
-    if (value === null || value === undefined) {
-        return null;
-    }
-    const number = value * 1;
-    return isNaN(number) ? null : number;
-}
-/**
- * A {@link ValueConverter} that converts to and from `number` values.
- * @remarks
- * This converter allows for nullable numbers, returning `null` if the
- * input was `null`, `undefined`, or `NaN`.
- * @public
- */
-const nullableNumberConverter = {
-    toView(value) {
-        const output = toNumber(value);
-        return output ? output.toString() : output;
-    },
-    fromView: toNumber,
-};
-/**
- * An implementation of {@link Accessor} that supports reactivity,
- * change callbacks, attribute reflection, and type conversion for
- * custom elements.
- * @public
- */
-class AttributeDefinition {
-    /**
-     * Creates an instance of AttributeDefinition.
-     * @param Owner - The class constructor that owns this attribute.
-     * @param name - The name of the property associated with the attribute.
-     * @param attribute - The name of the attribute in HTML.
-     * @param mode - The {@link AttributeMode} that describes the behavior of this attribute.
-     * @param converter - A {@link ValueConverter} that integrates with the property getter/setter
-     * to convert values to and from a DOM string.
-     */
-    constructor(Owner, name, attribute = name.toLowerCase(), mode = reflectMode, converter) {
-        this.guards = new Set();
-        this.Owner = Owner;
-        this.name = name;
-        this.attribute = attribute;
-        this.mode = mode;
-        this.converter = converter;
-        this.fieldName = `_${name}`;
-        this.callbackName = `${name}Changed`;
-        this.hasCallback = this.callbackName in Owner.prototype;
-        if (mode === booleanMode && converter === void 0) {
-            this.converter = booleanConverter;
-        }
-    }
-    /**
-     * Sets the value of the attribute/property on the source element.
-     * @param source - The source element to access.
-     * @param newValue - The value to set the attribute/property to.
-     */
-    setValue(source, newValue) {
-        const oldValue = source[this.fieldName];
-        const converter = this.converter;
-        if (converter !== void 0) {
-            newValue = converter.fromView(newValue);
-        }
-        if (oldValue !== newValue) {
-            source[this.fieldName] = newValue;
-            this.tryReflectToAttribute(source);
-            if (this.hasCallback) {
-                source[this.callbackName](oldValue, newValue);
-            }
-            source.$fastController.notify(this.name);
-        }
-    }
-    /**
-     * Gets the value of the attribute/property on the source element.
-     * @param source - The source element to access.
-     */
-    getValue(source) {
-        Observable.track(source, this.name);
-        return source[this.fieldName];
-    }
-    /** @internal */
-    onAttributeChangedCallback(element, value) {
-        if (this.guards.has(element)) {
-            return;
-        }
-        this.guards.add(element);
-        this.setValue(element, value);
-        this.guards.delete(element);
-    }
-    tryReflectToAttribute(element) {
-        const mode = this.mode;
-        const guards = this.guards;
-        if (guards.has(element) || mode === "fromView") {
-            return;
-        }
-        Updates.enqueue(() => {
-            guards.add(element);
-            const latestValue = element[this.fieldName];
-            switch (mode) {
-                case reflectMode:
-                    const converter = this.converter;
-                    DOM.setAttribute(element, this.attribute, converter !== void 0 ? converter.toView(latestValue) : latestValue);
-                    break;
-                case booleanMode:
-                    DOM.setBooleanAttribute(element, this.attribute, latestValue);
-                    break;
-            }
-            guards.delete(element);
-        });
-    }
-    /**
-     * Collects all attribute definitions associated with the owner.
-     * @param Owner - The class constructor to collect attribute for.
-     * @param attributeLists - Any existing attributes to collect and merge with those associated with the owner.
-     * @internal
-     */
-    static collect(Owner, ...attributeLists) {
-        const attributes = [];
-        attributeLists.push(AttributeConfiguration.locate(Owner));
-        for (let i = 0, ii = attributeLists.length; i < ii; ++i) {
-            const list = attributeLists[i];
-            if (list === void 0) {
-                continue;
-            }
-            for (let j = 0, jj = list.length; j < jj; ++j) {
-                const config = list[j];
-                if (isString(config)) {
-                    attributes.push(new AttributeDefinition(Owner, config));
-                }
-                else {
-                    attributes.push(new AttributeDefinition(Owner, config.property, config.attribute, config.mode, config.converter));
-                }
-            }
-        }
-        return attributes;
-    }
-}
-function attr(configOrTarget, prop) {
-    let config;
-    function decorator($target, $prop) {
-        if (arguments.length > 1) {
-            // Non invocation:
-            // - @attr
-            // Invocation with or w/o opts:
-            // - @attr()
-            // - @attr({...opts})
-            config.property = $prop;
-        }
-        AttributeConfiguration.locate($target.constructor).push(config);
-    }
-    if (arguments.length > 1) {
-        // Non invocation:
-        // - @attr
-        config = {};
-        decorator(configOrTarget, prop);
-        return;
-    }
-    // Invocation with or w/o opts:
-    // - @attr()
-    // - @attr({...opts})
-    config = configOrTarget === void 0 ? {} : configOrTarget;
-    return decorator;
-}
-
-var __awaiter = (window && window.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var _a;
-const defaultShadowOptions = { mode: "open" };
-const defaultElementOptions = {};
-const fastElementBaseTypes = new Set();
-/**
- * The FAST custom element registry
- * @internal
- */
-const fastElementRegistry = FAST.getById(KernelServiceId.elementRegistry, () => createTypeRegistry());
-/**
- * Values for the `templateOptions` property.
- * @alpha
- */
-const TemplateOptions = {
-    deferAndHydrate: "defer-and-hydrate",
-};
-/**
- * Defines metadata for a FASTElement.
- * @public
- */
-class FASTElementDefinition {
-    /**
-     * Indicates if this element has been defined in at least one registry.
-     */
-    get isDefined() {
-        return this.platformDefined;
-    }
-    constructor(type, nameOrConfig = type.definition) {
-        var _b;
-        this.platformDefined = false;
-        if (isString(nameOrConfig)) {
-            nameOrConfig = { name: nameOrConfig };
-        }
-        this.type = type;
-        this.name = nameOrConfig.name;
-        this.template = nameOrConfig.template;
-        this.templateOptions = nameOrConfig.templateOptions;
-        this.registry = (_b = nameOrConfig.registry) !== null && _b !== void 0 ? _b : customElements;
-        const proto = type.prototype;
-        const attributes = AttributeDefinition.collect(type, nameOrConfig.attributes);
-        const observedAttributes = new Array(attributes.length);
-        const propertyLookup = {};
-        const attributeLookup = {};
-        for (let i = 0, ii = attributes.length; i < ii; ++i) {
-            const current = attributes[i];
-            observedAttributes[i] = current.attribute;
-            propertyLookup[current.name] = current;
-            attributeLookup[current.attribute] = current;
-            Observable.defineProperty(proto, current);
-        }
-        Reflect.defineProperty(type, "observedAttributes", {
-            value: observedAttributes,
-            enumerable: true,
-        });
-        this.attributes = attributes;
-        this.propertyLookup = propertyLookup;
-        this.attributeLookup = attributeLookup;
-        this.shadowOptions =
-            nameOrConfig.shadowOptions === void 0
-                ? defaultShadowOptions
-                : nameOrConfig.shadowOptions === null
-                    ? void 0
-                    : Object.assign(Object.assign({}, defaultShadowOptions), nameOrConfig.shadowOptions);
-        this.elementOptions =
-            nameOrConfig.elementOptions === void 0
-                ? defaultElementOptions
-                : Object.assign(Object.assign({}, defaultElementOptions), nameOrConfig.elementOptions);
-        this.styles = ElementStyles.normalize(nameOrConfig.styles);
-        fastElementRegistry.register(this);
-        Observable.defineProperty(_a.isRegistered, this.name);
-        _a.isRegistered[this.name] = this.type;
-    }
-    /**
-     * Defines a custom element based on this definition.
-     * @param registry - The element registry to define the element in.
-     * @remarks
-     * This operation is idempotent per registry.
-     */
-    define(registry = this.registry) {
-        var _b, _c;
-        const type = this.type;
-        if (!registry.get(this.name)) {
-            this.platformDefined = true;
-            registry.define(this.name, type, this.elementOptions);
-            (_c = (_b = this.lifecycleCallbacks) === null || _b === void 0 ? void 0 : _b.elementDidDefine) === null || _c === void 0 ? void 0 : _c.call(_b, this.name);
-        }
-        return this;
-    }
-    /**
-     * Creates an instance of FASTElementDefinition.
-     * @param type - The type this definition is being created for.
-     * @param nameOrDef - The name of the element to define or a config object
-     * that describes the element to define.
-     */
-    static compose(type, nameOrDef) {
-        if (fastElementBaseTypes.has(type) || fastElementRegistry.getByType(type)) {
-            return new _a(class extends type {
-            }, nameOrDef);
-        }
-        return new _a(type, nameOrDef);
-    }
-    /**
-     * Registers a FASTElement base type.
-     * @param type - The type to register as a base type.
-     * @internal
-     */
-    static registerBaseType(type) {
-        fastElementBaseTypes.add(type);
-    }
-    /**
-     * Creates an instance of FASTElementDefinition asynchronously. This option assumes
-     * that a template and shadowOptions will be provided and completes when those requirements
-     * are met.
-     * @param type - The type this definition is being created for.
-     * @param nameOrDef - The name of the element to define or a config object
-     * that describes the element to define.
-     * @alpha
-     */
-    static composeAsync(type, nameOrDef) {
-        return new Promise(resolve => {
-            if (fastElementBaseTypes.has(type) || fastElementRegistry.getByType(type)) {
-                resolve(new _a(class extends type {
-                }, nameOrDef));
-            }
-            const definition = new _a(type, nameOrDef);
-            Observable.getNotifier(definition).subscribe({
-                handleChange: () => {
-                    var _b, _c;
-                    (_c = (_b = definition.lifecycleCallbacks) === null || _b === void 0 ? void 0 : _b.templateDidUpdate) === null || _c === void 0 ? void 0 : _c.call(_b, definition.name);
-                    resolve(definition);
-                },
-            }, "template");
-        });
-    }
-}
-_a = FASTElementDefinition;
-/**
- * The definition has been registered to the FAST element registry.
- */
-FASTElementDefinition.isRegistered = {};
-/**
- * Gets the element definition associated with the specified type.
- * @param type - The custom element type to retrieve the definition for.
- */
-FASTElementDefinition.getByType = fastElementRegistry.getByType;
-/**
- * Gets the element definition associated with the instance.
- * @param instance - The custom element instance to retrieve the definition for.
- */
-FASTElementDefinition.getForInstance = fastElementRegistry.getForInstance;
-/**
- * Indicates when a custom elements definition has been registered with the fastElementRegistry.
- * @param name - The name of the defined custom element.
- * @alpha
- */
-FASTElementDefinition.registerAsync = (name) => __awaiter(void 0, void 0, void 0, function* () {
-    return new Promise(resolve => {
-        if (_a.isRegistered[name]) {
-            resolve(_a.isRegistered[name]);
-        }
-        Observable.getNotifier(_a.isRegistered).subscribe({ handleChange: () => resolve(_a.isRegistered[name]) }, name);
-    });
-});
-Observable.defineProperty(FASTElementDefinition.prototype, "template");
-
 // Much thanks to LitHTML for working this out!
 const lastAttributeNameRegex = 
 /* eslint-disable-next-line no-control-regex, max-len */
@@ -3471,13 +4447,6 @@ class ViewTemplate {
         return this.result;
     }
     /**
-     * Creates an HTMLView instance based on this template definition.
-     * @param hostBindingTarget - The element that host behaviors will be bound to.
-     */
-    create(hostBindingTarget) {
-        return this.compile().createView(hostBindingTarget);
-    }
-    /**
      * Returns a directive that can inline the template.
      */
     inline() {
@@ -3513,6 +4482,13 @@ class ViewTemplate {
         view.bind(source);
         view.appendTo(host);
         return view;
+    }
+    /**
+     * Creates an HTMLView instance based on this template definition.
+     * @param hostBindingTarget - The element that host behaviors will be bound to.
+     */
+    create(hostBindingTarget) {
+        return this.compile().createView(hostBindingTarget);
     }
     /**
      * Processes the tagged template literal's static strings and interpolated values and
@@ -3640,1158 +4616,6 @@ function slotted(propertyOrOptions) {
     }
     return new SlottedDirective(propertyOrOptions);
 }
-
-/**
- * An extension of MutationObserver that supports unobserving nodes.
- * @internal
- */
-class UnobservableMutationObserver extends MutationObserver {
-    /**
-     * Creates an instance of UnobservableMutationObserver.
-     * @param callback - The callback to invoke when observed nodes are changed.
-     */
-    constructor(callback) {
-        function handler(mutations) {
-            this.callback.call(null, mutations.filter(record => this.observedNodes.has(record.target)));
-        }
-        super(handler);
-        this.callback = callback;
-        this.observedNodes = new Set();
-    }
-    observe(target, options) {
-        this.observedNodes.add(target);
-        super.observe(target, options);
-    }
-    unobserve(target) {
-        this.observedNodes.delete(target);
-        if (this.observedNodes.size < 1) {
-            this.disconnect();
-        }
-    }
-}
-/**
- * Bridges between ViewBehaviors and HostBehaviors, enabling a host to
- * control ViewBehaviors.
- * @public
- */
-Object.freeze({
-    /**
-     * Creates a ViewBehaviorOrchestrator.
-     * @param source - The source to to associate behaviors with.
-     * @returns A ViewBehaviorOrchestrator.
-     */
-    create(source) {
-        const behaviors = [];
-        const targets = {};
-        let unbindables = null;
-        let isConnected = false;
-        return {
-            source,
-            context: ExecutionContext.default,
-            targets,
-            get isBound() {
-                return isConnected;
-            },
-            addBehaviorFactory(factory, target) {
-                var _a, _b, _c, _d;
-                const compiled = factory;
-                compiled.id = (_a = compiled.id) !== null && _a !== void 0 ? _a : nextId();
-                compiled.targetNodeId = (_b = compiled.targetNodeId) !== null && _b !== void 0 ? _b : nextId();
-                compiled.targetTagName = (_c = target.tagName) !== null && _c !== void 0 ? _c : null;
-                compiled.policy = (_d = compiled.policy) !== null && _d !== void 0 ? _d : DOM.policy;
-                this.addTarget(compiled.targetNodeId, target);
-                this.addBehavior(compiled.createBehavior());
-            },
-            addTarget(nodeId, target) {
-                targets[nodeId] = target;
-            },
-            addBehavior(behavior) {
-                behaviors.push(behavior);
-                if (isConnected) {
-                    behavior.bind(this);
-                }
-            },
-            onUnbind(unbindable) {
-                if (unbindables === null) {
-                    unbindables = [];
-                }
-                unbindables.push(unbindable);
-            },
-            connectedCallback(controller) {
-                if (!isConnected) {
-                    isConnected = true;
-                    behaviors.forEach(x => x.bind(this));
-                }
-            },
-            disconnectedCallback(controller) {
-                if (isConnected) {
-                    isConnected = false;
-                    if (unbindables !== null) {
-                        unbindables.forEach(x => x.unbind(this));
-                    }
-                }
-            },
-        };
-    },
-});
-
-const defaultEventOptions = {
-    bubbles: true,
-    composed: true,
-    cancelable: true,
-};
-const isConnectedPropertyName = "isConnected";
-const shadowRoots = new WeakMap();
-function getShadowRoot(element) {
-    var _a, _b;
-    return (_b = (_a = element.shadowRoot) !== null && _a !== void 0 ? _a : shadowRoots.get(element)) !== null && _b !== void 0 ? _b : null;
-}
-let elementControllerStrategy;
-/**
- * The various lifecycle stages of an ElementController.
- * @public
- */
-var Stages;
-(function (Stages) {
-    /** The element is in the process of connecting. */
-    Stages[Stages["connecting"] = 0] = "connecting";
-    /** The element is connected. */
-    Stages[Stages["connected"] = 1] = "connected";
-    /** The element is in the process of disconnecting. */
-    Stages[Stages["disconnecting"] = 2] = "disconnecting";
-    /** The element is disconnected. */
-    Stages[Stages["disconnected"] = 3] = "disconnected";
-})(Stages || (Stages = {}));
-/**
- * Controls the lifecycle and rendering of a `FASTElement`.
- * @public
- */
-class ElementController extends PropertyChangeNotifier {
-    /**
-     * Indicates whether or not the custom element has been
-     * connected to the document.
-     */
-    get isConnected() {
-        Observable.track(this, isConnectedPropertyName);
-        return this.stage === Stages.connected;
-    }
-    /**
-     * The context the expression is evaluated against.
-     */
-    get context() {
-        var _a, _b;
-        return (_b = (_a = this.view) === null || _a === void 0 ? void 0 : _a.context) !== null && _b !== void 0 ? _b : ExecutionContext.default;
-    }
-    /**
-     * Indicates whether the controller is bound.
-     */
-    get isBound() {
-        var _a, _b;
-        return (_b = (_a = this.view) === null || _a === void 0 ? void 0 : _a.isBound) !== null && _b !== void 0 ? _b : false;
-    }
-    /**
-     * Indicates how the source's lifetime relates to the controller's lifetime.
-     */
-    get sourceLifetime() {
-        var _a;
-        return (_a = this.view) === null || _a === void 0 ? void 0 : _a.sourceLifetime;
-    }
-    /**
-     * Gets/sets the template used to render the component.
-     * @remarks
-     * This value can only be accurately read after connect but can be set at any time.
-     */
-    get template() {
-        var _a;
-        // 1. Template overrides take top precedence.
-        if (this._template === null) {
-            const definition = this.definition;
-            if (this.source.resolveTemplate) {
-                // 2. Allow for element instance overrides next.
-                this._template = this.source.resolveTemplate();
-            }
-            else if (definition.template) {
-                // 3. Default to the static definition.
-                this._template = (_a = definition.template) !== null && _a !== void 0 ? _a : null;
-            }
-        }
-        return this._template;
-    }
-    set template(value) {
-        if (this._template === value) {
-            return;
-        }
-        this._template = value;
-        if (!this.needsInitialization) {
-            this.renderTemplate(value);
-        }
-    }
-    /**
-     * The shadow root options for the component.
-     */
-    get shadowOptions() {
-        return this._shadowRootOptions;
-    }
-    set shadowOptions(value) {
-        // options on the shadowRoot can only be set once
-        if (this._shadowRootOptions === void 0 && value !== void 0) {
-            this._shadowRootOptions = value;
-            let shadowRoot = this.source.shadowRoot;
-            if (shadowRoot) {
-                this.hasExistingShadowRoot = true;
-            }
-            else {
-                shadowRoot = this.source.attachShadow(value);
-                if (value.mode === "closed") {
-                    shadowRoots.set(this.source, shadowRoot);
-                }
-            }
-        }
-    }
-    /**
-     * The main set of styles used for the component, independent
-     * of any dynamically added styles.
-     */
-    get mainStyles() {
-        var _a;
-        // 1. Styles overrides take top precedence.
-        if (this._mainStyles === null) {
-            const definition = this.definition;
-            if (this.source.resolveStyles) {
-                // 2. Allow for element instance overrides next.
-                this._mainStyles = this.source.resolveStyles();
-            }
-            else if (definition.styles) {
-                // 3. Default to the static definition.
-                this._mainStyles = (_a = definition.styles) !== null && _a !== void 0 ? _a : null;
-            }
-        }
-        return this._mainStyles;
-    }
-    set mainStyles(value) {
-        if (this._mainStyles === value) {
-            return;
-        }
-        if (this._mainStyles !== null) {
-            this.removeStyles(this._mainStyles);
-        }
-        this._mainStyles = value;
-        if (!this.needsInitialization) {
-            this.addStyles(value);
-        }
-    }
-    /**
-     * Creates a Controller to control the specified element.
-     * @param element - The element to be controlled by this controller.
-     * @param definition - The element definition metadata that instructs this
-     * controller in how to handle rendering and other platform integrations.
-     * @internal
-     */
-    constructor(element, definition) {
-        super(element);
-        /**
-         * A map of observable properties that were set on the element before upgrade.
-         */
-        this.boundObservables = null;
-        /**
-         * Indicates whether the controller needs to perform initial rendering.
-         */
-        this.needsInitialization = true;
-        /**
-         * Indicates whether the element has an existing shadow root (e.g. from declarative shadow DOM).
-         */
-        this.hasExistingShadowRoot = false;
-        /**
-         * The template used to render the component.
-         */
-        this._template = null;
-        /**
-         * The current lifecycle stage of the controller.
-         */
-        this.stage = Stages.disconnected;
-        /**
-         * A guard against connecting behaviors multiple times
-         * during connect in scenarios where a behavior adds
-         * another behavior during it's connectedCallback
-         */
-        this.guardBehaviorConnection = false;
-        /**
-         * The behaviors associated with the component.
-         */
-        this.behaviors = null;
-        /**
-         * Tracks whether behaviors are connected so that
-         * behaviors cant be connected multiple times
-         */
-        this.behaviorsConnected = false;
-        /**
-         * The main set of styles used for the component, independent of any
-         * dynamically added styles.
-         */
-        this._mainStyles = null;
-        /**
-         * This allows Observable.getNotifier(...) to return the Controller
-         * when the notifier for the Controller itself is being requested. The
-         * result is that the Observable system does not need to create a separate
-         * instance of Notifier for observables on the Controller. The component and
-         * the controller will now share the same notifier, removing one-object construct
-         * per web component instance.
-         */
-        this.$fastController = this;
-        /**
-         * The view associated with the custom element.
-         * @remarks
-         * If `null` then the element is managing its own rendering.
-         */
-        this.view = null;
-        this.source = element;
-        this.definition = definition;
-        this.shadowOptions = definition.shadowOptions;
-        // Capture any observable values that were set by the binding engine before
-        // the browser upgraded the element. Then delete the property since it will
-        // shadow the getter/setter that is required to make the observable operate.
-        // Later, in the connect callback, we'll re-apply the values.
-        const accessors = Observable.getAccessors(element);
-        if (accessors.length > 0) {
-            const boundObservables = (this.boundObservables = Object.create(null));
-            for (let i = 0, ii = accessors.length; i < ii; ++i) {
-                const propertyName = accessors[i].name;
-                const value = element[propertyName];
-                if (value !== void 0) {
-                    delete element[propertyName];
-                    boundObservables[propertyName] = value;
-                }
-            }
-        }
-    }
-    /**
-     * Registers an unbind handler with the controller.
-     * @param behavior - An object to call when the controller unbinds.
-     */
-    onUnbind(behavior) {
-        var _a;
-        (_a = this.view) === null || _a === void 0 ? void 0 : _a.onUnbind(behavior);
-    }
-    /**
-     * Adds the behavior to the component.
-     * @param behavior - The behavior to add.
-     */
-    addBehavior(behavior) {
-        var _a, _b;
-        const targetBehaviors = (_a = this.behaviors) !== null && _a !== void 0 ? _a : (this.behaviors = new Map());
-        const count = (_b = targetBehaviors.get(behavior)) !== null && _b !== void 0 ? _b : 0;
-        if (count === 0) {
-            targetBehaviors.set(behavior, 1);
-            behavior.addedCallback && behavior.addedCallback(this);
-            if (behavior.connectedCallback &&
-                !this.guardBehaviorConnection &&
-                (this.stage === Stages.connected || this.stage === Stages.connecting)) {
-                behavior.connectedCallback(this);
-            }
-        }
-        else {
-            targetBehaviors.set(behavior, count + 1);
-        }
-    }
-    /**
-     * Removes the behavior from the component.
-     * @param behavior - The behavior to remove.
-     * @param force - Forces removal even if this behavior was added more than once.
-     */
-    removeBehavior(behavior, force = false) {
-        const targetBehaviors = this.behaviors;
-        if (targetBehaviors === null) {
-            return;
-        }
-        const count = targetBehaviors.get(behavior);
-        if (count === void 0) {
-            return;
-        }
-        if (count === 1 || force) {
-            targetBehaviors.delete(behavior);
-            if (behavior.disconnectedCallback && this.stage !== Stages.disconnected) {
-                behavior.disconnectedCallback(this);
-            }
-            behavior.removedCallback && behavior.removedCallback(this);
-        }
-        else {
-            targetBehaviors.set(behavior, count - 1);
-        }
-    }
-    /**
-     * Adds styles to this element. Providing an HTMLStyleElement will attach the element instance to the shadowRoot.
-     * @param styles - The styles to add.
-     */
-    addStyles(styles) {
-        var _a;
-        if (!styles) {
-            return;
-        }
-        const source = this.source;
-        if (styles instanceof HTMLElement) {
-            const target = (_a = getShadowRoot(source)) !== null && _a !== void 0 ? _a : this.source;
-            target.append(styles);
-        }
-        else if (!styles.isAttachedTo(source)) {
-            const sourceBehaviors = styles.behaviors;
-            styles.addStylesTo(source);
-            if (sourceBehaviors !== null) {
-                for (let i = 0, ii = sourceBehaviors.length; i < ii; ++i) {
-                    this.addBehavior(sourceBehaviors[i]);
-                }
-            }
-        }
-    }
-    /**
-     * Removes styles from this element. Providing an HTMLStyleElement will detach the element instance from the shadowRoot.
-     * @param styles - the styles to remove.
-     */
-    removeStyles(styles) {
-        var _a;
-        if (!styles) {
-            return;
-        }
-        const source = this.source;
-        if (styles instanceof HTMLElement) {
-            const target = (_a = getShadowRoot(source)) !== null && _a !== void 0 ? _a : source;
-            target.removeChild(styles);
-        }
-        else if (styles.isAttachedTo(source)) {
-            const sourceBehaviors = styles.behaviors;
-            styles.removeStylesFrom(source);
-            if (sourceBehaviors !== null) {
-                for (let i = 0, ii = sourceBehaviors.length; i < ii; ++i) {
-                    this.removeBehavior(sourceBehaviors[i]);
-                }
-            }
-        }
-    }
-    /**
-     * Runs connected lifecycle behavior on the associated element.
-     */
-    connect() {
-        if (this.stage !== Stages.disconnected) {
-            return;
-        }
-        this.stage = Stages.connecting;
-        this.bindObservables();
-        this.connectBehaviors();
-        if (this.needsInitialization) {
-            this.renderTemplate(this.template);
-            this.addStyles(this.mainStyles);
-            this.needsInitialization = false;
-        }
-        else if (this.view !== null) {
-            this.view.bind(this.source);
-        }
-        this.stage = Stages.connected;
-        Observable.notify(this, isConnectedPropertyName);
-    }
-    /**
-     * Binds any observables that were set before upgrade.
-     */
-    bindObservables() {
-        if (this.boundObservables !== null) {
-            const element = this.source;
-            const boundObservables = this.boundObservables;
-            const propertyNames = Object.keys(boundObservables);
-            for (let i = 0, ii = propertyNames.length; i < ii; ++i) {
-                const propertyName = propertyNames[i];
-                element[propertyName] = boundObservables[propertyName];
-            }
-            this.boundObservables = null;
-        }
-    }
-    /**
-     * Connects any existing behaviors on the associated element.
-     */
-    connectBehaviors() {
-        if (this.behaviorsConnected === false) {
-            const behaviors = this.behaviors;
-            if (behaviors !== null) {
-                this.guardBehaviorConnection = true;
-                for (const key of behaviors.keys()) {
-                    key.connectedCallback && key.connectedCallback(this);
-                }
-                this.guardBehaviorConnection = false;
-            }
-            this.behaviorsConnected = true;
-        }
-    }
-    /**
-     * Disconnects any behaviors on the associated element.
-     */
-    disconnectBehaviors() {
-        if (this.behaviorsConnected === true) {
-            const behaviors = this.behaviors;
-            if (behaviors !== null) {
-                for (const key of behaviors.keys()) {
-                    key.disconnectedCallback && key.disconnectedCallback(this);
-                }
-            }
-            this.behaviorsConnected = false;
-        }
-    }
-    /**
-     * Runs disconnected lifecycle behavior on the associated element.
-     */
-    disconnect() {
-        if (this.stage !== Stages.connected) {
-            return;
-        }
-        this.stage = Stages.disconnecting;
-        Observable.notify(this, isConnectedPropertyName);
-        if (this.view !== null) {
-            this.view.unbind();
-        }
-        this.disconnectBehaviors();
-        this.stage = Stages.disconnected;
-    }
-    /**
-     * Runs the attribute changed callback for the associated element.
-     * @param name - The name of the attribute that changed.
-     * @param oldValue - The previous value of the attribute.
-     * @param newValue - The new value of the attribute.
-     */
-    onAttributeChangedCallback(name, oldValue, newValue) {
-        const attrDef = this.definition.attributeLookup[name];
-        if (attrDef !== void 0) {
-            attrDef.onAttributeChangedCallback(this.source, newValue);
-        }
-    }
-    /**
-     * Emits a custom HTML event.
-     * @param type - The type name of the event.
-     * @param detail - The event detail object to send with the event.
-     * @param options - The event options. By default bubbles and composed.
-     * @remarks
-     * Only emits events if connected.
-     */
-    emit(type, detail, options) {
-        if (this.stage === Stages.connected) {
-            return this.source.dispatchEvent(new CustomEvent(type, Object.assign(Object.assign({ detail }, defaultEventOptions), options)));
-        }
-        return false;
-    }
-    /**
-     * Renders the provided template to the element.
-     *
-     * @param template - The template to render.
-     * @remarks
-     * If `null` is provided, any existing view will be removed.
-     */
-    renderTemplate(template) {
-        var _a;
-        // When getting the host to render to, we start by looking
-        // up the shadow root. If there isn't one, then that means
-        // we're doing a Light DOM render to the element's direct children.
-        const element = this.source;
-        const host = (_a = getShadowRoot(element)) !== null && _a !== void 0 ? _a : element;
-        if (this.view !== null) {
-            // If there's already a view, we need to unbind and remove through dispose.
-            this.view.dispose();
-            this.view = null;
-        }
-        else if (!this.needsInitialization || this.hasExistingShadowRoot) {
-            this.hasExistingShadowRoot = false;
-            // If there was previous custom rendering, we need to clear out the host.
-            for (let child = host.firstChild; child !== null; child = host.firstChild) {
-                host.removeChild(child);
-            }
-        }
-        if (template) {
-            // If a new template was provided, render it.
-            this.view = template.render(element, host, element);
-            this.view.sourceLifetime =
-                SourceLifetime.coupled;
-        }
-    }
-    /**
-     * Locates or creates a controller for the specified element.
-     * @param element - The element to return the controller for.
-     * @param override - Reset the controller even if one has been defined.
-     * @remarks
-     * The specified element must have a {@link FASTElementDefinition}
-     * registered either through the use of the {@link customElement}
-     * decorator or a call to `FASTElement.define`.
-     */
-    static forCustomElement(element, override = false) {
-        const controller = element.$fastController;
-        if (controller !== void 0 && !override) {
-            return controller;
-        }
-        const definition = FASTElementDefinition.getForInstance(element);
-        if (definition === void 0) {
-            throw FAST.error(Message.missingElementDefinition);
-        }
-        Observable.getNotifier(definition).subscribe({
-            handleChange: () => {
-                ElementController.forCustomElement(element, true);
-                element.$fastController.connect();
-            },
-        }, "template");
-        Observable.getNotifier(definition).subscribe({
-            handleChange: () => {
-                ElementController.forCustomElement(element, true);
-                element.$fastController.connect();
-            },
-        }, "shadowOptions");
-        return (element.$fastController = new elementControllerStrategy(element, definition));
-    }
-    /**
-     * Sets the strategy that ElementController.forCustomElement uses to construct
-     * ElementController instances for an element.
-     * @param strategy - The strategy to use.
-     */
-    static setStrategy(strategy) {
-        elementControllerStrategy = strategy;
-    }
-}
-makeSerializationNoop(ElementController);
-// Set default strategy for ElementController
-ElementController.setStrategy(ElementController);
-/**
- * Converts a styleTarget into the operative target. When the provided target is an Element
- * that is a FASTElement, the function will return the ShadowRoot for that element. Otherwise,
- * it will return the root node for the element.
- * @param target
- * @returns
- */
-function normalizeStyleTarget(target) {
-    var _a;
-    if ("adoptedStyleSheets" in target) {
-        return target;
-    }
-    else {
-        return ((_a = getShadowRoot(target)) !== null && _a !== void 0 ? _a : target.getRootNode());
-    }
-}
-// Default StyleStrategy implementations are defined in this module because they
-// require access to element shadowRoots, and we don't want to leak shadowRoot
-// objects out of this module.
-/**
- * https://wicg.github.io/construct-stylesheets/
- * https://developers.google.com/web/updates/2019/02/constructable-stylesheets
- *
- * @internal
- */
-class AdoptedStyleSheetsStrategy {
-    constructor(styles) {
-        const styleSheetCache = AdoptedStyleSheetsStrategy.styleSheetCache;
-        this.sheets = styles.map((x) => {
-            if (x instanceof CSSStyleSheet) {
-                return x;
-            }
-            let sheet = styleSheetCache.get(x);
-            if (sheet === void 0) {
-                sheet = new CSSStyleSheet();
-                sheet.replaceSync(x);
-                styleSheetCache.set(x, sheet);
-            }
-            return sheet;
-        });
-    }
-    addStylesTo(target) {
-        addAdoptedStyleSheets(normalizeStyleTarget(target), this.sheets);
-    }
-    removeStylesFrom(target) {
-        removeAdoptedStyleSheets(normalizeStyleTarget(target), this.sheets);
-    }
-}
-AdoptedStyleSheetsStrategy.styleSheetCache = new Map();
-let id = 0;
-const nextStyleId = () => `fast-${++id}`;
-function usableStyleTarget(target) {
-    return target === document ? document.body : target;
-}
-/**
- * @internal
- */
-class StyleElementStrategy {
-    constructor(styles) {
-        this.styles = styles;
-        this.styleClass = nextStyleId();
-    }
-    addStylesTo(target) {
-        target = usableStyleTarget(normalizeStyleTarget(target));
-        const styles = this.styles;
-        const styleClass = this.styleClass;
-        for (let i = 0; i < styles.length; i++) {
-            const element = document.createElement("style");
-            element.innerHTML = styles[i];
-            element.className = styleClass;
-            target.append(element);
-        }
-    }
-    removeStylesFrom(target) {
-        target = usableStyleTarget(normalizeStyleTarget(target));
-        const styles = target.querySelectorAll(`.${this.styleClass}`);
-        for (let i = 0, ii = styles.length; i < ii; ++i) {
-            target.removeChild(styles[i]);
-        }
-    }
-}
-let addAdoptedStyleSheets = (target, sheets) => {
-    target.adoptedStyleSheets = [...target.adoptedStyleSheets, ...sheets];
-};
-let removeAdoptedStyleSheets = (target, sheets) => {
-    target.adoptedStyleSheets = target.adoptedStyleSheets.filter((x) => sheets.indexOf(x) === -1);
-};
-if (ElementStyles.supportsAdoptedStyleSheets) {
-    try {
-        // Test if browser implementation uses FrozenArray.
-        // If not, use push / splice to alter the stylesheets
-        // in place. This circumvents a bug in Safari 16.4 where
-        // periodically, assigning the array would previously
-        // cause sheets to be removed.
-        document.adoptedStyleSheets.push();
-        document.adoptedStyleSheets.splice();
-        addAdoptedStyleSheets = (target, sheets) => {
-            target.adoptedStyleSheets.push(...sheets);
-        };
-        removeAdoptedStyleSheets = (target, sheets) => {
-            for (const sheet of sheets) {
-                const index = target.adoptedStyleSheets.indexOf(sheet);
-                if (index !== -1) {
-                    target.adoptedStyleSheets.splice(index, 1);
-                }
-            }
-        };
-    }
-    catch (e) {
-        // Do nothing if an error is thrown, the default
-        // case handles FrozenArray.
-    }
-    ElementStyles.setDefaultStrategy(AdoptedStyleSheetsStrategy);
-}
-else {
-    ElementStyles.setDefaultStrategy(StyleElementStrategy);
-}
-/**
- * The attribute used to indicate that an element needs hydration.
- * @public
- */
-const needsHydrationAttribute = "needs-hydration";
-/**
- * An ElementController capable of hydrating FAST elements from
- * Declarative Shadow DOM.
- *
- * @beta
- */
-class HydratableElementController extends ElementController {
-    /**
-     * {@inheritdoc ElementController.shadowOptions}
-     */
-    get shadowOptions() {
-        return super.shadowOptions;
-    }
-    set shadowOptions(value) {
-        super.shadowOptions = value;
-        if ((this.hasExistingShadowRoot || (value !== void 0 && !this.template)) &&
-            this.definition.templateOptions === TemplateOptions.deferAndHydrate) {
-            this.source.toggleAttribute(deferHydrationAttribute, true);
-            this.source.toggleAttribute(needsHydrationAttribute, true);
-        }
-    }
-    /**
-     * Adds the current element instance to the hydrating instances map
-     */
-    addHydratingInstance() {
-        if (!HydratableElementController.hydratingInstances) {
-            return;
-        }
-        const name = this.definition.name;
-        let instances = HydratableElementController.hydratingInstances.get(name);
-        if (!instances) {
-            instances = new Set();
-            HydratableElementController.hydratingInstances.set(name, instances);
-        }
-        instances.add(this.source);
-    }
-    /**
-     * Configure lifecycle callbacks for hydration events
-     */
-    static config(callbacks) {
-        HydratableElementController.lifecycleCallbacks = callbacks;
-        return this;
-    }
-    static hydrationObserverHandler(records) {
-        for (const record of records) {
-            if (!record.target.hasAttribute(deferHydrationAttribute)) {
-                HydratableElementController.hydrationObserver.unobserve(record.target);
-                record.target.$fastController.connect();
-            }
-        }
-    }
-    /**
-     * Checks to see if hydration is complete and if so, invokes the hydrationComplete callback.
-     * Then resets the ElementController strategy to the default so that future elements
-     * don't use the HydratableElementController.
-     *
-     * @param deadline - the idle deadline object
-     */
-    static checkHydrationComplete(deadline) {
-        var _a, _b, _c;
-        if (deadline.didTimeout) {
-            HydratableElementController.idleCallbackId = requestIdleCallback(HydratableElementController.checkHydrationComplete, { timeout: 50 });
-            return;
-        }
-        // If there are no more hydrating instances, invoke the hydrationComplete callback
-        if (((_a = HydratableElementController.hydratingInstances) === null || _a === void 0 ? void 0 : _a.size) === 0) {
-            try {
-                (_c = (_b = HydratableElementController.lifecycleCallbacks).hydrationComplete) === null || _c === void 0 ? void 0 : _c.call(_b);
-            }
-            catch (_d) {
-                // A lifecycle callback must never prevent post-hydration cleanup.
-            }
-            // Reset to the default strategy after hydration is complete
-            ElementController.setStrategy(ElementController);
-        }
-    }
-    /**
-     * Runs connected lifecycle behavior on the associated element.
-     */
-    connect() {
-        var _a, _b, _c, _d, _e, _f, _g;
-        // Initialize needsHydration on first connect
-        this.needsHydration =
-            (_a = this.needsHydration) !== null && _a !== void 0 ? _a : this.source.hasAttribute(needsHydrationAttribute);
-        if (this.needsHydration) {
-            this.addHydratingInstance();
-        }
-        // If the `defer-hydration` attribute exists on the source,
-        // wait for it to be removed before continuing connection behavior.
-        if (this.source.hasAttribute(deferHydrationAttribute)) {
-            this.addHydratingInstance();
-            HydratableElementController.hydrationObserver.observe(this.source, {
-                attributeFilter: [deferHydrationAttribute],
-            });
-            return;
-        }
-        // If the controller does not need to be hydrated, defer connection behavior
-        // to the base-class. This case handles element re-connection and initial connection
-        // of elements that did not get declarative shadow-dom emitted, as well as if an extending
-        // class
-        if (!this.needsHydration) {
-            super.connect();
-            this.removeHydratingInstance();
-            return;
-        }
-        if (this.stage !== Stages.disconnected) {
-            return;
-        }
-        if (!HydratableElementController.hydrationStarted) {
-            HydratableElementController.hydrationStarted = true;
-            try {
-                (_c = (_b = HydratableElementController.lifecycleCallbacks).hydrationStarted) === null || _c === void 0 ? void 0 : _c.call(_b);
-            }
-            catch (_h) {
-                // A lifecycle callback must never prevent hydration.
-            }
-        }
-        try {
-            (_e = (_d = HydratableElementController.lifecycleCallbacks).elementWillHydrate) === null || _e === void 0 ? void 0 : _e.call(_d, this.source);
-        }
-        catch (_j) {
-            // A lifecycle callback must never prevent hydration.
-        }
-        this.stage = Stages.connecting;
-        this.bindObservables();
-        this.connectBehaviors();
-        if (this.template) {
-            if (isHydratable(this.template)) {
-                const element = this.source;
-                const host = (_f = getShadowRoot(element)) !== null && _f !== void 0 ? _f : element;
-                let firstChild = host.firstChild;
-                let lastChild = host.lastChild;
-                if (element.shadowRoot === null) {
-                    // handle element boundary markers when shadowRoot is not present
-                    if (HydrationMarkup.isElementBoundaryStartMarker(firstChild)) {
-                        firstChild.data = "";
-                        firstChild = firstChild.nextSibling;
-                    }
-                    if (HydrationMarkup.isElementBoundaryEndMarker(lastChild)) {
-                        lastChild.data = "";
-                        lastChild = lastChild.previousSibling;
-                    }
-                }
-                this.view = this.template.hydrate(firstChild, lastChild, element);
-                (_g = this.view) === null || _g === void 0 ? void 0 : _g.bind(this.source);
-            }
-            else {
-                this.renderTemplate(this.template);
-            }
-        }
-        this.addStyles(this.mainStyles);
-        this.stage = Stages.connected;
-        this.source.removeAttribute(needsHydrationAttribute);
-        this.needsInitialization = this.needsHydration = false;
-        this.removeHydratingInstance();
-        Observable.notify(this, isConnectedPropertyName);
-    }
-    /**
-     * Removes the current element instance from the hydrating instances map
-     */
-    removeHydratingInstance() {
-        var _a, _b;
-        if (!HydratableElementController.hydratingInstances) {
-            return;
-        }
-        try {
-            (_b = (_a = HydratableElementController.lifecycleCallbacks).elementDidHydrate) === null || _b === void 0 ? void 0 : _b.call(_a, this.source);
-        }
-        catch (_c) {
-            // A lifecycle callback must never prevent hydration.
-        }
-        const name = this.definition.name;
-        const instances = HydratableElementController.hydratingInstances.get(name);
-        if (instances) {
-            instances.delete(this.source);
-            if (!instances.size) {
-                HydratableElementController.hydratingInstances.delete(name);
-            }
-            if (HydratableElementController.idleCallbackId) {
-                cancelIdleCallback(HydratableElementController.idleCallbackId);
-            }
-            HydratableElementController.idleCallbackId = requestIdleCallback(HydratableElementController.checkHydrationComplete, { timeout: 50 });
-        }
-    }
-    /**
-     * Unregisters the hydration observer when the element is disconnected.
-     */
-    disconnect() {
-        super.disconnect();
-        HydratableElementController.hydrationObserver.unobserve(this.source);
-    }
-    /**
-     * Sets the ElementController strategy to HydratableElementController.
-     * @remarks
-     * This method is typically called during application startup to enable
-     * hydration support for FAST elements.
-     */
-    static install() {
-        ElementController.setStrategy(HydratableElementController);
-    }
-}
-HydratableElementController.hydrationObserver = new UnobservableMutationObserver(HydratableElementController.hydrationObserverHandler);
-/**
- * Lifecycle callbacks for hydration events
- */
-HydratableElementController.lifecycleCallbacks = {};
-/**
- * Whether the hydrationStarted callback has already been invoked.
- */
-HydratableElementController.hydrationStarted = false;
-/**
- * An idle callback ID used to track hydration completion
- */
-HydratableElementController.idleCallbackId = null;
-/**
- * A map of element instances by the name of the custom element they are
- * associated with. The key is the custom element name, and the value is the
- * instances of hydratable elements which currently need to be hydrated.
- *
- * When all of the instances in the set have been hydrated, the set is
- * cleared and removed from the map. If the map is empty, the
- * hydrationComplete callback is invoked.
- */
-HydratableElementController.hydratingInstances = new Map();
-
-/* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
-function createFASTElement(BaseType) {
-    const type = class extends BaseType {
-        constructor() {
-            /* eslint-disable-next-line */
-            super();
-            ElementController.forCustomElement(this);
-        }
-        $emit(type, detail, options) {
-            return this.$fastController.emit(type, detail, options);
-        }
-        connectedCallback() {
-            this.$fastController.connect();
-        }
-        disconnectedCallback() {
-            this.$fastController.disconnect();
-        }
-        attributeChangedCallback(name, oldValue, newValue) {
-            this.$fastController.onAttributeChangedCallback(name, oldValue, newValue);
-        }
-    };
-    FASTElementDefinition.registerBaseType(type);
-    return type;
-}
-function compose(type, nameOrDef) {
-    if (isFunction(type)) {
-        return FASTElementDefinition.compose(type, nameOrDef);
-    }
-    return FASTElementDefinition.compose(this, type);
-}
-function defineAsync(type, nameOrDef) {
-    if (isFunction(type)) {
-        return new Promise(resolve => {
-            FASTElementDefinition.composeAsync(type, nameOrDef).then(value => {
-                resolve(value);
-            });
-        }).then(value => {
-            return value.define().type;
-        });
-    }
-    return new Promise(resolve => {
-        FASTElementDefinition.composeAsync(this, type).then(value => {
-            resolve(value);
-        });
-    }).then(value => {
-        return value.define().type;
-    });
-}
-function define(type, nameOrDef) {
-    if (isFunction(type)) {
-        return FASTElementDefinition.compose(type, nameOrDef).define().type;
-    }
-    return FASTElementDefinition.compose(this, type).define().type;
-}
-function from(BaseType) {
-    return createFASTElement(BaseType);
-}
-/**
- * A minimal base class for FASTElements that also provides
- * static helpers for working with FASTElements.
- * @public
- */
-const FASTElement = Object.assign(createFASTElement(HTMLElement), {
-    /**
-     * Creates a new FASTElement base class inherited from the
-     * provided base type.
-     * @param BaseType - The base element type to inherit from.
-     */
-    from,
-    /**
-     * Defines a platform custom element based on the provided type and definition.
-     * @param type - The custom element type to define.
-     * @param nameOrDef - The name of the element to define or a definition object
-     * that describes the element to define.
-     */
-    define,
-    /**
-     * Defines metadata for a FASTElement which can be used to later define the element.
-     * @public
-     */
-    compose,
-    /**
-     * Defines metadata for a FASTElement which can be used after it has been resolved to define the element.
-     * @alpha
-     */
-    defineAsync,
-});
-
-function staticallyCompose(item) {
-  if (!item) {
-    return InlineTemplateDirective.empty;
-  }
-  if (typeof item === "string") {
-    return new InlineTemplateDirective(item);
-  }
-  if ("inline" in item) {
-    return item.inline();
-  }
-  return item;
-}
-
-class StartEnd {
-}
-function endSlotTemplate(options) {
-  return html`<slot name=end ${ref("end")}>${staticallyCompose(options.end)}</slot>`.inline();
-}
-function startSlotTemplate(options) {
-  return html`<slot name=start ${ref("start")}>${staticallyCompose(options.start)}</slot>`.inline();
-}
-
-function applyMixins(derivedCtor, ...baseCtors) {
-  const derivedAttributes = AttributeConfiguration.locate(derivedCtor);
-  baseCtors.forEach((baseCtor) => {
-    Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
-      if (name !== "constructor") {
-        Object.defineProperty(
-          derivedCtor.prototype,
-          name,
-          /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
-          Object.getOwnPropertyDescriptor(baseCtor.prototype, name)
-        );
-      }
-    });
-    const baseAttributes = AttributeConfiguration.locate(baseCtor);
-    baseAttributes.forEach((x) => derivedAttributes.push(x));
-  });
-}
-
-var __defProp$P = Object.defineProperty;
-var __getOwnPropDesc$P = Object.getOwnPropertyDescriptor;
-var __decorateClass$P = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$P(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$P(target, key, result);
-  return result;
-};
-class BaseAccordionItem extends FASTElement {
-  constructor() {
-    super(...arguments);
-    /**
-     * The internal {@link https://developer.mozilla.org/docs/Web/API/ElementInternals | `ElementInternals`} instance for the component.
-     *
-     * @internal
-     */
-    this.elementInternals = this.attachInternals();
-    this.headinglevel = 2;
-    this.expanded = false;
-    this.disabled = false;
-  }
-}
-__decorateClass$P([
-  attr({
-    attribute: "heading-level",
-    mode: "fromView",
-    converter: nullableNumberConverter
-  })
-], BaseAccordionItem.prototype, "headinglevel", 2);
-__decorateClass$P([
-  attr({ mode: "boolean" })
-], BaseAccordionItem.prototype, "expanded", 2);
-__decorateClass$P([
-  attr({ mode: "boolean" })
-], BaseAccordionItem.prototype, "disabled", 2);
-__decorateClass$P([
-  observable
-], BaseAccordionItem.prototype, "expandbutton", 2);
-
-var __defProp$O = Object.defineProperty;
-var __getOwnPropDesc$O = Object.getOwnPropertyDescriptor;
-var __decorateClass$O = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$O(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp$O(target, key, result);
-  return result;
-};
-class AccordionItem extends BaseAccordionItem {
-  constructor() {
-    super(...arguments);
-    this.block = false;
-  }
-}
-__decorateClass$O([
-  attr
-], AccordionItem.prototype, "size", 2);
-__decorateClass$O([
-  attr({ attribute: "marker-position" })
-], AccordionItem.prototype, "markerPosition", 2);
-__decorateClass$O([
-  attr({ mode: "boolean" })
-], AccordionItem.prototype, "block", 2);
-applyMixins(AccordionItem, StartEnd);
 
 const hidden = `:host([hidden]){display:none}`;
 function display(displayValue) {
@@ -5044,7 +4868,29 @@ const curveEasyEaseMax = "var(--curveEasyEaseMax)";
 const curveEasyEase = "var(--curveEasyEase)";
 const curveLinear = "var(--curveLinear)";
 
-const styles$F = css`${display("block")} :host{max-width:fit-content;contain:content}.heading{height:44px;display:grid;position:relative;padding-inline:${spacingHorizontalM} ${spacingHorizontalMNudge};border-radius:${borderRadiusMedium};font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};grid-template-columns:auto auto 1fr auto}.button{appearance:none;background:${colorTransparentBackground};border:none;box-sizing:border-box;color:${colorNeutralForeground1};cursor:pointer;font:inherit;grid-column:auto/span 2;grid-row:1;height:44px;outline:none;padding:0;text-align:start}.button::before{content:'';position:absolute;inset:0px;cursor:pointer;border-radius:${borderRadiusSmall}}:where(.default-marker-collapsed,.default-marker-expanded),::slotted(:is([slot='marker-collapsed'],[slot='marker-expanded'])){display:flex;align-items:center;justify-content:center;pointer-events:none;position:relative;height:100%;padding-inline-end:${spacingHorizontalS};grid-column:1/span 1;grid-row:1}.content{margin:0 ${spacingHorizontalM}}::slotted([slot='start']){display:flex;justify-content:center;align-items:center;padding-right:${spacingHorizontalS};grid-column:2/span 1;grid-row:1}button:focus-visible::after{content:'';position:absolute;inset:0px;cursor:pointer;border-radius:${borderRadiusSmall};outline:none;border:2px solid ${colorStrokeFocus1};box-shadow:inset 0 0 0 1px ${colorStrokeFocus2}}:host([disabled]) .button{color:${colorNeutralForegroundDisabled}}:host([disabled]) svg{filter:invert(89%) sepia(0%) saturate(569%) hue-rotate(155deg) brightness(88%) contrast(87%)}:host([expanded]) .content{display:block}:host([expanded]) .default-marker-collapsed,:host([expanded]) ::slotted([slot='marker-collapsed']),:host(:not([expanded])) :is(.default-marker-expanded,.content),:host(:not([expanded])) ::slotted([slot='marker-expanded']){display:none}:host([expanded]) ::slotted([slot='marker-expanded']),:host(:not([expanded])) ::slotted([slot='marker-collapsed']){display:flex}.heading{font-size:${fontSizeBase300};line-height:${lineHeightBase300}}:host([size='small']) .heading{font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']) .heading{font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='extra-large']) .heading{font-size:${fontSizeBase500};line-height:${lineHeightBase500}}:host([marker-position='end']) ::slotted([slot='start']){grid-column:1/span 1}:host([marker-position='end']) :is(.default-marker-collapsed,.default-marker-expanded){grid-column:4/span 1;padding-inline-start:${spacingHorizontalS};padding-inline-end:0}:host([marker-position='end']) .button{grid-column:2/span 3}:host([block]){max-width:100%}:host([marker-position='end']) .heading{grid-template-columns:auto auto 28px;padding-inline:${spacingHorizontalM}}:host([marker-position='end']:has([slot='start'])) .heading{padding-inline:${spacingHorizontalMNudge} ${spacingHorizontalM}}:host([block][marker-position='end']) .heading{grid-template-columns:auto 1fr}:host([marker-position='end']) :is(.default-marker-collapsed,.default-marker-expanded){grid-column:5/span 1}`;
+const styles$F = css`${display("block")} :host{max-width:fit-content;contain:content;color:${colorNeutralForeground1}}.heading{height:44px;display:grid;position:relative;padding-inline:${spacingHorizontalM} ${spacingHorizontalMNudge};border-radius:${borderRadiusMedium};font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};grid-template-columns:auto auto 1fr auto}.button{appearance:none;background:${colorTransparentBackground};border:none;box-sizing:border-box;color:inherit;cursor:pointer;font:inherit;grid-column:auto/span 2;grid-row:1;height:44px;outline:none;padding:0;text-align:start}.button::before{content:'';position:absolute;inset:0px;cursor:pointer;border-radius:${borderRadiusSmall}}:where(.default-marker-collapsed,.default-marker-expanded),::slotted(:is([slot='marker-collapsed'],[slot='marker-expanded'])){display:flex;align-items:center;justify-content:center;pointer-events:none;position:relative;height:100%;padding-inline-end:${spacingHorizontalS};grid-column:1/span 1;grid-row:1}.content{margin:0 ${spacingHorizontalM}}::slotted([slot='start']){display:flex;justify-content:center;align-items:center;padding-right:${spacingHorizontalS};grid-column:2/span 1;grid-row:1}button:focus-visible::after{content:'';position:absolute;inset:0px;cursor:pointer;border-radius:${borderRadiusSmall};outline:none;border:2px solid ${colorStrokeFocus1};box-shadow:inset 0 0 0 1px ${colorStrokeFocus2}}:host([disabled]) .button{color:${colorNeutralForegroundDisabled}}:host([disabled]) svg{filter:invert(89%) sepia(0%) saturate(569%) hue-rotate(155deg) brightness(88%) contrast(87%)}:host([expanded]) .content{display:block}:host([expanded]) .default-marker-collapsed,:host([expanded]) ::slotted([slot='marker-collapsed']),:host(:not([expanded])) :is(.default-marker-expanded,.content),:host(:not([expanded])) ::slotted([slot='marker-expanded']){display:none}:host([expanded]) ::slotted([slot='marker-expanded']),:host(:not([expanded])) ::slotted([slot='marker-collapsed']){display:flex}.heading{font-size:${fontSizeBase300};line-height:${lineHeightBase300}}:host([size='small']) .heading{font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']) .heading{font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='extra-large']) .heading{font-size:${fontSizeBase500};line-height:${lineHeightBase500}}:host([marker-position='end']) ::slotted([slot='start']){grid-column:1/span 1;color:currentColor}:host([marker-position='end']) :is(.default-marker-collapsed,.default-marker-expanded){grid-column:4/span 1;padding-inline-start:${spacingHorizontalS};padding-inline-end:0}:host([marker-position='end']) .button{grid-column:2/span 3}:host([block]){max-width:100%}:host([marker-position='end']) .heading{grid-template-columns:auto auto 28px;padding-inline:${spacingHorizontalM}}:host([marker-position='end']:has([slot='start'])) .heading{padding-inline:${spacingHorizontalMNudge} ${spacingHorizontalM}}:host([block][marker-position='end']) .heading{grid-template-columns:auto 1fr}:host([marker-position='end']) :is(.default-marker-collapsed,.default-marker-expanded){grid-column:5/span 1}`;
+
+function staticallyCompose(item) {
+  if (!item) {
+    return InlineTemplateDirective.empty;
+  }
+  if (typeof item === "string") {
+    return new InlineTemplateDirective(item);
+  }
+  if ("inline" in item) {
+    return item.inline();
+  }
+  return item;
+}
+
+class StartEnd {
+}
+function endSlotTemplate(options) {
+  return html`<slot name=end ${ref("end")}>${staticallyCompose(options.end)}</slot>`.inline();
+}
+function startSlotTemplate(options) {
+  return html`<slot name=start ${ref("start")}>${staticallyCompose(options.start)}</slot>`.inline();
+}
 
 const chevronRight20Filled = html.partial(`<svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns=http://www.w3.org/2000/svg class=default-marker-collapsed aria-hidden=true><path d="M7.73271 4.20694C8.03263 3.92125 8.50737 3.93279 8.79306 4.23271L13.7944 9.48318C14.0703 9.77285 14.0703 10.2281 13.7944 10.5178L8.79306 15.7682C8.50737 16.0681 8.03263 16.0797 7.73271 15.794C7.43279 15.5083 7.42125 15.0336 7.70694 14.7336L12.2155 10.0005L7.70694 5.26729C7.42125 4.96737 7.43279 4.49264 7.73271 4.20694Z" fill=currentColor /></svg>`);
 const chevronDown20Filled = html.partial(`<svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns=http://www.w3.org/2000/svg class=default-marker-expanded aria-hidden=true><path d="M15.794 7.73271C16.0797 8.03263 16.0681 8.50737 15.7682 8.79306L10.5178 13.7944C10.2281 14.0703 9.77285 14.0703 9.48318 13.7944L4.23271 8.79306C3.93279 8.50737 3.92125 8.03263 4.20694 7.73271C4.49264 7.43279 4.96737 7.42125 5.26729 7.70694L10.0005 12.2155L14.7336 7.70694C15.0336 7.42125 15.5083 7.43279 15.794 7.73271Z" fill=currentColor /></svg>`);
@@ -5056,13 +4902,100 @@ const template$F = accordionItemTemplate({
   expandedIcon: chevronDown20Filled
 });
 
-const definition$F = AccordionItem.compose({
+const definition$F = {
   name: tagName$F,
-  template: template$F,
-  styles: styles$F
-});
+  registry: FluentDesignSystem.registry,
+  styles: styles$F,
+  template: template$F
+};
 
-definition$F.define(FluentDesignSystem.registry);
+function applyMixins(derivedCtor, ...baseCtors) {
+  const derivedAttributes = AttributeConfiguration.locate(derivedCtor);
+  baseCtors.forEach((baseCtor) => {
+    Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
+      if (name !== "constructor") {
+        Object.defineProperty(
+          derivedCtor.prototype,
+          name,
+          /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+          Object.getOwnPropertyDescriptor(baseCtor.prototype, name)
+        );
+      }
+    });
+    const baseAttributes = AttributeConfiguration.locate(baseCtor);
+    baseAttributes.forEach((x) => derivedAttributes.push(x));
+  });
+}
+
+var __defProp$P = Object.defineProperty;
+var __getOwnPropDesc$P = Object.getOwnPropertyDescriptor;
+var __decorateClass$P = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$P(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp$P(target, key, result);
+  return result;
+};
+class BaseAccordionItem extends FASTElement {
+  constructor() {
+    super(...arguments);
+    /**
+     * The internal {@link https://developer.mozilla.org/docs/Web/API/ElementInternals | `ElementInternals`} instance for the component.
+     *
+     * @internal
+     */
+    this.elementInternals = this.attachInternals();
+    this.headinglevel = 2;
+    this.expanded = false;
+    this.disabled = false;
+  }
+}
+__decorateClass$P([
+  attr({
+    attribute: "heading-level",
+    mode: "fromView",
+    converter: nullableNumberConverter
+  })
+], BaseAccordionItem.prototype, "headinglevel", 2);
+__decorateClass$P([
+  attr({ mode: "boolean" })
+], BaseAccordionItem.prototype, "expanded", 2);
+__decorateClass$P([
+  attr({ mode: "boolean" })
+], BaseAccordionItem.prototype, "disabled", 2);
+__decorateClass$P([
+  observable
+], BaseAccordionItem.prototype, "expandbutton", 2);
+
+var __defProp$O = Object.defineProperty;
+var __getOwnPropDesc$O = Object.getOwnPropertyDescriptor;
+var __decorateClass$O = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$O(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp$O(target, key, result);
+  return result;
+};
+class AccordionItem extends BaseAccordionItem {
+  constructor() {
+    super(...arguments);
+    this.block = false;
+  }
+}
+__decorateClass$O([
+  attr
+], AccordionItem.prototype, "size", 2);
+__decorateClass$O([
+  attr({ attribute: "marker-position" })
+], AccordionItem.prototype, "markerPosition", 2);
+__decorateClass$O([
+  attr({ mode: "boolean" })
+], AccordionItem.prototype, "block", 2);
+applyMixins(AccordionItem, StartEnd);
+
+AccordionItem.define(definition$F);
 
 const AccordionExpandMode = {
   single: "single",
@@ -5070,7 +5003,21 @@ const AccordionExpandMode = {
 };
 const tagName$E = `${FluentDesignSystem.prefix}-accordion`;
 
-function requestIdleCallback$1(callback, options) {
+const styles$E = css`${display("flex")} :host{flex-direction:column;width:100%;contain:content}`;
+
+function accordionTemplate() {
+  return html`<template><slot ${slotted({ property: "slottedAccordionItems", filter: elements() })}></slot></template>`;
+}
+const template$E = accordionTemplate();
+
+const definition$E = {
+  name: tagName$E,
+  registry: FluentDesignSystem.registry,
+  styles: styles$E,
+  template: template$E
+};
+
+function requestIdleCallback(callback, options) {
   if ("requestIdleCallback" in globalThis) {
     return globalThis.requestIdleCallback(callback, options);
   }
@@ -5090,13 +5037,13 @@ function waitForConnectedDescendants(target, callback, options) {
   const scheduleCheck = (deadline) => {
     if (target.querySelector(selector) === null || deadline && deadline.timeRemaining() <= 0) {
       if (useIdleCallback) {
-        requestIdleCallback$1(callback, { timeout });
+        requestIdleCallback(callback, { timeout });
       } else {
         callback();
       }
       return;
     }
-    requestIdleCallback$1(scheduleCheck, { timeout });
+    requestIdleCallback(scheduleCheck, { timeout });
   };
   scheduleCheck();
 }
@@ -5260,20 +5207,7 @@ __decorateClass$N([
   observable
 ], Accordion.prototype, "slottedAccordionItems", 2);
 
-const styles$E = css`${display("flex")} :host{flex-direction:column;width:100%;contain:content}`;
-
-function accordionTemplate() {
-  return html`<template><slot ${slotted({ property: "slottedAccordionItems", filter: elements() })}></slot></template>`;
-}
-const template$E = accordionTemplate();
-
-const definition$E = Accordion.compose({
-  name: tagName$E,
-  template: template$E,
-  styles: styles$E
-});
-
-definition$E.define(FluentDesignSystem.registry);
+Accordion.define(definition$E);
 
 const ButtonAppearance = {
   primary: "primary",
@@ -5312,6 +5246,23 @@ const AnchorAttributes = {
   type: "type"
 };
 const tagName$C = `${FluentDesignSystem.prefix}-anchor-button`;
+
+const baseButtonStyles = css`${display("inline-flex")} :host{--icon-spacing:${spacingHorizontalSNudge};position:relative;contain:layout style;vertical-align:middle;align-items:center;box-sizing:border-box;justify-content:center;text-align:center;text-decoration-line:none;margin:0;min-height:32px;outline-style:none;background-color:${colorNeutralBackground1};color:${colorNeutralForeground1};border:${strokeWidthThin} solid ${colorNeutralStroke1};padding:0 ${spacingHorizontalM};min-width:96px;border-radius:${borderRadiusMedium};font-size:${fontSizeBase300};font-family:${fontFamilyBase};font-weight:${fontWeightSemibold};line-height:${lineHeightBase300};transition-duration:${durationFaster};transition-property:background,border,color;transition-timing-function:${curveEasyEase};cursor:pointer;user-select:none}.content{display:inherit}:host(:hover){background-color:${colorNeutralBackground1Hover};color:${colorNeutralForeground1Hover};border-color:${colorNeutralStroke1Hover}}:host(:hover:active){background-color:${colorNeutralBackground1Pressed};border-color:${colorNeutralStroke1Pressed};color:${colorNeutralForeground1Pressed};outline-style:none}:host(:focus-visible){border-color:${colorTransparentStroke};outline:${strokeWidthThick} solid ${colorTransparentStroke};box-shadow:${shadow4},0 0 0 2px ${colorStrokeFocus2}}@media screen and (prefers-reduced-motion:reduce){:host{transition-duration:0.01ms}}::slotted(svg){font-size:20px;height:20px;width:20px;fill:currentColor}::slotted([slot='start']){margin-inline-end:var(--icon-spacing)}::slotted([slot='end']),[slot='end']{flex-shrink:0;margin-inline-start:var(--icon-spacing)}:host([icon-only]){min-width:32px;max-width:32px}:host([size='small']){--icon-spacing:${spacingHorizontalXS};min-height:24px;min-width:64px;padding:0 ${spacingHorizontalS};border-radius:${borderRadiusSmall};font-size:${fontSizeBase200};line-height:${lineHeightBase200};font-weight:${fontWeightRegular}}:host([size='small'][icon-only]){min-width:24px;max-width:24px}:host([size='large']){min-height:40px;border-radius:${borderRadiusLarge};padding:0 ${spacingHorizontalL};font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='large'][icon-only]){min-width:40px;max-width:40px}:host([size='large']) ::slotted(svg){font-size:24px;height:24px;width:24px}:host(:is([shape='circular'],[shape='circular']:focus-visible)){border-radius:${borderRadiusCircular}}:host(:is([shape='square'],[shape='square']:focus-visible)){border-radius:${borderRadiusNone}}:host([appearance='primary']){background-color:${colorBrandBackground};color:${colorNeutralForegroundOnBrand};border-color:transparent}:host([appearance='primary']:hover){background-color:${colorBrandBackgroundHover}}:host([appearance='primary']:is(:hover,:hover:active):not(:focus-visible)){border-color:transparent}:host([appearance='primary']:is(:hover,:hover:active)){color:${colorNeutralForegroundOnBrand}}:host([appearance='primary']:hover:active){background-color:${colorBrandBackgroundPressed}}:host([appearance='primary']:focus-visible){border-color:${colorNeutralForegroundOnBrand};box-shadow:${shadow2},0 0 0 2px ${colorStrokeFocus2}}:host([appearance='outline']){background-color:${colorTransparentBackground}}:host([appearance='outline']:hover){background-color:${colorTransparentBackgroundHover}}:host([appearance='outline']:hover:active){background-color:${colorTransparentBackgroundPressed}}:host([appearance='subtle']){background-color:${colorSubtleBackground};color:${colorNeutralForeground2};border-color:transparent}:host([appearance='subtle']:hover){background-color:${colorSubtleBackgroundHover};color:${colorNeutralForeground2Hover};border-color:transparent}:host([appearance='subtle']:hover:active){background-color:${colorSubtleBackgroundPressed};color:${colorNeutralForeground2Pressed};border-color:transparent}:host([appearance='subtle']:hover) ::slotted(svg){fill:${colorNeutralForeground2BrandHover}}:host([appearance='subtle']:hover:active) ::slotted(svg){fill:${colorNeutralForeground2BrandPressed}}:host([appearance='transparent']){background-color:${colorTransparentBackground};color:${colorNeutralForeground2}}:host([appearance='transparent']:hover){background-color:${colorTransparentBackgroundHover};color:${colorNeutralForeground2BrandHover}}:host([appearance='transparent']:hover:active){background-color:${colorTransparentBackgroundPressed};color:${colorNeutralForeground2BrandPressed}}:host(:is([appearance='transparent'],[appearance='transparent']:is(:hover,:active))){border-color:transparent}`;
+const styles$D = css`${baseButtonStyles} :host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable])),:host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable]):hover),:host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable]):hover:active){background-color:${colorNeutralBackgroundDisabled};border-color:${colorNeutralStrokeDisabled};color:${colorNeutralForegroundDisabled};cursor:not-allowed}:host([appearance='primary']:is(:disabled,[disabled-focusable])),:host([appearance='primary']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){border-color:transparent}:host([appearance='outline']:is(:disabled,[disabled-focusable])),:host([appearance='outline']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){background-color:${colorTransparentBackground}}:host([appearance='subtle']:is(:disabled,[disabled-focusable])),:host([appearance='subtle']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){background-color:${colorTransparentBackground};border-color:transparent}:host([appearance='transparent']:is(:disabled,[disabled-focusable])),:host([appearance='transparent']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){border-color:transparent;background-color:${colorTransparentBackground}}@media (forced-colors:active){:host{background-color:ButtonFace;color:ButtonText}:host(:is(:hover,:focus-visible)){border-color:Highlight !important}:host([appearance='primary']:not(:is(:hover,:focus-visible))){background-color:Highlight;color:HighlightText;forced-color-adjust:none}:host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable])){background-color:ButtonFace;color:GrayText;border-color:ButtonText}}`;
+
+const styles$C = css`${baseButtonStyles} ::slotted(a){position:absolute;inset:0}@media (forced-colors:active){:host{border-color:LinkText;color:LinkText}}`;
+
+function anchorTemplate$1(options = {}) {
+  return html`<template tabindex=0 @click=${(x, c) => x.clickHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)}>${startSlotTemplate(options)} <span class=content part=content><slot></slot></span>${endSlotTemplate(options)}</template>`;
+}
+const template$D = anchorTemplate$1();
+
+const definition$D = {
+  name: tagName$C,
+  registry: FluentDesignSystem.registry,
+  styles: styles$C,
+  template: template$D
+};
 
 const AnchorPositioningCSSSupported = CSS.supports("anchor-name: --a");
 const AnchorPositioningHTMLSupported = "anchor" in HTMLElement.prototype;
@@ -5560,23 +5511,7 @@ __decorateClass$L([
 ], AnchorButton.prototype, "iconOnly", 2);
 applyMixins(AnchorButton, StartEnd);
 
-const baseButtonStyles = css`${display("inline-flex")} :host{--icon-spacing:${spacingHorizontalSNudge};position:relative;contain:layout style;vertical-align:middle;align-items:center;box-sizing:border-box;justify-content:center;text-align:center;text-decoration-line:none;margin:0;min-height:32px;outline-style:none;background-color:${colorNeutralBackground1};color:${colorNeutralForeground1};border:${strokeWidthThin} solid ${colorNeutralStroke1};padding:0 ${spacingHorizontalM};min-width:96px;border-radius:${borderRadiusMedium};font-size:${fontSizeBase300};font-family:${fontFamilyBase};font-weight:${fontWeightSemibold};line-height:${lineHeightBase300};transition-duration:${durationFaster};transition-property:background,border,color;transition-timing-function:${curveEasyEase};cursor:pointer;user-select:none}.content{display:inherit}:host(:hover){background-color:${colorNeutralBackground1Hover};color:${colorNeutralForeground1Hover};border-color:${colorNeutralStroke1Hover}}:host(:hover:active){background-color:${colorNeutralBackground1Pressed};border-color:${colorNeutralStroke1Pressed};color:${colorNeutralForeground1Pressed};outline-style:none}:host(:focus-visible){border-color:${colorTransparentStroke};outline:${strokeWidthThick} solid ${colorTransparentStroke};box-shadow:${shadow4},0 0 0 2px ${colorStrokeFocus2}}@media screen and (prefers-reduced-motion:reduce){:host{transition-duration:0.01ms}}::slotted(svg){font-size:20px;height:20px;width:20px;fill:currentColor}::slotted([slot='start']){margin-inline-end:var(--icon-spacing)}::slotted([slot='end']),[slot='end']{flex-shrink:0;margin-inline-start:var(--icon-spacing)}:host([icon-only]){min-width:32px;max-width:32px}:host([size='small']){--icon-spacing:${spacingHorizontalXS};min-height:24px;min-width:64px;padding:0 ${spacingHorizontalS};border-radius:${borderRadiusSmall};font-size:${fontSizeBase200};line-height:${lineHeightBase200};font-weight:${fontWeightRegular}}:host([size='small'][icon-only]){min-width:24px;max-width:24px}:host([size='large']){min-height:40px;border-radius:${borderRadiusLarge};padding:0 ${spacingHorizontalL};font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='large'][icon-only]){min-width:40px;max-width:40px}:host([size='large']) ::slotted(svg){font-size:24px;height:24px;width:24px}:host(:is([shape='circular'],[shape='circular']:focus-visible)){border-radius:${borderRadiusCircular}}:host(:is([shape='square'],[shape='square']:focus-visible)){border-radius:${borderRadiusNone}}:host([appearance='primary']){background-color:${colorBrandBackground};color:${colorNeutralForegroundOnBrand};border-color:transparent}:host([appearance='primary']:hover){background-color:${colorBrandBackgroundHover}}:host([appearance='primary']:is(:hover,:hover:active):not(:focus-visible)){border-color:transparent}:host([appearance='primary']:is(:hover,:hover:active)){color:${colorNeutralForegroundOnBrand}}:host([appearance='primary']:hover:active){background-color:${colorBrandBackgroundPressed}}:host([appearance='primary']:focus-visible){border-color:${colorNeutralForegroundOnBrand};box-shadow:${shadow2},0 0 0 2px ${colorStrokeFocus2}}:host([appearance='outline']){background-color:${colorTransparentBackground}}:host([appearance='outline']:hover){background-color:${colorTransparentBackgroundHover}}:host([appearance='outline']:hover:active){background-color:${colorTransparentBackgroundPressed}}:host([appearance='subtle']){background-color:${colorSubtleBackground};color:${colorNeutralForeground2};border-color:transparent}:host([appearance='subtle']:hover){background-color:${colorSubtleBackgroundHover};color:${colorNeutralForeground2Hover};border-color:transparent}:host([appearance='subtle']:hover:active){background-color:${colorSubtleBackgroundPressed};color:${colorNeutralForeground2Pressed};border-color:transparent}:host([appearance='subtle']:hover) ::slotted(svg){fill:${colorNeutralForeground2BrandHover}}:host([appearance='subtle']:hover:active) ::slotted(svg){fill:${colorNeutralForeground2BrandPressed}}:host([appearance='transparent']){background-color:${colorTransparentBackground};color:${colorNeutralForeground2}}:host([appearance='transparent']:hover){background-color:${colorTransparentBackgroundHover};color:${colorNeutralForeground2BrandHover}}:host([appearance='transparent']:hover:active){background-color:${colorTransparentBackgroundPressed};color:${colorNeutralForeground2BrandPressed}}:host(:is([appearance='transparent'],[appearance='transparent']:is(:hover,:active))){border-color:transparent}`;
-const styles$D = css`${baseButtonStyles} :host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable])),:host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable]):hover),:host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable]):hover:active){background-color:${colorNeutralBackgroundDisabled};border-color:${colorNeutralStrokeDisabled};color:${colorNeutralForegroundDisabled};cursor:not-allowed}:host([appearance='primary']:is(:disabled,[disabled-focusable])),:host([appearance='primary']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){border-color:transparent}:host([appearance='outline']:is(:disabled,[disabled-focusable])),:host([appearance='outline']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){background-color:${colorTransparentBackground}}:host([appearance='subtle']:is(:disabled,[disabled-focusable])),:host([appearance='subtle']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){background-color:${colorTransparentBackground};border-color:transparent}:host([appearance='transparent']:is(:disabled,[disabled-focusable])),:host([appearance='transparent']:is(:disabled,[disabled-focusable]):is(:hover,:hover:active)){border-color:transparent;background-color:${colorTransparentBackground}}@media (forced-colors:active){:host{background-color:ButtonFace;color:ButtonText}:host(:is(:hover,:focus-visible)){border-color:Highlight !important}:host([appearance='primary']:not(:is(:hover,:focus-visible))){background-color:Highlight;color:HighlightText;forced-color-adjust:none}:host(:is(:disabled,[disabled-focusable],[appearance]:disabled,[appearance][disabled-focusable])){background-color:ButtonFace;color:GrayText;border-color:ButtonText}}`;
-
-const styles$C = css`${baseButtonStyles} ::slotted(a){position:absolute;inset:0}@media (forced-colors:active){:host{border-color:LinkText;color:LinkText}}`;
-
-function anchorTemplate$1(options = {}) {
-  return html`<template tabindex=0 @click=${(x, c) => x.clickHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)}>${startSlotTemplate(options)} <span class=content part=content><slot></slot></span>${endSlotTemplate(options)}</template>`;
-}
-const template$D = anchorTemplate$1();
-
-const definition$D = AnchorButton.compose({
-  name: tagName$C,
-  template: template$D,
-  styles: styles$C
-});
-
-definition$D.define(FluentDesignSystem.registry);
+AnchorButton.define(definition$D);
 
 const AvatarNamedColor = {
   darkRed: "dark-red",
@@ -5617,6 +5552,32 @@ const AvatarColor = {
   ...AvatarNamedColor
 };
 const tagName$B = `${FluentDesignSystem.prefix}-avatar`;
+
+const animations = {
+  fastOutSlowInMax: curveDecelerateMax,
+  fastOutSlowInMid: curveDecelerateMid,
+  fastOutSlowInMin: curveDecelerateMin,
+  slowOutFastInMax: curveAccelerateMax,
+  slowOutFastInMid: curveAccelerateMid,
+  slowOutFastInMin: curveAccelerateMin,
+  fastEase: curveEasyEaseMax,
+  normalEase: curveEasyEase,
+  nullEasing: curveLinear
+};
+const styles$B = css`${display("inline-grid")} :host{position:relative;place-items:center;place-content:center;grid-template:1fr/1fr;flex-shrink:0;width:32px;height:32px;font-family:${fontFamilyBase};font-weight:${fontWeightSemibold};font-size:${fontSizeBase300};border-radius:${borderRadiusCircular};color:${colorNeutralForeground3};background-color:${colorNeutralBackground6};contain:layout style}.monogram,.default-icon{grid-area:1/1/-1/-1}.monogram:empty{display:none}.default-slot:is(.has-slotted,:has-slotted)~.default-icon,.default-slot:is(.has-slotted,:has-slotted)~.monogram,:host(:is([name]):not([name=''])) .default-icon,:host(:is([initials]):not([initials=''])) .default-icon{display:none}.default-icon,::slotted(svg){width:20px;height:20px;font-size:20px}::slotted(img){box-sizing:border-box;width:100%;height:100%;border-radius:${borderRadiusCircular}}::slotted([slot='badge']){position:absolute;bottom:0;right:0;box-shadow:0 0 0 ${strokeWidthThin} ${colorNeutralBackground1}}:host([size='64']) ::slotted([slot='badge']),:host([size='72']) ::slotted([slot='badge']),:host([size='96']) ::slotted([slot='badge']),:host([size='120']) ::slotted([slot='badge']),:host([size='128']) ::slotted([slot='badge']){box-shadow:0 0 0 ${strokeWidthThick} ${colorNeutralBackground1}}:host([size='16']),:host([size='20']),:host([size='24']){font-size:${fontSizeBase100};font-weight:${fontWeightRegular}}:host([size='16']){width:16px;height:16px}:host([size='20']){width:20px;height:20px}:host([size='24']){width:24px;height:24px}:host([size='16']) .default-icon,:host([size='16']) ::slotted(svg){width:12px;height:12px;font-size:12px}:host([size='20']) .default-icon,:host([size='24']) .default-icon,:host([size='20']) ::slotted(svg),:host([size='24']) ::slotted(svg){width:16px;height:16px;font-size:16px}:host([size='28']){width:28px;height:28px;font-size:${fontSizeBase200}}:host([size='36']){width:36px;height:36px}:host([size='40']){width:40px;height:40px}:host([size='48']),:host([size='56']){font-size:${fontSizeBase400}}:host([size='48']){width:48px;height:48px}:host([size='48']) .default-icon,:host([size='48']) ::slotted(svg){width:24px;height:24px;font-size:24px}:host([size='56']){width:56px;height:56px}:host([size='56']) .default-icon,:host([size='56']) ::slotted(svg){width:28px;height:28px;font-size:28px}:host([size='64']),:host([size='72']),:host([size='96']){font-size:${fontSizeBase500}}:host([size='64']) .default-icon,:host([size='72']) .default-icon,:host([size='64']) ::slotted(svg),:host([size='72']) ::slotted(svg){width:32px;height:32px;font-size:32px}:host([size='64']){width:64px;height:64px}:host([size='72']){width:72px;height:72px}:host([size='96']){width:96px;height:96px}:host([size='96']) .default-icon,:host([size='120']) .default-icon,:host([size='128']) .default-icon,:host([size='96']) ::slotted(svg),:host([size='120']) ::slotted(svg),:host([size='128']) ::slotted(svg){width:48px;height:48px;font-size:48px}:host([size='120']),:host([size='128']){font-size:${fontSizeBase600}}:host([size='120']){width:120px;height:120px}:host([size='128']){width:128px;height:128px}:host([shape='square']){border-radius:${borderRadiusMedium}}:host([shape='square'][size='20']),:host([shape='square'][size='24']){border-radius:${borderRadiusSmall}}:host([shape='square'][size='56']),:host([shape='square'][size='64']),:host([shape='square'][size='72']){border-radius:${borderRadiusLarge}}:host([shape='square'][size='96']),:host([shape='square'][size='120']),:host([shape='square'][size='128']){border-radius:${borderRadiusXLarge}}:host([data-color='brand']){color:${colorNeutralForegroundStaticInverted};background-color:${colorBrandBackgroundStatic}}:host([data-color='dark-red']){color:${colorPaletteDarkRedForeground2};background-color:${colorPaletteDarkRedBackground2}}:host([data-color='cranberry']){color:${colorPaletteCranberryForeground2};background-color:${colorPaletteCranberryBackground2}}:host([data-color='red']){color:${colorPaletteRedForeground2};background-color:${colorPaletteRedBackground2}}:host([data-color='pumpkin']){color:${colorPalettePumpkinForeground2};background-color:${colorPalettePumpkinBackground2}}:host([data-color='peach']){color:${colorPalettePeachForeground2};background-color:${colorPalettePeachBackground2}}:host([data-color='marigold']){color:${colorPaletteMarigoldForeground2};background-color:${colorPaletteMarigoldBackground2}}:host([data-color='gold']){color:${colorPaletteGoldForeground2};background-color:${colorPaletteGoldBackground2}}:host([data-color='brass']){color:${colorPaletteBrassForeground2};background-color:${colorPaletteBrassBackground2}}:host([data-color='brown']){color:${colorPaletteBrownForeground2};background-color:${colorPaletteBrownBackground2}}:host([data-color='forest']){color:${colorPaletteForestForeground2};background-color:${colorPaletteForestBackground2}}:host([data-color='seafoam']){color:${colorPaletteSeafoamForeground2};background-color:${colorPaletteSeafoamBackground2}}:host([data-color='dark-green']){color:${colorPaletteDarkGreenForeground2};background-color:${colorPaletteDarkGreenBackground2}}:host([data-color='light-teal']){color:${colorPaletteLightTealForeground2};background-color:${colorPaletteLightTealBackground2}}:host([data-color='teal']){color:${colorPaletteTealForeground2};background-color:${colorPaletteTealBackground2}}:host([data-color='steel']){color:${colorPaletteSteelForeground2};background-color:${colorPaletteSteelBackground2}}:host([data-color='blue']){color:${colorPaletteBlueForeground2};background-color:${colorPaletteBlueBackground2}}:host([data-color='royal-blue']){color:${colorPaletteRoyalBlueForeground2};background-color:${colorPaletteRoyalBlueBackground2}}:host([data-color='cornflower']){color:${colorPaletteCornflowerForeground2};background-color:${colorPaletteCornflowerBackground2}}:host([data-color='navy']){color:${colorPaletteNavyForeground2};background-color:${colorPaletteNavyBackground2}}:host([data-color='lavender']){color:${colorPaletteLavenderForeground2};background-color:${colorPaletteLavenderBackground2}}:host([data-color='purple']){color:${colorPalettePurpleForeground2};background-color:${colorPalettePurpleBackground2}}:host([data-color='grape']){color:${colorPaletteGrapeForeground2};background-color:${colorPaletteGrapeBackground2}}:host([data-color='lilac']){color:${colorPaletteLilacForeground2};background-color:${colorPaletteLilacBackground2}}:host([data-color='pink']){color:${colorPalettePinkForeground2};background-color:${colorPalettePinkBackground2}}:host([data-color='magenta']){color:${colorPaletteMagentaForeground2};background-color:${colorPaletteMagentaBackground2}}:host([data-color='plum']){color:${colorPalettePlumForeground2};background-color:${colorPalettePlumBackground2}}:host([data-color='beige']){color:${colorPaletteBeigeForeground2};background-color:${colorPaletteBeigeBackground2}}:host([data-color='mink']){color:${colorPaletteMinkForeground2};background-color:${colorPaletteMinkBackground2}}:host([data-color='platinum']){color:${colorPalettePlatinumForeground2};background-color:${colorPalettePlatinumBackground2}}:host([data-color='anchor']){color:${colorPaletteAnchorForeground2};background-color:${colorPaletteAnchorBackground2}}:host([active]){transform:perspective(1px);transition-property:transform,opacity;transition-duration:${durationUltraSlow},${durationFaster};transition-delay:${animations.fastEase},${animations.nullEasing}}:host([active])::before{content:'';position:absolute;top:0;left:0;bottom:0;right:0;border-radius:inherit;transition-property:margin,opacity;transition-duration:${durationUltraSlow},${durationSlower};transition-delay:${animations.fastEase},${animations.nullEasing}}:host([active])::before{box-shadow:${shadow8};border-style:solid;border-color:${colorBrandBackgroundStatic}}:host([active][appearance='shadow'])::before{border-style:none;border-color:none}:host([active]:not([appearance='shadow']))::before{margin:calc(-2 * ${strokeWidthThick});border-width:${strokeWidthThick}}:host([size='56'][active]:not([appearance='shadow']))::before,:host([size='64'][active]:not([appearance='shadow']))::before{margin:calc(-2 * ${strokeWidthThicker});border-width:${strokeWidthThicker}}:host([size='72'][active]:not([appearance='shadow']))::before,:host([size='96'][active]:not([appearance='shadow']))::before,:host([size='120'][active]:not([appearance='shadow']))::before,:host([size='128'][active]:not([appearance='shadow']))::before{margin:calc(-2 * ${strokeWidthThickest});border-width:${strokeWidthThickest}}:host([size='20'][active][appearance])::before,:host([size='24'][active][appearance])::before,:host([size='28'][active][appearance])::before{box-shadow:${shadow4}}:host([size='56'][active][appearance])::before,:host([size='64'][active][appearance])::before{box-shadow:${shadow16}}:host([size='72'][active][appearance])::before,:host([size='96'][active][appearance])::before,:host([size='120'][active][appearance])::before,:host([size='128'][active][appearance])::before{box-shadow:${shadow28}}:host([active][appearance='ring'])::before{box-shadow:none}:host([active='inactive']){opacity:0.8;transform:scale(0.875);transition-property:transform,opacity;transition-duration:${durationUltraSlow},${durationFaster};transition-delay:${animations.fastOutSlowInMin},${animations.nullEasing}}:host([active='inactive'])::before{margin:0;opacity:0;transition-property:margin,opacity;transition-duration:${durationUltraSlow},${durationSlower};transition-delay:${animations.fastOutSlowInMin},${animations.nullEasing}}@media screen and (prefers-reduced-motion:reduce){:host([active]){transition-duration:0.01ms}:host([active])::before{transition-duration:0.01ms;transition-delay:0.01ms}}`;
+
+const defaultIconTemplate = html`<svg width=1em height=1em viewBox="0 0 20 20" class=default-icon fill=currentcolor aria-hidden=true><path d="M10 2a4 4 0 100 8 4 4 0 000-8zM7 6a3 3 0 116 0 3 3 0 01-6 0zm-2 5a2 2 0 00-2 2c0 1.7.83 2.97 2.13 3.8A9.14 9.14 0 0010 18c1.85 0 3.58-.39 4.87-1.2A4.35 4.35 0 0017 13a2 2 0 00-2-2H5zm-1 2a1 1 0 011-1h10a1 1 0 011 1c0 1.3-.62 2.28-1.67 2.95A8.16 8.16 0 0110 17a8.16 8.16 0 01-4.33-1.05A3.36 3.36 0 014 13z"></path></svg>`;
+function avatarTemplate() {
+  return html`<slot class=default-slot ${slotted("slottedDefaults")} ${ref("defaultSlot")}></slot><span class=monogram ${ref("monogram")}>${(x) => x.initials}</span> ${defaultIconTemplate}<slot name=badge></slot>`;
+}
+const template$C = avatarTemplate();
+
+const definition$C = {
+  name: tagName$B,
+  registry: FluentDesignSystem.registry,
+  styles: styles$B,
+  template: template$C
+};
 
 const UNWANTED_ENCLOSURES_REGEX = /[\(\[\{][^\)\]\}]*[\)\]\}]/g;
 const UNWANTED_CHARS_REGEX = /[\0-\u001F\!-/:-@\[-`\{-\u00BF\u0250-\u036F\uD800-\uFFFF]/g;
@@ -5882,32 +5843,7 @@ const getHashCode = (str) => {
   return hashCode;
 };
 
-const animations = {
-  fastOutSlowInMax: curveDecelerateMax,
-  fastOutSlowInMid: curveDecelerateMid,
-  fastOutSlowInMin: curveDecelerateMin,
-  slowOutFastInMax: curveAccelerateMax,
-  slowOutFastInMid: curveAccelerateMid,
-  slowOutFastInMin: curveAccelerateMin,
-  fastEase: curveEasyEaseMax,
-  normalEase: curveEasyEase,
-  nullEasing: curveLinear
-};
-const styles$B = css`${display("inline-grid")} :host{position:relative;place-items:center;place-content:center;grid-template:1fr/1fr;flex-shrink:0;width:32px;height:32px;font-family:${fontFamilyBase};font-weight:${fontWeightSemibold};font-size:${fontSizeBase300};border-radius:${borderRadiusCircular};color:${colorNeutralForeground3};background-color:${colorNeutralBackground6};contain:layout style}.monogram,.default-icon{grid-area:1/1/-1/-1}.monogram:empty{display:none}.default-slot:is(.has-slotted,:has-slotted)~.default-icon,.default-slot:is(.has-slotted,:has-slotted)~.monogram,:host(:is([name]):not([name=''])) .default-icon,:host(:is([initials]):not([initials=''])) .default-icon{display:none}.default-icon,::slotted(svg){width:20px;height:20px;font-size:20px}::slotted(img){box-sizing:border-box;width:100%;height:100%;border-radius:${borderRadiusCircular}}::slotted([slot='badge']){position:absolute;bottom:0;right:0;box-shadow:0 0 0 ${strokeWidthThin} ${colorNeutralBackground1}}:host([size='64']) ::slotted([slot='badge']),:host([size='72']) ::slotted([slot='badge']),:host([size='96']) ::slotted([slot='badge']),:host([size='120']) ::slotted([slot='badge']),:host([size='128']) ::slotted([slot='badge']){box-shadow:0 0 0 ${strokeWidthThick} ${colorNeutralBackground1}}:host([size='16']),:host([size='20']),:host([size='24']){font-size:${fontSizeBase100};font-weight:${fontWeightRegular}}:host([size='16']){width:16px;height:16px}:host([size='20']){width:20px;height:20px}:host([size='24']){width:24px;height:24px}:host([size='16']) .default-icon,:host([size='16']) ::slotted(svg){width:12px;height:12px;font-size:12px}:host([size='20']) .default-icon,:host([size='24']) .default-icon,:host([size='20']) ::slotted(svg),:host([size='24']) ::slotted(svg){width:16px;height:16px;font-size:16px}:host([size='28']){width:28px;height:28px;font-size:${fontSizeBase200}}:host([size='36']){width:36px;height:36px}:host([size='40']){width:40px;height:40px}:host([size='48']),:host([size='56']){font-size:${fontSizeBase400}}:host([size='48']){width:48px;height:48px}:host([size='48']) .default-icon,:host([size='48']) ::slotted(svg){width:24px;height:24px;font-size:24px}:host([size='56']){width:56px;height:56px}:host([size='56']) .default-icon,:host([size='56']) ::slotted(svg){width:28px;height:28px;font-size:28px}:host([size='64']),:host([size='72']),:host([size='96']){font-size:${fontSizeBase500}}:host([size='64']) .default-icon,:host([size='72']) .default-icon,:host([size='64']) ::slotted(svg),:host([size='72']) ::slotted(svg){width:32px;height:32px;font-size:32px}:host([size='64']){width:64px;height:64px}:host([size='72']){width:72px;height:72px}:host([size='96']){width:96px;height:96px}:host([size='96']) .default-icon,:host([size='120']) .default-icon,:host([size='128']) .default-icon,:host([size='96']) ::slotted(svg),:host([size='120']) ::slotted(svg),:host([size='128']) ::slotted(svg){width:48px;height:48px;font-size:48px}:host([size='120']),:host([size='128']){font-size:${fontSizeBase600}}:host([size='120']){width:120px;height:120px}:host([size='128']){width:128px;height:128px}:host([shape='square']){border-radius:${borderRadiusMedium}}:host([shape='square'][size='20']),:host([shape='square'][size='24']){border-radius:${borderRadiusSmall}}:host([shape='square'][size='56']),:host([shape='square'][size='64']),:host([shape='square'][size='72']){border-radius:${borderRadiusLarge}}:host([shape='square'][size='96']),:host([shape='square'][size='120']),:host([shape='square'][size='128']){border-radius:${borderRadiusXLarge}}:host([data-color='brand']){color:${colorNeutralForegroundStaticInverted};background-color:${colorBrandBackgroundStatic}}:host([data-color='dark-red']){color:${colorPaletteDarkRedForeground2};background-color:${colorPaletteDarkRedBackground2}}:host([data-color='cranberry']){color:${colorPaletteCranberryForeground2};background-color:${colorPaletteCranberryBackground2}}:host([data-color='red']){color:${colorPaletteRedForeground2};background-color:${colorPaletteRedBackground2}}:host([data-color='pumpkin']){color:${colorPalettePumpkinForeground2};background-color:${colorPalettePumpkinBackground2}}:host([data-color='peach']){color:${colorPalettePeachForeground2};background-color:${colorPalettePeachBackground2}}:host([data-color='marigold']){color:${colorPaletteMarigoldForeground2};background-color:${colorPaletteMarigoldBackground2}}:host([data-color='gold']){color:${colorPaletteGoldForeground2};background-color:${colorPaletteGoldBackground2}}:host([data-color='brass']){color:${colorPaletteBrassForeground2};background-color:${colorPaletteBrassBackground2}}:host([data-color='brown']){color:${colorPaletteBrownForeground2};background-color:${colorPaletteBrownBackground2}}:host([data-color='forest']){color:${colorPaletteForestForeground2};background-color:${colorPaletteForestBackground2}}:host([data-color='seafoam']){color:${colorPaletteSeafoamForeground2};background-color:${colorPaletteSeafoamBackground2}}:host([data-color='dark-green']){color:${colorPaletteDarkGreenForeground2};background-color:${colorPaletteDarkGreenBackground2}}:host([data-color='light-teal']){color:${colorPaletteLightTealForeground2};background-color:${colorPaletteLightTealBackground2}}:host([data-color='teal']){color:${colorPaletteTealForeground2};background-color:${colorPaletteTealBackground2}}:host([data-color='steel']){color:${colorPaletteSteelForeground2};background-color:${colorPaletteSteelBackground2}}:host([data-color='blue']){color:${colorPaletteBlueForeground2};background-color:${colorPaletteBlueBackground2}}:host([data-color='royal-blue']){color:${colorPaletteRoyalBlueForeground2};background-color:${colorPaletteRoyalBlueBackground2}}:host([data-color='cornflower']){color:${colorPaletteCornflowerForeground2};background-color:${colorPaletteCornflowerBackground2}}:host([data-color='navy']){color:${colorPaletteNavyForeground2};background-color:${colorPaletteNavyBackground2}}:host([data-color='lavender']){color:${colorPaletteLavenderForeground2};background-color:${colorPaletteLavenderBackground2}}:host([data-color='purple']){color:${colorPalettePurpleForeground2};background-color:${colorPalettePurpleBackground2}}:host([data-color='grape']){color:${colorPaletteGrapeForeground2};background-color:${colorPaletteGrapeBackground2}}:host([data-color='lilac']){color:${colorPaletteLilacForeground2};background-color:${colorPaletteLilacBackground2}}:host([data-color='pink']){color:${colorPalettePinkForeground2};background-color:${colorPalettePinkBackground2}}:host([data-color='magenta']){color:${colorPaletteMagentaForeground2};background-color:${colorPaletteMagentaBackground2}}:host([data-color='plum']){color:${colorPalettePlumForeground2};background-color:${colorPalettePlumBackground2}}:host([data-color='beige']){color:${colorPaletteBeigeForeground2};background-color:${colorPaletteBeigeBackground2}}:host([data-color='mink']){color:${colorPaletteMinkForeground2};background-color:${colorPaletteMinkBackground2}}:host([data-color='platinum']){color:${colorPalettePlatinumForeground2};background-color:${colorPalettePlatinumBackground2}}:host([data-color='anchor']){color:${colorPaletteAnchorForeground2};background-color:${colorPaletteAnchorBackground2}}:host([active]){transform:perspective(1px);transition-property:transform,opacity;transition-duration:${durationUltraSlow},${durationFaster};transition-delay:${animations.fastEase},${animations.nullEasing}}:host([active])::before{content:'';position:absolute;top:0;left:0;bottom:0;right:0;border-radius:inherit;transition-property:margin,opacity;transition-duration:${durationUltraSlow},${durationSlower};transition-delay:${animations.fastEase},${animations.nullEasing}}:host([active])::before{box-shadow:${shadow8};border-style:solid;border-color:${colorBrandBackgroundStatic}}:host([active][appearance='shadow'])::before{border-style:none;border-color:none}:host([active]:not([appearance='shadow']))::before{margin:calc(-2 * ${strokeWidthThick});border-width:${strokeWidthThick}}:host([size='56'][active]:not([appearance='shadow']))::before,:host([size='64'][active]:not([appearance='shadow']))::before{margin:calc(-2 * ${strokeWidthThicker});border-width:${strokeWidthThicker}}:host([size='72'][active]:not([appearance='shadow']))::before,:host([size='96'][active]:not([appearance='shadow']))::before,:host([size='120'][active]:not([appearance='shadow']))::before,:host([size='128'][active]:not([appearance='shadow']))::before{margin:calc(-2 * ${strokeWidthThickest});border-width:${strokeWidthThickest}}:host([size='20'][active][appearance])::before,:host([size='24'][active][appearance])::before,:host([size='28'][active][appearance])::before{box-shadow:${shadow4}}:host([size='56'][active][appearance])::before,:host([size='64'][active][appearance])::before{box-shadow:${shadow16}}:host([size='72'][active][appearance])::before,:host([size='96'][active][appearance])::before,:host([size='120'][active][appearance])::before,:host([size='128'][active][appearance])::before{box-shadow:${shadow28}}:host([active][appearance='ring'])::before{box-shadow:none}:host([active='inactive']){opacity:0.8;transform:scale(0.875);transition-property:transform,opacity;transition-duration:${durationUltraSlow},${durationFaster};transition-delay:${animations.fastOutSlowInMin},${animations.nullEasing}}:host([active='inactive'])::before{margin:0;opacity:0;transition-property:margin,opacity;transition-duration:${durationUltraSlow},${durationSlower};transition-delay:${animations.fastOutSlowInMin},${animations.nullEasing}}@media screen and (prefers-reduced-motion:reduce){:host([active]){transition-duration:0.01ms}:host([active])::before{transition-duration:0.01ms;transition-delay:0.01ms}}`;
-
-const defaultIconTemplate = html`<svg width=1em height=1em viewBox="0 0 20 20" class=default-icon fill=currentcolor aria-hidden=true><path d="M10 2a4 4 0 100 8 4 4 0 000-8zM7 6a3 3 0 116 0 3 3 0 01-6 0zm-2 5a2 2 0 00-2 2c0 1.7.83 2.97 2.13 3.8A9.14 9.14 0 0010 18c1.85 0 3.58-.39 4.87-1.2A4.35 4.35 0 0017 13a2 2 0 00-2-2H5zm-1 2a1 1 0 011-1h10a1 1 0 011 1c0 1.3-.62 2.28-1.67 2.95A8.16 8.16 0 0110 17a8.16 8.16 0 01-4.33-1.05A3.36 3.36 0 014 13z"></path></svg>`;
-function avatarTemplate() {
-  return html`<slot class=default-slot ${slotted("slottedDefaults")} ${ref("defaultSlot")}></slot><span class=monogram ${ref("monogram")}>${(x) => x.initials}</span> ${defaultIconTemplate}<slot name=badge></slot>`;
-}
-const template$C = avatarTemplate();
-
-const definition$C = Avatar.compose({
-  name: tagName$B,
-  template: template$C,
-  styles: styles$B
-});
-
-definition$C.define(FluentDesignSystem.registry);
+Avatar.define(definition$C);
 
 const BadgeAppearance = {
   filled: "filled",
@@ -5926,6 +5862,27 @@ const BadgeColor = {
   warning: "warning"
 };
 const tagName$A = `${FluentDesignSystem.prefix}-badge`;
+
+const badgeBaseStyles = css.partial`${display("inline-flex")} :host{position:relative;box-sizing:border-box;align-items:center;justify-content:center;font-family:${fontFamilyBase};font-weight:${fontWeightSemibold};font-size:${fontSizeBase200};line-height:${lineHeightBase200};min-width:20px;height:20px;padding-inline:calc(${spacingHorizontalXS} + ${spacingHorizontalXXS});border-radius:${borderRadiusCircular};border-color:${colorTransparentStroke};background-color:${colorBrandBackground};color:${colorNeutralForegroundOnBrand};contain:content}::slotted(svg){font-size:12px}:host(:not([appearance='ghost']))::after{position:absolute;content:'';top:0;left:0;bottom:0;right:0;border-style:solid;border-width:${strokeWidthThin};border-color:inherit;border-radius:inherit}`;
+const badgeSizeStyles = css.partial`:host([size='tiny']){width:6px;height:6px;font-size:4px;line-height:4px;padding-inline:0;min-width:unset}:host([size='tiny']) ::slotted(svg){font-size:6px}:host([size='extra-small']){width:10px;height:10px;font-size:6px;line-height:6px;padding-inline:0;min-width:unset}:host([size='extra-small']) ::slotted(svg){font-size:10px}:host([size='small']){min-width:16px;height:16px;font-size:${fontSizeBase100};line-height:${lineHeightBase100};padding-inline:calc(${spacingHorizontalXXS} + ${spacingHorizontalXXS})}:host([size='small']) ::slotted(svg){font-size:12px}:host([size='large']){min-width:24px;height:24px;font-size:${fontSizeBase200};line-height:${lineHeightBase200};padding-inline:calc(${spacingHorizontalXS} + ${spacingHorizontalXXS})}:host([size='large']) ::slotted(svg){font-size:16px}:host([size='extra-large']){min-width:32px;height:32px;font-size:${fontSizeBase200};line-height:${lineHeightBase200};padding-inline:calc(${spacingHorizontalSNudge} + ${spacingHorizontalXXS})}:host([size='extra-large']) ::slotted(svg){font-size:20px}`;
+const badgeFilledStyles = css.partial`:host([color='danger']){background-color:${colorPaletteRedBackground3};color:${colorNeutralForegroundOnBrand}}:host([color='important']){background-color:${colorNeutralForeground1};color:${colorNeutralBackground1}}:host([color='informative']){background-color:${colorNeutralBackground5};color:${colorNeutralForeground3}}:host([color='severe']){background-color:${colorPaletteDarkOrangeBackground3};color:${colorNeutralForegroundOnBrand}}:host([color='subtle']){background-color:${colorNeutralBackground1};color:${colorNeutralForeground1}}:host([color='success']){background-color:${colorPaletteGreenBackground3};color:${colorNeutralForegroundOnBrand}}:host([color='warning']){background-color:${colorPaletteYellowBackground3};color:${colorNeutralForeground1Static}}`;
+const badgeGhostStyles = css.partial`:host([appearance='ghost']){color:${colorBrandForeground1};background-color:initial}:host([appearance='ghost'][color='danger']){color:${colorPaletteRedForeground3}}:host([appearance='ghost'][color='important']){color:${colorNeutralForeground1}}:host([appearance='ghost'][color='informative']){color:${colorNeutralForeground3}}:host([appearance='ghost'][color='severe']){color:${colorPaletteDarkOrangeForeground3}}:host([appearance='ghost'][color='subtle']){color:${colorNeutralForegroundInverted}}:host([appearance='ghost'][color='success']){color:${colorPaletteGreenForeground3}}:host([appearance='ghost'][color='warning']){color:${colorPaletteYellowForeground2}}`;
+const badgeOutlineStyles = css.partial`:host([appearance='outline']){border-color:currentColor;color:${colorBrandForeground1};background-color:initial}:host([appearance='outline'][color='danger']){color:${colorPaletteRedForeground3}}:host([appearance='outline'][color='important']){color:${colorNeutralForeground3};border-color:${colorNeutralStrokeAccessible}}:host([appearance='outline'][color='informative']){color:${colorNeutralForeground3};border-color:${colorNeutralStroke2}}:host([appearance='outline'][color='severe']){color:${colorPaletteDarkOrangeForeground3}}:host([appearance='outline'][color='subtle']){color:${colorNeutralForegroundStaticInverted}}:host([appearance='outline'][color='success']){color:${colorPaletteGreenForeground2}}:host([appearance='outline'][color='warning']){color:${colorPaletteYellowForeground2}}`;
+const badgeTintStyles = css.partial`:host([appearance='tint']){background-color:${colorBrandBackground2};color:${colorBrandForeground2};border-color:${colorBrandStroke2}}:host([appearance='tint'][color='danger']){background-color:${colorPaletteRedBackground1};color:${colorPaletteRedForeground1};border-color:${colorPaletteRedBorder1}}:host([appearance='tint'][color='important']){background-color:${colorNeutralForeground3};color:${colorNeutralBackground1};border-color:${colorTransparentStroke}}:host([appearance='tint'][color='informative']){background-color:${colorNeutralBackground4};color:${colorNeutralForeground3};border-color:${colorNeutralStroke2}}:host([appearance='tint'][color='severe']){background-color:${colorPaletteDarkOrangeBackground1};color:${colorPaletteDarkOrangeForeground1};border-color:${colorPaletteDarkOrangeBorder1}}:host([appearance='tint'][color='subtle']){background-color:${colorNeutralBackground1};color:${colorNeutralForeground3};border-color:${colorNeutralStroke2}}:host([appearance='tint'][color='success']){background-color:${colorPaletteGreenBackground1};color:${colorPaletteGreenForeground1};border-color:${colorPaletteGreenBorder2}}:host([appearance='tint'][color='warning']){background-color:${colorPaletteYellowBackground1};color:${colorPaletteYellowForeground2};border-color:${colorPaletteYellowBorder1}}`;
+
+const styles$A = css`:host([shape='square']){border-radius:${borderRadiusNone}}:host([shape='rounded']){border-radius:${borderRadiusMedium}}:host([shape='rounded']:is([size='tiny'],[size='extra-small'],[size='small'])){border-radius:${borderRadiusSmall}}${badgeTintStyles} ${badgeOutlineStyles} ${badgeGhostStyles} ${badgeFilledStyles} ${badgeSizeStyles} ${badgeBaseStyles} @media (forced-colors:active){:host,:host([appearance='outline']),:host([appearance='tint']){border-color:CanvasText}}`;
+
+function badgeTemplate(options = {}) {
+  return html`${startSlotTemplate(options)}<slot>${staticallyCompose(options.defaultContent)}</slot>${endSlotTemplate(options)}`;
+}
+const template$B = badgeTemplate();
+
+const definition$B = {
+  name: tagName$A,
+  registry: FluentDesignSystem.registry,
+  styles: styles$A,
+  template: template$B
+};
 
 var __defProp$I = Object.defineProperty;
 var __getOwnPropDesc$I = Object.getOwnPropertyDescriptor;
@@ -5958,27 +5915,29 @@ __decorateClass$I([
 ], Badge.prototype, "size", 2);
 applyMixins(Badge, StartEnd);
 
-const badgeBaseStyles = css.partial`${display("inline-flex")} :host{position:relative;box-sizing:border-box;align-items:center;justify-content:center;font-family:${fontFamilyBase};font-weight:${fontWeightSemibold};font-size:${fontSizeBase200};line-height:${lineHeightBase200};min-width:20px;height:20px;padding-inline:calc(${spacingHorizontalXS} + ${spacingHorizontalXXS});border-radius:${borderRadiusCircular};border-color:${colorTransparentStroke};background-color:${colorBrandBackground};color:${colorNeutralForegroundOnBrand};contain:content}::slotted(svg){font-size:12px}:host(:not([appearance='ghost']))::after{position:absolute;content:'';top:0;left:0;bottom:0;right:0;border-style:solid;border-width:${strokeWidthThin};border-color:inherit;border-radius:inherit}`;
-const badgeSizeStyles = css.partial`:host([size='tiny']){width:6px;height:6px;font-size:4px;line-height:4px;padding-inline:0;min-width:unset}:host([size='tiny']) ::slotted(svg){font-size:6px}:host([size='extra-small']){width:10px;height:10px;font-size:6px;line-height:6px;padding-inline:0;min-width:unset}:host([size='extra-small']) ::slotted(svg){font-size:10px}:host([size='small']){min-width:16px;height:16px;font-size:${fontSizeBase100};line-height:${lineHeightBase100};padding-inline:calc(${spacingHorizontalXXS} + ${spacingHorizontalXXS})}:host([size='small']) ::slotted(svg){font-size:12px}:host([size='large']){min-width:24px;height:24px;font-size:${fontSizeBase200};line-height:${lineHeightBase200};padding-inline:calc(${spacingHorizontalXS} + ${spacingHorizontalXXS})}:host([size='large']) ::slotted(svg){font-size:16px}:host([size='extra-large']){min-width:32px;height:32px;font-size:${fontSizeBase200};line-height:${lineHeightBase200};padding-inline:calc(${spacingHorizontalSNudge} + ${spacingHorizontalXXS})}:host([size='extra-large']) ::slotted(svg){font-size:20px}`;
-const badgeFilledStyles = css.partial`:host([color='danger']){background-color:${colorPaletteRedBackground3};color:${colorNeutralForegroundOnBrand}}:host([color='important']){background-color:${colorNeutralForeground1};color:${colorNeutralBackground1}}:host([color='informative']){background-color:${colorNeutralBackground5};color:${colorNeutralForeground3}}:host([color='severe']){background-color:${colorPaletteDarkOrangeBackground3};color:${colorNeutralForegroundOnBrand}}:host([color='subtle']){background-color:${colorNeutralBackground1};color:${colorNeutralForeground1}}:host([color='success']){background-color:${colorPaletteGreenBackground3};color:${colorNeutralForegroundOnBrand}}:host([color='warning']){background-color:${colorPaletteYellowBackground3};color:${colorNeutralForeground1Static}}`;
-const badgeGhostStyles = css.partial`:host([appearance='ghost']){color:${colorBrandForeground1};background-color:initial}:host([appearance='ghost'][color='danger']){color:${colorPaletteRedForeground3}}:host([appearance='ghost'][color='important']){color:${colorNeutralForeground1}}:host([appearance='ghost'][color='informative']){color:${colorNeutralForeground3}}:host([appearance='ghost'][color='severe']){color:${colorPaletteDarkOrangeForeground3}}:host([appearance='ghost'][color='subtle']){color:${colorNeutralForegroundInverted}}:host([appearance='ghost'][color='success']){color:${colorPaletteGreenForeground3}}:host([appearance='ghost'][color='warning']){color:${colorPaletteYellowForeground2}}`;
-const badgeOutlineStyles = css.partial`:host([appearance='outline']){border-color:currentColor;color:${colorBrandForeground1};background-color:initial}:host([appearance='outline'][color='danger']){color:${colorPaletteRedForeground3}}:host([appearance='outline'][color='important']){color:${colorNeutralForeground3};border-color:${colorNeutralStrokeAccessible}}:host([appearance='outline'][color='informative']){color:${colorNeutralForeground3};border-color:${colorNeutralStroke2}}:host([appearance='outline'][color='severe']){color:${colorPaletteDarkOrangeForeground3}}:host([appearance='outline'][color='subtle']){color:${colorNeutralForegroundStaticInverted}}:host([appearance='outline'][color='success']){color:${colorPaletteGreenForeground2}}:host([appearance='outline'][color='warning']){color:${colorPaletteYellowForeground2}}`;
-const badgeTintStyles = css.partial`:host([appearance='tint']){background-color:${colorBrandBackground2};color:${colorBrandForeground2};border-color:${colorBrandStroke2}}:host([appearance='tint'][color='danger']){background-color:${colorPaletteRedBackground1};color:${colorPaletteRedForeground1};border-color:${colorPaletteRedBorder1}}:host([appearance='tint'][color='important']){background-color:${colorNeutralForeground3};color:${colorNeutralBackground1};border-color:${colorTransparentStroke}}:host([appearance='tint'][color='informative']){background-color:${colorNeutralBackground4};color:${colorNeutralForeground3};border-color:${colorNeutralStroke2}}:host([appearance='tint'][color='severe']){background-color:${colorPaletteDarkOrangeBackground1};color:${colorPaletteDarkOrangeForeground1};border-color:${colorPaletteDarkOrangeBorder1}}:host([appearance='tint'][color='subtle']){background-color:${colorNeutralBackground1};color:${colorNeutralForeground3};border-color:${colorNeutralStroke2}}:host([appearance='tint'][color='success']){background-color:${colorPaletteGreenBackground1};color:${colorPaletteGreenForeground1};border-color:${colorPaletteGreenBorder2}}:host([appearance='tint'][color='warning']){background-color:${colorPaletteYellowBackground1};color:${colorPaletteYellowForeground2};border-color:${colorPaletteYellowBorder1}}`;
+Badge.define(definition$B);
 
-const styles$A = css`:host([shape='square']){border-radius:${borderRadiusNone}}:host([shape='rounded']){border-radius:${borderRadiusMedium}}:host([shape='rounded']:is([size='tiny'],[size='extra-small'],[size='small'])){border-radius:${borderRadiusSmall}}${badgeTintStyles} ${badgeOutlineStyles} ${badgeGhostStyles} ${badgeFilledStyles} ${badgeSizeStyles} ${badgeBaseStyles} @media (forced-colors:active){:host,:host([appearance='outline']),:host([appearance='tint']){border-color:CanvasText}}`;
-
-function badgeTemplate(options = {}) {
-  return html`${startSlotTemplate(options)}<slot>${staticallyCompose(options.defaultContent)}</slot>${endSlotTemplate(options)}`;
+function buttonTemplate$1(options = {}) {
+  return html`<template @click=${(x, c) => x.clickHandler(c.event)} @keypress=${(x, c) => x.keypressHandler(c.event)}>${startSlotTemplate(options)} <span class=content part=content><slot ${slotted("defaultSlottedContent")}></slot></span>${endSlotTemplate(options)}</template>`;
 }
-const template$B = badgeTemplate();
+const template$A = buttonTemplate$1();
 
-const definition$B = Badge.compose({
-  name: tagName$A,
-  template: template$B,
-  styles: styles$A
-});
+const definition$A = {
+  name: tagName$D,
+  registry: FluentDesignSystem.registry,
+  styles: styles$D,
+  template: template$A
+};
 
-definition$B.define(FluentDesignSystem.registry);
+function maybeSetAutoFocus(element) {
+  const doc = element.ownerDocument;
+  if (element?.isConnected && element?.hasAttribute("autofocus") && // Note: opacity=0 is considered visible based on the native `autofocus` implementation
+  element?.checkVisibility?.({ contentVisibilityAuto: true, visibilityProperty: true }) && [null, element, doc.body, doc.documentElement].includes(doc.activeElement)) {
+    Updates.enqueue(() => {
+      element.focus();
+    });
+  }
+}
 
 var __defProp$H = Object.defineProperty;
 var __getOwnPropDesc$H = Object.getOwnPropertyDescriptor;
@@ -6072,6 +6031,7 @@ class BaseButton extends FASTElement {
     super.connectedCallback();
     this.elementInternals.ariaDisabled = `${!!this.disabledFocusable}`;
     this.setTabIndex();
+    maybeSetAutoFocus(this);
   }
   /**
    * This fallback creates a new slot, then creates a submit button to mirror the custom element's
@@ -6213,9 +6173,6 @@ class BaseButton extends FASTElement {
  */
 BaseButton.formAssociated = true;
 __decorateClass$H([
-  attr({ mode: "boolean" })
-], BaseButton.prototype, "autofocus", 2);
-__decorateClass$H([
   observable
 ], BaseButton.prototype, "defaultSlottedContent", 2);
 __decorateClass$H([
@@ -6282,20 +6239,63 @@ __decorateClass$G([
 ], Button.prototype, "iconOnly", 2);
 applyMixins(Button, StartEnd);
 
-function buttonTemplate$1(options = {}) {
-  return html`<template @click=${(x, c) => x.clickHandler(c.event)} @keypress=${(x, c) => x.keypressHandler(c.event)}>${startSlotTemplate(options)} <span class=content part=content><slot ${slotted("defaultSlottedContent")}></slot></span>${endSlotTemplate(options)}</template>`;
-}
-const template$A = buttonTemplate$1();
-
-const definition$A = Button.compose({
-  name: tagName$D,
-  template: template$A,
-  styles: styles$D
-});
-
-definition$A.define(FluentDesignSystem.registry);
+Button.define(definition$A);
 
 const tagName$z = `${FluentDesignSystem.prefix}-checkbox`;
+
+const activeState = stateSelector("active");
+const badInputState = stateSelector("bad-input");
+const checkedState = stateSelector("checked");
+const customErrorState = stateSelector("custom-error");
+const descriptionState = stateSelector("description");
+const disabledState = stateSelector("disabled");
+stateSelector("error");
+const flipBlockState = stateSelector("flip-block");
+const focusVisibleState = stateSelector("focus-visible");
+stateSelector("has-message");
+const indeterminateState = stateSelector("indeterminate");
+const multipleState = stateSelector("multiple");
+const openState = stateSelector("open");
+const patternMismatchState = stateSelector("pattern-mismatch");
+const placeholderShownState = stateSelector("placeholder-shown");
+const pressedState = stateSelector("pressed");
+const rangeOverflowState = stateSelector("range-overflow");
+const rangeUnderflowState = stateSelector("range-underflow");
+const requiredState = stateSelector("required");
+const selectedState = stateSelector("selected");
+const stepMismatchState = stateSelector("step-mismatch");
+const submenuState = stateSelector("submenu");
+const tooLongState = stateSelector("too-long");
+const tooShortState = stateSelector("too-short");
+const typeMismatchState = stateSelector("type-mismatch");
+const userInvalidState = stateSelector("user-invalid");
+const validState = stateSelector("valid");
+const valueMissingState = stateSelector("value-missing");
+
+const styles$z = css`${display("inline-flex")} :host{--size:16px;background-color:${colorNeutralBackground1};border-radius:${borderRadiusSmall};border:${strokeWidthThin} solid ${colorNeutralStrokeAccessible};box-sizing:border-box;cursor:pointer;position:relative;width:var(--size)}:host,.indeterminate-indicator,.checked-indicator{aspect-ratio:1}:host(:hover){border-color:${colorNeutralStrokeAccessibleHover}}:host(:active){border-color:${colorNeutralStrokeAccessiblePressed}}:host(${checkedState}:hover){background-color:${colorCompoundBrandBackgroundHover};border-color:${colorCompoundBrandStrokeHover}}:host(${checkedState}:active){background-color:${colorCompoundBrandBackgroundPressed};border-color:${colorCompoundBrandStrokePressed}}:host(:focus-visible){outline:none}:host(:not([slot='input']))::after{content:'';position:absolute;inset:-8px;box-sizing:border-box;outline:none;border:${strokeWidthThick} solid ${colorTransparentStroke};border-radius:${borderRadiusMedium}}:host(:not([slot='input']):focus-visible)::after{border-color:${colorStrokeFocus2}}.indeterminate-indicator,.checked-indicator{color:${colorNeutralForegroundInverted};inset:0;margin:auto;position:absolute}::slotted([slot='checked-indicator']),.checked-indicator{fill:currentColor;display:inline-flex;flex:1 0 auto;width:12px}:host(:not(${checkedState})) *:is(::slotted([slot='checked-indicator']),.checked-indicator){display:none}:host(${checkedState}),:host(${indeterminateState}){border-color:${colorCompoundBrandStroke}}:host(${checkedState}),:host(${indeterminateState}) .indeterminate-indicator{background-color:${colorCompoundBrandBackground}}:host(${indeterminateState}) .indeterminate-indicator{border-radius:${borderRadiusSmall};position:absolute;width:calc(var(--size)/2);inset:0}:host([size='large']){--size:20px}:host([size='large']) ::slotted([slot='checked-indicator']),:host([size='large']) .checked-indicator{width:16px}:host([shape='circular']),:host([shape='circular']) .indeterminate-indicator{border-radius:${borderRadiusCircular}}:host([disabled]),:host([disabled]${checkedState}){background-color:${colorNeutralBackgroundDisabled};border-color:${colorNeutralStrokeDisabled}}:host([disabled]){cursor:unset}:host([disabled]${indeterminateState}) .indeterminate-indicator{background-color:${colorNeutralStrokeDisabled}}:host([disabled]${checkedState}) .checked-indicator{color:${colorNeutralStrokeDisabled}}@media (forced-colors:active){:host{border-color:FieldText}:host(:not([slot='input']:focus-visible))::after{border-color:Canvas}:host(:not([disabled]):hover),:host(${checkedState}:not([disabled]):hover),:host(:not([slot='input']):focus-visible)::after{border-color:Highlight}.indeterminate-indicator,.checked-indicator{color:HighlightText}:host(${checkedState}),:host(${indeterminateState}) .indeterminate-indicator{background-color:FieldText}:host(${checkedState}:not([disabled]):hover),:host(${indeterminateState}:not([disabled]):hover) .indeterminate-indicator{background-color:Highlight}:host([disabled]){border-color:GrayText}:host([disabled]${indeterminateState}) .indeterminate-indicator{background-color:GrayText}:host([disabled]),:host([disabled]${checkedState}) .checked-indicator{color:GrayText}}`;
+
+const checkedIndicator$2 = html.partial(
+  /* html */
+  `<svg fill=currentColor aria-hidden=true class=checked-indicator width=1em height=1em viewBox="0 0 12 12" xmlns=http://www.w3.org/2000/svg><path d="M9.76 3.2c.3.29.32.76.04 1.06l-4.25 4.5a.75.75 0 0 1-1.08.02L2.22 6.53a.75.75 0 0 1 1.06-1.06l1.7 1.7L8.7 3.24a.75.75 0 0 1 1.06-.04Z" fill=currentColor></path></svg>`
+);
+const indeterminateIndicator = html.partial(
+  /* html */
+  `<span class=indeterminate-indicator></span>`
+);
+function checkboxTemplate(options = {}) {
+  return html`<template @click=${(x, c) => x.clickHandler(c.event)} @input=${(x, c) => x.inputHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)} @keyup=${(x, c) => x.keyupHandler(c.event)}><slot name=checked-indicator>${staticallyCompose(options.checkedIndicator)}</slot><slot name=indeterminate-indicator>${staticallyCompose(options.indeterminateIndicator)}</slot></template>`;
+}
+const template$z = checkboxTemplate({
+  checkedIndicator: checkedIndicator$2,
+  indeterminateIndicator
+});
+
+const definition$z = {
+  name: tagName$z,
+  registry: FluentDesignSystem.registry,
+  styles: styles$z,
+  template: template$z
+};
 
 var __defProp$F = Object.defineProperty;
 var __getOwnPropDesc$F = Object.getOwnPropertyDescriptor;
@@ -6530,6 +6530,7 @@ class BaseCheckbox extends FASTElement {
     this.disabled = !!this.disabledAttribute;
     this.setAriaChecked();
     this.setValidity();
+    maybeSetAutoFocus(this);
   }
   /**
    * Updates the form value when a user changes the `checked` state.
@@ -6657,9 +6658,6 @@ class BaseCheckbox extends FASTElement {
  */
 BaseCheckbox.formAssociated = true;
 __decorateClass$F([
-  attr({ mode: "boolean" })
-], BaseCheckbox.prototype, "autofocus", 2);
-__decorateClass$F([
   observable
 ], BaseCheckbox.prototype, "disabled", 2);
 __decorateClass$F([
@@ -6741,65 +6739,9 @@ __decorateClass$E([
   attr
 ], Checkbox.prototype, "size", 2);
 
-const activeState = stateSelector("active");
-const badInputState = stateSelector("bad-input");
-const checkedState = stateSelector("checked");
-const customErrorState = stateSelector("custom-error");
-const descriptionState = stateSelector("description");
-const disabledState = stateSelector("disabled");
-stateSelector("error");
-const flipBlockState = stateSelector("flip-block");
-const focusVisibleState = stateSelector("focus-visible");
-stateSelector("has-message");
-const indeterminateState = stateSelector("indeterminate");
-const multipleState = stateSelector("multiple");
-const openState = stateSelector("open");
-const patternMismatchState = stateSelector("pattern-mismatch");
-const placeholderShownState = stateSelector("placeholder-shown");
-const pressedState = stateSelector("pressed");
-const rangeOverflowState = stateSelector("range-overflow");
-const rangeUnderflowState = stateSelector("range-underflow");
-const requiredState = stateSelector("required");
-const selectedState = stateSelector("selected");
-const stepMismatchState = stateSelector("step-mismatch");
-const submenuState = stateSelector("submenu");
-const tooLongState = stateSelector("too-long");
-const tooShortState = stateSelector("too-short");
-const typeMismatchState = stateSelector("type-mismatch");
-const userInvalidState = stateSelector("user-invalid");
-const validState = stateSelector("valid");
-const valueMissingState = stateSelector("value-missing");
-
-const styles$z = css`${display("inline-flex")} :host{--size:16px;background-color:${colorNeutralBackground1};border-radius:${borderRadiusSmall};border:${strokeWidthThin} solid ${colorNeutralStrokeAccessible};box-sizing:border-box;cursor:pointer;position:relative;width:var(--size)}:host,.indeterminate-indicator,.checked-indicator{aspect-ratio:1}:host(:hover){border-color:${colorNeutralStrokeAccessibleHover}}:host(:active){border-color:${colorNeutralStrokeAccessiblePressed}}:host(${checkedState}:hover){background-color:${colorCompoundBrandBackgroundHover};border-color:${colorCompoundBrandStrokeHover}}:host(${checkedState}:active){background-color:${colorCompoundBrandBackgroundPressed};border-color:${colorCompoundBrandStrokePressed}}:host(:focus-visible){outline:none}:host(:not([slot='input']))::after{content:'';position:absolute;inset:-8px;box-sizing:border-box;outline:none;border:${strokeWidthThick} solid ${colorTransparentStroke};border-radius:${borderRadiusMedium}}:host(:not([slot='input']):focus-visible)::after{border-color:${colorStrokeFocus2}}.indeterminate-indicator,.checked-indicator{color:${colorNeutralForegroundInverted};inset:0;margin:auto;position:absolute}::slotted([slot='checked-indicator']),.checked-indicator{fill:currentColor;display:inline-flex;flex:1 0 auto;width:12px}:host(:not(${checkedState})) *:is(::slotted([slot='checked-indicator']),.checked-indicator){display:none}:host(${checkedState}),:host(${indeterminateState}){border-color:${colorCompoundBrandStroke}}:host(${checkedState}),:host(${indeterminateState}) .indeterminate-indicator{background-color:${colorCompoundBrandBackground}}:host(${indeterminateState}) .indeterminate-indicator{border-radius:${borderRadiusSmall};position:absolute;width:calc(var(--size)/2);inset:0}:host([size='large']){--size:20px}:host([size='large']) ::slotted([slot='checked-indicator']),:host([size='large']) .checked-indicator{width:16px}:host([shape='circular']),:host([shape='circular']) .indeterminate-indicator{border-radius:${borderRadiusCircular}}:host([disabled]),:host([disabled]${checkedState}){background-color:${colorNeutralBackgroundDisabled};border-color:${colorNeutralStrokeDisabled}}:host([disabled]){cursor:unset}:host([disabled]${indeterminateState}) .indeterminate-indicator{background-color:${colorNeutralStrokeDisabled}}:host([disabled]${checkedState}) .checked-indicator{color:${colorNeutralStrokeDisabled}}@media (forced-colors:active){:host{border-color:FieldText}:host(:not([slot='input']:focus-visible))::after{border-color:Canvas}:host(:not([disabled]):hover),:host(${checkedState}:not([disabled]):hover),:host(:not([slot='input']):focus-visible)::after{border-color:Highlight}.indeterminate-indicator,.checked-indicator{color:HighlightText}:host(${checkedState}),:host(${indeterminateState}) .indeterminate-indicator{background-color:FieldText}:host(${checkedState}:not([disabled]):hover),:host(${indeterminateState}:not([disabled]):hover) .indeterminate-indicator{background-color:Highlight}:host([disabled]){border-color:GrayText}:host([disabled]${indeterminateState}) .indeterminate-indicator{background-color:GrayText}:host([disabled]),:host([disabled]${checkedState}) .checked-indicator{color:GrayText}}`;
-
-const checkedIndicator$2 = html.partial(
-  /* html */
-  `<svg fill=currentColor aria-hidden=true class=checked-indicator width=1em height=1em viewBox="0 0 12 12" xmlns=http://www.w3.org/2000/svg><path d="M9.76 3.2c.3.29.32.76.04 1.06l-4.25 4.5a.75.75 0 0 1-1.08.02L2.22 6.53a.75.75 0 0 1 1.06-1.06l1.7 1.7L8.7 3.24a.75.75 0 0 1 1.06-.04Z" fill=currentColor></path></svg>`
-);
-const indeterminateIndicator = html.partial(
-  /* html */
-  `<span class=indeterminate-indicator></span>`
-);
-function checkboxTemplate(options = {}) {
-  return html`<template @click=${(x, c) => x.clickHandler(c.event)} @input=${(x, c) => x.inputHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)} @keyup=${(x, c) => x.keyupHandler(c.event)}><slot name=checked-indicator>${staticallyCompose(options.checkedIndicator)}</slot><slot name=indeterminate-indicator>${staticallyCompose(options.indeterminateIndicator)}</slot></template>`;
-}
-const template$z = checkboxTemplate({
-  checkedIndicator: checkedIndicator$2,
-  indeterminateIndicator
-});
-
-const definition$z = Checkbox.compose({
-  name: tagName$z,
-  template: template$z,
-  styles: styles$z
-});
-
-definition$z.define(FluentDesignSystem.registry);
+Checkbox.define(definition$z);
 
 const tagName$y = `${FluentDesignSystem.prefix}-compound-button`;
-
-class CompoundButton extends Button {
-}
 
 const styles$y = css`${styles$D} :host,:host(:is([size])){gap:12px;height:auto;padding-top:14px;padding-inline:12px;padding-bottom:16px;font-size:${fontSizeBase300};line-height:${lineHeightBase300}}.content{display:flex;flex-direction:column;text-align:start}::slotted([slot='description']){color:${colorNeutralForeground2};line-height:100%;font-size:${fontSizeBase200};font-weight:${fontWeightRegular}}::slotted(svg),:host([size='large']) ::slotted(svg){font-size:40px;height:40px;width:40px}:host(:hover) ::slotted([slot='description']){color:${colorNeutralForeground2Hover}}:host(:active) ::slotted([slot='description']){color:${colorNeutralForeground2Pressed}}:host(:is([appearance='primary'],[appearance='primary']:is(:hover,:active))) ::slotted([slot='description']){color:${colorNeutralForegroundOnBrand}}:host(:is([appearance='transparent'],[appearance='subtle'],[appearance='subtle']:is(:hover,:active))) ::slotted([slot='description']){color:${colorNeutralForeground2}}:host([appearance='transparent']:hover) ::slotted([slot='description']){color:${colorNeutralForeground2BrandHover}}:host([appearance='transparent']:active) ::slotted([slot='description']){color:${colorNeutralForeground2BrandPressed}}:host(:is(:disabled,:disabled[appearance],[disabled-focusable],[disabled-focusable][appearance])) ::slotted([slot='description']){color:${colorNeutralForegroundDisabled}}:host([size='small']){padding:8px;padding-bottom:10px}:host([icon-only]){min-width:52px;max-width:52px;padding:${spacingHorizontalSNudge}}:host([icon-only][size='small']){min-width:48px;max-width:48px;padding:${spacingHorizontalXS}}:host([icon-only][size='large']){min-width:56px;max-width:56px;padding:${spacingHorizontalS}}:host([size='large']){padding-top:18px;padding-inline:16px;padding-bottom:20px;font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='large']) ::slotted([slot='description']){font-size:${fontSizeBase300}}@media (forced-colors:active){:host([appearance='primary']:not(:hover,:focus-visible,:disabled,[disabled-focusable])) ::slotted([slot='description']){color:HighlightText}}`;
 
@@ -6808,15 +6750,33 @@ function buttonTemplate(options = {}) {
 }
 const template$y = buttonTemplate();
 
-const definition$y = CompoundButton.compose({
+const definition$y = {
   name: tagName$y,
-  template: template$y,
-  styles: styles$y
-});
+  registry: FluentDesignSystem.registry,
+  styles: styles$y,
+  template: template$y
+};
 
-definition$y.define(FluentDesignSystem.registry);
+class CompoundButton extends Button {
+}
+
+CompoundButton.define(definition$y);
 
 const tagName$x = `${FluentDesignSystem.prefix}-counter-badge`;
+
+const styles$x = css`:host([shape='rounded']){border-radius:${borderRadiusMedium}}:host([shape='rounded']:is([size='tiny'],[size='extra-small'],[size='small'])){border-radius:${borderRadiusSmall}}${badgeSizeStyles} ${badgeFilledStyles} ${badgeGhostStyles} ${badgeBaseStyles} :host(:is([dot],[dot][appearance][size])){min-width:auto;width:6px;height:6px;padding:0}`;
+
+function counterBadgeTemplate(options = {}) {
+  return html`${startSlotTemplate(options)} <span>${(x) => x.displayValue}</span> ${endSlotTemplate(options)}`;
+}
+const template$x = counterBadgeTemplate();
+
+const definition$x = {
+  name: tagName$x,
+  registry: FluentDesignSystem.registry,
+  styles: styles$x,
+  template: template$x
+};
 
 var __defProp$D = Object.defineProperty;
 var __getOwnPropDesc$D = Object.getOwnPropertyDescriptor;
@@ -6895,20 +6855,7 @@ __decorateClass$C([
 ], CounterBadge.prototype, "size", 2);
 applyMixins(CounterBadge, StartEnd);
 
-const styles$x = css`:host([shape='rounded']){border-radius:${borderRadiusMedium}}:host([shape='rounded']:is([size='tiny'],[size='extra-small'],[size='small'])){border-radius:${borderRadiusSmall}}${badgeSizeStyles} ${badgeFilledStyles} ${badgeGhostStyles} ${badgeBaseStyles} :host(:is([dot],[dot][appearance][size])){min-width:auto;width:6px;height:6px;padding:0}`;
-
-function counterBadgeTemplate(options = {}) {
-  return html`${startSlotTemplate(options)} <span>${(x) => x.displayValue}</span> ${endSlotTemplate(options)}`;
-}
-const template$x = counterBadgeTemplate();
-
-const definition$x = CounterBadge.compose({
-  name: tagName$x,
-  template: template$x,
-  styles: styles$x
-});
-
-definition$x.define(FluentDesignSystem.registry);
+CounterBadge.define(definition$x);
 
 const DialogType = {
   modal: "modal",
@@ -6922,6 +6869,17 @@ function isDialog(element, tagName2 = "-dialog") {
   return element.tagName.toLowerCase().endsWith(tagName2);
 }
 const tagName$w = `${FluentDesignSystem.prefix}-dialog`;
+
+const styles$w = css`@layer base{:host{--dialog-backdrop:${colorBackgroundOverlay};--dialog-starting-scale:0.85}::backdrop{background:var(--dialog-backdrop,rgba(0,0,0,0.4))}dialog{background:${colorNeutralBackground1};border-radius:${borderRadiusXLarge};border:none;box-shadow:${shadow64};color:${colorNeutralForeground1};max-height:100vh;padding:0;width:100%;max-width:600px}:host([type='non-modal']) dialog{inset:0;z-index:2;overflow:auto}@supports (max-height:1dvh){dialog{max-height:100dvh}}}@layer animations{@media (prefers-reduced-motion:no-preference){dialog,::backdrop{transition:display allow-discrete,opacity,overlay allow-discrete,scale;transition-duration:${durationGentle};transition-timing-function:${curveDecelerateMid};opacity:0}::backdrop{transition-timing-function:${curveLinear}}[open],[open]::backdrop{opacity:1}dialog:not([open]){scale:var(--dialog-starting-scale);transition-timing-function:${curveAccelerateMid}}}@starting-style{[open],[open]::backdrop{opacity:0}dialog{scale:var(--dialog-starting-scale)}}}@media (forced-colors:active){@layer base{dialog{border:${strokeWidthThin} solid ${colorTransparentStroke}}}}`;
+
+const template$w = html`<dialog class=dialog part=dialog aria-modal=${(x) => x.dialogModal} aria-describedby=${(x) => x.dialogDescribedby} aria-labelledby=${(x) => x.dialogLabelledby} aria-label=${(x) => x.dialogLabel} role=${(x) => x.dialogRole} @click=${(x, c) => x.clickHandler(c.event)} @cancel=${(x) => x.hide()} ${ref("dialog")}><div tabindex=-1></div><slot></slot></dialog>`;
+
+const definition$w = {
+  name: tagName$w,
+  registry: FluentDesignSystem.registry,
+  styles: styles$w,
+  template: template$w
+};
 
 var __defProp$B = Object.defineProperty;
 var __getOwnPropDesc$B = Object.getOwnPropertyDescriptor;
@@ -7005,6 +6963,7 @@ class Dialog extends FASTElement {
       } else if (this.type === DialogType.nonModal) {
         this.dialog.show();
       }
+      this.querySelector("[autofocus]")?.focus?.();
       this.emitToggle();
     });
   }
@@ -7063,19 +7022,20 @@ __decorateClass$B([
   volatile
 ], Dialog.prototype, "dialogRole", 1);
 
-const template$w = html`<dialog class=dialog part=dialog aria-modal=${(x) => x.dialogModal} aria-describedby=${(x) => x.dialogDescribedby} aria-labelledby=${(x) => x.dialogLabelledby} aria-label=${(x) => x.dialogLabel} role=${(x) => x.dialogRole} @click=${(x, c) => x.clickHandler(c.event)} @cancel=${(x) => x.hide()} ${ref("dialog")}><slot></slot></dialog>`;
-
-const styles$w = css`@layer base{:host{--dialog-backdrop:${colorBackgroundOverlay};--dialog-starting-scale:0.85}::backdrop{background:var(--dialog-backdrop,rgba(0,0,0,0.4))}dialog{background:${colorNeutralBackground1};border-radius:${borderRadiusXLarge};border:none;box-shadow:${shadow64};color:${colorNeutralForeground1};max-height:100vh;padding:0;width:100%;max-width:600px}:host([type='non-modal']) dialog{inset:0;position:fixed;z-index:2;overflow:auto}@supports (max-height:1dvh){dialog{max-height:100dvh}}}@layer animations{@media (prefers-reduced-motion:no-preference){dialog,::backdrop{transition:display allow-discrete,opacity,overlay allow-discrete,scale;transition-duration:${durationGentle};transition-timing-function:${curveDecelerateMid};opacity:0}::backdrop{transition-timing-function:${curveLinear}}[open],[open]::backdrop{opacity:1}dialog:not([open]){scale:var(--dialog-starting-scale);transition-timing-function:${curveAccelerateMid}}}@starting-style{[open],[open]::backdrop{opacity:0}dialog{scale:var(--dialog-starting-scale)}}}@media (forced-colors:active){@layer base{dialog{border:${strokeWidthThin} solid ${colorTransparentStroke}}}}`;
-
-const definition$w = Dialog.compose({
-  name: tagName$w,
-  template: template$w,
-  styles: styles$w
-});
-
-definition$w.define(FluentDesignSystem.registry);
+Dialog.define(definition$w);
 
 const tagName$v = `${FluentDesignSystem.prefix}-dialog-body`;
+
+const styles$v = css`${display("grid")} :host{background:${colorNeutralBackground1};box-sizing:border-box;gap:${spacingVerticalS};padding:${spacingVerticalXXL} ${spacingHorizontalXXL};container:dialog-body/inline-size}.title{box-sizing:border-box;align-items:flex-start;background:${colorNeutralBackground1};color:${colorNeutralForeground1};column-gap:8px;display:flex;font-family:${fontFamilyBase};font-size:${fontSizeBase500};font-weight:${fontWeightSemibold};inset-block-start:0;justify-content:space-between;line-height:${lineHeightBase500};margin-block-end:calc(${spacingVerticalS} * -1);margin-block-start:calc(${spacingVerticalXXL} * -1);padding-block-end:${spacingVerticalS};padding-block-start:${spacingVerticalXXL}}.content{box-sizing:border-box;color:${colorNeutralForeground1};font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};min-height:32px}.actions{box-sizing:border-box;background:${colorNeutralBackground1};display:flex;flex-direction:column;gap:${spacingVerticalS};inset-block-end:0;margin-block-end:calc(${spacingVerticalXXL} * -1);padding-block-end:${spacingVerticalXXL};padding-block-start:${spacingVerticalL}}::slotted([slot='title-action']){margin-inline-start:auto}::slotted([slot='title']){font:inherit;padding:0;margin:0}:not(:has(:is([slot='title'],[slot='title-action']))) .title{justify-content:end}@container (min-width:480px){.actions{align-items:center;flex-direction:row;justify-content:flex-end;margin-block-start:calc(${spacingVerticalS} * -1);padding-block-start:${spacingVerticalS}}}@media (min-height:480px){.title{position:sticky;z-index:1}.actions{position:sticky;z-index:2}}`;
+
+const template$v = html`<template><div class=title part=title><slot name=title></slot><slot name=title-action></slot><slot name=close @click=${(x, c) => x.clickHandler(c.event)}></slot></div><div class=content part=content><slot></slot></div><div class=actions part=actions><slot name=action></slot></div></template>`;
+
+const definition$v = {
+  name: tagName$v,
+  registry: FluentDesignSystem.registry,
+  styles: styles$v,
+  template: template$v
+};
 
 class DialogBody extends FASTElement {
   /**
@@ -7095,17 +7055,7 @@ class DialogBody extends FASTElement {
   }
 }
 
-const template$v = html`<template><div class=title part=title><slot name=title></slot><slot name=title-action></slot><slot name=close @click=${(x, c) => x.clickHandler(c.event)}></slot></div><div class=content part=content><slot></slot></div><div class=actions part=actions><slot name=action></slot></div></template>`;
-
-const styles$v = css`${display("grid")} :host{background:${colorNeutralBackground1};box-sizing:border-box;gap:${spacingVerticalS};padding:${spacingVerticalXXL} ${spacingHorizontalXXL};container:dialog-body/inline-size}.title{box-sizing:border-box;align-items:flex-start;background:${colorNeutralBackground1};color:${colorNeutralForeground1};column-gap:8px;display:flex;font-family:${fontFamilyBase};font-size:${fontSizeBase500};font-weight:${fontWeightSemibold};inset-block-start:0;justify-content:space-between;line-height:${lineHeightBase500};margin-block-end:calc(${spacingVerticalS} * -1);margin-block-start:calc(${spacingVerticalXXL} * -1);padding-block-end:${spacingVerticalS};padding-block-start:${spacingVerticalXXL}}.content{box-sizing:border-box;color:${colorNeutralForeground1};font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};min-height:32px}.actions{box-sizing:border-box;background:${colorNeutralBackground1};display:flex;flex-direction:column;gap:${spacingVerticalS};inset-block-end:0;margin-block-end:calc(${spacingVerticalXXL} * -1);padding-block-end:${spacingVerticalXXL};padding-block-start:${spacingVerticalL}}::slotted([slot='title-action']){margin-inline-start:auto}::slotted([slot='title']){font:inherit;padding:0;margin:0}:not(:has(:is([slot='title'],[slot='title-action']))) .title{justify-content:end}@container (min-width:480px){.actions{align-items:center;flex-direction:row;justify-content:flex-end;margin-block-start:calc(${spacingVerticalS} * -1);padding-block-start:${spacingVerticalS}}}@media (min-height:480px){.title{position:sticky;z-index:1}.actions{position:sticky;z-index:2}`;
-
-const definition$v = DialogBody.compose({
-  name: tagName$v,
-  template: template$v,
-  styles: styles$v
-});
-
-definition$v.define(FluentDesignSystem.registry);
+DialogBody.define(definition$v);
 
 const Orientation = {
   horizontal: "horizontal",
@@ -7124,6 +7074,20 @@ const DividerRole = {
 };
 const DividerOrientation = Orientation;
 const tagName$u = `${FluentDesignSystem.prefix}-divider`;
+
+const styles$u = css`${display("flex")} :host{contain:content}:host::after,:host::before{align-self:center;background:${colorNeutralStroke2};box-sizing:border-box;content:'';display:flex;flex-grow:1;height:${strokeWidthThin}}:host([inset]){padding:0 12px}:host ::slotted(*){color:${colorNeutralForeground2};font-family:${fontFamilyBase};font-size:${fontSizeBase200};font-weight:${fontWeightRegular};margin:0;padding:0 12px}:host([align-content='start'])::before,:host([align-content='end'])::after{flex-basis:12px;flex-grow:0;flex-shrink:0}:host([orientation='vertical']){align-items:center;flex-direction:column;height:100%;min-height:84px}:host([orientation='vertical']):empty{min-height:20px}:host([orientation='vertical'][inset])::before{margin-top:12px}:host([orientation='vertical'][inset])::after{margin-bottom:12px}:host([orientation='vertical']):empty::before,:host([orientation='vertical']):empty::after{height:10px;min-height:10px;flex-grow:0}:host([orientation='vertical'])::before,:host([orientation='vertical'])::after{width:${strokeWidthThin};min-height:20px;height:100%}:host([orientation='vertical']) ::slotted(*){display:flex;flex-direction:column;padding:12px 0;line-height:20px}:host([orientation='vertical'][align-content='start'])::before{min-height:8px}:host([orientation='vertical'][align-content='end'])::after{min-height:8px}:host([appearance='strong'])::before,:host([appearance='strong'])::after{background:${colorNeutralStroke1}}:host([appearance='strong']) ::slotted(*){color:${colorNeutralForeground1}}:host([appearance='brand'])::before,:host([appearance='brand'])::after{background:${colorBrandStroke1}}:host([appearance='brand']) ::slotted(*){color:${colorBrandForeground1}}:host([appearance='subtle'])::before,:host([appearance='subtle'])::after{background:${colorNeutralStroke3}}:host([appearance='subtle']) ::slotted(*){color:${colorNeutralForeground3}}@media (forced-colors:active){:host([appearance='strong'])::before,:host([appearance='strong'])::after,:host([appearance='brand'])::before,:host([appearance='brand'])::after,:host([appearance='subtle'])::before,:host([appearance='subtle'])::after,:host::after,:host::before{background:WindowText;color:WindowText}}`;
+
+function dividerTemplate() {
+  return html`<slot></slot>`;
+}
+const template$u = dividerTemplate();
+
+const definition$u = {
+  name: tagName$u,
+  registry: FluentDesignSystem.registry,
+  styles: styles$u,
+  template: template$u
+};
 
 var __defProp$A = Object.defineProperty;
 var __getOwnPropDesc$A = Object.getOwnPropertyDescriptor;
@@ -7208,20 +7172,7 @@ __decorateClass$z([
   attr({ mode: "boolean" })
 ], Divider.prototype, "inset", 2);
 
-function dividerTemplate() {
-  return html`<slot></slot>`;
-}
-const template$u = dividerTemplate();
-
-const styles$u = css`${display("flex")} :host{contain:content}:host::after,:host::before{align-self:center;background:${colorNeutralStroke2};box-sizing:border-box;content:'';display:flex;flex-grow:1;height:${strokeWidthThin}}:host([inset]){padding:0 12px}:host ::slotted(*){color:${colorNeutralForeground2};font-family:${fontFamilyBase};font-size:${fontSizeBase200};font-weight:${fontWeightRegular};margin:0;padding:0 12px}:host([align-content='start'])::before,:host([align-content='end'])::after{flex-basis:12px;flex-grow:0;flex-shrink:0}:host([orientation='vertical']){align-items:center;flex-direction:column;height:100%;min-height:84px}:host([orientation='vertical']):empty{min-height:20px}:host([orientation='vertical'][inset])::before{margin-top:12px}:host([orientation='vertical'][inset])::after{margin-bottom:12px}:host([orientation='vertical']):empty::before,:host([orientation='vertical']):empty::after{height:10px;min-height:10px;flex-grow:0}:host([orientation='vertical'])::before,:host([orientation='vertical'])::after{width:${strokeWidthThin};min-height:20px;height:100%}:host([orientation='vertical']) ::slotted(*){display:flex;flex-direction:column;padding:12px 0;line-height:20px}:host([orientation='vertical'][align-content='start'])::before{min-height:8px}:host([orientation='vertical'][align-content='end'])::after{min-height:8px}:host([appearance='strong'])::before,:host([appearance='strong'])::after{background:${colorNeutralStroke1}}:host([appearance='strong']) ::slotted(*){color:${colorNeutralForeground1}}:host([appearance='brand'])::before,:host([appearance='brand'])::after{background:${colorBrandStroke1}}:host([appearance='brand']) ::slotted(*){color:${colorBrandForeground1}}:host([appearance='subtle'])::before,:host([appearance='subtle'])::after{background:${colorNeutralStroke3}}:host([appearance='subtle']) ::slotted(*){color:${colorNeutralForeground3}}@media (forced-colors:active){:host([appearance='strong'])::before,:host([appearance='strong'])::after,:host([appearance='brand'])::before,:host([appearance='brand'])::after,:host([appearance='subtle'])::before,:host([appearance='subtle'])::after,:host::after,:host::before{background:WindowText;color:WindowText}}`;
-
-const definition$u = Divider.compose({
-  name: tagName$u,
-  template: template$u,
-  styles: styles$u
-});
-
-definition$u.define(FluentDesignSystem.registry);
+Divider.define(definition$u);
 
 const DrawerPosition = {
   start: "start",
@@ -7239,6 +7190,20 @@ const DrawerType = {
   inline: "inline"
 };
 const tagName$t = `${FluentDesignSystem.prefix}-drawer`;
+
+const styles$t = css`${display("block")} :host{--dialog-backdrop:${colorBackgroundOverlay}}:host([type='non-modal']) dialog[open]::backdrop{display:none}:host([type='non-modal']) dialog{position:fixed;top:0;bottom:0}:host([type='inline']){height:100%;width:fit-content}:host([type='inline']) dialog[open]{box-shadow:none;position:relative}:host([size='small']) dialog{width:320px;max-width:320px}:host([size='large']) dialog{width:940px;max-width:940px}:host([size='full']) dialog{width:100%;max-width:100%}:host([position='end']) dialog{margin-inline-start:auto;margin-inline-end:0}dialog{background:${colorNeutralBackground1};border-radius:0;border:${strokeWidthThin} solid ${colorTransparentStroke};border-inline-end-color:${colorTransparentStroke};border-inline-start-color:var(--drawer-separator,${colorTransparentStroke});box-shadow:${shadow64};box-sizing:border-box;color:${colorNeutralForeground1};font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};height:100%;line-height:${lineHeightBase300};margin-inline-end:auto;margin-inline-start:0;max-height:100vh;max-width:calc(100vw - ${spacingHorizontalXXL});outline:none;padding:0;bottom:0;top:0;width:var(--drawer-width,592px);z-index:var(--drawer-elevation,1000)}dialog::backdrop{background:var(--dialog-backdrop)}@layer animations{@media (prefers-reduced-motion:no-preference){dialog{transition:display allow-discrete,opacity,overlay allow-discrete,transform;transition-duration:${durationGentle};transition-timing-function:${curveDecelerateMid}}:host dialog:not([open]){transform:translateX(-100%);transition-timing-function:${curveAccelerateMid}}:host([position='end']) dialog:not([open]){transform:translateX(100%);transition-timing-function:${curveAccelerateMid}}dialog[open]{transform:translateX(0)}dialog::backdrop{transition:display allow-discrete,opacity,overlay allow-discrete,scale;transition-duration:${durationGentle};transition-timing-function:${curveDecelerateMid};background:var(--dialog-backdrop,${colorBackgroundOverlay});opacity:0}dialog[open]::backdrop{opacity:1}dialog::backdrop{transition-timing-function:${curveLinear}}}@starting-style{dialog[open]{transform:translateX(-100%)}:host([position='end']) dialog[open]{transform:translateX(100%)}dialog[open]::backdrop{opacity:0}}}`;
+
+function drawerTemplate() {
+  return html`<dialog class=dialog part=dialog aria-describedby=${(x) => x.dialogDescribedby} aria-labelledby=${(x) => x.dialogLabelledby} aria-label=${(x) => x.dialogLabel} aria-modal=${(x) => x.dialogModal} role=${(x) => x.dialogRole} size=${(x) => x.size} position=${(x) => x.position} @click=${(x, c) => x.clickHandler(c.event)} @cancel=${(x) => x.cancelHandler()} ${ref("dialog")}><slot></slot></dialog>`;
+}
+const template$t = drawerTemplate();
+
+const definition$t = {
+  name: tagName$t,
+  registry: FluentDesignSystem.registry,
+  styles: styles$t,
+  template: template$t
+};
 
 var __defProp$y = Object.defineProperty;
 var __getOwnPropDesc$y = Object.getOwnPropertyDescriptor;
@@ -7325,6 +7290,7 @@ class Drawer extends FASTElement {
       } else {
         this.dialog.showModal();
       }
+      this.querySelector("[autofocus]")?.focus?.();
       this.emitToggle();
     });
   }
@@ -7396,40 +7362,9 @@ __decorateClass$y([
   volatile
 ], Drawer.prototype, "dialogRole", 1);
 
-const styles$t = css`${display("block")} :host{--dialog-backdrop:${colorBackgroundOverlay}}:host([type='non-modal']) dialog[open]::backdrop{display:none}:host([type='non-modal']) dialog{position:fixed;top:0;bottom:0}:host([type='inline']){height:100%;width:fit-content}:host([type='inline']) dialog[open]{box-shadow:none;position:relative}:host([size='small']) dialog{width:320px;max-width:320px}:host([size='large']) dialog{width:940px;max-width:940px}:host([size='full']) dialog{width:100%;max-width:100%}:host([position='end']) dialog{margin-inline-start:auto;margin-inline-end:0}dialog{box-sizing:border-box;z-index:var(--drawer-elevation,1000);font-size:${fontSizeBase300};line-height:${lineHeightBase300};font-family:${fontFamilyBase};font-weight:${fontWeightRegular};color:${colorNeutralForeground1};max-width:var(--drawer-width,592px);max-height:100vh;height:100%;margin-inline-start:0;margin-inline-end:auto;border-inline-end-color:${colorTransparentStroke};border-inline-start-color:var(--drawer-separator,${colorTransparentStroke});outline:none;top:0;bottom:0;width:var(--drawer-width,592px);border-radius:0;padding:0;max-width:var(--drawer-width,592px);box-shadow:${shadow64};border:${strokeWidthThin} solid ${colorTransparentStroke};background:${colorNeutralBackground1}}dialog::backdrop{background:var(--dialog-backdrop)}@layer animations{@media (prefers-reduced-motion:no-preference){dialog{transition:display allow-discrete,opacity,overlay allow-discrete,transform;transition-duration:${durationGentle};transition-timing-function:${curveDecelerateMid}}:host dialog:not([open]){transform:translateX(-100%);transition-timing-function:${curveAccelerateMid}}:host([position='end']) dialog:not([open]){transform:translateX(100%);transition-timing-function:${curveAccelerateMid}}dialog[open]{transform:translateX(0)}dialog::backdrop{transition:display allow-discrete,opacity,overlay allow-discrete,scale;transition-duration:${durationGentle};transition-timing-function:${curveDecelerateMid};background:var(--dialog-backdrop,${colorBackgroundOverlay});opacity:0}dialog[open]::backdrop{opacity:1}dialog::backdrop{transition-timing-function:${curveLinear}}}@starting-style{dialog[open]{transform:translateX(-100%)}:host([position='end']) dialog[open]{transform:translateX(100%)}dialog[open]::backdrop{opacity:0}}}`;
-
-function drawerTemplate() {
-  return html`<dialog class=dialog part=dialog aria-describedby=${(x) => x.dialogDescribedby} aria-labelledby=${(x) => x.dialogLabelledby} aria-label=${(x) => x.dialogLabel} aria-modal=${(x) => x.dialogModal} role=${(x) => x.dialogRole} size=${(x) => x.size} position=${(x) => x.position} @click=${(x, c) => x.clickHandler(c.event)} @cancel=${(x) => x.cancelHandler()} ${ref("dialog")}><slot></slot></dialog>`;
-}
-const template$t = drawerTemplate();
-
-const definition$t = Drawer.compose({
-  name: tagName$t,
-  template: template$t,
-  styles: styles$t
-});
-
-definition$t.define(FluentDesignSystem.registry);
+Drawer.define(definition$t);
 
 const tagName$s = `${FluentDesignSystem.prefix}-drawer-body`;
-
-class DrawerBody extends FASTElement {
-  /**
-   * Handles click event for the close slot
-   *
-   * @param e - the click event
-   * @internal
-   */
-  clickHandler(event) {
-    if (!event.defaultPrevented) {
-      const dialog = this.parentElement;
-      if (isDialog(dialog, "-drawer")) {
-        dialog.hide();
-      }
-    }
-    return true;
-  }
-}
 
 const typographyBody1Styles = css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase300};line-height:${lineHeightBase300};font-weight:${fontWeightRegular};`;
 css.partial`font-family:${fontFamilyBase};font-size:${fontSizeBase300};line-height:${lineHeightBase300};font-weight:${fontWeightSemibold};`;
@@ -7456,13 +7391,32 @@ function drawerBodyTemplate() {
 }
 const template$s = drawerBodyTemplate();
 
-const definition$s = DrawerBody.compose({
+const definition$s = {
   name: tagName$s,
-  template: template$s,
-  styles: styles$s
-});
+  registry: FluentDesignSystem.registry,
+  styles: styles$s,
+  template: template$s
+};
 
-definition$s.define(FluentDesignSystem.registry);
+class DrawerBody extends FASTElement {
+  /**
+   * Handles click event for the close slot
+   *
+   * @param e - the click event
+   * @internal
+   */
+  clickHandler(event) {
+    if (!event.defaultPrevented) {
+      const dialog = this.parentElement;
+      if (isDialog(dialog, "-drawer")) {
+        dialog.hide();
+      }
+    }
+    return true;
+  }
+}
+
+DrawerBody.define(definition$s);
 
 const DropdownAppearance = {
   filledDarker: "filled-darker",
@@ -7476,6 +7430,25 @@ const DropdownType = {
   select: "select"
 };
 const tagName$r = `${FluentDesignSystem.prefix}-dropdown`;
+
+const styles$r = css`${display("inline-flex")} :host{box-sizing:border-box;color:${colorNeutralForeground1};cursor:pointer}:host(${placeholderShownState}){color:${colorNeutralForeground4}}.control{appearance:none;background-color:${colorNeutralBackground1};border-radius:${borderRadiusMedium};border:${strokeWidthThin} solid ${colorTransparentStroke};box-shadow:inset 0 0 0 ${strokeWidthThin} var(--control-border-color);box-sizing:border-box;color:inherit;column-gap:${spacingHorizontalXXS};display:inline-flex;justify-content:space-between;min-width:160px;overflow:hidden;padding:${spacingVerticalSNudge} ${spacingHorizontalMNudge};white-space:normal;position:relative;text-align:start;width:100%;z-index:1;${typographyBody1Styles}}:host([size='small']) .control{column-gap:${spacingHorizontalXXS};padding:${spacingVerticalXS} ${spacingHorizontalSNudge};${typographyCaption1Styles}}:host([size='large']) .control{column-gap:${spacingHorizontalS};padding:${spacingVerticalS} ${spacingHorizontalM};${typographyBody2Styles}}::slotted(:is(input,button)){all:unset;flex:1 1 auto}::slotted(button){cursor:pointer}::slotted(input){cursor:text}:where(slot[name='indicator']>*,::slotted([slot='indicator'])){all:unset;align-items:center;appearance:none;aspect-ratio:1;color:${colorNeutralForeground3};display:inline-flex;justify-content:center;width:20px}:host([size='small']) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){width:16px}:host([size='large']) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){width:24px}.control::after,.control::before{content:''/'';inset:auto 0 0;pointer-events:none;position:absolute}.control::before{height:${strokeWidthThin}}.control::after{background-color:${colorCompoundBrandStroke};height:${strokeWidthThick};scale:0 1;transition:scale ${durationUltraFast} ${curveDecelerateMid}}:host(:where(:focus-within)) .control{border-radius:${borderRadiusMedium};box-shadow:inset 0 0 0 1px ${colorStrokeFocus1};outline:${strokeWidthThick} solid ${colorStrokeFocus2}}:host(:where(${openState},:focus-within)) .control::after{scale:1 1;transition-duration:${durationNormal};transition-timing-function:${curveAccelerateMid}}:host(:where([appearance='outline'],[appearance='transparent'])) .control::before{background-color:${colorNeutralStrokeAccessible}}:host([appearance='transparent']) .control{--control-border-color:${colorTransparentStrokeInteractive};background-color:${colorTransparentBackground};border-radius:${borderRadiusNone}}:host([appearance='outline']) .control{--control-border-color:${colorNeutralStroke1}}:host([appearance='outline']) .control:hover{--control-border-color:${colorNeutralStroke1Hover}}:host(:where([appearance='outline'],[appearance='transparent'])) .control:hover::before{background-color:${colorNeutralStrokeAccessibleHover}}:host([appearance='outline']) .control:hover::after{background-color:${colorCompoundBrandBackgroundHover}}:host([appearance='outline']) .control:active{--control-border-color:${colorNeutralStroke1Pressed}}:host(:where([appearance='outline'],[appearance='transparent'])) .control:active::before{background-color:${colorNeutralStrokeAccessiblePressed}}:host(:where([appearance='outline'],[appearance='transparent'])) .control:active::after{background-color:${colorCompoundBrandBackgroundPressed}}:host([appearance='filled-darker']) .control{background-color:${colorNeutralBackground3}}:host(:where([appearance='filled-lighter'],[appearance='filled-darker'])) .control{--control-border-color:${colorTransparentStroke}}:host(:disabled),:host(:disabled) ::slotted(:where(button,input)){cursor:not-allowed}:host(:disabled) .control::before,:host(:disabled) .control::after{content:none}:host(:disabled) .control:is(*,:active,:hover),:host(:disabled) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){--control-border-color:${colorNeutralStrokeDisabled};background-color:${colorNeutralBackgroundDisabled};color:${colorNeutralForegroundDisabled}}::slotted(:not([slot]):not([popover])),::slotted([popover]:not(:popover-open)){display:none}@supports not (anchor-name:--anchor){:host{--listbox-max-height:50vh;--margin-offset:calc(${lineHeightBase300} + (${spacingVerticalSNudge} * 2) + ${strokeWidthThin})}:host([size='small']){--margin-offset:calc(${lineHeightBase200} + (${spacingVerticalXS} * 2) + ${strokeWidthThin})}:host([size='large']){--margin-offset:calc(${lineHeightBase400} + (${spacingVerticalS} * 2) + ${strokeWidthThin})}}@media (forced-colors:active){:host(:disabled) .control{border-color:GrayText}:host(:disabled) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){color:GrayText}}`;
+
+const dropdownIndicatorTemplate = html`<svg class=chevron-down-20-regular aria-hidden=true slot=indicator viewBox="0 0 20 20" ${ref("indicator")}><path d="M15.85 7.65a.5.5 0 0 1 0 .7l-5.46 5.49a.55.55 0 0 1-.78 0L4.15 8.35a.5.5 0 1 1 .7-.7L10 12.8l5.15-5.16a.5.5 0 0 1 .7 0" fill=currentColor /></svg>`;
+const dropdownInputTemplate = html`<input @input=${(x, c) => x.inputHandler(c.event)} @change=${(x, c) => x.changeHandler(c.event)} aria-activedescendant=${(x) => x.activeDescendant} aria-controls=${(x) => x.listbox?.id ?? null} aria-labelledby=${(x) => x.ariaLabelledBy} aria-expanded=${(x) => x.open} aria-haspopup=listbox placeholder=${(x) => x.placeholder} role=combobox ?disabled=${(x) => x.disabled} type=${(x) => x.type} value=${(x) => x.valueAttribute} slot=control ${ref("control")}>`;
+const dropdownButtonTemplate = html`<button aria-activedescendant=${(x) => x.activeDescendant} aria-controls=${(x) => x.listbox?.id ?? null} aria-expanded=${(x) => x.open} aria-haspopup=listbox role=combobox ?disabled=${(x) => x.disabled} type=button slot=control ${ref("control")}>${(x) => x.displayValue}</button>`;
+function dropdownTemplate(options = {}) {
+  return html`<template @click=${(x, c) => x.clickHandler(c.event)} @focusout=${(x, c) => x.focusoutHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)} @mousedown=${(x, c) => x.mousedownHandler(c.event)}><div class=control><slot name=control ${ref("controlSlot")}></slot><slot name=indicator ${ref("indicatorSlot")}>${staticallyCompose(options.indicator)}</slot></div><slot @slotchange=${(x, c) => x.slotchangeHandler(c.event)}></slot></template>`;
+}
+const template$r = dropdownTemplate({
+  indicator: dropdownIndicatorTemplate
+});
+
+const definition$r = {
+  name: tagName$r,
+  registry: FluentDesignSystem.registry,
+  styles: styles$r,
+  template: template$r
+};
 
 function isListbox(element, tagName2 = "-listbox") {
   if (element?.nodeType !== Node.ELEMENT_NODE) {
@@ -7510,16 +7483,6 @@ function uniqueId(prefix = "id-") {
   const str = `${prefix}${uniqueIdCounter++}`;
   return document.getElementById(str) ? uniqueId(prefix) : str;
 }
-
-const dropdownIndicatorTemplate = html`<svg class=chevron-down-20-regular aria-hidden=true slot=indicator viewBox="0 0 20 20" ${ref("indicator")}><path d="M15.85 7.65a.5.5 0 0 1 0 .7l-5.46 5.49a.55.55 0 0 1-.78 0L4.15 8.35a.5.5 0 1 1 .7-.7L10 12.8l5.15-5.16a.5.5 0 0 1 .7 0" fill=currentColor /></svg>`;
-const dropdownInputTemplate = html`<input @input=${(x, c) => x.inputHandler(c.event)} @change=${(x, c) => x.changeHandler(c.event)} aria-activedescendant=${(x) => x.activeDescendant} aria-controls=${(x) => x.listbox?.id ?? null} aria-labelledby=${(x) => x.ariaLabelledBy} aria-expanded=${(x) => x.open} aria-haspopup=listbox placeholder=${(x) => x.placeholder} role=combobox ?disabled=${(x) => x.disabled} type=${(x) => x.type} value=${(x) => x.valueAttribute} slot=control ${ref("control")}>`;
-const dropdownButtonTemplate = html`<button aria-activedescendant=${(x) => x.activeDescendant} aria-controls=${(x) => x.listbox?.id ?? null} aria-expanded=${(x) => x.open} aria-haspopup=listbox role=combobox ?disabled=${(x) => x.disabled} type=button slot=control ${ref("control")}>${(x) => x.displayValue}</button>`;
-function dropdownTemplate(options = {}) {
-  return html`<template @click=${(x, c) => x.clickHandler(c.event)} @focusout=${(x, c) => x.focusoutHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)} @mousedown=${(x, c) => x.mousedownHandler(c.event)}><div class=control><slot name=control ${ref("controlSlot")}></slot><slot name=indicator ${ref("indicatorSlot")}>${staticallyCompose(options.indicator)}</slot></div><slot @slotchange=${(x, c) => x.slotchangeHandler(c.event)}></slot></template>`;
-}
-const template$r = dropdownTemplate({
-  indicator: dropdownIndicatorTemplate
-});
 
 var __defProp$x = Object.defineProperty;
 var __getOwnPropDesc$x = Object.getOwnPropertyDescriptor;
@@ -7575,6 +7538,16 @@ const _BaseDropdown = class _BaseDropdown extends FASTElement {
      * @internal
      */
     this._insertingControl = false;
+    /**
+     * The duration in milliseconds after the last character search keystroke before the search string is cleared.
+     */
+    this.searchTimeoutMs = 500;
+    /**
+     * The accumulated search string used to match option labels by prefix when printable characters are typed.
+     *
+     * @internal
+     */
+    this.searchString = "";
     this.elementInternals.role = "presentation";
   }
   get activeDescendant() {
@@ -8029,6 +8002,35 @@ const _BaseDropdown = class _BaseDropdown extends FASTElement {
     this._insertingControl = false;
   }
   /**
+   * Handles printable character input by moving {@link Dropdown#activeIndex} to the next option whose label matches the
+   * accumulated search string. When the string is a single character (or the same character repeated), matching
+   * options are cycled through; otherwise the string is treated as a prefix match.
+   *
+   * @param char - the printable character that was pressed
+   * @internal
+   */
+  handleSearchCharacter(char) {
+    const isRepeating = this.searchString === char.repeat(this.searchString.length);
+    this.searchString += char;
+    let candidates = this.searchString.length > 1 ? this.filterOptions(this.searchString) : [];
+    let isCycling = false;
+    if (!candidates.length && isRepeating) {
+      candidates = this.filterOptions(char);
+      isCycling = true;
+    }
+    if (candidates.length) {
+      const activeOption = this.enabledOptions[this.activeIndex];
+      const currentPos = candidates.indexOf(activeOption);
+      const nextMatch = isCycling ? candidates[this.getEnabledIndexInBounds(currentPos + 1, candidates.length)] : currentPos >= 0 ? activeOption : candidates[0];
+      this.activeIndex = this.enabledOptions.indexOf(nextMatch);
+    }
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.searchString = "";
+      this.searchTimeout = void 0;
+    }, this.searchTimeoutMs);
+  }
+  /**
    * Handles the keydown events for the dropdown.
    *
    * @param e - the keyboard event
@@ -8047,14 +8049,15 @@ const _BaseDropdown = class _BaseDropdown extends FASTElement {
         increment = 1;
         break;
       }
-      case " ": {
-        if (this.isCombobox) {
-          break;
-        }
-        e.preventDefault();
-      }
+      case " ":
       case "Enter":
       case "Tab": {
+        if (e.key === " ") {
+          if (this.isCombobox) {
+            break;
+          }
+          e.preventDefault();
+        }
         if (this.open) {
           this.selectOption(this.activeIndex, true);
           if (this.multiple) {
@@ -8073,6 +8076,12 @@ const _BaseDropdown = class _BaseDropdown extends FASTElement {
       }
     }
     if (!increment) {
+      if (!this.isCombobox && e.key.length === 1 && e.key !== " " && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        if (!this.open) {
+          this.listbox.showPopover();
+        }
+        this.handleSearchCharacter(e.key);
+      }
       return true;
     }
     if (!this.open) {
@@ -8196,10 +8205,16 @@ const _BaseDropdown = class _BaseDropdown extends FASTElement {
     Updates.enqueue(() => {
       this.insertControl();
     });
+    maybeSetAutoFocus(this);
   }
   disconnectedCallback() {
     _BaseDropdown.AnchorPositionFallbackObserver?.disconnect();
     this.debounceController?.abort();
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+      this.searchTimeout = void 0;
+      this.searchString = "";
+    }
     super.disconnectedCallback();
   }
   /**
@@ -8336,15 +8351,7 @@ __decorateClass$w([
   attr
 ], Dropdown.prototype, "size", 2);
 
-const styles$r = css`${display("inline-flex")} :host{anchor-name:--dropdown-trigger;box-sizing:border-box;color:${colorNeutralForeground1};cursor:pointer}:host(${placeholderShownState}){color:${colorNeutralForeground4}}.control{appearance:none;background-color:${colorNeutralBackground1};border-radius:${borderRadiusMedium};border:${strokeWidthThin} solid ${colorTransparentStroke};box-shadow:inset 0 0 0 ${strokeWidthThin} var(--control-border-color);box-sizing:border-box;color:inherit;column-gap:${spacingHorizontalXXS};display:inline-flex;justify-content:space-between;min-width:160px;overflow:hidden;padding:${spacingVerticalSNudge} ${spacingHorizontalMNudge};white-space:normal;position:relative;text-align:start;width:100%;z-index:1;${typographyBody1Styles}}:host([size='small']) .control{column-gap:${spacingHorizontalXXS};padding:${spacingVerticalXS} ${spacingHorizontalSNudge};${typographyCaption1Styles}}:host([size='large']) .control{column-gap:${spacingHorizontalS};padding:${spacingVerticalS} ${spacingHorizontalM};${typographyBody2Styles}}::slotted(:is(input,button)){all:unset;flex:1 1 auto}::slotted(button){cursor:pointer}::slotted(input){cursor:text}:where(slot[name='indicator']>*,::slotted([slot='indicator'])){all:unset;align-items:center;appearance:none;aspect-ratio:1;color:${colorNeutralForeground3};display:inline-flex;justify-content:center;width:20px}:host([size='small']) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){width:16px}:host([size='large']) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){width:24px}.control::after,.control::before{content:''/'';inset:auto 0 0;pointer-events:none;position:absolute}.control::before{height:${strokeWidthThin}}.control::after{background-color:${colorCompoundBrandStroke};height:${strokeWidthThick};scale:0 1;transition:scale ${durationUltraFast} ${curveDecelerateMid}}:host(:where(:focus-within)) .control{border-radius:${borderRadiusMedium};box-shadow:inset 0 0 0 1px ${colorStrokeFocus1};outline:${strokeWidthThick} solid ${colorStrokeFocus2}}:host(:where(${openState},:focus-within)) .control::after{scale:1 1;transition-duration:${durationNormal};transition-timing-function:${curveAccelerateMid}}:host(:where([appearance='outline'],[appearance='transparent'])) .control::before{background-color:${colorNeutralStrokeAccessible}}:host([appearance='transparent']) .control{--control-border-color:${colorTransparentStrokeInteractive};background-color:${colorTransparentBackground};border-radius:${borderRadiusNone}}:host([appearance='outline']) .control{--control-border-color:${colorNeutralStroke1}}:host([appearance='outline']) .control:hover{--control-border-color:${colorNeutralStroke1Hover}}:host(:where([appearance='outline'],[appearance='transparent'])) .control:hover::before{background-color:${colorNeutralStrokeAccessibleHover}}:host([appearance='outline']) .control:hover::after{background-color:${colorCompoundBrandBackgroundHover}}:host([appearance='outline']) .control:active{--control-border-color:${colorNeutralStroke1Pressed}}:host(:where([appearance='outline'],[appearance='transparent'])) .control:active::before{background-color:${colorNeutralStrokeAccessiblePressed}}:host(:where([appearance='outline'],[appearance='transparent'])) .control:active::after{background-color:${colorCompoundBrandBackgroundPressed}}:host([appearance='filled-darker']) .control{background-color:${colorNeutralBackground3}}:host(:where([appearance='filled-lighter'],[appearance='filled-darker'])) .control{--control-border-color:${colorTransparentStroke}}:host(:disabled),:host(:disabled) ::slotted(:where(button,input)){cursor:not-allowed}:host(:disabled) .control::before,:host(:disabled) .control::after{content:none}:host(:disabled) .control:is(*,:active,:hover),:host(:disabled) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){--control-border-color:${colorNeutralStrokeDisabled};background-color:${colorNeutralBackgroundDisabled};color:${colorNeutralForegroundDisabled}}::slotted(:not([slot]):not([popover])),::slotted([popover]:not(:popover-open)){display:none}@supports not (anchor-name:--anchor){:host{--listbox-max-height:50vh;--margin-offset:calc(${lineHeightBase300} + (${spacingVerticalSNudge} * 2) + ${strokeWidthThin})}:host([size='small']){--margin-offset:calc(${lineHeightBase200} + (${spacingVerticalXS} * 2) + ${strokeWidthThin})}:host([size='large']){--margin-offset:calc(${lineHeightBase400} + (${spacingVerticalS} * 2) + ${strokeWidthThin})}}@media (forced-colors:active){:host(:disabled) .control{border-color:GrayText}:host(:disabled) :where(slot[name='indicator']>*,::slotted([slot='indicator'])){color:GrayText}`;
-
-const definition$r = Dropdown.compose({
-  name: tagName$r,
-  template: template$r,
-  styles: styles$r
-});
-
-definition$r.define(FluentDesignSystem.registry);
+Dropdown.define(definition$r);
 
 const LabelPosition = {
   above: "above",
@@ -8365,6 +8372,20 @@ const ValidationFlags = {
   valid: "valid"
 };
 const tagName$o = `${FluentDesignSystem.prefix}-field`;
+
+const styles$q = css`${display("inline-grid")} :host{color:${colorNeutralForeground1};align-items:center;gap:0 ${spacingHorizontalM};justify-items:start}:has([slot='message']){color:${colorNeutralForeground1};row-gap:${spacingVerticalS}}:not(::slotted([slot='label'])){gap:0}:host([label-position='before']){grid-template-areas:'label input' 'label message'}:host([label-position='after']){gap:0;grid-template-areas:'input label' 'message message';grid-template-columns:auto 1fr}:host([label-position='after']) ::slotted([slot='input']){margin-inline-end:${spacingHorizontalM}}:host([label-position='above']){grid-template-areas:'label' 'input' 'message';row-gap:${spacingVerticalXXS}}:host([label-position='below']){grid-template-areas:'input' 'label' 'message';justify-items:center}:host([label-position='below']) ::slotted([slot='label']){margin-block-start:${spacingVerticalM}}:host(${requiredState}) ::slotted([slot='label'])::after{content:'*'/'';color:${colorPaletteRedForeground1};margin-inline-start:${spacingHorizontalXS}}::slotted([slot='input']){grid-area:input}::slotted([slot='message']){color:${colorNeutralForeground3};font-family:${fontFamilyBase};font-size:${fontSizeBase200};font-weight:${fontWeightRegular};grid-area:message;line-height:${lineHeightBase200};margin-block-start:${spacingVerticalXXS}}:host(${focusVisibleState}:focus-within){border-radius:${borderRadiusMedium};outline:${strokeWidthThick} solid ${colorStrokeFocus2}}::slotted(label),::slotted([slot='label']){cursor:inherit;display:inline-flex;font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};grid-area:label;line-height:${lineHeightBase300};justify-self:stretch;user-select:none}:host([size='small']) ::slotted(label){font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']) ::slotted(label){font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='large']) ::slotted(label),:host([weight='semibold']) ::slotted(label){font-weight:${fontWeightSemibold}}:host(${disabledState}){cursor:default}::slotted([flag]){display:none}:host(${badInputState}) ::slotted([flag='${ValidationFlags.badInput}']),:host(${customErrorState}) ::slotted([flag='${ValidationFlags.customError}']),:host(${patternMismatchState}) ::slotted([flag='${ValidationFlags.patternMismatch}']),:host(${rangeOverflowState}) ::slotted([flag='${ValidationFlags.rangeOverflow}']),:host(${rangeUnderflowState}) ::slotted([flag='${ValidationFlags.rangeUnderflow}']),:host(${stepMismatchState}) ::slotted([flag='${ValidationFlags.stepMismatch}']),:host(${tooLongState}) ::slotted([flag='${ValidationFlags.tooLong}']),:host(${tooShortState}) ::slotted([flag='${ValidationFlags.tooShort}']),:host(${typeMismatchState}) ::slotted([flag='${ValidationFlags.typeMismatch}']),:host(${valueMissingState}) ::slotted([flag='${ValidationFlags.valueMissing}']),:host(${validState}) ::slotted([flag='${ValidationFlags.valid}']){display:block}`;
+
+const template$q = html`<template @click=${(x, c) => x.clickHandler(c.event)} @change=${(x, c) => x.changeHandler(c.event)} @focusin=${(x, c) => x.focusinHandler(c.event)} @focusout=${(x, c) => x.focusoutHandler(c.event)}><slot name=label part=label ${slotted("labelSlot")}></slot><slot name=input part=input ${slotted("slottedInputs")}></slot><slot name=message part=message ${slotted({ property: "messageSlot", filter: elements("[flag]") })}></slot></template>`;
+
+const definition$q = {
+  name: tagName$o,
+  registry: FluentDesignSystem.registry,
+  shadowOptions: {
+    delegatesFocus: true
+  },
+  styles: styles$q,
+  template: template$q
+};
 
 var __defProp$v = Object.defineProperty;
 var __getOwnPropDesc$v = Object.getOwnPropertyDescriptor;
@@ -8387,6 +8408,17 @@ class BaseField extends FASTElement {
      */
     this.elementInternals = this.attachInternals();
     this.elementInternals.role = "presentation";
+  }
+  /**
+   * Gets the mutation observer for the slotted input, creating it if it doesn't exist.
+   *
+   * @internal
+   */
+  get slottedInputObserver() {
+    this._slottedInputObserver ?? (this._slottedInputObserver = new MutationObserver(() => {
+      this.setStates();
+    }));
+    return this._slottedInputObserver;
   }
   /**
    * Updates attributes on the slotted label elements.
@@ -8433,7 +8465,7 @@ class BaseField extends FASTElement {
     if (next) {
       this.setStates();
       this.setLabelProperties();
-      this.slottedInputObserver.observe(this.input, {
+      this.slottedInputObserver.observe(next, {
         attributes: true,
         attributeFilter: ["disabled", "required", "readonly"],
         subtree: true
@@ -8466,9 +8498,6 @@ class BaseField extends FASTElement {
   connectedCallback() {
     super.connectedCallback();
     this.addEventListener("invalid", this.invalidHandler, { capture: true });
-    this.slottedInputObserver = new MutationObserver(() => {
-      this.setStates();
-    });
   }
   disconnectedCallback() {
     this.slottedInputObserver.disconnect();
@@ -8581,22 +8610,20 @@ __decorateClass$u([
   attr({ attribute: "label-position" })
 ], Field.prototype, "labelPosition", 2);
 
-const styles$q = css`${display("inline-grid")} :host{color:${colorNeutralForeground1};align-items:center;gap:0 ${spacingHorizontalM};justify-items:start}:has([slot='message']){color:${colorNeutralForeground1};row-gap:${spacingVerticalS}}:not(::slotted([slot='label'])){gap:0}:host([label-position='before']){grid-template-areas:'label input' 'label message'}:host([label-position='after']){gap:0;grid-template-areas:'input label' 'message message';grid-template-columns:auto 1fr}:host([label-position='after']) ::slotted([slot='input']){margin-inline-end:${spacingHorizontalM}}:host([label-position='above']){grid-template-areas:'label' 'input' 'message';row-gap:${spacingVerticalXXS}}:host([label-position='below']){grid-template-areas:'input' 'label' 'message';justify-items:center}:host([label-position='below']) ::slotted([slot='label']){margin-block-start:${spacingVerticalM}}:host(${requiredState}) ::slotted([slot='label'])::after{content:'*'/'';color:${colorPaletteRedForeground1};margin-inline-start:${spacingHorizontalXS}}::slotted([slot='input']){grid-area:input}::slotted([slot='message']){color:${colorNeutralForeground3};font-family:${fontFamilyBase};font-size:${fontSizeBase200};font-weight:${fontWeightRegular};grid-area:message;line-height:${lineHeightBase200};margin-block-start:${spacingVerticalXXS}}:host(${focusVisibleState}:focus-within){border-radius:${borderRadiusMedium};outline:${strokeWidthThick} solid ${colorStrokeFocus2}}::slotted(label),::slotted([slot='label']){cursor:inherit;display:inline-flex;font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};grid-area:label;line-height:${lineHeightBase300};justify-self:stretch;user-select:none}:host([size='small']) ::slotted(label){font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']) ::slotted(label){font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='large']) ::slotted(label),:host([weight='semibold']) ::slotted(label){font-weight:${fontWeightSemibold}}:host(${disabledState}){cursor:default}::slotted([flag]){display:none}:host(${badInputState}) ::slotted([flag='${ValidationFlags.badInput}']),:host(${customErrorState}) ::slotted([flag='${ValidationFlags.customError}']),:host(${patternMismatchState}) ::slotted([flag='${ValidationFlags.patternMismatch}']),:host(${rangeOverflowState}) ::slotted([flag='${ValidationFlags.rangeOverflow}']),:host(${rangeUnderflowState}) ::slotted([flag='${ValidationFlags.rangeUnderflow}']),:host(${stepMismatchState}) ::slotted([flag='${ValidationFlags.stepMismatch}']),:host(${tooLongState}) ::slotted([flag='${ValidationFlags.tooLong}']),:host(${tooShortState}) ::slotted([flag='${ValidationFlags.tooShort}']),:host(${typeMismatchState}) ::slotted([flag='${ValidationFlags.typeMismatch}']),:host(${valueMissingState}) ::slotted([flag='${ValidationFlags.valueMissing}']),:host(${validState}) ::slotted([flag='${ValidationFlags.valid}']){display:block}`;
-
-const template$q = html`<template @click=${(x, c) => x.clickHandler(c.event)} @change=${(x, c) => x.changeHandler(c.event)} @focusin=${(x, c) => x.focusinHandler(c.event)} @focusout=${(x, c) => x.focusoutHandler(c.event)}><slot name=label part=label ${slotted("labelSlot")}></slot><slot name=input part=input ${slotted("slottedInputs")}></slot><slot name=message part=message ${slotted({ property: "messageSlot", filter: elements("[flag]") })}></slot></template>`;
-
-const definition$q = Field.compose({
-  name: tagName$o,
-  template: template$q,
-  styles: styles$q,
-  shadowOptions: {
-    delegatesFocus: true
-  }
-});
-
-definition$q.define(FluentDesignSystem.registry);
+Field.define(definition$q);
 
 const tagName$n = `${FluentDesignSystem.prefix}-image`;
+
+const styles$p = css`:host{contain:content}:host ::slotted(img){box-sizing:border-box;min-height:8px;min-width:8px;display:inline-block}:host([block]) ::slotted(img){width:100%;height:auto}:host([bordered]) ::slotted(img){border:${strokeWidthThin} solid ${colorNeutralStroke2}}:host([fit='none']) ::slotted(img){object-fit:none;object-position:top left;height:100%;width:100%}:host([fit='center']) ::slotted(img){object-fit:none;object-position:center;height:100%;width:100%}:host([fit='contain']) ::slotted(img){object-fit:contain;object-position:center;height:100%;width:100%}:host([fit='cover']) ::slotted(img){object-fit:cover;object-position:center;height:100%;width:100%}:host([shadow]) ::slotted(img){box-shadow:${shadow4}}:host([shape='circular']) ::slotted(img){border-radius:${borderRadiusCircular}}:host([shape='rounded']) ::slotted(img){border-radius:${borderRadiusMedium}}`;
+
+const template$p = html`<slot></slot>`;
+
+const definition$p = {
+  name: tagName$n,
+  registry: FluentDesignSystem.registry,
+  styles: styles$p,
+  template: template$p
+};
 
 var __defProp$t = Object.defineProperty;
 var __getOwnPropDesc$t = Object.getOwnPropertyDescriptor;
@@ -8626,19 +8653,23 @@ __decorateClass$t([
   attr
 ], Image.prototype, "shape", 2);
 
-const template$p = html`<slot></slot>`;
-
-const styles$p = css`:host{contain:content}:host ::slotted(img){box-sizing:border-box;min-height:8px;min-width:8px;display:inline-block}:host([block]) ::slotted(img){width:100%;height:auto}:host([bordered]) ::slotted(img){border:${strokeWidthThin} solid ${colorNeutralStroke2}}:host([fit='none']) ::slotted(img){object-fit:none;object-position:top left;height:100%;width:100%}:host([fit='center']) ::slotted(img){object-fit:none;object-position:center;height:100%;width:100%}:host([fit='contain']) ::slotted(img){object-fit:contain;object-position:center;height:100%;width:100%}:host([fit='cover']) ::slotted(img){object-fit:cover;object-position:center;height:100%;width:100%}:host([shadow]) ::slotted(img){box-shadow:${shadow4}}:host([shape='circular']) ::slotted(img){border-radius:${borderRadiusCircular}}:host([shape='rounded']) ::slotted(img){border-radius:${borderRadiusMedium}}`;
-
-const definition$p = Image.compose({
-  name: tagName$n,
-  template: template$p,
-  styles: styles$p
-});
-
-definition$p.define(FluentDesignSystem.registry);
+Image.define(definition$p);
 
 const tagName$m = `${FluentDesignSystem.prefix}-label`;
+
+const styles$o = css`${display("inline-flex")} :host{color:${colorNeutralForeground1};cursor:pointer;font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};user-select:none}.asterisk{color:${colorPaletteRedForeground1};margin-inline-start:${spacingHorizontalXS}}:host([size='small']){font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']){font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host(:is([size='large'],[weight='semibold'])){font-weight:${fontWeightSemibold}}:host([disabled]),:host([disabled]) .asterisk{color:${colorNeutralForegroundDisabled}}`;
+
+function labelTemplate() {
+  return html`<slot></slot><span part=asterisk class=asterisk aria-hidden=true ?hidden=${(x) => !x.required}>*</span>`;
+}
+const template$o = labelTemplate();
+
+const definition$o = {
+  name: tagName$m,
+  registry: FluentDesignSystem.registry,
+  styles: styles$o,
+  template: template$o
+};
 
 var __defProp$s = Object.defineProperty;
 var __getOwnPropDesc$s = Object.getOwnPropertyDescriptor;
@@ -8670,22 +8701,23 @@ __decorateClass$s([
   attr({ mode: "boolean" })
 ], Label.prototype, "required", 2);
 
-const styles$o = css`${display("inline-flex")} :host{color:${colorNeutralForeground1};cursor:pointer;font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};user-select:none}.asterisk{color:${colorPaletteRedForeground1};margin-inline-start:${spacingHorizontalXS}}:host([size='small']){font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='large']){font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host(:is([size='large'],[weight='semibold'])){font-weight:${fontWeightSemibold}}:host([disabled]),:host([disabled]) .asterisk{color:${colorNeutralForegroundDisabled}}`;
-
-function labelTemplate() {
-  return html`<slot></slot><span part=asterisk class=asterisk aria-hidden=true ?hidden=${(x) => !x.required}>*</span>`;
-}
-const template$o = labelTemplate();
-
-const definition$o = Label.compose({
-  name: tagName$m,
-  template: template$o,
-  styles: styles$o
-});
-
-definition$o.define(FluentDesignSystem.registry);
+Label.define(definition$o);
 
 const tagName$l = `${FluentDesignSystem.prefix}-link`;
+
+const styles$n = css`${display("inline")} :host{position:relative;box-sizing:border-box;background-color:transparent;color:${colorBrandForegroundLink};cursor:pointer;font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};overflow:inherit;text-align:start;text-decoration:none;text-decoration-thickness:${strokeWidthThin};text-overflow:inherit;user-select:text}:host(:hover){outline:none;text-decoration-line:underline}@media (hover:hover){:host(:hover){color:${colorBrandForegroundLinkHover}}:host(:active){color:${colorBrandForegroundLinkPressed}}:host([appearance='subtle']:hover){color:${colorNeutralForeground2LinkHover}}:host([appearance='subtle']:active){color:${colorNeutralForeground2LinkPressed}}}:host([appearance='subtle']){color:${colorNeutralForeground2Link}}:host-context(:is(h1,h2,h3,h4,h5,h6,p,fluent-text)),:host([inline]){font:inherit;text-decoration:underline}:host(:focus-visible),:host-context(:is(h1,h2,h3,h4,h5,h6,p,fluent-text)):focus-visible,:host([inline]:focus-visible){outline-style:none;text-decoration-line:underline;text-decoration-style:double;text-decoration-color:${colorStrokeFocus2}}:host(:not([href])){color:inherit;text-decoration:none}::slotted(a){position:absolute;inset:0}@media (forced-colors:active){:host{color:LinkText}}`;
+
+function anchorTemplate() {
+  return html`<template tabindex=0 @click=${(x, c) => x.clickHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)}><slot></slot></template>`;
+}
+const template$n = anchorTemplate();
+
+const definition$n = {
+  name: tagName$l,
+  registry: FluentDesignSystem.registry,
+  styles: styles$n,
+  template: template$n
+};
 
 var __defProp$r = Object.defineProperty;
 var __getOwnPropDesc$r = Object.getOwnPropertyDescriptor;
@@ -8710,20 +8742,21 @@ __decorateClass$r([
   attr({ mode: "boolean" })
 ], Link.prototype, "inline", 2);
 
-const styles$n = css`${display("inline")} :host{position:relative;box-sizing:border-box;background-color:transparent;color:${colorBrandForegroundLink};cursor:pointer;font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};overflow:inherit;text-align:start;text-decoration:none;text-decoration-thickness:${strokeWidthThin};text-overflow:inherit;user-select:text}:host(:is(:hover,:focus-visible)){outline:none;text-decoration-line:underline}@media (hover:hover){:host(:hover){color:${colorBrandForegroundLinkHover}}:host(:active){color:${colorBrandForegroundLinkPressed}}:host([appearance='subtle']:hover){color:${colorNeutralForeground2LinkHover}}:host([appearance='subtle']:active){color:${colorNeutralForeground2LinkPressed}}}:host([appearance='subtle']){color:${colorNeutralForeground2Link}}:host-context(:is(h1,h2,h3,h4,h5,h6,p,fluent-text)),:host([inline]){font:inherit;text-decoration:underline}:host(:not([href])){color:inherit;text-decoration:none}::slotted(a){position:absolute;inset:0}@media (forced-colors:active){:host{color:LinkText}}`;
+Link.define(definition$n);
 
-function anchorTemplate() {
-  return html`<template tabindex=0 @click=${(x, c) => x.clickHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)}><slot></slot></template>`;
+const styles$m = css`${display("inline-flex")} :host{background-color:${colorNeutralBackground1};border-radius:${borderRadiusMedium};border:${strokeWidthThin} solid ${colorTransparentStroke};box-shadow:${shadow16};box-sizing:border-box;flex-direction:column;margin:0;min-inline-size:160px;padding:${spacingHorizontalXS};row-gap:${spacingHorizontalXXS};width:auto}:host([popover]){inset:unset;overflow:auto}@supports (anchor-name:--anchor){:host([popover]){position:fixed;max-block-size:var(--listbox-max-height,calc(50vh - anchor-size(self-block)));min-inline-size:anchor-size(inline);inset-block-start:anchor(outside);inset-inline-start:anchor(inside);position-try-fallbacks:flip-block,flip-inline,flip-inline flip-block}}@supports not (anchor-name:--anchor){:host([popover]){margin-block-start:var(--margin-offset,0);max-block-size:var(--listbox-max-height,50vh);position:absolute}:host([popover]${flipBlockState}){margin-block-start:revert;translate:0 -100%}}`;
+
+function listboxTemplate() {
+  return html`<template @beforetoggle=${(x, c) => x.beforetoggleHandler(c.event)} @click=${(x, c) => x.clickHandler(c.event)}><slot ${ref("defaultSlot")} @slotchange=${(x, c) => x.slotchangeHandler(c.event)}></slot></template>`;
 }
-const template$n = anchorTemplate();
+const template$m = listboxTemplate();
 
-const definition$n = Link.compose({
-  name: tagName$l,
-  template: template$n,
-  styles: styles$n
-});
-
-definition$n.define(FluentDesignSystem.registry);
+const definition$m = {
+  name: tagName$q,
+  registry: FluentDesignSystem.registry,
+  styles: styles$m,
+  template: template$m
+};
 
 var __defProp$q = Object.defineProperty;
 var __getOwnPropDesc$q = Object.getOwnPropertyDescriptor;
@@ -8808,7 +8841,7 @@ class Listbox extends FASTElement {
    * @internal
    */
   get enabledOptions() {
-    return this.options?.filter((x) => !x.disabled) ?? [];
+    return this.options?.filter((x) => !x.disabled) ?? Array.from(this.querySelectorAll("*")).filter((o) => isDropdownOption(o) && !o.disabled) ?? [];
   }
   /**
    * The collection of child options that are selected.
@@ -8915,27 +8948,11 @@ __decorateClass$q([
   observable
 ], Listbox.prototype, "dropdown", 2);
 
-const styles$m = css`${display("inline-flex")} :host{background-color:${colorNeutralBackground1};border-radius:${borderRadiusMedium};border:${strokeWidthThin} solid ${colorTransparentStroke};box-shadow:${shadow16};box-sizing:border-box;flex-direction:column;margin:0;min-width:160px;padding:${spacingHorizontalXS};row-gap:${spacingHorizontalXXS};width:auto}:host([popover]){inset:unset;overflow:auto}@supports (anchor-name:--anchor){:host([popover]){position:absolute;margin-block-start:0;max-height:var(--listbox-max-height,calc(50vh - anchor-size(self-block)));min-width:anchor-size(width);position-anchor:--dropdown;position-area:block-end span-inline-end;position-try-fallbacks:flip-inline,flip-block,--flip-block,block-start}@position-try --flip-block{bottom:anchor(top);top:unset}}@supports not (anchor-name:--anchor){:host([popover]){margin-block-start:var(--margin-offset,0);max-height:var(--listbox-max-height,50vh);position:fixed}:host([popover]${flipBlockState}){margin-block-start:revert;translate:0 -100%}}`;
-
-function listboxTemplate() {
-  return html`<template @beforetoggle=${(x, c) => x.beforetoggleHandler(c.event)} @click=${(x, c) => x.clickHandler(c.event)}><slot ${ref("defaultSlot")} @slotchange=${(x, c) => x.slotchangeHandler(c.event)}></slot></template>`;
-}
-const template$m = listboxTemplate();
-
-const definition$m = Listbox.compose({
-  name: tagName$q,
-  template: template$m,
-  styles: styles$m
-});
-
-definition$m.define(FluentDesignSystem.registry);
-
-const styles$l = styles$D;
+Listbox.define(definition$m);
 
 const tagName$k = `${FluentDesignSystem.prefix}-menu-button`;
 
-class MenuButton extends Button {
-}
+const styles$l = styles$D;
 
 const template$l = buttonTemplate$1({
   end: html.partial(
@@ -8944,13 +8961,17 @@ const template$l = buttonTemplate$1({
   )
 });
 
-const definition$l = MenuButton.compose({
+const definition$l = {
   name: tagName$k,
-  template: template$l,
-  styles: styles$l
-});
+  registry: FluentDesignSystem.registry,
+  styles: styles$l,
+  template: template$l
+};
 
-definition$l.define(FluentDesignSystem.registry);
+class MenuButton extends Button {
+}
+
+MenuButton.define(definition$l);
 
 const MenuItemRole = {
   /**
@@ -8978,6 +8999,29 @@ function isMenuItem(element, tagName2 = "-menu-item") {
   return element.tagName.toLowerCase().endsWith(tagName2);
 }
 const tagName$j = `${FluentDesignSystem.prefix}-menu-item`;
+
+const styles$k = css`${display("grid")} :host{--indent:0;align-items:center;background:${colorNeutralBackground1};border-radius:${borderRadiusMedium};color:${colorNeutralForeground2};contain:layout;cursor:pointer;flex-shrink:0;font:${fontWeightRegular} ${fontSizeBase300}/${lineHeightBase300} ${fontFamilyBase};grid-gap:4px;grid-template-columns:20px 20px auto 20px;height:32px;overflow:visible;padding:0 10px}:host(:hover){background:${colorNeutralBackground1Hover};color:${colorNeutralForeground2Hover}}:host(:active){background-color:${colorNeutralBackground1Selected};color:${colorNeutralForeground2Pressed}}:host(:active) ::slotted([slot='start']){color:${colorCompoundBrandForeground1Pressed}}:host(${disabledState}){background-color:${colorNeutralBackgroundDisabled};color:${colorNeutralForegroundDisabled}}:host(${disabledState}) ::slotted([slot='start']),:host(${disabledState}) ::slotted([slot='end']){color:${colorNeutralForegroundDisabled}}:host(:focus-visible){border-radius:${borderRadiusMedium};outline:2px solid ${colorStrokeFocus2}}.content{white-space:nowrap;flex-grow:1;grid-column:auto/span 2;padding:0 2px}:host(:not(${checkedState})) .indicator,:host(:not(${checkedState})) ::slotted([slot='indicator']),:host(:not(${submenuState})) .submenu-glyph,:host(:not(${submenuState})) ::slotted([slot='submenu-glyph']){display:none}::slotted([slot='end']){color:${colorNeutralForeground3};font:${fontWeightRegular} ${fontSizeBase200}/${lineHeightBase200} ${fontFamilyBase};white-space:nowrap}:host([data-indent='1']){--indent:1}:host([data-indent='2']){--indent:2;grid-template-columns:20px 20px auto auto}:host(${submenuState}){grid-template-columns:20px auto auto 20px}:host([data-indent='2']${submenuState}){grid-template-columns:20px 20px auto auto 20px}.indicator,::slotted([slot='indicator']){grid-column:1/span 1;width:20px}::slotted([slot='start']){display:inline-flex;grid-column:calc(var(--indent))/span 1}.content{grid-column:calc(var(--indent) + 1)/span 1}::slotted([slot='end']){grid-column:calc(var(--indent) + 2)/span 1;justify-self:end}.submenu-glyph,::slotted([slot='submenu-glyph']){grid-column:-2/span 1;justify-self:end}@layer popover{:host{anchor-name:--menu-trigger;position:relative}@position-try --inline-inside{inset-inline-start:unset;inset-inline-end:anchor(inside)}::slotted([popover]){margin:0;max-height:var(--menu-max-height,auto);position:fixed;position-anchor:--menu-trigger;inset:unset;inset-block-start:anchor(inside);inset-inline-start:anchor(outside);position-try-fallbacks:--inline-inside,flip-block,flip-block --inline-inside;z-index:1}::slotted([popover]:not(:popover-open)){display:none}@supports not (anchor-name:--menu-trigger){::slotted([popover]){align-self:start}}}@media (forced-colors:active){:host(${disabledState}),:host(${disabledState}) ::slotted([slot='start']),:host(${disabledState}) ::slotted([slot='end']){color:GrayText}}`;
+
+const Checkmark16Filled = html.partial(
+  `<svg class=indicator fill=currentColor aria-hidden=true width=16 height=16 viewBox="0 0 16 16" xmlns=http://www.w3.org/2000/svg><path d="M14.05 3.49c.28.3.27.77-.04 1.06l-7.93 7.47A.85.85 0 014.9 12L2.22 9.28a.75.75 0 111.06-1.06l2.24 2.27 7.47-7.04a.75.75 0 011.06.04z" fill=currentColor></path></svg>`
+);
+const chevronRight16Filled = html.partial(
+  `<svg class=submenu-glyph fill=currentColor aria-hidden=true width=16 height=16 viewBox="0 0 16 16" xmlns=http://www.w3.org/2000/svg><path d="M5.74 3.2a.75.75 0 00-.04 1.06L9.23 8 5.7 11.74a.75.75 0 101.1 1.02l4-4.25a.75.75 0 000-1.02l-4-4.25a.75.75 0 00-1.06-.04z" fill=currentColor></path></svg>`
+);
+function menuItemTemplate(options = {}) {
+  return html`<template tabindex=0 @keydown=${(x, c) => x.handleMenuItemKeyDown(c.event)} @click=${(x, c) => x.handleMenuItemClick(c.event)} @mouseover=${(x, c) => x.handleMouseOver(c.event)} @mouseout=${(x, c) => x.handleMouseOut(c.event)} @toggle=${(x, c) => x.handleToggle(c.event)}><slot name=indicator>${staticallyCompose(options.indicator)}</slot>${startSlotTemplate(options)}<div part=content class=content><slot></slot></div>${endSlotTemplate(options)}<slot name=submenu-glyph>${staticallyCompose(options.submenuGlyph)}</slot><slot name=submenu ${slotted({ property: "slottedSubmenu" })}></slot></template>`;
+}
+const template$k = menuItemTemplate({
+  indicator: Checkmark16Filled,
+  submenuGlyph: chevronRight16Filled
+});
+
+const definition$k = {
+  name: tagName$j,
+  registry: FluentDesignSystem.registry,
+  styles: styles$k,
+  template: template$k
+};
 
 var __defProp$p = Object.defineProperty;
 var __getOwnPropDesc$p = Object.getOwnPropertyDescriptor;
@@ -9183,6 +9227,7 @@ class MenuItem extends FASTElement {
     super.connectedCallback();
     this.elementInternals.role = this.role ?? MenuItemRole.menuitem;
     this.elementInternals.ariaChecked = this.role !== MenuItemRole.menuitem ? `${!!this.checked}` : null;
+    maybeSetAutoFocus(this);
   }
 }
 __decorateClass$p([
@@ -9205,31 +9250,23 @@ __decorateClass$p([
 ], MenuItem.prototype, "submenu", 2);
 applyMixins(MenuItem, StartEnd);
 
-const styles$k = css`${display("grid")} :host{--indent:0;align-items:center;background:${colorNeutralBackground1};border-radius:${borderRadiusMedium};color:${colorNeutralForeground2};contain:layout;cursor:pointer;flex-shrink:0;font:${fontWeightRegular} ${fontSizeBase300}/${lineHeightBase300} ${fontFamilyBase};grid-gap:4px;grid-template-columns:20px 20px auto 20px;height:32px;overflow:visible;padding:0 10px}:host(:hover){background:${colorNeutralBackground1Hover};color:${colorNeutralForeground2Hover}}:host(:active){background-color:${colorNeutralBackground1Selected};color:${colorNeutralForeground2Pressed}}:host(:active) ::slotted([slot='start']){color:${colorCompoundBrandForeground1Pressed}}:host(${disabledState}){background-color:${colorNeutralBackgroundDisabled};color:${colorNeutralForegroundDisabled}}:host(${disabledState}) ::slotted([slot='start']),:host(${disabledState}) ::slotted([slot='end']){color:${colorNeutralForegroundDisabled}}:host(:focus-visible){border-radius:${borderRadiusMedium};outline:2px solid ${colorStrokeFocus2}}.content{white-space:nowrap;flex-grow:1;grid-column:auto/span 2;padding:0 2px}:host(:not(${checkedState})) .indicator,:host(:not(${checkedState})) ::slotted([slot='indicator']),:host(:not(${submenuState})) .submenu-glyph,:host(:not(${submenuState})) ::slotted([slot='submenu-glyph']){display:none}::slotted([slot='end']){color:${colorNeutralForeground3};font:${fontWeightRegular} ${fontSizeBase200}/${lineHeightBase200} ${fontFamilyBase};white-space:nowrap}:host([data-indent='1']){--indent:1}:host([data-indent='2']){--indent:2;grid-template-columns:20px 20px auto auto}:host(${submenuState}){grid-template-columns:20px auto auto 20px}:host([data-indent='2']${submenuState}){grid-template-columns:20px 20px auto auto 20px}.indicator,::slotted([slot='indicator']){grid-column:1/span 1;width:20px}::slotted([slot='start']){display:inline-flex;grid-column:calc(var(--indent))/span 1}.content{grid-column:calc(var(--indent) + 1)/span 1}::slotted([slot='end']){grid-column:calc(var(--indent) + 2)/span 1;justify-self:end}.submenu-glyph,::slotted([slot='submenu-glyph']){grid-column:-2/span 1;justify-self:end}@layer popover{:host{anchor-name:--menu-trigger;position:relative}::slotted([popover]){margin:0;max-height:var(--menu-max-height,auto);position:absolute;position-anchor:--menu-trigger;position-area:inline-end span-block-end;position-try-fallbacks:flip-inline,block-start,block-end;z-index:1}::slotted([popover]:not(:popover-open)){display:none}::slotted([popover]:popover-open){inset:unset}@supports not (anchor-name:--menu-trigger){::slotted([popover]){align-self:start}}}@media (forced-colors:active){:host(${disabledState}),:host(${disabledState}) ::slotted([slot='start']),:host(${disabledState}) ::slotted([slot='end']){color:GrayText}}`;
-
-const Checkmark16Filled = html.partial(
-  `<svg class=indicator fill=currentColor aria-hidden=true width=16 height=16 viewBox="0 0 16 16" xmlns=http://www.w3.org/2000/svg><path d="M14.05 3.49c.28.3.27.77-.04 1.06l-7.93 7.47A.85.85 0 014.9 12L2.22 9.28a.75.75 0 111.06-1.06l2.24 2.27 7.47-7.04a.75.75 0 011.06.04z" fill=currentColor></path></svg>`
-);
-const chevronRight16Filled = html.partial(
-  `<svg class=submenu-glyph fill=currentColor aria-hidden=true width=16 height=16 viewBox="0 0 16 16" xmlns=http://www.w3.org/2000/svg><path d="M5.74 3.2a.75.75 0 00-.04 1.06L9.23 8 5.7 11.74a.75.75 0 101.1 1.02l4-4.25a.75.75 0 000-1.02l-4-4.25a.75.75 0 00-1.06-.04z" fill=currentColor></path></svg>`
-);
-function menuItemTemplate(options = {}) {
-  return html`<template tabindex=0 @keydown=${(x, c) => x.handleMenuItemKeyDown(c.event)} @click=${(x, c) => x.handleMenuItemClick(c.event)} @mouseover=${(x, c) => x.handleMouseOver(c.event)} @mouseout=${(x, c) => x.handleMouseOut(c.event)} @toggle=${(x, c) => x.handleToggle(c.event)}><slot name=indicator>${staticallyCompose(options.indicator)}</slot>${startSlotTemplate(options)}<div part=content class=content><slot></slot></div>${endSlotTemplate(options)}<slot name=submenu-glyph>${staticallyCompose(options.submenuGlyph)}</slot><slot name=submenu ${slotted({ property: "slottedSubmenu" })}></slot></template>`;
-}
-const template$k = menuItemTemplate({
-  indicator: Checkmark16Filled,
-  submenuGlyph: chevronRight16Filled
-});
-
-const definition$k = MenuItem.compose({
-  name: tagName$j,
-  template: template$k,
-  styles: styles$k
-});
-
-definition$k.define(FluentDesignSystem.registry);
+MenuItem.define(definition$k);
 
 const tagName$i = `${FluentDesignSystem.prefix}-menu-list`;
+
+const styles$j = css`${display("flex")} :host{flex-direction:column;height:fit-content;max-width:300px;min-width:160px;width:auto;background-color:${colorNeutralBackground1};border:1px solid ${colorTransparentStroke};border-radius:${borderRadiusMedium};box-shadow:${shadow16};padding:4px;row-gap:2px}`;
+
+function menuTemplate$1() {
+  return html`<template focusgroup=menu><slot ${slotted("items")}></slot></template>`;
+}
+const template$j = menuTemplate$1();
+
+const definition$j = {
+  name: tagName$i,
+  registry: FluentDesignSystem.registry,
+  styles: styles$j,
+  template: template$j
+};
 
 //#region src/constants.js
 /** @enum {string} */
@@ -9862,22 +9899,23 @@ class MenuList extends BaseMenuList {
   }
 }
 
-const styles$j = css`${display("flex")} :host{flex-direction:column;height:fit-content;max-width:300px;min-width:160px;width:auto;background-color:${colorNeutralBackground1};border:1px solid ${colorTransparentStroke};border-radius:${borderRadiusMedium};box-shadow:${shadow16};padding:4px;row-gap:2px}`;
-
-function menuTemplate$1() {
-  return html`<template focusgroup=menu><slot ${slotted("items")}></slot></template>`;
-}
-const template$j = menuTemplate$1();
-
-const definition$j = MenuList.compose({
-  name: tagName$i,
-  template: template$j,
-  styles: styles$j
-});
-
-definition$j.define(FluentDesignSystem.registry);
+MenuList.define(definition$j);
 
 const tagName$h = `${FluentDesignSystem.prefix}-menu`;
+
+const styles$i = css`${display("inline-block")} ::slotted([slot='trigger']){anchor-name:--menu-trigger}::slotted([popover]){margin:0;max-height:var(--menu-max-height,auto);position-anchor:--menu-trigger;inset:unset;inset-block-start:anchor(outside);inset-inline-start:anchor(self-start);position-try-fallbacks:flip-block,flip-inline,flip-block flip-inline;position:fixed;z-index:1}:host([split]) ::slotted([popover]){inset-inline-start:unset;inset-inline-end:anchor(self-end)}::slotted([popover]:not(:popover-open)){display:none}:host([split]){display:inline-flex}:host([split]) ::slotted([slot='primary-action']){border-inline-end:${strokeWidthThin} solid ${colorNeutralStroke1};border-start-end-radius:0;border-end-end-radius:0}:host([split]) ::slotted([slot='primary-action']:focus-visible){z-index:1}:host([split]) ::slotted([slot='primary-action'][appearance='primary']){border-inline-end:${strokeWidthThin} solid white}:host([split]) ::slotted([slot='trigger']){border-inline-start:0;border-start-start-radius:0;border-end-start-radius:0}`;
+
+function menuTemplate() {
+  return html`<template @keydown=${(x, c) => x.menuKeydownHandler(c.event)}><slot name=primary-action ${ref("primaryAction")}></slot><slot name=trigger ${slotted({ property: "slottedTriggers", filter: elements() })}></slot><slot ${slotted({ property: "slottedMenuList", filter: elements() })}></slot></template>`;
+}
+const template$i = menuTemplate();
+
+const definition$i = {
+  name: tagName$h,
+  registry: FluentDesignSystem.registry,
+  styles: styles$i,
+  template: template$i
+};
 
 var __defProp$n = Object.defineProperty;
 var __getOwnPropDesc$n = Object.getOwnPropertyDescriptor;
@@ -10205,22 +10243,23 @@ __decorateClass$n([
   observable
 ], Menu.prototype, "primaryAction", 2);
 
-const styles$i = css`${display("inline-block")} ::slotted([slot='trigger']){anchor-name:--menu-trigger}::slotted([popover]){margin:0;max-height:var(--menu-max-height,auto);position-anchor:--menu-trigger;position-area:block-end span-inline-end;position-try-fallbacks:flip-block;position:absolute;z-index:1}:host([split]) ::slotted([popover]){position-area:block-end span-inline-start}::slotted([popover]:popover-open){inset:unset}::slotted([popover]:not(:popover-open)){display:none}:host([split]){display:inline-flex}:host([split]) ::slotted([slot='primary-action']){border-inline-end:${strokeWidthThin} solid ${colorNeutralStroke1};border-start-end-radius:0;border-end-end-radius:0}:host([split]) ::slotted([slot='primary-action']:focus-visible){z-index:1}:host([split]) ::slotted([slot='primary-action'][appearance='primary']){border-inline-end:${strokeWidthThin} solid white}:host([split]) ::slotted([slot='trigger']){border-inline-start:0;border-start-start-radius:0;border-end-start-radius:0}`;
-
-function menuTemplate() {
-  return html`<template @keydown=${(x, c) => x.menuKeydownHandler(c.event)}><slot name=primary-action ${ref("primaryAction")}></slot><slot name=trigger ${slotted({ property: "slottedTriggers", filter: elements() })}></slot><slot ${slotted({ property: "slottedMenuList", filter: elements() })}></slot></template>`;
-}
-const template$i = menuTemplate();
-
-const definition$i = Menu.compose({
-  name: tagName$h,
-  template: template$i,
-  styles: styles$i
-});
-
-definition$i.define(FluentDesignSystem.registry);
+Menu.define(definition$i);
 
 const tagName$g = `${FluentDesignSystem.prefix}-message-bar`;
+
+const styles$h = css`:host{display:grid;box-sizing:border-box;font-family:${fontFamilyBase};font-size:${fontSizeBase200};line-height:${lineHeightBase200};width:100%;background:${colorNeutralBackground3};color:${colorNeutralForeground3};border:1px solid ${colorNeutralStroke1};padding-inline:${spacingHorizontalM};border-radius:${borderRadiusMedium};min-height:36px;align-items:center;grid-template:'icon body actions dismiss'/auto 1fr auto auto;contain:layout style paint}:host([shape='square']){border-radius:0}:host([intent='success']){background-color:${colorPaletteGreenBackground1};border-color:${colorPaletteGreenBorder1}}:host([intent='warning']){background-color:${colorPaletteDarkOrangeBackground1};border-color:${colorPaletteDarkOrangeBorder1}}:host([intent='error']){background-color:${colorPaletteRedBackground1};border-color:${colorPaletteRedBorder1}}:host([layout='multiline']){grid-template-areas:'icon body dismiss' 'actions actions actions';grid-template-columns:auto 1fr auto;grid-template-rows:auto auto 1fr;padding-block:${spacingVerticalMNudge};padding-inline:${spacingHorizontalM}}.content{grid-area:body;max-width:520px;padding-block:${spacingVerticalMNudge};padding-inline:0}:host([layout='multiline']) .content{padding:0}::slotted([slot='icon']){display:flex;grid-area:icon;flex-direction:column;align-items:center;color:${colorNeutralForeground3};margin-inline-end:${spacingHorizontalS}}:host([layout='multiline']) ::slotted([slot='icon']){align-items:start;height:100%}::slotted([slot='dismiss']){grid-area:dismiss}.actions{grid-area:actions;display:flex;justify-self:end;margin-inline-end:${spacingHorizontalS};gap:${spacingHorizontalS}}:host([layout='multiline']) .actions{margin-block-start:${spacingVerticalMNudge};margin-inline-end:0}:host([layout='multiline']) ::slotted([slot='dismiss']){align-items:start;height:100%;padding-block-start:${spacingVerticalS}}::slotted(*){font-size:inherit}`;
+
+function messageBarTemplate() {
+  return html`<slot name=icon></slot><div class=content><slot></slot></div><div class=actions><slot name=actions></slot></div><slot name=dismiss></slot>`;
+}
+const template$h = messageBarTemplate();
+
+const definition$h = {
+  name: tagName$g,
+  registry: FluentDesignSystem.registry,
+  styles: styles$h,
+  template: template$h
+};
 
 var __defProp$m = Object.defineProperty;
 var __getOwnPropDesc$m = Object.getOwnPropertyDescriptor;
@@ -10262,23 +10301,27 @@ __decorateClass$m([
   attr
 ], MessageBar.prototype, "intent", 2);
 
-const styles$h = css`:host{display:grid;box-sizing:border-box;font-family:${fontFamilyBase};font-size:${fontSizeBase200};line-height:${lineHeightBase200};width:100%;background:${colorNeutralBackground3};border:1px solid ${colorNeutralStroke1};padding-inline:${spacingHorizontalM};border-radius:${borderRadiusMedium};min-height:36px;align-items:center;grid-template:'icon body actions dismiss'/auto 1fr auto auto;contain:layout style paint}:host([shape='square']){border-radius:0}:host([intent='success']){background-color:${colorPaletteGreenBackground1};border-color:${colorPaletteGreenBorder1}}:host([intent='warning']){background-color:${colorPaletteDarkOrangeBackground1};border-color:${colorPaletteDarkOrangeBorder1}}:host([intent='error']){background-color:${colorPaletteRedBackground1};border-color:${colorPaletteRedBorder1}}:host([layout='multiline']){grid-template-areas:'icon body dismiss' 'actions actions actions';grid-template-columns:auto 1fr auto;grid-template-rows:auto auto 1fr;padding-block:${spacingVerticalMNudge};padding-inline:${spacingHorizontalM}}.content{grid-area:body;max-width:520px;padding-block:${spacingVerticalMNudge};padding-inline:0}:host([layout='multiline']) .content{padding:0}::slotted([slot='icon']){display:flex;grid-area:icon;flex-direction:column;align-items:center;color:${colorNeutralForeground3};margin-inline-end:${spacingHorizontalS}}:host([layout='multiline']) ::slotted([slot='icon']){align-items:start;height:100%}::slotted([slot='dismiss']){grid-area:dismiss}.actions{grid-area:actions;display:flex;justify-self:end;margin-inline-end:${spacingHorizontalS};gap:${spacingHorizontalS}}:host([layout='multiline']) .actions{margin-block-start:${spacingVerticalMNudge};margin-inline-end:0}:host([layout='multiline']) ::slotted([slot='dismiss']){align-items:start;height:100%;padding-block-start:${spacingVerticalS}}::slotted(*){font-size:inherit}`;
+MessageBar.define(definition$h);
 
-function messageBarTemplate() {
-  return html`<slot name=icon></slot><div class=content><slot></slot></div><div class=actions><slot name=actions></slot></div><slot name=dismiss></slot>`;
+const styles$g = css`${display("inline-grid")} :host{-webkit-tap-highlight-color:transparent;${typographyBody1Styles} align-items:center;background-color:${colorNeutralBackground1};border-radius:${borderRadiusMedium};box-sizing:border-box;color:${colorNeutralForeground2};column-gap:${spacingHorizontalXS};cursor:pointer;grid-template-areas:'indicator start content';grid-template-columns:auto auto 1fr;min-height:32px;padding:${spacingHorizontalSNudge};text-align:start}.content{grid-area:content;line-height:1}::slotted([slot='start']){grid-area:start}:host(:hover){background-color:${colorNeutralBackground1Hover};color:${colorNeutralForeground2Hover}}:host(:active){background-color:${colorNeutralBackground1Pressed};color:${colorNeutralForeground2Pressed}}:host(:disabled){background-color:${colorNeutralBackground1};color:${colorNeutralForegroundDisabled};cursor:default}.checkmark-16-filled{fill:currentColor;width:16px}slot[name='checked-indicator']>*,::slotted([slot='checked-indicator']){aspect-ratio:1;flex:0 0 auto;grid-area:indicator;visibility:hidden}:host(${selectedState}) :is(slot[name='checked-indicator']>*,::slotted([slot='checked-indicator'])){visibility:visible}:host(${multipleState}) .checkmark-16-filled,:host(:not(${multipleState})) .checkmark-12-regular{display:none}:host(${multipleState}) .checkmark-12-regular{background-color:${colorNeutralBackground1};border-radius:${borderRadiusSmall};border:${strokeWidthThin} solid ${colorNeutralStrokeAccessible};box-sizing:border-box;cursor:pointer;fill:transparent;position:relative;visibility:visible;width:16px}:host(${multipleState}${selectedState}) .checkmark-12-regular{background-color:${colorCompoundBrandBackground};border-color:${colorCompoundBrandStroke};fill:${colorNeutralForegroundInverted}}:host(:disabled${multipleState}) .checkmark-12-regular{border-color:${colorNeutralStrokeDisabled}}:host(:disabled${multipleState}${selectedState}) .checkmark-12-regular{background-color:${colorNeutralBackgroundDisabled}}:host(${activeState}){border:${strokeWidthThick} solid ${colorStrokeFocus2}}@supports (selector(:host(:has(*)))){:host(:has([slot='start']:not([size='16']))){column-gap:${spacingHorizontalSNudge}}}:host(${descriptionState}){column-gap:${spacingHorizontalSNudge};grid-template-areas:'indicator start content' 'indicator start description'}::slotted([slot='description']){color:${colorNeutralForeground3};grid-area:description;${typographyCaption1Styles}}@media (forced-colors:active){:host(:disabled){color:GrayText}}`;
+
+const checkedIndicator$1 = html.partial(
+  /* html */
+  `<svg aria-hidden=true class=checkmark-16-filled viewBox="0 0 16 16"><path d="M14.046 3.486a.75.75 0 0 1-.032 1.06l-7.93 7.474a.85.85 0 0 1-1.188-.022l-2.68-2.72a.75.75 0 1 1 1.068-1.053l2.234 2.267l7.468-7.038a.75.75 0 0 1 1.06.032"/></svg> <svg aria-hidden=true class=checkmark-12-regular viewBox="0 0 12 12"><path d="M9.854 3.146a.5.5 0 0 1 0 .708l-4.5 4.5a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L5 7.293l4.146-4.147a.5.5 0 0 1 .708 0"/></svg>`
+);
+function dropdownOptionTemplate(options = {}) {
+  return html`<slot name=checked-indicator>${staticallyCompose(options.checkedIndicator)}</slot>${startSlotTemplate(options)}<div class=content part=content><slot ${slotted({ property: "freeformOutputs", filter: elements("output") })}></slot></div><div class=description part=description><slot name=description ${slotted("descriptionSlot")}></slot></div>`;
 }
-const template$h = messageBarTemplate();
-
-const definition$h = MessageBar.compose({
-  name: tagName$g,
-  template: template$h,
-  styles: styles$h,
-  shadowOptions: {
-    mode: FluentDesignSystem.shadowRootMode
-  }
+const template$g = dropdownOptionTemplate({
+  checkedIndicator: checkedIndicator$1
 });
 
-definition$h.define(FluentDesignSystem.registry);
+const definition$g = {
+  name: tagName$p,
+  registry: FluentDesignSystem.registry,
+  styles: styles$g,
+  template: template$g
+};
 
 var __defProp$l = Object.defineProperty;
 var __getOwnPropDesc$l = Object.getOwnPropertyDescriptor;
@@ -10541,26 +10584,7 @@ __decorateClass$l([
   attr({ attribute: "text", mode: "fromView" })
 ], DropdownOption.prototype, "textAttribute", 2);
 
-const styles$g = css`${display("inline-grid")} :host{-webkit-tap-highlight-color:transparent;${typographyBody1Styles} align-items:center;background-color:${colorNeutralBackground1};border-radius:${borderRadiusMedium};box-sizing:border-box;color:${colorNeutralForeground2};column-gap:${spacingHorizontalXS};cursor:pointer;grid-template-areas:'indicator start content';grid-template-columns:auto auto 1fr;min-height:32px;padding:${spacingHorizontalSNudge};text-align:start}.content{grid-area:content;line-height:1}::slotted([slot='start']){grid-area:start}:host(:hover){background-color:${colorNeutralBackground1Hover};color:${colorNeutralForeground2Hover}}:host(:active){background-color:${colorNeutralBackground1Pressed};color:${colorNeutralForeground2Pressed}}:host(:disabled){background-color:${colorNeutralBackground1};color:${colorNeutralForegroundDisabled};cursor:default}.checkmark-16-filled{fill:currentColor;width:16px}slot[name='checked-indicator']>*,::slotted([slot='checked-indicator']){aspect-ratio:1;flex:0 0 auto;grid-area:indicator;visibility:hidden}:host(${selectedState}) :is(slot[name='checked-indicator']>*,::slotted([slot='checked-indicator'])){visibility:visible}:host(${multipleState}) .checkmark-16-filled,:host(:not(${multipleState})) .checkmark-12-regular{display:none}:host(${multipleState}) .checkmark-12-regular{background-color:${colorNeutralBackground1};border-radius:${borderRadiusSmall};border:${strokeWidthThin} solid ${colorNeutralStrokeAccessible};box-sizing:border-box;cursor:pointer;fill:transparent;position:relative;visibility:visible;width:16px}:host(${multipleState}${selectedState}) .checkmark-12-regular{background-color:${colorCompoundBrandBackground};border-color:${colorCompoundBrandStroke};fill:${colorNeutralForegroundInverted}}:host(:disabled${multipleState}) .checkmark-12-regular{border-color:${colorNeutralStrokeDisabled}}:host(:disabled${multipleState}${selectedState}) .checkmark-12-regular{background-color:${colorNeutralBackgroundDisabled}}:host(${activeState}){border:${strokeWidthThick} solid ${colorStrokeFocus2}}@supports (selector(:host(:has(*)))){:host(:has([slot='start']:not([size='16']))){column-gap:${spacingHorizontalSNudge}}}:host(${descriptionState}){column-gap:${spacingHorizontalSNudge};grid-template-areas:'indicator start content' 'indicator start description'}::slotted([slot='description']){color:${colorNeutralForeground3};grid-area:description;${typographyCaption1Styles}}@media (forced-colors:active){:host(:disabled){color:GrayText}}`;
-
-const checkedIndicator$1 = html.partial(
-  /* html */
-  `<svg aria-hidden=true class=checkmark-16-filled viewBox="0 0 16 16"><path d="M14.046 3.486a.75.75 0 0 1-.032 1.06l-7.93 7.474a.85.85 0 0 1-1.188-.022l-2.68-2.72a.75.75 0 1 1 1.068-1.053l2.234 2.267l7.468-7.038a.75.75 0 0 1 1.06.032"/></svg> <svg aria-hidden=true class=checkmark-12-regular viewBox="0 0 12 12"><path d="M9.854 3.146a.5.5 0 0 1 0 .708l-4.5 4.5a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L5 7.293l4.146-4.147a.5.5 0 0 1 .708 0"/></svg>`
-);
-function dropdownOptionTemplate(options = {}) {
-  return html`<slot name=checked-indicator>${staticallyCompose(options.checkedIndicator)}</slot>${startSlotTemplate(options)}<div class=content part=content><slot ${slotted({ property: "freeformOutputs", filter: elements("output") })}></slot></div><div class=description part=description><slot name=description ${slotted("descriptionSlot")}></slot></div>`;
-}
-const template$g = dropdownOptionTemplate({
-  checkedIndicator: checkedIndicator$1
-});
-
-const definition$g = DropdownOption.compose({
-  name: tagName$p,
-  template: template$g,
-  styles: styles$g
-});
-
-definition$g.define(FluentDesignSystem.registry);
+DropdownOption.define(definition$g);
 
 const ProgressBarValidationState = {
   success: "success",
@@ -10568,6 +10592,20 @@ const ProgressBarValidationState = {
   error: "error"
 };
 const tagName$f = `${FluentDesignSystem.prefix}-progress-bar`;
+
+const styles$f = css`${display("block")} :host{width:100%;height:2px;overflow-x:hidden;background-color:${colorNeutralBackground6};border-radius:${borderRadiusMedium};contain:content;@supports (width:attr(value type(<number>))){--max:attr(max type(<number>),100);--min:attr(min type(<number>),0);--value:attr(value type(<number>),0);--indicator-width:clamp(0%,calc((var(--value) - var(--min))/(var(--max) - var(--min)) * 100%),100%)}}:host([thickness='large']){height:4px}:host([shape='square']){border-radius:${borderRadiusNone}}.indicator{background-color:${colorCompoundBrandBackground};border-radius:inherit;height:100%}:host([value]) .indicator{transition:all 0.2s ease-in-out;@supports (width:attr(value type(<number>))){width:var(--indicator-width)}}:host(:not([value])) .indicator{position:relative;width:33%;background-image:linear-gradient( to right,${colorNeutralBackground6} 0%,${colorTransparentBackground} 50%,${colorNeutralBackground6} 100% );animation-name:indeterminate;animation-duration:3s;animation-timing-function:linear;animation-iteration-count:infinite}:host([validation-state='error']) .indicator{background-color:${colorPaletteRedBackground3}}:host([validation-state='warning']) .indicator{background-color:${colorPaletteDarkOrangeBackground3}}:host([validation-state='success']) .indicator{background-color:${colorPaletteGreenBackground3}}@layer animations{@media (prefers-reduced-motion:no-preference){:host([value]){transition:none}:host(:not([value])) .indicator{animation-duration:0.01ms;animation-iteration-count:1}}}@keyframes indeterminate{0%{inset-inline-start:-33%}100%{inset-inline-start:100%}}@media (forced-colors:active){:host{background-color:CanvasText}.indicator,:host(:is([validation-state='success'],[validation-state='warning'],[validation-state='error'])) .indicator{background-color:Highlight}}`;
+
+function progressTemplate() {
+  return html`<div class=indicator part=indicator ${ref("indicator")}></div>`;
+}
+const template$f = progressTemplate();
+
+const definition$f = {
+  name: tagName$f,
+  registry: FluentDesignSystem.registry,
+  styles: styles$f,
+  template: template$f
+};
 
 var __defProp$k = Object.defineProperty;
 var __getOwnPropDesc$k = Object.getOwnPropertyDescriptor;
@@ -10702,23 +10740,24 @@ __decorateClass$j([
   attr
 ], ProgressBar.prototype, "shape", 2);
 
-const styles$f = css`${display("block")} :host{width:100%;height:2px;overflow-x:hidden;background-color:${colorNeutralBackground6};border-radius:${borderRadiusMedium};contain:content;@supports (width:attr(value type(<number>))){--max:attr(max type(<number>),100);--min:attr(min type(<number>),0);--value:attr(value type(<number>),0);--indicator-width:clamp(0%,calc((var(--value) - var(--min))/(var(--max) - var(--min)) * 100%),100%)}}:host([thickness='large']){height:4px}:host([shape='square']){border-radius:${borderRadiusNone}}.indicator{background-color:${colorCompoundBrandBackground};border-radius:inherit;height:100%}:host([value]) .indicator{transition:all 0.2s ease-in-out;@supports (width:attr(value type(<number>))){width:var(--indicator-width)}}:host(:not([value])) .indicator{position:relative;width:33%;background-image:linear-gradient( to right,${colorNeutralBackground6} 0%,${colorTransparentBackground} 50%,${colorNeutralBackground6} 100% );animation-name:indeterminate;animation-duration:3s;animation-timing-function:linear;animation-iteration-count:infinite}:host([validation-state='error']) .indicator{background-color:${colorPaletteRedBackground3}}:host([validation-state='warning']) .indicator{background-color:${colorPaletteDarkOrangeBackground3}}:host([validation-state='success']) .indicator{background-color:${colorPaletteGreenBackground3}}@layer animations{@media (prefers-reduced-motion:no-preference){:host([value]){transition:none}:host(:not([value])) .indicator{animation-duration:0.01ms;animation-iteration-count:1}}}@keyframes indeterminate{0%{inset-inline-start:-33%}100%{inset-inline-start:100%}}@media (forced-colors:active){:host{background-color:CanvasText}.indicator,:host(:is([validation-state='success'],[validation-state='warning'],[validation-state='error'])) .indicator{background-color:Highlight}}`;
-
-function progressTemplate() {
-  return html`<div class=indicator part=indicator ${ref("indicator")}></div>`;
-}
-const template$f = progressTemplate();
-
-const definition$f = ProgressBar.compose({
-  name: tagName$f,
-  template: template$f,
-  styles: styles$f
-});
-
-definition$f.define(FluentDesignSystem.registry);
+ProgressBar.define(definition$f);
 
 const RadioGroupOrientation = Orientation;
 const tagName$e = `${FluentDesignSystem.prefix}-radio-group`;
+
+const styles$e = css`${display("flex")} :host{-webkit-tap-highlight-color:transparent;cursor:pointer;gap:${spacingVerticalL}}:host([orientation='vertical']){flex-direction:column;justify-content:flex-start}:host([orientation='horizontal']){flex-direction:row}::slotted(*){color:${colorNeutralForeground3}}::slotted(:hover){color:${colorNeutralForeground2}}::slotted(:active){color:${colorNeutralForeground1}}::slotted(${disabledState}){color:${colorNeutralForegroundDisabled}}::slotted(${checkedState}){color:${colorNeutralForeground1}}:host([slot='input']){margin:${spacingVerticalS} ${spacingHorizontalS}}`;
+
+function radioGroupTemplate() {
+  return html`<template focusgroup="radiogroup wrap" @disabled=${(x, c) => x.disabledRadioHandler(c.event)} @change=${(x, c) => x.changeHandler(c.event)} @click=${(x, c) => x.clickHandler(c.event)} @focusin=${(x, c) => x.focusinHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)}><slot ${slotted("slottedRadios")}></slot></template>`;
+}
+const template$e = radioGroupTemplate();
+
+const definition$e = {
+  name: tagName$e,
+  registry: FluentDesignSystem.registry,
+  styles: styles$e,
+  template: template$e
+};
 
 function isRadio(element, tagName2 = "-radio") {
   return isCustomElement(tagName2)(element);
@@ -10866,7 +10905,9 @@ class BaseRadioGroup extends FASTElement {
    * @param next - the current slotted radios
    */
   slottedRadiosChanged(prev, next) {
-    this.radios = [...this.querySelectorAll("*")].filter((x) => isRadio(x));
+    Updates.enqueue(() => {
+      this.radios = [...this.querySelectorAll("*")].filter((x) => isRadio(x));
+    });
   }
   /**
    * A collection of child radios that are not disabled.
@@ -11176,20 +11217,25 @@ class RadioGroup extends BaseRadioGroup {
   }
 }
 
-const styles$e = css`${display("flex")} :host{-webkit-tap-highlight-color:transparent;cursor:pointer;gap:${spacingVerticalL}}:host([orientation='vertical']){flex-direction:column;justify-content:flex-start}:host([orientation='horizontal']){flex-direction:row}::slotted(*){color:${colorNeutralForeground3}}::slotted(:hover){color:${colorNeutralForeground2}}::slotted(:active){color:${colorNeutralForeground1}}::slotted(${disabledState}){color:${colorNeutralForegroundDisabled}}::slotted(${checkedState}){color:${colorNeutralForeground1}}:host([slot='input']){margin:${spacingVerticalS} ${spacingHorizontalS}}`;
+RadioGroup.define(definition$e);
 
-function radioGroupTemplate() {
-  return html`<template focusgroup="radiogroup wrap" @disabled=${(x, c) => x.disabledRadioHandler(c.event)} @change=${(x, c) => x.changeHandler(c.event)} @click=${(x, c) => x.clickHandler(c.event)} @focusin=${(x, c) => x.focusinHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)}><slot ${slotted("slottedRadios")}></slot></template>`;
+const styles$d = css`${display("inline-flex")} :host{--size:16px;aspect-ratio:1;background-color:${colorNeutralBackground1};border:${strokeWidthThin} solid ${colorNeutralStrokeAccessible};border-radius:${borderRadiusCircular};box-sizing:border-box;position:relative;width:var(--size)}:host([size='large']){--size:20px}.checked-indicator{aspect-ratio:1;border-radius:${borderRadiusCircular};color:${colorNeutralForegroundInverted};inset:0;margin:auto;position:absolute;width:calc(var(--size) * 0.625)}:host(:not([slot='input']))::after{content:''/'';position:absolute;display:block;inset:-8px;box-sizing:border-box;outline:none;border:${strokeWidthThick} solid ${colorTransparentStroke};border-radius:${borderRadiusMedium}}:host(:not([slot='input']):focus-visible)::after{border-color:${colorStrokeFocus2}}:host(:hover){border-color:${colorNeutralStrokeAccessibleHover}}:host(${checkedState}){border-color:${colorCompoundBrandStroke}}:host(${checkedState}) .checked-indicator{background-color:${colorCompoundBrandBackground}}:host(${checkedState}:hover) .checked-indicator{background-color:${colorCompoundBrandBackgroundHover}}:host(:active){border-color:${colorNeutralStrokeAccessiblePressed}}:host(${checkedState}:active) .checked-indicator{background-color:${colorCompoundBrandBackgroundPressed}}:host(:focus-visible){outline:none}:host(${disabledState}){background-color:${colorNeutralBackgroundDisabled};border-color:${colorNeutralStrokeDisabled}}:host(${checkedState}${disabledState}) .checked-indicator{background-color:${colorNeutralStrokeDisabled}}@media (forced-colors:active){:host{border-color:FieldText}:host(:not([slot='input']:focus-visible))::after{border-color:Canvas}:host(:not(${disabledState}):hover),:host(:not([slot='input']):focus-visible)::after{border-color:Highlight}.checked-indicator{color:HighlightText}:host(${checkedState}) .checked-indicator{background-color:FieldText}:host(${checkedState}:not(${disabledState}):hover) .checked-indicator{background-color:Highlight}:host(${disabledState}){border-color:GrayText;color:GrayText}:host(${disabledState}${checkedState}) .checked-indicator{background-color:GrayText}}`;
+
+const checkedIndicator = html.partial(
+  /* html */
+  `<span part=checked-indicator class=checked-indicator role=presentation></span>`
+);
+function radioTemplate(options = {}) {
+  return html`<template @click=${(x, c) => x.clickHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)} @keyup=${(x, c) => x.keyupHandler(c.event)}><slot name=checked-indicator>${staticallyCompose(options.checkedIndicator)}</slot></template>`;
 }
-const template$e = radioGroupTemplate();
+const template$d = radioTemplate({ checkedIndicator });
 
-const definition$e = RadioGroup.compose({
-  name: tagName$e,
-  template: template$e,
-  styles: styles$e
-});
-
-definition$e.define(FluentDesignSystem.registry);
+const definition$d = {
+  name: tagName$d,
+  registry: FluentDesignSystem.registry,
+  styles: styles$d,
+  template: template$d
+};
 
 class Radio extends BaseCheckbox {
   constructor() {
@@ -11255,24 +11301,7 @@ class Radio extends BaseCheckbox {
   }
 }
 
-const styles$d = css`${display("inline-flex")} :host{--size:16px;aspect-ratio:1;background-color:${colorNeutralBackground1};border:${strokeWidthThin} solid ${colorNeutralStrokeAccessible};border-radius:${borderRadiusCircular};box-sizing:border-box;position:relative;width:var(--size)}:host([size='large']){--size:20px}.checked-indicator{aspect-ratio:1;border-radius:${borderRadiusCircular};color:${colorNeutralForegroundInverted};inset:0;margin:auto;position:absolute;width:calc(var(--size) * 0.625)}:host(:not([slot='input']))::after{content:''/'';position:absolute;display:block;inset:-8px;box-sizing:border-box;outline:none;border:${strokeWidthThick} solid ${colorTransparentStroke};border-radius:${borderRadiusMedium}}:host(:not([slot='input']):focus-visible)::after{border-color:${colorStrokeFocus2}}:host(:hover){border-color:${colorNeutralStrokeAccessibleHover}}:host(${checkedState}){border-color:${colorCompoundBrandStroke}}:host(${checkedState}) .checked-indicator{background-color:${colorCompoundBrandBackground}}:host(${checkedState}:hover) .checked-indicator{background-color:${colorCompoundBrandBackgroundHover}}:host(:active){border-color:${colorNeutralStrokeAccessiblePressed}}:host(${checkedState}:active) .checked-indicator{background-color:${colorCompoundBrandBackgroundPressed}}:host(:focus-visible){outline:none}:host(${disabledState}){background-color:${colorNeutralBackgroundDisabled};border-color:${colorNeutralStrokeDisabled}}:host(${checkedState}${disabledState}) .checked-indicator{background-color:${colorNeutralStrokeDisabled}}@media (forced-colors:active){:host{border-color:FieldText}:host(:not([slot='input']:focus-visible))::after{border-color:Canvas}:host(:not(${disabledState}):hover),:host(:not([slot='input']):focus-visible)::after{border-color:Highlight}.checked-indicator{color:HighlightText}:host(${checkedState}) .checked-indicator{background-color:FieldText}:host(${checkedState}:not(${disabledState}):hover) .checked-indicator{background-color:Highlight}:host(${disabledState}){border-color:GrayText;color:GrayText}:host(${disabledState}${checkedState}) .checked-indicator{background-color:GrayText}}`;
-
-const checkedIndicator = html.partial(
-  /* html */
-  `<span part=checked-indicator class=checked-indicator role=presentation></span>`
-);
-function radioTemplate(options = {}) {
-  return html`<template @click=${(x, c) => x.clickHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)} @keyup=${(x, c) => x.keyupHandler(c.event)}><slot name=checked-indicator>${staticallyCompose(options.checkedIndicator)}</slot></template>`;
-}
-const template$d = radioTemplate({ checkedIndicator });
-
-const definition$d = Radio.compose({
-  name: tagName$d,
-  template: template$d,
-  styles: styles$d
-});
-
-definition$d.define(FluentDesignSystem.registry);
+Radio.define(definition$d);
 
 const tagName$c = `${FluentDesignSystem.prefix}-rating-display`;
 
@@ -11398,6 +11427,29 @@ __decorateClass$h([
   attr({ converter: nullableNumberConverter })
 ], BaseRatingDisplay.prototype, "value", 2);
 
+const defaultIconPath = `<path d="M5.28347 1.54605C5.57692 0.951448 6.42479 0.951449 6.71825 1.54605L7.82997 3.79866L10.3159 4.15988C10.9721 4.25523 11.2341 5.0616 10.7592 5.52443L8.96043 7.27785L9.38507 9.7537C9.49716 10.4072 8.81122 10.9056 8.22431 10.597L6.00086 9.4281L3.7774 10.597C3.19049 10.9056 2.50455 10.4072 2.61664 9.7537L3.04128 7.27784L1.24246 5.52443C0.767651 5.0616 1.02966 4.25523 1.68584 4.15988L4.17174 3.79865L5.28347 1.54605Z" />`;
+const defaultIconFilled = `
+<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">${defaultIconPath}</svg>
+`;
+const defaultIconOutlined = `
+<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"
+    fill="none" stroke="black" stroke-width="2"
+>${defaultIconPath}</svg>
+`;
+function ratingDisplayTemplate() {
+  return html`<div ${ref("display")} class=display aria-hidden=true></div><slot name=icon ${ref("iconSlot")} @slotchange=${(x) => x.handleSlotChange()}></slot><slot name=value><span class=value-label aria-hidden=true>${(x) => x.value}</span></slot><slot name=count><span class=count-label aria-hidden=true>${(x) => x.formattedCount}</span></slot>`;
+}
+const template$c = ratingDisplayTemplate();
+
+const styles$c = css`${display("inline-flex")} :host{--_icon-size:16px;--_icon-gradient-degree:90deg;--_icon-color-value:${colorPaletteMarigoldBorderActive};--_icon-color-empty:${colorPaletteMarigoldBackground2};--_default-value:0;--_default-max:5;--_mask-image-filled:url(${svgToDataURI(defaultIconFilled)});--_mask-image-outlined:url(${svgToDataURI(defaultIconOutlined)});--_mask-position-x:left;align-items:center;color:${colorNeutralForeground1};font-family:${fontFamilyBase};font-size:${fontSizeBase200};line-height:${lineHeightBase200};contain:layout style;user-select:none}:host(:dir(rtl)){--_icon-gradient-degree:-90deg;--_mask-position-x:right}:host([size='small']){--_icon-size:12px}:host([size='large']){--_icon-size:20px;font-size:${fontSizeBase300};line-height:${lineHeightBase300}}::slotted([slot='icon']){display:none}:host([color='neutral']){--_icon-color-value:${colorNeutralForeground1};--_icon-color-empty:${colorNeutralBackground6}}:host([color='brand']){--_icon-color-value:${colorBrandForeground1};--_icon-color-empty:${colorBrandBackground2}}@supports (width:attr(value type(<number>))){:host{--_attr-value:attr(value type(<number>));--_attr-max:attr(max type(<number>))}}:host([compact]) .display{--_max:1}.display{--_value:max(0,round(var(--_attr-value,var(--_default-value)) * 2)/2);--_max:max(1,var(--_attr-max,var(--_default-max)));--_mask-inline-size:calc(var(--_icon-size) + ${spacingHorizontalXXS});--_icon-gradient-stop-visual-adjustment:0px;--_icon-gradient-stop:calc( var(--_mask-inline-size) * var(--_value) - var(--_icon-gradient-stop-visual-adjustment) );background-image:linear-gradient( var(--_icon-gradient-degree),var(--_icon-color-value) var(--_icon-gradient-stop),var(--_icon-color-empty) calc(var(--_icon-gradient-stop) + 0.5px) );block-size:var(--_icon-size);display:grid;inline-size:calc(var(--_max) * var(--_mask-inline-size) - ${spacingHorizontalXXS}/2);mask-image:var(--_mask-image-filled);mask-repeat:repeat no-repeat;mask-size:var(--_mask-inline-size) var(--_icon-size);mask-position:var(--_mask-position-x) center}.value-label,::slotted([slot='value']){display:block;margin-inline-start:${spacingHorizontalXS};font-weight:${fontWeightSemibold}}:host([size='small']) .value-label,:host([size='small']) ::slotted([slot='value']){margin-inline-start:${spacingHorizontalXXS}}:host([size='large']) .value-label,:host([size='large']) ::slotted([slot='value']){margin-inline-start:${spacingHorizontalSNudge}}:host(:not([count])) .count-label{display:none}.count-label::before,::slotted([slot='count'])::before{content:'·';margin-inline:${spacingHorizontalXS}}:host([size='small']) .count-label::before,:host([size='small']) ::slotted([slot='count'])::before{margin-inline:${spacingHorizontalXXS}}:host([size='large']) .count-label::before,:host([size='large']) ::slotted([slot='count'])::before{margin-inline:${spacingHorizontalSNudge}}@media (forced-colors:active){.display{--_icon-color-value:CanvasText;--_icon-color-empty:Canvas;--_icon-gradient-stop-visual-adjustment:0.5px;forced-color-adjust:none}.display::before{background-color:var(--_icon-color-value);content:'';grid-area:1/1/-1/-1;mask:inherit;mask-image:var(--_mask-image-outlined)}}`;
+
+const definition$c = {
+  name: tagName$c,
+  registry: FluentDesignSystem.registry,
+  styles: styles$c,
+  template: template$c
+};
+
 var __defProp$g = Object.defineProperty;
 var __getOwnPropDesc$g = Object.getOwnPropertyDescriptor;
 var __decorateClass$g = (decorators, target, key, kind) => {
@@ -11424,35 +11476,29 @@ __decorateClass$g([
   attr({ mode: "boolean" })
 ], RatingDisplay.prototype, "compact", 2);
 
-const defaultIconPath = `<path d="M5.28347 1.54605C5.57692 0.951448 6.42479 0.951449 6.71825 1.54605L7.82997 3.79866L10.3159 4.15988C10.9721 4.25523 11.2341 5.0616 10.7592 5.52443L8.96043 7.27785L9.38507 9.7537C9.49716 10.4072 8.81122 10.9056 8.22431 10.597L6.00086 9.4281L3.7774 10.597C3.19049 10.9056 2.50455 10.4072 2.61664 9.7537L3.04128 7.27784L1.24246 5.52443C0.767651 5.0616 1.02966 4.25523 1.68584 4.15988L4.17174 3.79865L5.28347 1.54605Z" />`;
-const defaultIconFilled = `
-<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">${defaultIconPath}</svg>
-`;
-const defaultIconOutlined = `
-<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"
-    fill="none" stroke="black" stroke-width="2"
->${defaultIconPath}</svg>
-`;
-function ratingDisplayTemplate() {
-  return html`<div ${ref("display")} class=display aria-hidden=true></div><slot name=icon ${ref("iconSlot")} @slotchange=${(x) => x.handleSlotChange()}></slot><slot name=value><span class=value-label aria-hidden=true>${(x) => x.value}</span></slot><slot name=count><span class=count-label aria-hidden=true>${(x) => x.formattedCount}</span></slot>`;
-}
-const template$c = ratingDisplayTemplate();
-
-const styles$c = css`${display("inline-flex")} :host{--_icon-size:16px;--_icon-gradient-degree:90deg;--_icon-color-value:${colorPaletteMarigoldBorderActive};--_icon-color-empty:${colorPaletteMarigoldBackground2};--_default-value:0;--_default-max:5;--_mask-image-filled:url(${svgToDataURI(defaultIconFilled)});--_mask-image-outlined:url(${svgToDataURI(defaultIconOutlined)});--_mask-position-x:left;align-items:center;color:${colorNeutralForeground1};font-family:${fontFamilyBase};font-size:${fontSizeBase200};line-height:${lineHeightBase200};contain:layout style;user-select:none}:host(:dir(rtl)){--_icon-gradient-degree:-90deg;--_mask-position-x:right}:host([size='small']){--_icon-size:12px}:host([size='large']){--_icon-size:20px;font-size:${fontSizeBase300};line-height:${lineHeightBase300}}::slotted([slot='icon']){display:none}:host([color='neutral']){--_icon-color-value:${colorNeutralForeground1};--_icon-color-empty:${colorNeutralBackground6}}:host([color='brand']){--_icon-color-value:${colorBrandForeground1};--_icon-color-empty:${colorBrandBackground2}}@supports (width:attr(value type(<number>))){:host{--_attr-value:attr(value type(<number>));--_attr-max:attr(max type(<number>))}}:host([compact]) .display{--_max:1}.display{--_value:max(0,round(var(--_attr-value,var(--_default-value)) * 2)/2);--_max:max(1,var(--_attr-max,var(--_default-max)));--_mask-inline-size:calc(var(--_icon-size) + ${spacingHorizontalXXS});--_icon-gradient-stop-visual-adjustment:0px;--_icon-gradient-stop:calc( var(--_mask-inline-size) * var(--_value) - var(--_icon-gradient-stop-visual-adjustment) );background-image:linear-gradient( var(--_icon-gradient-degree),var(--_icon-color-value) var(--_icon-gradient-stop),var(--_icon-color-empty) calc(var(--_icon-gradient-stop) + 0.5px) );block-size:var(--_icon-size);display:grid;inline-size:calc(var(--_max) * var(--_mask-inline-size) - ${spacingHorizontalXXS}/2);mask-image:var(--_mask-image-filled);mask-repeat:repeat no-repeat;mask-size:var(--_mask-inline-size) var(--_icon-size);mask-position:var(--_mask-position-x) center}.value-label,::slotted([slot='value']){display:block;margin-inline-start:${spacingHorizontalXS};font-weight:${fontWeightSemibold}}:host([size='small']) .value-label,:host([size='small']) ::slotted([slot='value']){margin-inline-start:${spacingHorizontalXXS}}:host([size='large']) .value-label,:host([size='large']) ::slotted([slot='value']){margin-inline-start:${spacingHorizontalSNudge}}:host(:not([count])) .count-label{display:none}.count-label::before,::slotted([slot='count'])::before{content:'·';margin-inline:${spacingHorizontalXS}}:host([size='small']) .count-label::before,:host([size='small']) ::slotted([slot='count'])::before{margin-inline:${spacingHorizontalXXS}}:host([size='large']) .count-label::before,:host([size='large']) ::slotted([slot='count'])::before{margin-inline:${spacingHorizontalSNudge}}@media (forced-colors:active){.display{--_icon-color-value:CanvasText;--_icon-color-empty:Canvas;--_icon-gradient-stop-visual-adjustment:0.5px;forced-color-adjust:none}.display::before{background-color:var(--_icon-color-value);content:'';grid-area:1/1/-1/-1;mask:inherit;mask-image:var(--_mask-image-outlined)}}`;
-
-const definition$c = RatingDisplay.compose({
-  name: tagName$c,
-  template: template$c,
-  styles: styles$c
-});
-
-definition$c.define(FluentDesignSystem.registry);
+RatingDisplay.define(definition$c);
 
 const SliderOrientation = Orientation;
 const SliderMode = {
   singleValue: "single-value"
 };
 const tagName$b = `${FluentDesignSystem.prefix}-slider`;
+
+const styles$b = css`${display("inline-grid")} :host{--thumb-size:20px;--track-margin-inline:calc(var(--thumb-size)/2);--track-size:4px;--track-overhang:calc(var(--track-size)/-2);--rail-color:${colorCompoundBrandBackground};--track-color:${colorNeutralStrokeAccessible};--slider-direction:90deg;--border-radius:${borderRadiusMedium};--step-marker-inset:var(--track-overhang) -1px;position:relative;align-items:center;justify-content:center;box-sizing:border-box;outline:none;user-select:none;touch-action:none;min-width:120px;min-height:32px;grid-template-rows:1fr var(--thumb-size) 1fr;grid-template-columns:var(--track-margin-inline) 1fr var(--track-margin-inline)}:host(:hover){--rail-color:${colorCompoundBrandBackgroundHover}}:host(:active){--rail-color:${colorCompoundBrandBackgroundPressed}}:host(:disabled){--rail-color:${colorNeutralForegroundDisabled};--track-color:${colorNeutralBackgroundDisabled}}:host(:not(:disabled)){cursor:pointer}:host(:dir(rtl)){--slider-direction:-90deg}:host([size='small']){--thumb-size:16px;--track-overhang:-1px;--track-size:2px;--border-radius:${borderRadiusSmall}}:host([orientation='vertical']){--slider-direction:0deg;--step-marker-inset:-1px var(--track-overhang);min-height:120px;grid-template-rows:var(--track-margin-inline) 1fr var(--track-margin-inline);grid-template-columns:1fr var(--thumb-size) 1fr;width:unset;min-width:32px;justify-items:center}:host(:not([slot='input']):focus-visible){box-shadow:0 0 0 2pt ${colorStrokeFocus2};outline:1px solid ${colorStrokeFocus1}}:host:after,.track{height:var(--track-size);width:100%}:host:after{background-image:linear-gradient( var(--slider-direction),var(--rail-color) 0%,var(--rail-color) 50%,var(--track-color) 50.1%,var(--track-color) 100% );border-radius:var(--border-radius);content:'';grid-row:1/-1;grid-column:1/-1}.track{position:relative;background-color:var(--track-color);grid-row:2/2;grid-column:2/2;forced-color-adjust:none;overflow:hidden}:host([orientation='vertical'])::after,:host([orientation='vertical']) .track{height:100%;width:var(--track-size)}.track::before{content:'';position:absolute;height:100%;border-radius:inherit;inset-inline-start:0;width:var(--slider-progress)}:host(:dir(rtl)) .track::before{width:calc(100% - var(--slider-progress))}:host([orientation='vertical']) .track::before{width:100%;bottom:0;height:var(--slider-progress)}:host([step]) .track::after{content:'';position:absolute;border-radius:inherit;inset:var(--step-marker-inset);background-image:repeating-linear-gradient( var(--slider-direction),#0000 0%,#0000 calc(var(--step-rate) - 1px),${colorNeutralBackground1} calc(var(--step-rate) - 1px),${colorNeutralBackground1} var(--step-rate) )}.thumb-container{position:absolute;grid-row:2/2;grid-column:2/2;transform:translateX(-50%);left:var(--slider-thumb)}:host([orientation='vertical']) .thumb-container{transform:translateY(50%);left:unset;bottom:var(--slider-thumb)}:host(:not(:active)) :is(.thumb-container,.track::before){transition:all 0.2s ease}.thumb{width:var(--thumb-size);height:var(--thumb-size);border-radius:${borderRadiusCircular};box-shadow:0 0 0 calc(var(--thumb-size) * 0.2) ${colorNeutralBackground1} inset;border:calc(var(--thumb-size) * 0.05) solid ${colorNeutralStroke1};box-sizing:border-box}.thumb,.track::before{background-color:var(--rail-color)}@media (forced-colors:active){.track:hover,.track:active,.track{background:WindowText}.thumb:hover,.thumb:active,.thumb{background:ButtonText}:host(:hover) .track::before,:host(:active) .track::before,.track::before{background:Highlight}}`;
+
+function sliderTemplate(options = {}) {
+  return html`<template @pointerdown=${(x, c) => x.handlePointerDown(c.event)} @keydown=${(x, c) => x.handleKeydown(c.event)}><div ${ref("track")} part=track-container class=track style=${(x) => x.position}></div><div ${ref("thumb")} part=thumb-container class=thumb-container style=${(x) => x.position} @pointerdown=${(x, c) => x.handleThumbPointerDown(c.event)}><slot name=thumb>${staticallyCompose(options.thumb)}</slot></div></template>`;
+}
+const template$b = sliderTemplate({
+  thumb: `<div class="thumb"></div>`
+});
+
+const definition$b = {
+  name: tagName$b,
+  registry: FluentDesignSystem.registry,
+  styles: styles$b,
+  template: template$b
+};
 
 function limit(min, max, value) {
   return Math.min(Math.max(value, min), max);
@@ -11881,6 +11927,7 @@ class Slider extends FASTElement {
       notifier.subscribe(this, "min");
       notifier.subscribe(this, "step");
     });
+    maybeSetAutoFocus(this);
   }
   /**
    * @internal
@@ -12076,24 +12123,20 @@ __decorateClass$f([
   attr
 ], Slider.prototype, "mode", 2);
 
-const styles$b = css`${display("inline-grid")} :host{--thumb-size:20px;--track-margin-inline:calc(var(--thumb-size)/2);--track-size:4px;--track-overhang:calc(var(--track-size)/-2);--rail-color:${colorCompoundBrandBackground};--track-color:${colorNeutralStrokeAccessible};--slider-direction:90deg;--border-radius:${borderRadiusMedium};--step-marker-inset:var(--track-overhang) -1px;position:relative;align-items:center;justify-content:center;box-sizing:border-box;outline:none;user-select:none;touch-action:none;min-width:120px;min-height:32px;grid-template-rows:1fr var(--thumb-size) 1fr;grid-template-columns:var(--track-margin-inline) 1fr var(--track-margin-inline)}:host(:hover){--rail-color:${colorCompoundBrandBackgroundHover}}:host(:active){--rail-color:${colorCompoundBrandBackgroundPressed}}:host(:disabled){--rail-color:${colorNeutralForegroundDisabled};--track-color:${colorNeutralBackgroundDisabled}}:host(:not(:disabled)){cursor:pointer}:host(:dir(rtl)){--slider-direction:-90deg}:host([size='small']){--thumb-size:16px;--track-overhang:-1px;--track-size:2px;--border-radius:${borderRadiusSmall}}:host([orientation='vertical']){--slider-direction:0deg;--step-marker-inset:-1px var(--track-overhang);min-height:120px;grid-template-rows:var(--track-margin-inline) 1fr var(--track-margin-inline);grid-template-columns:1fr var(--thumb-size) 1fr;width:unset;min-width:32px;justify-items:center}:host(:not([slot='input']):focus-visible){box-shadow:0 0 0 2pt ${colorStrokeFocus2};outline:1px solid ${colorStrokeFocus1}}:host:after,.track{height:var(--track-size);width:100%}:host:after{background-image:linear-gradient( var(--slider-direction),var(--rail-color) 0%,var(--rail-color) 50%,var(--track-color) 50.1%,var(--track-color) 100% );border-radius:var(--border-radius);content:'';grid-row:1/-1;grid-column:1/-1}.track{position:relative;background-color:var(--track-color);grid-row:2/2;grid-column:2/2;forced-color-adjust:none;overflow:hidden}:host([orientation='vertical'])::after,:host([orientation='vertical']) .track{height:100%;width:var(--track-size)}.track::before{content:'';position:absolute;height:100%;border-radius:inherit;inset-inline-start:0;width:var(--slider-progress)}:host(:dir(rtl)) .track::before{width:calc(100% - var(--slider-progress))}:host([orientation='vertical']) .track::before{width:100%;bottom:0;height:var(--slider-progress)}:host([step]) .track::after{content:'';position:absolute;border-radius:inherit;inset:var(--step-marker-inset);background-image:repeating-linear-gradient( var(--slider-direction),#0000 0%,#0000 calc(var(--step-rate) - 1px),${colorNeutralBackground1} calc(var(--step-rate) - 1px),${colorNeutralBackground1} var(--step-rate) )}.thumb-container{position:absolute;grid-row:2/2;grid-column:2/2;transform:translateX(-50%);left:var(--slider-thumb)}:host([orientation='vertical']) .thumb-container{transform:translateY(50%);left:unset;bottom:var(--slider-thumb)}:host(:not(:active)) :is(.thumb-container,.track::before){transition:all 0.2s ease}.thumb{width:var(--thumb-size);height:var(--thumb-size);border-radius:${borderRadiusCircular};box-shadow:0 0 0 calc(var(--thumb-size) * 0.2) ${colorNeutralBackground1} inset;border:calc(var(--thumb-size) * 0.05) solid ${colorNeutralStroke1};box-sizing:border-box}.thumb,.track::before{background-color:var(--rail-color)}@media (forced-colors:active){.track:hover,.track:active,.track{background:WindowText}.thumb:hover,.thumb:active,.thumb{background:ButtonText}:host(:hover) .track::before,:host(:active) .track::before,.track::before{background:Highlight}}`;
-
-function sliderTemplate(options = {}) {
-  return html`<template @pointerdown=${(x, c) => x.handlePointerDown(c.event)} @keydown=${(x, c) => x.handleKeydown(c.event)}><div ${ref("track")} part=track-container class=track style=${(x) => x.position}></div><div ${ref("thumb")} part=thumb-container class=thumb-container style=${(x) => x.position} @pointerdown=${(x, c) => x.handleThumbPointerDown(c.event)}><slot name=thumb>${staticallyCompose(options.thumb)}</slot></div></template>`;
-}
-const template$b = sliderTemplate({
-  thumb: `<div class="thumb"></div>`
-});
-
-const definition$b = Slider.compose({
-  name: tagName$b,
-  template: template$b,
-  styles: styles$b
-});
-
-definition$b.define(FluentDesignSystem.registry);
+Slider.define(definition$b);
 
 const tagName$a = `${FluentDesignSystem.prefix}-spinner`;
+
+const styles$a = css`${display("inline-flex")} :host{--duration:1.5s;--indicatorSize:${strokeWidthThicker};--size:32px;height:var(--size);width:var(--size);contain:strict;content-visibility:auto}:host([size='tiny']){--indicatorSize:${strokeWidthThick};--size:20px}:host([size='extra-small']){--indicatorSize:${strokeWidthThick};--size:24px}:host([size='small']){--indicatorSize:${strokeWidthThick};--size:28px}:host([size='large']){--indicatorSize:${strokeWidthThicker};--size:36px}:host([size='extra-large']){--indicatorSize:${strokeWidthThicker};--size:40px}:host([size='huge']){--indicatorSize:${strokeWidthThickest};--size:44px}.progress,.background,.spinner,.start,.end,.indicator{position:absolute;inset:0}.progress,.spinner,.indicator{animation:none var(--duration) infinite ${curveEasyEase}}.progress{animation-timing-function:linear;animation-name:spin-linear}.background{border:var(--indicatorSize) solid ${colorBrandStroke2};border-radius:50%}:host([appearance='inverted']) .background{border-color:rgba(255,255,255,0.2)}.spinner{animation-name:spin-swing}.start{overflow:hidden;right:50%}.end{overflow:hidden;left:50%}.indicator{color:${colorBrandStroke1};box-sizing:border-box;border-radius:50%;border:var(--indicatorSize) solid transparent;border-block-start-color:currentcolor;border-right-color:currentcolor}:host([appearance='inverted']) .indicator{color:${colorNeutralStrokeOnBrand2}}.start .indicator{rotate:135deg;inset:0 -100% 0 0;animation-name:spin-start}.end .indicator{rotate:135deg;inset:0 0 0 -100%;animation-name:spin-end}@keyframes spin-linear{100%{transform:rotate(360deg)}}@keyframes spin-swing{0%{transform:rotate(-135deg)}50%{transform:rotate(0deg)}100%{transform:rotate(225deg)}}@keyframes spin-start{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-80deg)}}@keyframes spin-end{0%,100%{transform:rotate(0deg)}50%{transform:rotate(70deg)}}@media (forced-colors:active){.background{display:none}.indicator{border-color:Canvas;border-block-start-color:Highlight;border-right-color:Highlight}}`;
+
+const template$a = html`<slot name=indicator><div class=background></div><div class=progress><div class=spinner><div class=start><div class=indicator></div></div><div class=end><div class=indicator></div></div></div></div></slot>`;
+
+const definition$a = {
+  name: tagName$a,
+  registry: FluentDesignSystem.registry,
+  styles: styles$a,
+  template: template$a
+};
 
 class BaseSpinner extends FASTElement {
   constructor() {
@@ -12127,26 +12170,11 @@ __decorateClass$e([
   attr
 ], Spinner.prototype, "appearance", 2);
 
-const styles$a = css`${display("inline-flex")} :host{--duration:1.5s;--indicatorSize:${strokeWidthThicker};--size:32px;height:var(--size);width:var(--size);contain:strict;content-visibility:auto}:host([size='tiny']){--indicatorSize:${strokeWidthThick};--size:20px}:host([size='extra-small']){--indicatorSize:${strokeWidthThick};--size:24px}:host([size='small']){--indicatorSize:${strokeWidthThick};--size:28px}:host([size='large']){--indicatorSize:${strokeWidthThicker};--size:36px}:host([size='extra-large']){--indicatorSize:${strokeWidthThicker};--size:40px}:host([size='huge']){--indicatorSize:${strokeWidthThickest};--size:44px}.progress,.background,.spinner,.start,.end,.indicator{position:absolute;inset:0}.progress,.spinner,.indicator{animation:none var(--duration) infinite ${curveEasyEase}}.progress{animation-timing-function:linear;animation-name:spin-linear}.background{border:var(--indicatorSize) solid ${colorBrandStroke2};border-radius:50%}:host([appearance='inverted']) .background{border-color:rgba(255,255,255,0.2)}.spinner{animation-name:spin-swing}.start{overflow:hidden;right:50%}.end{overflow:hidden;left:50%}.indicator{color:${colorBrandStroke1};box-sizing:border-box;border-radius:50%;border:var(--indicatorSize) solid transparent;border-block-start-color:currentcolor;border-right-color:currentcolor}:host([appearance='inverted']) .indicator{color:${colorNeutralStrokeOnBrand2}}.start .indicator{rotate:135deg;inset:0 -100% 0 0;animation-name:spin-start}.end .indicator{rotate:135deg;inset:0 0 0 -100%;animation-name:spin-end}@keyframes spin-linear{100%{transform:rotate(360deg)}}@keyframes spin-swing{0%{transform:rotate(-135deg)}50%{transform:rotate(0deg)}100%{transform:rotate(225deg)}}@keyframes spin-start{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-80deg)}}@keyframes spin-end{0%,100%{transform:rotate(0deg)}50%{transform:rotate(70deg)}}@media (forced-colors:active){.background{display:none}.indicator{border-color:Canvas;border-block-start-color:Highlight;border-right-color:Highlight}}`;
-
-const template$a = html`<slot name=indicator><div class=background></div><div class=progress><div class=spinner><div class=start><div class=indicator></div></div><div class=end><div class=indicator></div></div></div></div></slot>`;
-
-const definition$a = Spinner.compose({
-  name: tagName$a,
-  template: template$a,
-  styles: styles$a
-});
-
-definition$a.define(FluentDesignSystem.registry);
+Spinner.define(definition$a);
 
 const tagName$9 = `${FluentDesignSystem.prefix}-switch`;
 
-class Switch extends BaseCheckbox {
-  constructor() {
-    super();
-    this.elementInternals.role = "switch";
-  }
-}
+const styles$9 = css`${display("inline-flex")} :host{box-sizing:border-box;align-items:center;flex-direction:row;outline:none;user-select:none;contain:content;padding:0 ${spacingHorizontalXXS};width:40px;height:20px;background-color:${colorTransparentBackground};border:1px solid ${colorNeutralStrokeAccessible};border-radius:${borderRadiusCircular}}:host(:enabled){cursor:pointer}:host(:hover){background:none;border-color:${colorNeutralStrokeAccessibleHover}}:host(:active){border-color:${colorNeutralStrokeAccessiblePressed}}:host(:disabled),:host([readonly]){border:1px solid ${colorNeutralStrokeDisabled};background-color:none;pointer:default}:host(${checkedState}){background:${colorCompoundBrandBackground};border-color:${colorCompoundBrandBackground}}:host(${checkedState}:hover){background:${colorCompoundBrandBackgroundHover};border-color:${colorCompoundBrandBackgroundHover}}:host(${checkedState}:active){background:${colorCompoundBrandBackgroundPressed};border-color:${colorCompoundBrandBackgroundPressed}}:host(${checkedState}:disabled){background:${colorNeutralBackgroundDisabled};border-color:${colorNeutralStrokeDisabled}}.checked-indicator{height:14px;width:14px;border-radius:50%;margin-inline-start:0;background-color:${colorNeutralForeground3};transition-duration:${durationNormal};transition-timing-function:${curveEasyEase};transition-property:margin-inline-start}:host(${checkedState}) .checked-indicator{background-color:${colorNeutralForegroundInverted};margin-inline-start:calc(100% - 14px)}:host(${checkedState}:hover) .checked-indicator{background:${colorNeutralForegroundInvertedHover}}:host(${checkedState}:active) .checked-indicator{background:${colorNeutralForegroundInvertedPressed}}:host(:hover) .checked-indicator{background-color:${colorNeutralForeground3Hover}}:host(:active) .checked-indicator{background-color:${colorNeutralForeground3Pressed}}:host(:disabled) .checked-indicator,:host([readonly]) .checked-indicator{background:${colorNeutralForegroundDisabled}}:host(${checkedState}:disabled) .checked-indicator{background:${colorNeutralForegroundDisabled}}:host(:focus-visible){outline:none}:host(:not([slot='input']):focus-visible){border-color:${colorTransparentStroke};outline:${strokeWidthThick} solid ${colorTransparentStroke};outline-offset:1px;box-shadow:${shadow4},0 0 0 2px ${colorStrokeFocus2}}@media (forced-colors:active){:host{border-color:InactiveBorder}:host(${checkedState}),:host(${checkedState}:active),:host(${checkedState}:hover){background:Highlight;border-color:Highlight}.checked-indicator,:host(:hover) .checked-indicator,:host(:active) .checked-indicator{background-color:ActiveCaption}:host(${checkedState}) .checked-indicator,:host(${checkedState}:hover) .checked-indicator,:host(${checkedState}:active) .checked-indicator{background-color:ButtonFace}:host(:disabled) .checked-indicator,:host(${checkedState}:disabled) .checked-indicator{background-color:GrayText}}`;
 
 function switchTemplate(options = {}) {
   return html`<template @click=${(x, c) => x.clickHandler(c.event)} @input=${(x, c) => x.inputHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)} @keyup=${(x, c) => x.keyupHandler(c.event)}><slot name=switch>${staticallyCompose(options.switch)}</slot></template>`;
@@ -12155,15 +12183,21 @@ const template$9 = switchTemplate({
   switch: `<span class="checked-indicator" part="checked-indicator"></span>`
 });
 
-const styles$9 = css`${display("inline-flex")} :host{box-sizing:border-box;align-items:center;flex-direction:row;outline:none;user-select:none;contain:content;padding:0 ${spacingHorizontalXXS};width:40px;height:20px;background-color:${colorTransparentBackground};border:1px solid ${colorNeutralStrokeAccessible};border-radius:${borderRadiusCircular}}:host(:enabled){cursor:pointer}:host(:hover){background:none;border-color:${colorNeutralStrokeAccessibleHover}}:host(:active){border-color:${colorNeutralStrokeAccessiblePressed}}:host(:disabled),:host([readonly]){border:1px solid ${colorNeutralStrokeDisabled};background-color:none;pointer:default}:host(${checkedState}){background:${colorCompoundBrandBackground};border-color:${colorCompoundBrandBackground}}:host(${checkedState}:hover){background:${colorCompoundBrandBackgroundHover};border-color:${colorCompoundBrandBackgroundHover}}:host(${checkedState}:active){background:${colorCompoundBrandBackgroundPressed};border-color:${colorCompoundBrandBackgroundPressed}}:host(${checkedState}:disabled){background:${colorNeutralBackgroundDisabled};border-color:${colorNeutralStrokeDisabled}}.checked-indicator{height:14px;width:14px;border-radius:50%;margin-inline-start:0;background-color:${colorNeutralForeground3};transition-duration:${durationNormal};transition-timing-function:${curveEasyEase};transition-property:margin-inline-start}:host(${checkedState}) .checked-indicator{background-color:${colorNeutralForegroundInverted};margin-inline-start:calc(100% - 14px)}:host(${checkedState}:hover) .checked-indicator{background:${colorNeutralForegroundInvertedHover}}:host(${checkedState}:active) .checked-indicator{background:${colorNeutralForegroundInvertedPressed}}:host(:hover) .checked-indicator{background-color:${colorNeutralForeground3Hover}}:host(:active) .checked-indicator{background-color:${colorNeutralForeground3Pressed}}:host(:disabled) .checked-indicator,:host([readonly]) .checked-indicator{background:${colorNeutralForegroundDisabled}}:host(${checkedState}:disabled) .checked-indicator{background:${colorNeutralForegroundDisabled}}:host(:focus-visible){outline:none}:host(:not([slot='input']):focus-visible){border-color:${colorTransparentStroke};outline:${strokeWidthThick} solid ${colorTransparentStroke};outline-offset:1px;box-shadow:${shadow4},0 0 0 2px ${colorStrokeFocus2}}@media (forced-colors:active){:host{border-color:InactiveBorder}:host(${checkedState}),:host(${checkedState}:active),:host(${checkedState}:hover){background:Highlight;border-color:Highlight}.checked-indicator,:host(:hover) .checked-indicator,:host(:active) .checked-indicator{background-color:ActiveCaption}:host(${checkedState}) .checked-indicator,:host(${checkedState}:hover) .checked-indicator,:host(${checkedState}:active) .checked-indicator{background-color:ButtonFace}:host(:disabled) .checked-indicator,:host(${checkedState}:disabled) .checked-indicator{background-color:GrayText}}`;
-
-const definition$9 = Switch.compose({
+const definition$9 = {
   name: tagName$9,
-  template: template$9,
-  styles: styles$9
-});
+  registry: FluentDesignSystem.registry,
+  styles: styles$9,
+  template: template$9
+};
 
-definition$9.define(FluentDesignSystem.registry);
+class Switch extends BaseCheckbox {
+  constructor() {
+    super();
+    this.elementInternals.role = "switch";
+  }
+}
+
+Switch.define(definition$9);
 
 function isTab(element, tagName2 = "-tab") {
   if (element?.nodeType !== Node.ELEMENT_NODE) {
@@ -12172,6 +12206,20 @@ function isTab(element, tagName2 = "-tab") {
   return element.tagName.toLowerCase().endsWith(tagName2);
 }
 const tagName$8 = `${FluentDesignSystem.prefix}-tab`;
+
+const styles$8 = css`${display("inline-flex")} :host{position:relative;flex-direction:row;align-items:center;cursor:pointer;box-sizing:border-box;justify-content:center;line-height:${lineHeightBase300};font-family:${fontFamilyBase};font-size:${fontSizeBase300};color:${colorNeutralForeground2};fill:currentcolor;grid-row:1;padding:${spacingHorizontalM} ${spacingHorizontalMNudge};border-radius:${borderRadiusMedium};gap:4px}:host .tab-content{display:inline-flex;flex-direction:column;padding:0 2px}:host([aria-selected='true']){color:${colorNeutralForeground1};font-weight:${fontWeightSemibold}}:host .tab-content::after{content:var(--textContent);visibility:hidden;height:0;line-height:${lineHeightBase300};font-weight:${fontWeightSemibold}}:host([aria-selected='true'])::after{background-color:${colorCompoundBrandStroke};border-radius:${borderRadiusCircular};content:'';inset:0;position:absolute;z-index:2}:host([aria-selected='false']:hover)::after{background-color:${colorNeutralStroke1Hover};border-radius:${borderRadiusCircular};content:'';inset:0;position:absolute;z-index:1}@supports (anchor-name:--a) and (text-size-adjust:auto){:host([aria-selected='true'])::after{background-color:transparent}:host([aria-selected='true']:hover)::after{background-color:${colorNeutralStroke1Hover}}}:host([aria-selected='true'][disabled])::after{background-color:${colorNeutralForegroundDisabled}}::slotted([slot='start']),::slotted([slot='end']){display:flex}:host([disabled]){cursor:not-allowed;fill:${colorNeutralForegroundDisabled};color:${colorNeutralForegroundDisabled};pointer-events:none}:host([disabled]:hover)::after{background-color:unset}:host(:focus){outline:none}:host(:focus-visible){border-radius:${borderRadiusSmall};box-shadow:0 0 0 3px ${colorStrokeFocus2};outline:1px solid ${colorStrokeFocus1}}:host([data-hasIndent]){display:grid;grid-template-columns:20px 1fr auto}:host([data-hasIndent]) .tab-content{grid-column:2}@media (forced-colors:active){:host([aria-selected='true'])::after{background-color:Highlight}}`;
+
+function tabTemplate(options = {}) {
+  return html`<template slot=tab role=tab>${startSlotTemplate(options)} <span class=tab-content><slot></slot></span>${endSlotTemplate(options)}</template>`;
+}
+const template$8 = tabTemplate({});
+
+const definition$8 = {
+  name: tagName$8,
+  registry: FluentDesignSystem.registry,
+  styles: styles$8,
+  template: template$8
+};
 
 var __defProp$d = Object.defineProperty;
 var __getOwnPropDesc$d = Object.getOwnPropertyDescriptor;
@@ -12206,6 +12254,7 @@ class Tab extends FASTElement {
     }
     this.styles = css`:host{--textContent:'${this.textContent}'}`;
     this.$fastController.addStyles(this.styles);
+    maybeSetAutoFocus(this);
   }
   setDisabledSideEffect(disabled) {
     if (disabled) {
@@ -12221,20 +12270,7 @@ __decorateClass$d([
 ], Tab.prototype, "disabled", 2);
 applyMixins(Tab, StartEnd);
 
-function tabTemplate(options = {}) {
-  return html`<template slot=tab role=tab>${startSlotTemplate(options)} <span class=tab-content><slot></slot></span>${endSlotTemplate(options)}</template>`;
-}
-const template$8 = tabTemplate({});
-
-const styles$8 = css`${display("inline-flex")} :host{position:relative;flex-direction:row;align-items:center;cursor:pointer;box-sizing:border-box;justify-content:center;line-height:${lineHeightBase300};font-family:${fontFamilyBase};font-size:${fontSizeBase300};color:${colorNeutralForeground2};fill:currentcolor;grid-row:1;padding:${spacingHorizontalM} ${spacingHorizontalMNudge};border-radius:${borderRadiusMedium};gap:4px}:host .tab-content{display:inline-flex;flex-direction:column;padding:0 2px}:host([aria-selected='true']){color:${colorNeutralForeground1};font-weight:${fontWeightSemibold}}:host .tab-content::after{content:var(--textContent);visibility:hidden;height:0;line-height:${lineHeightBase300};font-weight:${fontWeightSemibold}}:host([aria-selected='true'])::after{background-color:${colorCompoundBrandStroke};border-radius:${borderRadiusCircular};content:'';inset:0;position:absolute;z-index:2}:host([aria-selected='false']:hover)::after{background-color:${colorNeutralStroke1Hover};border-radius:${borderRadiusCircular};content:'';inset:0;position:absolute;z-index:1}@supports (anchor-name:--a) and (text-size-adjust:auto){:host([aria-selected='true'])::after{background-color:transparent}:host([aria-selected='true']:hover)::after{background-color:${colorNeutralStroke1Hover}}}:host([aria-selected='true'][disabled])::after{background-color:${colorNeutralForegroundDisabled}}::slotted([slot='start']),::slotted([slot='end']){display:flex}:host([disabled]){cursor:not-allowed;fill:${colorNeutralForegroundDisabled};color:${colorNeutralForegroundDisabled};pointer-events:none}:host([disabled]:hover)::after{background-color:unset}:host(:focus){outline:none}:host(:focus-visible){border-radius:${borderRadiusSmall};box-shadow:0 0 0 3px ${colorStrokeFocus2};outline:1px solid ${colorStrokeFocus1}}:host([data-hasIndent]){display:grid;grid-template-columns:20px 1fr auto}:host([data-hasIndent]) .tab-content{grid-column:2}@media (forced-colors:active){:host([aria-selected='true'])::after{background-color:Highlight}}`;
-
-const definition$8 = Tab.compose({
-  name: tagName$8,
-  template: template$8,
-  styles: styles$8
-});
-
-definition$8.define(FluentDesignSystem.registry);
+Tab.define(definition$8);
 
 const TablistAppearance = {
   subtle: "subtle",
@@ -12242,6 +12278,17 @@ const TablistAppearance = {
 };
 const TablistOrientation = Orientation;
 const tagName$7 = `${FluentDesignSystem.prefix}-tablist`;
+
+const styles$7 = css`${display("flex")} :host{--tabPaddingInline:${spacingHorizontalMNudge};--tabPaddingBlock:${spacingHorizontalM};--tabIndicatorInsetInline:var(--tabPaddingInline);--tabIndicatorInsetBlock:0;box-sizing:border-box;color:${colorNeutralForeground2};flex-direction:row;position:relative}:host([size='small']){--tabPaddingBlock:${spacingVerticalSNudge};--tabPaddingInline:${spacingHorizontalSNudge}}:host([size='large']){--tabPaddingBlock:${spacingVerticalL};--tabPaddingInline:${spacingHorizontalMNudge}}:host([orientation='vertical']){--tabPaddingBlock:${spacingVerticalS};--tabIndicatorInsetBlock:${spacingVerticalS};flex-direction:column}:host([orientation='vertical'][size='small']){--tabPaddingBlock:${spacingVerticalXXS};--tabIndicatorInsetBlock:${spacingVerticalSNudge}}:host([orientation='vertical'][size='large']){--tabPaddingBlock:${spacingVerticalS};--tabIndicatorInsetBlock:${spacingVerticalMNudge}}::slotted([slot='tab']){padding-inline:var(--tabPaddingInline);padding-block:var(--tabPaddingBlock)}:host([orientation='vertical']) ::slotted([role='tab']){justify-content:flex-start}:host ::slotted([slot='tab'])::after{height:${strokeWidthThicker};margin-block-start:auto}:host([orientation='vertical']) ::slotted([slot='tab'])::after{width:${strokeWidthThicker};height:unset;margin-block-start:unset}:host ::slotted([slot='tab'])::before{height:${strokeWidthThicker};border-radius:${borderRadiusCircular};content:'';inset-inline:var(--tabIndicatorInsetInline);inset-block:var(--tabIndicatorInsetBlock);position:absolute;margin-top:auto}:host ::slotted([slot='tab'])::before{inset-inline:var(--tabIndicatorInsetInline);inset-block:var(--tabIndicatorInsetBlock)}:host ::slotted([slot='tab'][aria-selected='true'])::before{background-color:${colorNeutralForegroundDisabled}}:host ::slotted([slot='tab'][aria-selected='false']:hover)::after{height:${strokeWidthThicker};margin-block-start:auto;transform-origin:left}:host([orientation='vertical']) ::slotted([slot='tab'])::before,:host([orientation='vertical']) ::slotted([slot='tab'][aria-selected='false']:hover)::after{height:unset;width:${strokeWidthThicker};margin-inline-end:auto;transform-origin:top}:host([size='small']) ::slotted([slot='tab']){font-size:${fontSizeBase300};line-height:${lineHeightBase300}}:host([size='large']) ::slotted([slot='tab']){font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host ::slotted([slot='tab'])::after,:host ::slotted([slot='tab'])::before,:host ::slotted([slot='tab']:hover)::after{inset-inline:var(--tabIndicatorInsetInline)}:host([orientation='vertical']) ::slotted([slot='tab'])::after,:host([orientation='vertical']) ::slotted([slot='tab'])::before,:host([orientation='vertical']) ::slotted([slot='tab']:hover)::after{inset-inline:0;inset-block:var(--tabIndicatorInsetBlock)}:host([disabled]){cursor:not-allowed;color:${colorNeutralForegroundDisabled}}:host([disabled]) ::slotted([slot='tab']){pointer-events:none;cursor:not-allowed;color:${colorNeutralForegroundDisabled}}:host([disabled]) ::slotted([slot='tab']:after){background-color:${colorNeutralForegroundDisabled}}:host([disabled]) ::slotted([slot='tab'][aria-selected='true'])::after{background-color:${colorNeutralForegroundDisabled}}:host([disabled]) ::slotted([slot='tab']:hover):before{content:unset}:host([appearance='subtle']) ::slotted([slot='tab']:hover){background-color:${colorSubtleBackgroundHover};color:${colorNeutralForeground1Hover};fill:${colorCompoundBrandForeground1Hover}}:host([appearance='subtle']) ::slotted([slot='tab']:active){background-color:${colorSubtleBackgroundPressed};fill:${colorSubtleBackgroundPressed};color:${colorNeutralForeground1}}@supports (anchor-name:--a) and (text-size-adjust:auto){::slotted([slot='tab'][aria-selected='true']){anchor-name:--tab}:host::after{background-color:${colorCompoundBrandStroke};content:'';inline-size:100%;inset:auto auto anchor(end) anchor(center);position:fixed;position-anchor:--tab;transform:translateX(-50%);transition-property:inset-inline,width;transition-duration:${durationSlow};transition-timing-function:${curveDecelerateMax};z-index:3;border-radius:${borderRadiusCircular};width:calc(anchor-size() - var(--tabIndicatorInsetInline) * 2);height:${strokeWidthThicker}}:host([orientation='vertical'])::after{inset:anchor(center) anchor(end) auto 0;transform:translateY(-50%);transition-property:inset-block,height;width:${strokeWidthThicker};height:calc(anchor-size() - var(--tabIndicatorInsetBlock) * 2)}:host(:dir(rtl)[orientation='vertical'])::after{inset:anchor(center) anchor(start) auto 0}:host([disabled])::after{background-color:${colorNeutralForegroundDisabled}}}`;
+
+const template$7 = html`<template role=tablist focusgroup="tablist inline block" @focusin=${(x, c) => x.handleFocusIn(c.event)}><slot name=tab ${slotted("slottedTabs")}></slot></template>`;
+
+const definition$7 = {
+  name: tagName$7,
+  registry: FluentDesignSystem.registry,
+  styles: styles$7,
+  template: template$7
+};
 
 var __defProp$c = Object.defineProperty;
 var __getOwnPropDesc$c = Object.getOwnPropertyDescriptor;
@@ -12453,17 +12500,7 @@ __decorateClass$b([
   attr
 ], Tablist.prototype, "size", 2);
 
-const template$7 = html`<template role=tablist focusgroup="tablist inline block" @focusin=${(x, c) => x.handleFocusIn(c.event)}><slot name=tab ${slotted("slottedTabs")}></slot></template>`;
-
-const styles$7 = css`${display("flex")} :host{--tabPaddingInline:${spacingHorizontalMNudge};--tabPaddingBlock:${spacingHorizontalM};--tabIndicatorInsetInline:var(--tabPaddingInline);--tabIndicatorInsetBlock:0;box-sizing:border-box;color:${colorNeutralForeground2};flex-direction:row;position:relative}:host([size='small']){--tabPaddingBlock:${spacingVerticalSNudge};--tabPaddingInline:${spacingHorizontalSNudge}}:host([size='large']){--tabPaddingBlock:${spacingVerticalL};--tabPaddingInline:${spacingHorizontalMNudge}}:host([orientation='vertical']){--tabPaddingBlock:${spacingVerticalS};--tabIndicatorInsetBlock:${spacingVerticalS};flex-direction:column}:host([orientation='vertical'][size='small']){--tabPaddingBlock:${spacingVerticalXXS};--tabIndicatorInsetBlock:${spacingVerticalSNudge}}:host([orientation='vertical'][size='large']){--tabPaddingBlock:${spacingVerticalS};--tabIndicatorInsetBlock:${spacingVerticalMNudge}}::slotted([slot='tab']){padding-inline:var(--tabPaddingInline);padding-block:var(--tabPaddingBlock)}:host([orientation='vertical']) ::slotted([role='tab']){justify-content:flex-start}:host ::slotted([slot='tab'])::after{height:${strokeWidthThicker};margin-block-start:auto}:host([orientation='vertical']) ::slotted([slot='tab'])::after{width:${strokeWidthThicker};height:unset;margin-block-start:unset}:host ::slotted([slot='tab'])::before{height:${strokeWidthThicker};border-radius:${borderRadiusCircular};content:'';inset-inline:var(--tabIndicatorInsetInline);inset-block:var(--tabIndicatorInsetBlock);position:absolute;margin-top:auto}:host ::slotted([slot='tab'])::before{inset-inline:var(--tabIndicatorInsetInline);inset-block:var(--tabIndicatorInsetBlock)}:host ::slotted([slot='tab'][aria-selected='true'])::before{background-color:${colorNeutralForegroundDisabled}}:host ::slotted([slot='tab'][aria-selected='false']:hover)::after{height:${strokeWidthThicker};margin-block-start:auto;transform-origin:left}:host([orientation='vertical']) ::slotted([slot='tab'])::before,:host([orientation='vertical']) ::slotted([slot='tab'][aria-selected='false']:hover)::after{height:unset;width:${strokeWidthThicker};margin-inline-end:auto;transform-origin:top}:host([size='small']) ::slotted([slot='tab']){font-size:${fontSizeBase300};line-height:${lineHeightBase300}}:host([size='large']) ::slotted([slot='tab']){font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host ::slotted([slot='tab'])::after,:host ::slotted([slot='tab'])::before,:host ::slotted([slot='tab']:hover)::after{inset-inline:var(--tabIndicatorInsetInline)}:host([orientation='vertical']) ::slotted([slot='tab'])::after,:host([orientation='vertical']) ::slotted([slot='tab'])::before,:host([orientation='vertical']) ::slotted([slot='tab']:hover)::after{inset-inline:0;inset-block:var(--tabIndicatorInsetBlock)}:host([disabled]){cursor:not-allowed;color:${colorNeutralForegroundDisabled}}:host([disabled]) ::slotted([slot='tab']){pointer-events:none;cursor:not-allowed;color:${colorNeutralForegroundDisabled}}:host([disabled]) ::slotted([slot='tab']:after){background-color:${colorNeutralForegroundDisabled}}:host([disabled]) ::slotted([slot='tab'][aria-selected='true'])::after{background-color:${colorNeutralForegroundDisabled}}:host([disabled]) ::slotted([slot='tab']:hover):before{content:unset}:host([appearance='subtle']) ::slotted([slot='tab']:hover){background-color:${colorSubtleBackgroundHover};color:${colorNeutralForeground1Hover};fill:${colorCompoundBrandForeground1Hover}}:host([appearance='subtle']) ::slotted([slot='tab']:active){background-color:${colorSubtleBackgroundPressed};fill:${colorSubtleBackgroundPressed};color:${colorNeutralForeground1}}@supports (anchor-name:--a) and (text-size-adjust:auto){::slotted([slot='tab'][aria-selected='true']){anchor-name:--tab}:host::after{background-color:${colorCompoundBrandStroke};content:'';inline-size:100%;inset:auto auto anchor(end) anchor(center);position:absolute;position-anchor:--tab;transform:translateX(-50%);transition-property:inset-inline,width;transition-duration:${durationSlow};transition-timing-function:${curveDecelerateMax};z-index:3;border-radius:${borderRadiusCircular};width:calc(anchor-size() - var(--tabIndicatorInsetInline) * 2);height:${strokeWidthThicker}}:host([orientation='vertical'])::after{inset:anchor(center) anchor(end) auto 0;transform:translateY(-50%);transition-property:inset-block,height;width:${strokeWidthThicker};height:calc(anchor-size() - var(--tabIndicatorInsetBlock) * 2)}:host(:dir(rtl)[orientation='vertical'])::after{inset:anchor(center) anchor(start) auto 0}:host([disabled])::after{background-color:${colorNeutralForegroundDisabled}}}`;
-
-const definition$7 = Tablist.compose({
-  name: tagName$7,
-  template: template$7,
-  styles: styles$7
-});
-
-definition$7.define(FluentDesignSystem.registry);
+Tablist.define(definition$7);
 
 const TextAreaAppearance = {
   outline: "outline",
@@ -12477,6 +12514,23 @@ const TextAreaResize = {
   vertical: "vertical"
 };
 const tagName$6 = `${FluentDesignSystem.prefix}-textarea`;
+
+const styles$6 = css`${display("inline-block")} :host{--font-size:${fontSizeBase300};--line-height:${lineHeightBase300};--padding-inline:${spacingHorizontalMNudge};--padding-block:${spacingVerticalSNudge};--min-block-size:52px;--block-size:var(--min-block-size);--inline-size:18rem;--border-width:${strokeWidthThin};--control-padding-inline:${spacingHorizontalXXS};--color:${colorNeutralForeground1};--background-color:${colorNeutralBackground1};--border-color:${colorNeutralStroke1};--border-block-end-color:${colorNeutralStrokeAccessible};--placeholder-color:${colorNeutralForeground4};--focus-indicator-color:${colorCompoundBrandStroke};--box-shadow:none;--contain-size:size;--resize:none;color:var(--color);font-family:${fontFamilyBase};font-size:var(--font-size);font-weight:${fontWeightRegular};line-height:var(--line-height);position:relative}:host(:hover){--border-color:${colorNeutralStroke1Hover};--border-block-end-color:${colorNeutralStrokeAccessibleHover}}:host(:active){--border-color:${colorNeutralStroke1Pressed};--border-block-end-color:${colorNeutralStrokeAccessiblePressed}}:host(:focus-within){outline:none}:host([block]:not([hidden])){display:block}:host([size='small']){--font-size:${fontSizeBase200};--line-height:${lineHeightBase200};--min-block-size:40px;--padding-block:${spacingVerticalXS};--padding-inline:${spacingHorizontalSNudge};--control-padding-inline:${spacingHorizontalXXS}}:host([size='large']){--font-size:${fontSizeBase400};--line-height:${lineHeightBase400};--min-block-size:64px;--padding-block:${spacingVerticalS};--padding-inline:${spacingHorizontalM};--control-padding-inline:${spacingHorizontalSNudge}}:host([resize='both']:not(:disabled)){--resize:both}:host([resize='horizontal']:not(:disabled)){--resize:horizontal}:host([resize='vertical']:not(:disabled)){--resize:vertical}:host([auto-resize]){--block-size:auto;--contain-size:inline-size}:host([appearance='filled-darker']){--background-color:${colorNeutralBackground3};--border-color:var(--background-color);--border-block-end-color:var(--border-color)}:host([appearance='filled-lighter']){--border-color:var(--background-color);--border-block-end-color:var(--border-color)}:host([appearance='filled-darker'][display-shadow]),:host([appearance='filled-lighter'][display-shadow]){--box-shadow:${shadow2}}:host(${userInvalidState}){--border-color:${colorPaletteRedBorder2};--border-block-end-color:${colorPaletteRedBorder2}}:host(:disabled){--color:${colorNeutralForegroundDisabled};--background-color:${colorTransparentBackground};--border-color:${colorNeutralStrokeDisabled};--border-block-end-color:var(--border-color);--box-shadow:none;--placeholder-color:${colorNeutralForegroundDisabled};cursor:no-drop;user-select:none}.root{background-color:var(--background-color);border:var(--border-width) solid var(--border-color);border-block-end-color:var(--border-block-end-color);border-radius:${borderRadiusMedium};box-sizing:border-box;box-shadow:var(--box-shadow);contain:paint layout style var(--contain-size);display:grid;grid-template:1fr/1fr;inline-size:var(--inline-size);min-block-size:var(--min-block-size);block-size:var(--block-size);overflow:hidden;padding:var(--padding-block) var(--padding-inline);position:relative;resize:var(--resize)}:host([block]) .root{inline-size:auto}.root::after{border-bottom:2px solid var(--focus-indicator-color);border-radius:0 0 ${borderRadiusMedium} ${borderRadiusMedium};box-sizing:border-box;clip-path:inset(calc(100% - 2px) 1px 0px);content:'';height:max(2px,${borderRadiusMedium});inset:auto -1px 0;position:absolute;transform:scaleX(0);transition-delay:${curveAccelerateMid};transition-duration:${durationUltraFast};transition-property:transform}:host(:focus-within) .root::after{transform:scaleX(1);transition-property:transform;transition-duration:${durationNormal};transition-delay:${curveDecelerateMid}}:host([readonly]) .root::after,:host(:disabled) .root::after{content:none}label{color:var(--color);display:flex;inline-size:fit-content;padding-block-end:${spacingVerticalXS};padding-inline-end:${spacingHorizontalXS}}:host(:empty) label,label[hidden]{display:none}.auto-sizer,.control{box-sizing:border-box;font:inherit;grid-column:1/-1;grid-row:1/-1;letter-space:inherit;padding:0 var(--control-padding-inline)}.auto-sizer{display:none;padding-block-end:2px;pointer-events:none;visibility:hidden;white-space:pre-wrap}:host([auto-resize]) .auto-sizer{display:block}.control{appearance:none;background-color:transparent;border:0;color:inherit;field-sizing:content;max-block-size:100%;outline:0;resize:none;text-align:inherit}.control:disabled{cursor:inherit}.control::placeholder{color:var(--placeholder-color)}::selection{color:${colorNeutralForegroundInverted};background-color:${colorNeutralBackgroundInverted}}@media (forced-colors:active){:host{--border-color:FieldText;--border-block-end-color:FieldText;--focus-indicator-color:Highlight;--placeholder-color:FieldText}:host(:hover),:host(:active),:host(:focus-within){--border-color:Highlight;--border-block-end-color:Highlight}:host(:disabled){--color:GrayText;--border-color:GrayText;--border-block-end-color:GrayText;--placeholder-color:GrayText}}`;
+
+function textAreaTemplate() {
+  return html`<template><label ${ref("labelEl")} for=control part=label><slot name=label ${slotted("labelSlottedNodes")}></slot></label><div class=root part=root ${ref("rootEl")}><textarea ${ref("controlEl")} id=control class=control part=control ?required=${(x) => x.required} ?disabled=${(x) => x.disabled} ?readonly=${(x) => x.readOnly} ?spellcheck=${(x) => x.spellcheck} autocomplete=${(x) => x.autocomplete} maxlength=${(x) => x.maxLength} minlength=${(x) => x.minLength} placeholder=${(x) => x.placeholder} @change=${(x) => x.handleControlChange()} @select=${(x) => x.handleControlSelect()} @input=${(x) => x.handleControlInput()}></textarea></div><div hidden><slot ${slotted("defaultSlottedNodes")}></slot></div></template>`;
+}
+const template$6 = textAreaTemplate();
+
+const definition$6 = {
+  name: tagName$6,
+  registry: FluentDesignSystem.registry,
+  shadowOptions: {
+    delegatesFocus: true
+  },
+  styles: styles$6,
+  template: template$6
+};
 
 const whitespaceFilter = (value) => value.nodeType !== Node.TEXT_NODE || !!value.nodeValue?.trim().length;
 
@@ -12689,6 +12743,7 @@ class BaseTextArea extends FASTElement {
       this.setValidity();
       this.preConnectControlEl = null;
       this.maybeCreateAutoSizerEl();
+      maybeSetAutoFocus(this);
     });
   }
   /**
@@ -12985,23 +13040,7 @@ __decorateClass$9([
   attr
 ], TextArea.prototype, "size", 2);
 
-const styles$6 = css`${display("inline-block")} :host{--font-size:${fontSizeBase300};--line-height:${lineHeightBase300};--padding-inline:${spacingHorizontalMNudge};--padding-block:${spacingVerticalSNudge};--min-block-size:52px;--block-size:var(--min-block-size);--inline-size:18rem;--border-width:${strokeWidthThin};--control-padding-inline:${spacingHorizontalXXS};--color:${colorNeutralForeground1};--background-color:${colorNeutralBackground1};--border-color:${colorNeutralStroke1};--border-block-end-color:${colorNeutralStrokeAccessible};--placeholder-color:${colorNeutralForeground4};--focus-indicator-color:${colorCompoundBrandStroke};--box-shadow:none;--contain-size:size;--resize:none;color:var(--color);font-family:${fontFamilyBase};font-size:var(--font-size);font-weight:${fontWeightRegular};line-height:var(--line-height);position:relative}:host(:hover){--border-color:${colorNeutralStroke1Hover};--border-block-end-color:${colorNeutralStrokeAccessibleHover}}:host(:active){--border-color:${colorNeutralStroke1Pressed};--border-block-end-color:${colorNeutralStrokeAccessiblePressed}}:host(:focus-within){outline:none}:host([block]:not([hidden])){display:block}:host([size='small']){--font-size:${fontSizeBase200};--line-height:${lineHeightBase200};--min-block-size:40px;--padding-block:${spacingVerticalXS};--padding-inline:${spacingHorizontalSNudge};--control-padding-inline:${spacingHorizontalXXS}}:host([size='large']){--font-size:${fontSizeBase400};--line-height:${lineHeightBase400};--min-block-size:64px;--padding-block:${spacingVerticalS};--padding-inline:${spacingHorizontalM};--control-padding-inline:${spacingHorizontalSNudge}}:host([resize='both']:not(:disabled)){--resize:both}:host([resize='horizontal']:not(:disabled)){--resize:horizontal}:host([resize='vertical']:not(:disabled)){--resize:vertical}:host([auto-resize]){--block-size:auto;--contain-size:inline-size}:host([appearance='filled-darker']){--background-color:${colorNeutralBackground3};--border-color:var(--background-color);--border-block-end-color:var(--border-color)}:host([appearance='filled-lighter']){--border-color:var(--background-color);--border-block-end-color:var(--border-color)}:host([appearance='filled-darker'][display-shadow]),:host([appearance='filled-lighter'][display-shadow]){--box-shadow:${shadow2}}:host(${userInvalidState}){--border-color:${colorPaletteRedBorder2};--border-block-end-color:${colorPaletteRedBorder2}}:host(:disabled){--color:${colorNeutralForegroundDisabled};--background-color:${colorTransparentBackground};--border-color:${colorNeutralStrokeDisabled};--border-block-end-color:var(--border-color);--box-shadow:none;--placeholder-color:${colorNeutralForegroundDisabled};cursor:no-drop;user-select:none}.root{background-color:var(--background-color);border:var(--border-width) solid var(--border-color);border-block-end-color:var(--border-block-end-color);border-radius:${borderRadiusMedium};box-sizing:border-box;box-shadow:var(--box-shadow);contain:paint layout style var(--contain-size);display:grid;grid-template:1fr/1fr;inline-size:var(--inline-size);min-block-size:var(--min-block-size);block-size:var(--block-size);overflow:hidden;padding:var(--padding-block) var(--padding-inline);position:relative;resize:var(--resize)}:host([block]) .root{inline-size:auto}.root::after{border-bottom:2px solid var(--focus-indicator-color);border-radius:0 0 ${borderRadiusMedium} ${borderRadiusMedium};box-sizing:border-box;clip-path:inset(calc(100% - 2px) 1px 0px);content:'';height:max(2px,${borderRadiusMedium});inset:auto -1px 0;position:absolute;transform:scaleX(0);transition-delay:${curveAccelerateMid};transition-duration:${durationUltraFast};transition-property:transform}:host(:focus-within) .root::after{transform:scaleX(1);transition-property:transform;transition-duration:${durationNormal};transition-delay:${curveDecelerateMid}}:host([readonly]) .root::after,:host(:disabled) .root::after{content:none}label{color:var(--color);display:flex;inline-size:fit-content;padding-block-end:${spacingVerticalXS};padding-inline-end:${spacingHorizontalXS}}:host(:empty) label,label[hidden]{display:none}.auto-sizer,.control{box-sizing:border-box;font:inherit;grid-column:1/-1;grid-row:1/-1;letter-space:inherit;padding:0 var(--control-padding-inline)}.auto-sizer{display:none;padding-block-end:2px;pointer-events:none;visibility:hidden;white-space:pre-wrap}:host([auto-resize]) .auto-sizer{display:block}.control{appearance:none;background-color:transparent;border:0;color:inherit;field-sizing:content;max-block-size:100%;outline:0;resize:none;text-align:inherit}.control:disabled{cursor:inherit}.control::placeholder{color:var(--placeholder-color)}::selection{color:${colorNeutralForegroundInverted};background-color:${colorNeutralBackgroundInverted}}@media (forced-colors:active){:host{--border-color:FieldText;--border-block-end-color:FieldText;--focus-indicator-color:Highlight;--placeholder-color:FieldText}:host(:hover),:host(:active),:host(:focus-within){--border-color:Highlight;--border-block-end-color:Highlight}:host(:disabled){--color:GrayText;--border-color:GrayText;--border-block-end-color:GrayText;--placeholder-color:GrayText}}`;
-
-function textAreaTemplate() {
-  return html`<template><label ${ref("labelEl")} for=control part=label><slot name=label ${slotted("labelSlottedNodes")}></slot></label><div class=root part=root ${ref("rootEl")}><textarea ${ref("controlEl")} id=control class=control part=control ?required=${(x) => x.required} ?disabled=${(x) => x.disabled} ?readonly=${(x) => x.readOnly} ?spellcheck=${(x) => x.spellcheck} autocomplete=${(x) => x.autocomplete} maxlength=${(x) => x.maxLength} minlength=${(x) => x.minLength} placeholder=${(x) => x.placeholder} @change=${(x) => x.handleControlChange()} @select=${(x) => x.handleControlSelect()} @input=${(x) => x.handleControlInput()}></textarea></div><div hidden><slot ${slotted("defaultSlottedNodes")}></slot></div></template>`;
-}
-const template$6 = textAreaTemplate();
-
-const definition$6 = TextArea.compose({
-  name: tagName$6,
-  template: template$6,
-  styles: styles$6,
-  shadowOptions: {
-    delegatesFocus: true
-  }
-});
-
-definition$6.define(FluentDesignSystem.registry);
+TextArea.define(definition$6);
 
 const TextInputType = {
   email: "email",
@@ -13025,6 +13064,23 @@ const ImplicitSubmissionBlockingTypes = [
   "week"
 ];
 const tagName$5 = `${FluentDesignSystem.prefix}-text-input`;
+
+const styles$5 = css`${display("block")} :host{font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};max-width:400px}.label{display:flex;color:${colorNeutralForeground1};padding-bottom:${spacingVerticalXS};flex-shrink:0;padding-inline-end:${spacingHorizontalXS}}.label[hidden],:host(:empty) .label{display:none}.root{align-items:center;background-color:${colorNeutralBackground1};border:${strokeWidthThin} solid ${colorNeutralStroke1};border-bottom-color:${colorNeutralStrokeAccessible};border-radius:${borderRadiusMedium};box-sizing:border-box;height:32px;display:inline-flex;flex-direction:row;gap:${spacingHorizontalXXS};padding:0 ${spacingHorizontalMNudge};position:relative;width:100%}:has(.control:user-invalid){border-color:${colorPaletteRedBorder2}}.root::after{box-sizing:border-box;content:'';position:absolute;left:-1px;bottom:0px;right:-1px;height:max(2px,${borderRadiusMedium});border-radius:0 0 ${borderRadiusMedium} ${borderRadiusMedium};border-bottom:2px solid ${colorCompoundBrandStroke};clip-path:inset(calc(100% - 2px) 1px 0px);transform:scaleX(0);transition-property:transform;transition-duration:${durationUltraFast};transition-delay:${curveAccelerateMid}}.control{width:100%;height:100%;box-sizing:border-box;color:${colorNeutralForeground1};border-radius:${borderRadiusMedium};background:${colorTransparentBackground};font-family:${fontFamilyBase};font-weight:${fontWeightRegular};font-size:${fontSizeBase300};border:none;vertical-align:center}.control:focus-visible{outline:0;border:0}.control::placeholder{color:${colorNeutralForeground4}}:host ::slotted([slot='start']),:host ::slotted([slot='end']){display:flex;align-items:center;justify-content:center;color:${colorNeutralForeground3};font-size:${fontSizeBase500}}:host ::slotted([slot='start']){padding-right:${spacingHorizontalXXS}}:host ::slotted([slot='end']){padding-left:${spacingHorizontalXXS};gap:${spacingHorizontalXS}}:host(:hover) .root{border-color:${colorNeutralStroke1Hover};border-bottom-color:${colorNeutralStrokeAccessibleHover}}:host(:active) .root{border-color:${colorNeutralStroke1Pressed}}:host(:focus-within) .root{outline:transparent solid 2px;border-bottom:0}:host(:focus-within) .root::after{transform:scaleX(1);transition-property:transform;transition-duration:${durationNormal};transition-delay:${curveDecelerateMid}}:host(:focus-within:active) .root:after{border-bottom-color:${colorCompoundBrandStrokePressed}}:host([appearance='outline']:focus-within) .root{border:${strokeWidthThin} solid ${colorNeutralStroke1}}:host(:focus-within) .control{color:${colorNeutralForeground1}}:host([disabled]) .root{background:${colorTransparentBackground};border:${strokeWidthThin} solid ${colorNeutralStrokeDisabled}}:host([disabled]) .control::placeholder,:host([disabled]) ::slotted([slot='start']),:host([disabled]) ::slotted([slot='end']){color:${colorNeutralForegroundDisabled}}::selection{color:${colorNeutralForegroundInverted};background-color:${colorNeutralBackgroundInverted}}:host([control-size='small']) .control{font-size:${fontSizeBase200};font-weight:${fontWeightRegular};line-height:${lineHeightBase200}}:host([control-size='small']) .root{height:24px;gap:${spacingHorizontalXXS};padding:0 ${spacingHorizontalSNudge}}:host([control-size='small']) ::slotted([slot='start']),:host([control-size='small']) ::slotted([slot='end']){font-size:${fontSizeBase400}}:host([control-size='large']) .control{font-size:${fontSizeBase400};font-weight:${fontWeightRegular};line-height:${lineHeightBase400}}:host([control-size='large']) .root{height:40px;gap:${spacingHorizontalS};padding:0 ${spacingHorizontalM}}:host([control-size='large']) ::slotted([slot='start']),:host([control-size='large']) ::slotted([slot='end']){font-size:${fontSizeBase600}}:host([appearance='underline']) .root{background:${colorTransparentBackground};border:0;border-radius:0;border-bottom:${strokeWidthThin} solid ${colorNeutralStrokeAccessible}}:host([appearance='underline']:hover) .root{border-bottom-color:${colorNeutralStrokeAccessibleHover}}:host([appearance='underline']:active) .root{border-bottom-color:${colorNeutralStrokeAccessiblePressed}}:host([appearance='underline']:focus-within) .root{border:0;border-bottom-color:${colorNeutralStrokeAccessiblePressed}}:host([appearance='underline'][disabled]) .root{border-bottom-color:${colorNeutralStrokeDisabled}}:host([appearance='filled-lighter']) .root,:host([appearance='filled-darker']) .root{border:${strokeWidthThin} solid ${colorTransparentStroke};box-shadow:${shadow2}}:host([appearance='filled-lighter']) .root{background:${colorNeutralBackground1}}:host([appearance='filled-darker']) .root{background:${colorNeutralBackground3}}:host([appearance='filled-lighter']:hover) .root,:host([appearance='filled-darker']:hover) .root{border-color:${colorTransparentStrokeInteractive}}:host([appearance='filled-lighter']:active) .root,:host([appearance='filled-darker']:active) .root{border-color:${colorTransparentStrokeInteractive};background:${colorNeutralBackground3}}`;
+
+function textInputTemplate(options = {}) {
+  return html`<template @keydown=${(x, c) => x.keydownHandler(c.event)}><label part=label for=control class=label ${ref("controlLabel")}><slot ${slotted("defaultSlottedNodes")}></slot></label><div class=root part=root>${startSlotTemplate(options)} <input class=control part=control id=control @change=${(x, c) => x.changeHandler(c.event)} @input=${(x, c) => x.inputHandler(c.event)} autocomplete=${(x) => x.autocomplete} ?disabled=${(x) => x.disabled} list=${(x) => x.list} maxlength=${(x) => x.maxlength} minlength=${(x) => x.minlength} ?multiple=${(x) => x.multiple} name=${(x) => x.name} pattern=${(x) => x.pattern} placeholder=${(x) => x.placeholder} ?readonly=${(x) => x.readOnly} ?required=${(x) => x.required} size=${(x) => x.size} spellcheck=${(x) => x.spellcheck} type=${(x) => x.type} value=${(x) => x.value} ${ref("control")}> ${endSlotTemplate(options)}</div></template>`;
+}
+const template$5 = textInputTemplate();
+
+const definition$5 = {
+  name: tagName$5,
+  registry: FluentDesignSystem.registry,
+  shadowOptions: {
+    delegatesFocus: true
+  },
+  styles: styles$5,
+  template: template$5
+};
 
 var __defProp$8 = Object.defineProperty;
 var __getOwnPropDesc$8 = Object.getOwnPropertyDescriptor;
@@ -13222,21 +13278,9 @@ class BaseTextInput extends FASTElement {
   }
   connectedCallback() {
     super.connectedCallback();
-    this.tabIndex = Number(this.getAttribute("tabindex") ?? 0) < 0 ? -1 : 0;
     this.setFormValue(this.value);
     this.setValidity();
-  }
-  /**
-   * Focuses the inner control when the component is focused.
-   *
-   * @param e - the event object
-   * @public
-   */
-  focusinHandler(e) {
-    if (e.target === this) {
-      this.control?.focus();
-    }
-    return true;
+    maybeSetAutoFocus(this);
   }
   /**
    * Resets the value to its initial value when the form is reset.
@@ -13371,9 +13415,6 @@ __decorateClass$8([
   attr
 ], BaseTextInput.prototype, "autocomplete", 2);
 __decorateClass$8([
-  attr({ mode: "boolean" })
-], BaseTextInput.prototype, "autofocus", 2);
-__decorateClass$8([
   attr({ attribute: "current-value" })
 ], BaseTextInput.prototype, "currentValue", 2);
 __decorateClass$8([
@@ -13459,25 +13500,20 @@ __decorateClass$7([
 ], TextInput.prototype, "controlSize", 2);
 applyMixins(TextInput, StartEnd);
 
-const styles$5 = css`${display("block")} :host{font-family:${fontFamilyBase};font-size:${fontSizeBase300};font-weight:${fontWeightRegular};line-height:${lineHeightBase300};max-width:400px}.label{display:flex;color:${colorNeutralForeground1};padding-bottom:${spacingVerticalXS};flex-shrink:0;padding-inline-end:${spacingHorizontalXS}}.label[hidden],:host(:empty) .label{display:none}.root{align-items:center;background-color:${colorNeutralBackground1};border:${strokeWidthThin} solid ${colorNeutralStroke1};border-bottom-color:${colorNeutralStrokeAccessible};border-radius:${borderRadiusMedium};box-sizing:border-box;height:32px;display:inline-flex;flex-direction:row;gap:${spacingHorizontalXXS};padding:0 ${spacingHorizontalMNudge};position:relative;width:100%}:has(.control:user-invalid){border-color:${colorPaletteRedBorder2}}.root::after{box-sizing:border-box;content:'';position:absolute;left:-1px;bottom:0px;right:-1px;height:max(2px,${borderRadiusMedium});border-radius:0 0 ${borderRadiusMedium} ${borderRadiusMedium};border-bottom:2px solid ${colorCompoundBrandStroke};clip-path:inset(calc(100% - 2px) 1px 0px);transform:scaleX(0);transition-property:transform;transition-duration:${durationUltraFast};transition-delay:${curveAccelerateMid}}.control{width:100%;height:100%;box-sizing:border-box;color:${colorNeutralForeground1};border-radius:${borderRadiusMedium};background:${colorTransparentBackground};font-family:${fontFamilyBase};font-weight:${fontWeightRegular};font-size:${fontSizeBase300};border:none;vertical-align:center}.control:focus-visible{outline:0;border:0}.control::placeholder{color:${colorNeutralForeground4}}:host ::slotted([slot='start']),:host ::slotted([slot='end']){display:flex;align-items:center;justify-content:center;color:${colorNeutralForeground3};font-size:${fontSizeBase500}}:host ::slotted([slot='start']){padding-right:${spacingHorizontalXXS}}:host ::slotted([slot='end']){padding-left:${spacingHorizontalXXS};gap:${spacingHorizontalXS}}:host(:hover) .root{border-color:${colorNeutralStroke1Hover};border-bottom-color:${colorNeutralStrokeAccessibleHover}}:host(:active) .root{border-color:${colorNeutralStroke1Pressed}}:host(:focus-within) .root{outline:transparent solid 2px;border-bottom:0}:host(:focus-within) .root::after{transform:scaleX(1);transition-property:transform;transition-duration:${durationNormal};transition-delay:${curveDecelerateMid}}:host(:focus-within:active) .root:after{border-bottom-color:${colorCompoundBrandStrokePressed}}:host([appearance='outline']:focus-within) .root{border:${strokeWidthThin} solid ${colorNeutralStroke1}}:host(:focus-within) .control{color:${colorNeutralForeground1}}:host([disabled]) .root{background:${colorTransparentBackground};border:${strokeWidthThin} solid ${colorNeutralStrokeDisabled}}:host([disabled]) .control::placeholder,:host([disabled]) ::slotted([slot='start']),:host([disabled]) ::slotted([slot='end']){color:${colorNeutralForegroundDisabled}}::selection{color:${colorNeutralForegroundInverted};background-color:${colorNeutralBackgroundInverted}}:host([control-size='small']) .control{font-size:${fontSizeBase200};font-weight:${fontWeightRegular};line-height:${lineHeightBase200}}:host([control-size='small']) .root{height:24px;gap:${spacingHorizontalXXS};padding:0 ${spacingHorizontalSNudge}}:host([control-size='small']) ::slotted([slot='start']),:host([control-size='small']) ::slotted([slot='end']){font-size:${fontSizeBase400}}:host([control-size='large']) .control{font-size:${fontSizeBase400};font-weight:${fontWeightRegular};line-height:${lineHeightBase400}}:host([control-size='large']) .root{height:40px;gap:${spacingHorizontalS};padding:0 ${spacingHorizontalM}}:host([control-size='large']) ::slotted([slot='start']),:host([control-size='large']) ::slotted([slot='end']){font-size:${fontSizeBase600}}:host([appearance='underline']) .root{background:${colorTransparentBackground};border:0;border-radius:0;border-bottom:${strokeWidthThin} solid ${colorNeutralStrokeAccessible}}:host([appearance='underline']:hover) .root{border-bottom-color:${colorNeutralStrokeAccessibleHover}}:host([appearance='underline']:active) .root{border-bottom-color:${colorNeutralStrokeAccessiblePressed}}:host([appearance='underline']:focus-within) .root{border:0;border-bottom-color:${colorNeutralStrokeAccessiblePressed}}:host([appearance='underline'][disabled]) .root{border-bottom-color:${colorNeutralStrokeDisabled}}:host([appearance='filled-lighter']) .root,:host([appearance='filled-darker']) .root{border:${strokeWidthThin} solid ${colorTransparentStroke};box-shadow:${shadow2}}:host([appearance='filled-lighter']) .root{background:${colorNeutralBackground1}}:host([appearance='filled-darker']) .root{background:${colorNeutralBackground3}}:host([appearance='filled-lighter']:hover) .root,:host([appearance='filled-darker']:hover) .root{border-color:${colorTransparentStrokeInteractive}}:host([appearance='filled-lighter']:active) .root,:host([appearance='filled-darker']:active) .root{border-color:${colorTransparentStrokeInteractive};background:${colorNeutralBackground3}}`;
-
-function textInputTemplate(options = {}) {
-  return html`<template @focusin=${(x, c) => x.focusinHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)}><label part=label for=control class=label ${ref("controlLabel")}><slot ${slotted("defaultSlottedNodes")}></slot></label><div class=root part=root>${startSlotTemplate(options)} <input class=control part=control id=control @change=${(x, c) => x.changeHandler(c.event)} @input=${(x, c) => x.inputHandler(c.event)} ?autofocus=${(x) => x.autofocus} autocomplete=${(x) => x.autocomplete} ?disabled=${(x) => x.disabled} list=${(x) => x.list} maxlength=${(x) => x.maxlength} minlength=${(x) => x.minlength} ?multiple=${(x) => x.multiple} name=${(x) => x.name} pattern=${(x) => x.pattern} placeholder=${(x) => x.placeholder} ?readonly=${(x) => x.readOnly} ?required=${(x) => x.required} size=${(x) => x.size} spellcheck=${(x) => x.spellcheck} type=${(x) => x.type} value=${(x) => x.value} ${ref("control")}> ${endSlotTemplate(options)}</div></template>`;
-}
-const template$5 = textInputTemplate();
-
-const definition$5 = TextInput.compose({
-  name: tagName$5,
-  template: template$5,
-  styles: styles$5,
-  shadowOptions: {
-    delegatesFocus: true
-  }
-});
-
-definition$5.define(FluentDesignSystem.registry);
+TextInput.define(definition$5);
 
 const tagName$4 = `${FluentDesignSystem.prefix}-text`;
+
+const styles$4 = css`${display("inline")} :host{font-family:${fontFamilyBase};font-size:${fontSizeBase300};line-height:${lineHeightBase300};font-weight:${fontWeightRegular};text-align:start}:host([nowrap]),:host([nowrap]) ::slotted(*){white-space:nowrap;overflow:hidden}:host([truncate]),:host([truncate]) ::slotted(*){text-overflow:ellipsis}:host([block]){display:block}:host([italic]){font-style:italic}:host([underline]){text-decoration-line:underline}:host([strikethrough]){text-decoration-line:line-through}:host([underline][strikethrough]){text-decoration-line:line-through underline}:host([size='100']){font-size:${fontSizeBase100};line-height:${lineHeightBase100}}:host([size='200']){font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='400']){font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='500']){font-size:${fontSizeBase500};line-height:${lineHeightBase500}}:host([size='600']){font-size:${fontSizeBase600};line-height:${lineHeightBase600}}:host([size='700']){font-size:${fontSizeHero700};line-height:${lineHeightHero700}}:host([size='800']){font-size:${fontSizeHero800};line-height:${lineHeightHero800}}:host([size='900']){font-size:${fontSizeHero900};line-height:${lineHeightHero900}}:host([size='1000']){font-size:${fontSizeHero1000};line-height:${lineHeightHero1000}}:host([font='monospace']){font-family:${fontFamilyMonospace}}:host([font='numeric']){font-family:${fontFamilyNumeric}}:host([weight='medium']){font-weight:${fontWeightMedium}}:host([weight='semibold']){font-weight:${fontWeightSemibold}}:host([weight='bold']){font-weight:${fontWeightBold}}:host([align='center']){text-align:center}:host([align='end']){text-align:end}:host([align='justify']){text-align:justify}::slotted(*){font:inherit;line-height:inherit;text-decoration-line:inherit;text-align:inherit;text-decoration-line:inherit;margin:0}`;
+
+const template$4 = html`<slot></slot>`;
+
+const definition$4 = {
+  name: tagName$4,
+  registry: FluentDesignSystem.registry,
+  styles: styles$4,
+  template: template$4
+};
 
 var __defProp$6 = Object.defineProperty;
 var __getOwnPropDesc$6 = Object.getOwnPropertyDescriptor;
@@ -13537,19 +13573,20 @@ __decorateClass$6([
   attr
 ], Text.prototype, "align", 2);
 
-const styles$4 = css`${display("inline")} :host{font-family:${fontFamilyBase};font-size:${fontSizeBase300};line-height:${lineHeightBase300};font-weight:${fontWeightRegular};text-align:start}:host([nowrap]),:host([nowrap]) ::slotted(*){white-space:nowrap;overflow:hidden}:host([truncate]),:host([truncate]) ::slotted(*){text-overflow:ellipsis}:host([block]){display:block}:host([italic]){font-style:italic}:host([underline]){text-decoration-line:underline}:host([strikethrough]){text-decoration-line:line-through}:host([underline][strikethrough]){text-decoration-line:line-through underline}:host([size='100']){font-size:${fontSizeBase100};line-height:${lineHeightBase100}}:host([size='200']){font-size:${fontSizeBase200};line-height:${lineHeightBase200}}:host([size='400']){font-size:${fontSizeBase400};line-height:${lineHeightBase400}}:host([size='500']){font-size:${fontSizeBase500};line-height:${lineHeightBase500}}:host([size='600']){font-size:${fontSizeBase600};line-height:${lineHeightBase600}}:host([size='700']){font-size:${fontSizeHero700};line-height:${lineHeightHero700}}:host([size='800']){font-size:${fontSizeHero800};line-height:${lineHeightHero800}}:host([size='900']){font-size:${fontSizeHero900};line-height:${lineHeightHero900}}:host([size='1000']){font-size:${fontSizeHero1000};line-height:${lineHeightHero1000}}:host([font='monospace']){font-family:${fontFamilyMonospace}}:host([font='numeric']){font-family:${fontFamilyNumeric}}:host([weight='medium']){font-weight:${fontWeightMedium}}:host([weight='semibold']){font-weight:${fontWeightSemibold}}:host([weight='bold']){font-weight:${fontWeightBold}}:host([align='center']){text-align:center}:host([align='end']){text-align:end}:host([align='justify']){text-align:justify}::slotted(*){font:inherit;line-height:inherit;text-decoration-line:inherit;text-align:inherit;text-decoration-line:inherit;margin:0}`;
-
-const template$4 = html`<slot></slot>`;
-
-const definition$4 = Text.compose({
-  name: tagName$4,
-  template: template$4,
-  styles: styles$4
-});
-
-definition$4.define(FluentDesignSystem.registry);
+Text.define(definition$4);
 
 const tagName$3 = `${FluentDesignSystem.prefix}-toggle-button`;
+
+const styles$3 = css`${styles$D} :host(${pressedState}){border-color:${colorNeutralStroke1};background-color:${colorNeutralBackground1Selected};color:${colorNeutralForeground1};border-width:${strokeWidthThin}}:host(${pressedState}:hover){border-color:${colorNeutralStroke1Hover};background-color:${colorNeutralBackground1Hover}}:host(${pressedState}:active){border-color:${colorNeutralStroke1Pressed};background-color:${colorNeutralBackground1Pressed}}:host(${pressedState}[appearance='primary']:not(:focus-visible)){border-color:transparent}:host(${pressedState}[appearance='primary']){background-color:${colorBrandBackgroundSelected};color:${colorNeutralForegroundOnBrand}}:host(${pressedState}[appearance='primary']:hover){background-color:${colorBrandBackgroundHover}}:host(${pressedState}[appearance='primary']:active){background-color:${colorBrandBackgroundPressed}}:host(${pressedState}[appearance='subtle']){border-color:transparent;background-color:${colorSubtleBackgroundSelected};color:${colorNeutralForeground2Selected}}:host(${pressedState}[appearance='subtle']:hover){background-color:${colorSubtleBackgroundHover};color:${colorNeutralForeground2Hover}}:host(${pressedState}[appearance='subtle']:active){background-color:${colorSubtleBackgroundPressed};color:${colorNeutralForeground2Pressed}}:host(${pressedState}[appearance='outline']),:host(${pressedState}[appearance='transparent']){background-color:${colorTransparentBackgroundSelected}}:host(${pressedState}[appearance='outline']:hover),:host(${pressedState}[appearance='transparent']:hover){background-color:${colorTransparentBackgroundHover}}:host(${pressedState}[appearance='outline']:active),:host(${pressedState}[appearance='transparent']:active){background-color:${colorTransparentBackgroundPressed}}:host(${pressedState}[appearance='transparent']){border-color:transparent;color:${colorNeutralForeground2BrandSelected}}:host(${pressedState}[appearance='transparent']:hover){color:${colorNeutralForeground2BrandHover}}:host(${pressedState}[appearance='transparent']:active){color:${colorNeutralForeground2BrandPressed}}@media (forced-colors:active){:host(${pressedState}),:host( ${pressedState}:is([appearance='primary'],[appearance='subtle'],[appearance='outline'],[appearance='transparent']) ){background:SelectedItem}:host(${pressedState}[appearance='primary']){color:SelectedItemText}}`;
+
+const template$3 = buttonTemplate$1();
+
+const definition$3 = {
+  name: tagName$3,
+  registry: FluentDesignSystem.registry,
+  styles: styles$3,
+  template: template$3
+};
 
 var __defProp$5 = Object.defineProperty;
 var __getOwnPropDesc$5 = Object.getOwnPropertyDescriptor;
@@ -13611,17 +13648,7 @@ __decorateClass$5([
   attr({ mode: "boolean" })
 ], ToggleButton.prototype, "mixed", 2);
 
-const styles$3 = css`${styles$D} :host(${pressedState}){border-color:${colorNeutralStroke1};background-color:${colorNeutralBackground1Selected};color:${colorNeutralForeground1};border-width:${strokeWidthThin}}:host(${pressedState}:hover){border-color:${colorNeutralStroke1Hover};background-color:${colorNeutralBackground1Hover}}:host(${pressedState}:active){border-color:${colorNeutralStroke1Pressed};background-color:${colorNeutralBackground1Pressed}}:host(${pressedState}[appearance='primary']:not(:focus-visible)){border-color:transparent}:host(${pressedState}[appearance='primary']){background-color:${colorBrandBackgroundSelected};color:${colorNeutralForegroundOnBrand}}:host(${pressedState}[appearance='primary']:hover){background-color:${colorBrandBackgroundHover}}:host(${pressedState}[appearance='primary']:active){background-color:${colorBrandBackgroundPressed}}:host(${pressedState}[appearance='subtle']){border-color:transparent;background-color:${colorSubtleBackgroundSelected};color:${colorNeutralForeground2Selected}}:host(${pressedState}[appearance='subtle']:hover){background-color:${colorSubtleBackgroundHover};color:${colorNeutralForeground2Hover}}:host(${pressedState}[appearance='subtle']:active){background-color:${colorSubtleBackgroundPressed};color:${colorNeutralForeground2Pressed}}:host(${pressedState}[appearance='outline']),:host(${pressedState}[appearance='transparent']){background-color:${colorTransparentBackgroundSelected}}:host(${pressedState}[appearance='outline']:hover),:host(${pressedState}[appearance='transparent']:hover){background-color:${colorTransparentBackgroundHover}}:host(${pressedState}[appearance='outline']:active),:host(${pressedState}[appearance='transparent']:active){background-color:${colorTransparentBackgroundPressed}}:host(${pressedState}[appearance='transparent']){border-color:transparent;color:${colorNeutralForeground2BrandSelected}}:host(${pressedState}[appearance='transparent']:hover){color:${colorNeutralForeground2BrandHover}}:host(${pressedState}[appearance='transparent']:active){color:${colorNeutralForeground2BrandPressed}}@media (forced-colors:active){:host(${pressedState}),:host( ${pressedState}:is([appearance='primary'],[appearance='subtle'],[appearance='outline'],[appearance='transparent']) ){background:SelectedItem;color:SelectedItemText}}`;
-
-const template$3 = buttonTemplate$1();
-
-const definition$3 = ToggleButton.compose({
-  name: tagName$3,
-  template: template$3,
-  styles: styles$3
-});
-
-definition$3.define(FluentDesignSystem.registry);
+ToggleButton.define(definition$3);
 
 const TooltipPositioningOption = {
   "above-start": "block-start span-inline-end",
@@ -13638,6 +13665,17 @@ const TooltipPositioningOption = {
   "after-bottom": "inline-end span-block-start"
 };
 const tagName$2 = `${FluentDesignSystem.prefix}-tooltip`;
+
+const styles$2 = css`${display("inline-flex")} :host(:not(:popover-open)){display:none}:host{--position-area:block-start;--position-try-options:flip-block;--block-offset:${spacingVerticalXS};--inline-offset:${spacingHorizontalXS};background:${colorNeutralBackground1};border-radius:${borderRadiusMedium};border:1px solid ${colorTransparentStroke};box-sizing:border-box;color:${colorNeutralForeground1};display:inline-flex;filter:drop-shadow(0 0 2px ${colorNeutralShadowAmbient}) drop-shadow(0 4px 8px ${colorNeutralShadowKey});font-family:${fontFamilyBase};font-size:${fontSizeBase200};inset:unset;line-height:${lineHeightBase200};margin:unset;max-width:240px;overflow:visible;padding:4px ${spacingHorizontalMNudge} 6px;position:absolute;position-area:var(--position-area);position-try-fallbacks:var(--position-try-options);width:auto;z-index:1}@supports (inset-area:block-start){:host{inset-area:var(--position-area);position-try-fallbacks:var(--position-try-options)}}:host(:is([positioning^='above'],[positioning^='below'],:not([positioning]))){margin-block:var(--block-offset)}:host(:is([positioning^='before'],[positioning^='after'])){margin-inline:var(--inline-offset);--position-try-options:flip-inline}:host([positioning='above-start']){--position-area:${TooltipPositioningOption["above-start"]}}:host([positioning='above']){--position-area:${TooltipPositioningOption.above}}:host([positioning='above-end']){--position-area:${TooltipPositioningOption["above-end"]}}:host([positioning='below-start']){--position-area:${TooltipPositioningOption["below-start"]}}:host([positioning='below']){--position-area:${TooltipPositioningOption.below}}:host([positioning='below-end']){--position-area:${TooltipPositioningOption["below-end"]}}:host([positioning='before-top']){--position-area:${TooltipPositioningOption["before-top"]}}:host([positioning='before']){--position-area:${TooltipPositioningOption.before}}:host([positioning='before-bottom']){--position-area:${TooltipPositioningOption["before-bottom"]}}:host([positioning='after-top']){--position-area:${TooltipPositioningOption["after-top"]}}:host([positioning='after']){--position-area:${TooltipPositioningOption.after}}:host([positioning='after-bottom']){--position-area:${TooltipPositioningOption["after-bottom"]}}`;
+
+const template$2 = html`<template popover aria-hidden=true><slot></slot></template>`;
+
+const definition$2 = {
+  name: tagName$2,
+  registry: FluentDesignSystem.registry,
+  styles: styles$2,
+  template: template$2
+};
 
 var __defProp$4 = Object.defineProperty;
 var __getOwnPropDesc$4 = Object.getOwnPropertyDescriptor;
@@ -13827,7 +13865,7 @@ class Tooltip extends FASTElement {
       #${this.id} {
         inset: unset;
         position-anchor: ${anchorName};
-        position: absolute;
+        position: fixed;
         ${directionCSS}
         ${alignmentCSS}
       }
@@ -13851,19 +13889,20 @@ __decorateClass$4([
   attr
 ], Tooltip.prototype, "anchor", 2);
 
-const styles$2 = css`${display("inline-flex")} :host(:not(:popover-open)){display:none}:host{--position-area:block-start;--position-try-options:flip-block;--block-offset:${spacingVerticalXS};--inline-offset:${spacingHorizontalXS};background:${colorNeutralBackground1};border-radius:${borderRadiusMedium};border:1px solid ${colorTransparentStroke};box-sizing:border-box;color:${colorNeutralForeground1};display:inline-flex;filter:drop-shadow(0 0 2px ${colorNeutralShadowAmbient}) drop-shadow(0 4px 8px ${colorNeutralShadowKey});font-family:${fontFamilyBase};font-size:${fontSizeBase200};inset:unset;line-height:${lineHeightBase200};margin:unset;max-width:240px;overflow:visible;padding:4px ${spacingHorizontalMNudge} 6px;position:absolute;position-area:var(--position-area);position-try-options:var(--position-try-options);width:auto;z-index:1}@supports (inset-area:block-start){:host{inset-area:var(--position-area);position-try-fallbacks:var(--position-try-options)}}:host(:is([positioning^='above'],[positioning^='below'],:not([positioning]))){margin-block:var(--block-offset)}:host(:is([positioning^='before'],[positioning^='after'])){margin-inline:var(--inline-offset);--position-try-options:flip-inline}:host([positioning='above-start']){--position-area:${TooltipPositioningOption["above-start"]}}:host([positioning='above']){--position-area:${TooltipPositioningOption.above}}:host([positioning='above-end']){--position-area:${TooltipPositioningOption["above-end"]}}:host([positioning='below-start']){--position-area:${TooltipPositioningOption["below-start"]}}:host([positioning='below']){--position-area:${TooltipPositioningOption.below}}:host([positioning='below-end']){--position-area:${TooltipPositioningOption["below-end"]}}:host([positioning='before-top']){--position-area:${TooltipPositioningOption["before-top"]}}:host([positioning='before']){--position-area:${TooltipPositioningOption.before}}:host([positioning='before-bottom']){--position-area:${TooltipPositioningOption["before-bottom"]}}:host([positioning='after-top']){--position-area:${TooltipPositioningOption["after-top"]}}:host([positioning='after']){--position-area:${TooltipPositioningOption.after}}:host([positioning='after-bottom']){--position-area:${TooltipPositioningOption["after-bottom"]}}`;
-
-const template$2 = html`<template popover aria-hidden=true><slot></slot></template>`;
-
-const definition$2 = Tooltip.compose({
-  name: tagName$2,
-  template: template$2,
-  styles: styles$2
-});
-
-definition$2.define(FluentDesignSystem.registry);
+Tooltip.define(definition$2);
 
 const tagName$1 = `${FluentDesignSystem.prefix}-tree`;
+
+const styles$1 = css`${display("block")} :host{outline:none}`;
+
+const template$1 = html`<template tabindex=0 focusgroup="menu inline block nowrap nomemory" @click=${(x, c) => x.clickHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)} @change=${(x, c) => x.changeHandler(c.event)} @toggle=${(x, c) => x.itemToggleHandler()}><slot ${ref("defaultSlot")} @slotchange=${(x) => x.handleDefaultSlotChange()}></slot></template>`;
+
+const definition$1 = {
+  name: tagName$1,
+  registry: FluentDesignSystem.registry,
+  styles: styles$1,
+  template: template$1
+};
 
 const TreeItemAppearance = {
   subtle: "subtle",
@@ -14113,17 +14152,19 @@ __decorateClass$2([
   attr
 ], Tree.prototype, "appearance", 2);
 
-const styles$1 = css`${display("block")} :host{outline:none}`;
+Tree.define(definition$1);
 
-const template$1 = html`<template tabindex=0 focusgroup="menu inline block nowrap nomemory" @click=${(x, c) => x.clickHandler(c.event)} @keydown=${(x, c) => x.keydownHandler(c.event)} @change=${(x, c) => x.changeHandler(c.event)} @toggle=${(x, c) => x.itemToggleHandler()}><slot ${ref("defaultSlot")} @slotchange=${(x) => x.handleDefaultSlotChange()}></slot></template>`;
+const styles = css`${display("block")} :host{outline:none;font-size:${fontSizeBase300};line-height:${lineHeightBase300}}:host(:focus-visible) .positioning-region{box-shadow:${spacingVerticalNone} ${spacingVerticalNone} ${spacingVerticalNone} ${spacingVerticalXXS} ${colorStrokeFocus2} inset}.positioning-region{display:flex;align-items:center;justify-content:space-between;cursor:pointer;height:${spacingVerticalXXXL};padding-inline-start:calc(var(--indent) * ${spacingHorizontalXXL});padding-inline-end:${spacingVerticalS};border-radius:${borderRadiusMedium};background-color:${colorSubtleBackground};color:${colorNeutralForeground2};gap:${spacingHorizontalXS}}@media (prefers-contrast:more){:host(:focus-visible) .positioning-region{outline:1px solid ${colorStrokeFocus2}}}.content{display:flex;align-items:center;gap:${spacingHorizontalXS}}.chevron{display:flex;align-items:center;flex-shrink:0;justify-content:center;width:${spacingHorizontalXXL};height:${spacingVerticalXXL};transition:transform ${durationFaster} ${curveEasyEaseMax};transform:rotate(0deg)}.chevron:dir(rtl){transform:rotate(180deg)}.chevron svg{inline-size:12px;block-size:12px}.aside{display:flex;align-items:center}.positioning-region:hover{background-color:${colorSubtleBackgroundHover};color:${colorNeutralForeground2Hover}}.positioning-region:active{background-color:${colorSubtleBackgroundPressed};color:${colorNeutralForeground2Pressed}}::slotted([slot='start']),::slotted([slot='end']),::slotted(:not([slot])){display:flex;align-items:center;min-width:0}::slotted([slot='start']){flex-shrink:0}::slotted(:not([slot])){padding-inline:${spacingHorizontalXXS}}.items{display:none}:host([expanded]) .items{display:block}:host([empty]) .chevron,:host([empty]) .items{visibility:hidden}:host([selected]) .positioning-region{background-color:${colorSubtleBackgroundSelected};color:${colorNeutralForeground2Selected}}:host([selected]) .content,:host([selected]) .chevron{color:${colorNeutralForeground3Selected}}:host([size='small']) .positioning-region{height:${spacingVerticalXXL};padding-inline-start:calc(var(--indent) * ${spacingHorizontalM})}:host([appearance='subtle-alpha']) .positioning-region:hover{background-color:${colorSubtleBackgroundLightAlphaHover}}:host([appearance='subtle-alpha']) .positioning-region:active{background-color:${colorSubtleBackgroundLightAlphaPressed}}:host([appearance='subtle-alpha'][selected]) .positioning-region{background-color:${colorSubtleBackgroundLightAlphaSelected};color:${colorNeutralForeground2Selected}}:host([appearance='transparent']) .positioning-region{background-color:${colorTransparentBackground}}:host([appearance='transparent']) .positioning-region:hover{background-color:${colorTransparentBackgroundHover}}:host([appearance='transparent']) .positioning-region:active{background-color:${colorTransparentBackgroundPressed}}:host([appearance='transparent'][selected]) .positioning-region{background-color:${colorTransparentBackgroundSelected};color:${colorNeutralForeground2Selected}}:host([expanded]) .chevron{transform:rotate(90deg)}`;
 
-const definition$1 = Tree.compose({
-  name: tagName$1,
-  template: template$1,
-  styles: styles$1
-});
+const chevronIcon = html`<svg viewBox="0 0 12 12" fill=currentColor><path d="M4.65 2.15a.5.5 0 000 .7L7.79 6 4.65 9.15a.5.5 0 10.7.7l3.5-3.5a.5.5 0 000-.7l-3.5-3.5a.5.5 0 00-.7 0z"></path></svg>`;
+const template = html`<template tabindex=0 ?focusgroupstart=${(x) => x.selected}><div class=positioning-region part=positioning-region><div class=content part=content><span class=chevron part=chevron aria-hidden=true><slot name=chevron>${chevronIcon}</slot></span><slot name=start></slot><slot></slot><slot name=end></slot></div><div class=aside part=aside><slot name=aside></slot></div></div><div role=group class=items part=items><slot name=item ${ref("itemSlot")} @slotchange=${(x) => x.handleItemSlotChange()}></slot></div></template>`;
 
-definition$1.define(FluentDesignSystem.registry);
+const definition = {
+  name: tagName,
+  registry: FluentDesignSystem.registry,
+  styles,
+  template
+};
 
 var __defProp$1 = Object.defineProperty;
 var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
@@ -14164,6 +14205,7 @@ class BaseTreeItem extends FASTElement {
     if (isTreeItem(this.parentElement)) {
       this.slot || (this.slot = "item");
     }
+    maybeSetAutoFocus(this);
   }
   /**
    * Handles changes to the expanded attribute
@@ -14371,18 +14413,7 @@ __decorateClass([
   attr
 ], TreeItem.prototype, "appearance", 2);
 
-const styles = css`${display("block")} :host{outline:none;font-size:${fontSizeBase300};line-height:${lineHeightBase300}}:host(:focus-visible) .positioning-region{box-shadow:${spacingVerticalNone} ${spacingVerticalNone} ${spacingVerticalNone} ${spacingVerticalXXS} ${colorStrokeFocus2} inset}.positioning-region{display:flex;align-items:center;justify-content:space-between;cursor:pointer;height:${spacingVerticalXXXL};padding-inline-start:calc(var(--indent) * ${spacingHorizontalXXL});padding-inline-end:${spacingVerticalS};border-radius:${borderRadiusMedium};background-color:${colorSubtleBackground};color:${colorNeutralForeground2};gap:${spacingHorizontalXS}}@media (prefers-contrast:more){:host(:focus-visible) .positioning-region{outline:1px solid ${colorStrokeFocus2}}}.content{display:flex;align-items:center;gap:${spacingHorizontalXS}}.chevron{display:flex;align-items:center;flex-shrink:0;justify-content:center;width:${spacingHorizontalXXL};height:${spacingVerticalXXL};transition:transform ${durationFaster} ${curveEasyEaseMax};transform:rotate(0deg)}.chevron:dir(rtl){transform:rotate(180deg)}.chevron svg{inline-size:12px;block-size:12px}.aside{display:flex;align-items:center}.positioning-region:hover{background-color:${colorSubtleBackgroundHover};color:${colorNeutralForeground2Hover}}.positioning-region:active{background-color:${colorSubtleBackgroundPressed};color:${colorNeutralForeground2Pressed}}::slotted([slot='start']),::slotted([slot='end']),::slotted(:not([slot])){display:flex;align-items:center;min-width:0}::slotted([slot='start']){flex-shrink:0}::slotted(:not([slot])){padding-inline:${spacingHorizontalXXS}}.items{display:none}:host([expanded]) .items{display:block}:host([empty]) .chevron,:host([empty]) .items{visibility:hidden}:host([selected]) .positioning-region{background-color:${colorSubtleBackgroundSelected};color:${colorNeutralForeground2Selected}}:host([selected]) .content,:host([selected]) .chevron{color:${colorNeutralForeground3Selected}}:host([size='small']) .positioning-region{height:${spacingVerticalXXL};padding-inline-start:calc(var(--indent) * ${spacingHorizontalM})}:host([appearance='subtle-alpha']) .positioning-region:hover{background-color:${colorSubtleBackgroundLightAlphaHover}}:host([appearance='subtle-alpha']) .positioning-region:active{background-color:${colorSubtleBackgroundLightAlphaPressed}}:host([appearance='subtle-alpha'][selected]) .positioning-region{background-color:${colorSubtleBackgroundLightAlphaSelected};color:${colorNeutralForeground2Selected}}:host([appearance='transparent']) .positioning-region{background-color:${colorTransparentBackground}}:host([appearance='transparent']) .positioning-region:hover{background-color:${colorTransparentBackgroundHover}}:host([appearance='transparent']) .positioning-region:active{background-color:${colorTransparentBackgroundPressed}}:host([appearance='transparent'][selected]) .positioning-region{background-color:${colorTransparentBackgroundSelected};color:${colorNeutralForeground2Selected}}:host([expanded]) .chevron{transform:rotate(90deg)}`;
-
-const chevronIcon = html`<svg viewBox="0 0 12 12" fill=currentColor><path d="M4.65 2.15a.5.5 0 000 .7L7.79 6 4.65 9.15a.5.5 0 10.7.7l3.5-3.5a.5.5 0 000-.7l-3.5-3.5a.5.5 0 00-.7 0z"></path></svg>`;
-const template = html`<template tabindex=0 ?focusgroupstart=${(x) => x.selected}><div class=positioning-region part=positioning-region><div class=content part=content><span class=chevron part=chevron aria-hidden=true><slot name=chevron>${chevronIcon}</slot></span><slot name=start></slot><slot></slot><slot name=end></slot></div><div class=aside part=aside><slot name=aside></slot></div></div><div role=group class=items part=items><slot name=item ${ref("itemSlot")} @slotchange=${(x) => x.handleItemSlotChange()}></slot></div></template>`;
-
-const definition = TreeItem.compose({
-  name: tagName,
-  template: template,
-  styles: styles
-});
-
-definition.define(FluentDesignSystem.registry);
+TreeItem.define(definition);
 
 const SUPPORTS_ADOPTED_STYLE_SHEETS = "adoptedStyleSheets" in document;
 const SUPPORTS_CSS_SCOPE = "CSSScopeRule" in window;

@@ -1,9 +1,7 @@
-import { Field } from './field.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Field Element
+ * The definition for the `<fluent-field>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-field>`
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Field>;
+export declare const definition: PartialFASTElementDefinition;

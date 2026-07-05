@@ -1,4 +1,13 @@
 import { FASTElement } from '@microsoft/fast-element';
+/**
+ * Base class for Tree Item Custom HTML Element.
+ * Based largely on the {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li | `<li>`} element.
+ *
+ * @fires { ToggleEvent } toggle - Fires when the expanded state changes
+ * @fires { Event } change - Fires when the selected state changes
+ *
+ * @public
+ */
 export declare class BaseTreeItem extends FASTElement {
     /**
      * The internal {@link https://developer.mozilla.org/docs/Web/API/ElementInternals | `ElementInternals`} instance for the component.

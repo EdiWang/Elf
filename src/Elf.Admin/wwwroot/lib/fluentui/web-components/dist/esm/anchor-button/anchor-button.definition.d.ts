@@ -1,7 +1,7 @@
-import { AnchorButton } from './anchor-button.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
+ * The definition for the `<fluent-anchor-button>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-anchor-button\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof AnchorButton>;
+export declare const definition: PartialFASTElementDefinition;

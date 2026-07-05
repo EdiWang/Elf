@@ -15,6 +15,8 @@ import { DropdownType } from './dropdown.options.js';
  * @slot indicator - The indicator slot.
  * @slot control - The control slot. This slot is automatically populated and should not be manually manipulated.
  *
+ * @fires { Event } change - Fires a custom 'change' event when the selected option changes
+ *
  * @public
  */
 export declare class BaseDropdown extends FASTElement {
@@ -431,6 +433,31 @@ export declare class BaseDropdown extends FASTElement {
      * This method can be overridden in derived classes to provide custom control elements, though this is not recommended.
      */
     protected insertControl(): void;
+    /**
+     * The duration in milliseconds after the last character search keystroke before the search string is cleared.
+     */
+    protected searchTimeoutMs: number;
+    /**
+     * The accumulated search string used to match option labels by prefix when printable characters are typed.
+     *
+     * @internal
+     */
+    private searchString;
+    /**
+     * The timeout id used to reset the search string.
+     *
+     * @internal
+     */
+    private searchTimeout?;
+    /**
+     * Handles printable character input by moving {@link Dropdown#activeIndex} to the next option whose label matches the
+     * accumulated search string. When the string is a single character (or the same character repeated), matching
+     * options are cycled through; otherwise the string is treated as a prefix match.
+     *
+     * @param char - the printable character that was pressed
+     * @internal
+     */
+    private handleSearchCharacter;
     /**
      * Handles the keydown events for the dropdown.
      *

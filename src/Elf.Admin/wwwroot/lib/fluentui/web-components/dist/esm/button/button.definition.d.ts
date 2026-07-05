@@ -1,9 +1,7 @@
-import { Button } from './button.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The definition for the Fluent Button component.
+ * The definition for the `<fluent-button>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-button>`
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Button>;
+export declare const definition: PartialFASTElementDefinition;

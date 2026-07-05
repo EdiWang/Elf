@@ -1,4 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
 import { definition } from './dialog.definition.js';
-definition.define(FluentDesignSystem.registry);
+import { Dialog } from './dialog.js';
+Dialog.define(definition);
 //# sourceMappingURL=define.js.map

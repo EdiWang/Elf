@@ -1,14 +1,17 @@
+import { declarativeTemplate } from '@microsoft/fast-element/declarative.js';
+import { FluentDesignSystem } from '../fluent-design-system.js';
 import { tagName } from './message-bar.options.js';
 /**
- * The async definition configuration for the fluent-message-bar element.
+ * The async definition configuration for the `<fluent-message-bar>` element.
  *
  * @public
  * @remarks
  * This is used in server-side rendering (SSR) scenarios where the template
  * is provided as a deferred option to be hydrated later.
  */
-export const definition = {
+export const declarativeDefinition = {
     name: tagName,
-    templateOptions: 'defer-and-hydrate',
+    registry: FluentDesignSystem.registry,
+    template: declarativeTemplate(),
 };
 //# sourceMappingURL=message-bar.definition-async.js.map

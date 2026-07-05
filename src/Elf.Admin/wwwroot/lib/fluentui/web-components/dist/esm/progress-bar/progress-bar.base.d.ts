@@ -45,7 +45,7 @@ export declare class BaseProgressBar extends FASTElement {
      *
      * HTML Attribute: `value`
      *
-     * @internal
+     * @public
      */
     value?: number;
     /**
@@ -60,7 +60,7 @@ export declare class BaseProgressBar extends FASTElement {
      *
      * HTML Attribute: `min`
      *
-     * @internal
+     * @public
      */
     min?: number;
     /**
@@ -76,7 +76,7 @@ export declare class BaseProgressBar extends FASTElement {
      *
      * HTML Attribute: `max`
      *
-     * @internal
+     * @public
      */
     max?: number;
     /**

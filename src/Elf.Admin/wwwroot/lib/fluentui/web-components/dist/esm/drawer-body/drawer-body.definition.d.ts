@@ -1,8 +1,7 @@
-import { DrawerBody } from './drawer-body.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
+ * The definition for the `<fluent-drawer-body>` element.
  *
  * @public
- * @remarks
- * HTML Element: <fluent-drawer>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof DrawerBody>;
+export declare const definition: PartialFASTElementDefinition;

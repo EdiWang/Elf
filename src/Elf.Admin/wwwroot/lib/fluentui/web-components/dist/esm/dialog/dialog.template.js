@@ -1,6 +1,11 @@
 import { html, ref } from '@microsoft/fast-element';
 /**
  * Template for the Dialog component
+ *
+ * Note: The empty `<div tabindex="-1">` element above the `<slot>` element is
+ * for working around a dialog focus issue, learn more at
+ * https://github.com/microsoft/fluentui/pull/36278
+ *
  * @public
  */
 export const template = html `
@@ -16,6 +21,7 @@ export const template = html `
     @cancel="${x => x.hide()}"
     ${ref('dialog')}
   >
+    <div tabindex="-1"></div>
     <slot></slot>
   </dialog>
 `;

@@ -1,21 +1,16 @@
 import { FluentDesignSystem } from '../fluent-design-system.js';
 import { tagName } from './message-bar.options.js';
-import { MessageBar } from './message-bar.js';
 import { styles } from './message-bar.styles.js';
 import { template } from './message-bar.template.js';
 /**
- * The Fluent MessageBar Element definition.
+ * The definition for the `<fluent-message-bar>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-message-bar>`
  */
-export const definition = MessageBar.compose({
+export const definition = {
     name: tagName,
-    template,
+    registry: FluentDesignSystem.registry,
     styles,
-    shadowOptions: {
-        mode: FluentDesignSystem.shadowRootMode,
-    },
-});
+    template,
+};
 //# sourceMappingURL=message-bar.definition.js.map

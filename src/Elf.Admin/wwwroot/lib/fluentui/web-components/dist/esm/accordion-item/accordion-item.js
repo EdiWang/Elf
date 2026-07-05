@@ -7,6 +7,8 @@ import { BaseAccordionItem } from './accordion-item.base.js';
  * An Accordion Item Custom HTML Element.
  * Based on BaseAccordionItem and includes style and layout specific attributes
  *
+ * @tag fluent-accordion-item
+ *
  * @public
  */
 export class AccordionItem extends BaseAccordionItem {

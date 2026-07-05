@@ -1,9 +1,7 @@
-import { TextArea } from './textarea.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Textarea Element definition.
+ * The definition for the `<fluent-textarea>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-textarea>`
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof TextArea>;
+export declare const definition: PartialFASTElementDefinition;

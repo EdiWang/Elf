@@ -104,25 +104,25 @@ export declare class Menu extends FASTElement {
      * Defines whether the menu is open or not.
      * @internal
      */
-    private _open;
+    protected _open: boolean;
     /**
      * The trigger element of the menu.
      * @internal
      */
-    private _trigger?;
+    protected _trigger?: HTMLElement;
     /**
      * The menu list element of the menu which has the popover behavior.
      * @internal
      */
-    private _menuList?;
+    protected _menuList?: HTMLElement;
     /**
      * @internal
      */
-    private _triggerAbortController?;
+    protected _triggerAbortController?: AbortController;
     /**
      * @internal
      */
-    private _menuListAbortController?;
+    protected _menuListAbortController?: AbortController;
     /**
      * Called when the element is connected to the DOM.
      * Sets up the component.
@@ -211,12 +211,12 @@ export declare class Menu extends FASTElement {
      * Adds trigger-related event listeners.
      * @internal
      */
-    private addTriggerListeners;
+    protected addTriggerListeners(): void;
     /**
      * Adds menu-list event listeners.
      * @internal
      */
-    private addMenuListListeners;
+    protected addMenuListListeners(): void;
     /**
      * Handles keyboard interaction for the menu. Closes the menu and focuses on the trigger when the Escape key is
      * pressed. Closes the menu when the Tab key is pressed.
@@ -238,5 +238,5 @@ export declare class Menu extends FASTElement {
      * @internal
      * @param e - The event triggered on document click.
      */
-    private documentClickHandler;
+    protected documentClickHandler: (e: any) => void;
 }

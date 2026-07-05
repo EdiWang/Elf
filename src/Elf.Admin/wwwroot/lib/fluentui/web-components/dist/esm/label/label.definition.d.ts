@@ -1,10 +1,7 @@
-import { Label } from './label.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Label Element.
- *
+ * The definition for the `<fluent-label>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-label\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Label>;
+export declare const definition: PartialFASTElementDefinition;

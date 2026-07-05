@@ -1,6 +1,6 @@
 import { css } from '@microsoft/fast-element';
 import { display } from '../utils/display.js';
-import { colorBrandForegroundLink, colorBrandForegroundLinkHover, colorBrandForegroundLinkPressed, colorNeutralForeground2Link, colorNeutralForeground2LinkHover, colorNeutralForeground2LinkPressed, fontFamilyBase, fontSizeBase300, fontWeightRegular, strokeWidthThin, } from '../theme/design-tokens.js';
+import { colorBrandForegroundLink, colorBrandForegroundLinkHover, colorBrandForegroundLinkPressed, colorNeutralForeground2Link, colorNeutralForeground2LinkHover, colorNeutralForeground2LinkPressed, colorStrokeFocus2, fontFamilyBase, fontSizeBase300, fontWeightRegular, strokeWidthThin, } from '../theme/design-tokens.js';
 export const styles = css `
   ${display('inline')}
 
@@ -21,7 +21,7 @@ export const styles = css `
     user-select: text;
   }
 
-  :host(:is(:hover, :focus-visible)) {
+  :host(:hover) {
     outline: none;
     text-decoration-line: underline;
   }
@@ -52,6 +52,15 @@ export const styles = css `
   :host([inline]) {
     font: inherit;
     text-decoration: underline;
+  }
+
+  :host(:focus-visible),
+  :host-context(:is(h1, h2, h3, h4, h5, h6, p, fluent-text)):focus-visible,
+  :host([inline]:focus-visible) {
+    outline-style: none;
+    text-decoration-line: underline;
+    text-decoration-style: double;
+    text-decoration-color: ${colorStrokeFocus2};
   }
 
   :host(:not([href])) {

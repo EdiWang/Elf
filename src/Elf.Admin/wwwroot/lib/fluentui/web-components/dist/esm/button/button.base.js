@@ -1,5 +1,6 @@
 import { __decorate } from "tslib";
 import { attr, FASTElement, observable } from '@microsoft/fast-element';
+import { maybeSetAutoFocus } from '../utils/autofocus.js';
 import { ButtonType } from './button.options.js';
 /**
  * A Button Custom HTML Element.
@@ -90,6 +91,7 @@ export class BaseButton extends FASTElement {
         super.connectedCallback();
         this.elementInternals.ariaDisabled = `${!!this.disabledFocusable}`;
         this.setTabIndex();
+        maybeSetAutoFocus(this);
     }
     constructor() {
         super();
@@ -257,9 +259,6 @@ export class BaseButton extends FASTElement {
         }
     }
 }
-__decorate([
-    attr({ mode: 'boolean' })
-], BaseButton.prototype, "autofocus", void 0);
 __decorate([
     observable
 ], BaseButton.prototype, "defaultSlottedContent", void 0);

@@ -3,6 +3,7 @@ import { attr, FASTElement, observable } from '@microsoft/fast-element';
 import { StartEnd } from '../patterns/start-end.js';
 import { applyMixins } from '../utils/apply-mixins.js';
 import { toggleState } from '../utils/element-internals.js';
+import { maybeSetAutoFocus } from '../utils/autofocus.js';
 import { MenuItemRole, roleForMenuItem } from './menu-item.options.js';
 export { MenuItemRole, roleForMenuItem };
 /**
@@ -18,7 +19,7 @@ export { MenuItemRole, roleForMenuItem };
  * @slot submenu-glyph - The submenu expand/collapse indicator
  * @slot submenu - Used to nest menu's within menu items
  * @csspart content - The element wrapping the menu item content
- * @fires change - Fires a custom 'change' event when a non-submenu item with a role of `menuitemcheckbox`, `menuitemradio`, or `menuitem` is invoked
+ * @fires { Event } change - Fires a custom 'change' event when a non-submenu item with a role of `menuitemcheckbox`, `menuitemradio`, or `menuitem` is invoked
  *
  * @public
  */
@@ -238,6 +239,7 @@ export class MenuItem extends FASTElement {
         super.connectedCallback();
         this.elementInternals.role = this.role ?? MenuItemRole.menuitem;
         this.elementInternals.ariaChecked = this.role !== MenuItemRole.menuitem ? `${!!this.checked}` : null;
+        maybeSetAutoFocus(this);
     }
 }
 __decorate([

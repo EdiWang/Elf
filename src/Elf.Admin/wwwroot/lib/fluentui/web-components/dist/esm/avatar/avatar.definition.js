@@ -1,17 +1,16 @@
+import { FluentDesignSystem } from '../fluent-design-system.js';
 import { tagName } from './avatar.options.js';
-import { Avatar } from './avatar.js';
 import { styles } from './avatar.styles.js';
 import { template } from './avatar.template.js';
 /**
- * The Fluent Avatar Element.
+ * The definition for the `<fluent-avatar>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-badge\>
  */
-export const definition = Avatar.compose({
+export const definition = {
     name: tagName,
-    template,
+    registry: FluentDesignSystem.registry,
     styles,
-});
+    template,
+};
 //# sourceMappingURL=avatar.definition.js.map

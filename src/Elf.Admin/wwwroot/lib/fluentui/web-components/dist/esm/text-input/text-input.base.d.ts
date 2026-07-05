@@ -10,6 +10,10 @@ import { TextInputType } from './text-input.options.js';
  * @csspart label - The internal `<label>` element
  * @csspart root - the root container for the internal control
  * @csspart control - The internal `<input>` control
+ *
+ * @fires { Event } change - Fires a custom 'change' event when the value changes and the input loses focus
+ * @fires { Event } select - Fires when the `select()` method is called.
+ *
  * @public
  */
 export declare class BaseTextInput extends FASTElement {
@@ -22,15 +26,6 @@ export declare class BaseTextInput extends FASTElement {
      * HTML Attribute: `autocomplete`
      */
     autocomplete?: string;
-    /**
-     * Indicates that the element should get focus after the page finishes loading.
-     * @see The {@link https://developer.mozilla.org/docs/Web/HTML/Element/input#autofocus | `autofocus`} attribute
-     *
-     * @public
-     * @remarks
-     * HTML Attribute: `autofocus`
-     */
-    autofocus: boolean;
     /**
      * The current value of the input.
      * @public
@@ -320,13 +315,6 @@ export declare class BaseTextInput extends FASTElement {
      */
     clickHandler(e: MouseEvent): boolean | void;
     connectedCallback(): void;
-    /**
-     * Focuses the inner control when the component is focused.
-     *
-     * @param e - the event object
-     * @public
-     */
-    focusinHandler(e: FocusEvent): boolean | void;
     /**
      * Resets the value to its initial value when the form is reset.
      *

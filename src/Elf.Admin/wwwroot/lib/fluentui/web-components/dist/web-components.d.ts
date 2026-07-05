@@ -3,8 +3,8 @@ import { CSSDirective } from '@microsoft/fast-element';
 import { ElementStyles } from '@microsoft/fast-element';
 import { ElementViewTemplate } from '@microsoft/fast-element';
 import { FASTElement } from '@microsoft/fast-element';
-import { FASTElementDefinition } from '@microsoft/fast-element';
 import { HTMLDirective } from '@microsoft/fast-element';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 import { SyntheticViewTemplate } from '@microsoft/fast-element';
 import { ViewTemplate } from '@microsoft/fast-element';
 
@@ -15,7 +15,7 @@ import { ViewTemplate } from '@microsoft/fast-element';
  * @tag fluent-accordion
  *
  * @slot - The default slot for the accordion items
- * @fires change - Fires a custom 'change' event when the active item changes
+ * @fires { Event } change - Fires a custom 'change' event when the active item changes
  *
  * @public
  */
@@ -87,11 +87,11 @@ export declare class Accordion extends FASTElement {
 }
 
 /**
+ * The definition configuration for the `<fluent-accordion>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-accordion\>
  */
-export declare const accordionDefinition: FASTElementDefinition<typeof Accordion>;
+export declare const AccordionDefinition: PartialFASTElementDefinition;
 
 /**
  * Expand mode for {@link Accordion}
@@ -111,6 +111,8 @@ export declare type AccordionExpandMode = ValuesOf<typeof AccordionExpandMode>;
 /**
  * An Accordion Item Custom HTML Element.
  * Based on BaseAccordionItem and includes style and layout specific attributes
+ *
+ * @tag fluent-accordion-item
  *
  * @public
  */
@@ -151,12 +153,11 @@ export declare interface AccordionItem extends StartEnd {
 }
 
 /**
+ * The definition configuration for the `<fluent-accordion-item>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-accordion-item\>
  */
-export declare const accordionItemDefinition: FASTElementDefinition<typeof AccordionItem>;
+export declare const AccordionItemDefinition: PartialFASTElementDefinition;
 
 /**
  * An Accordion Item expand/collapse icon can appear at the start or end of the accordion
@@ -174,8 +175,6 @@ export declare type AccordionItemMarkerPosition = ValuesOf<typeof AccordionItemM
 
 /**
  * Accordion Item configuration options
- *
- * @tag fluent-accordion-item
  *
  * @public
  */
@@ -200,21 +199,23 @@ export declare const AccordionItemSize: {
  */
 export declare type AccordionItemSize = ValuesOf<typeof AccordionItemSize>;
 
-export declare const accordionItemStyles: ElementStyles;
+export declare const AccordionItemStyles: ElementStyles;
 
 /**
  * The template for the fluent-accordion component.
  * @public
  */
-export declare const accordionItemTemplate: ElementViewTemplate<AccordionItem>;
+export declare const AccordionItemTemplate: ElementViewTemplate<AccordionItem>;
 
-export declare const accordionStyles: ElementStyles;
+export declare const AccordionStyles: ElementStyles;
 
-export declare const accordionTemplate: ElementViewTemplate<Accordion>;
+export declare const AccordionTemplate: ElementViewTemplate<Accordion>;
 
 /**
  * An Anchor Custom HTML Element.
  * Based on BaseAnchor and includes style and layout specific attributes
+ *
+ * @tag fluent-anchor-button
  *
  * @public
  */
@@ -304,11 +305,11 @@ export declare const AnchorButtonAppearance: {
 export declare type AnchorButtonAppearance = ValuesOf<typeof AnchorButtonAppearance>;
 
 /**
+ * The definition for the `<fluent-anchor-button>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-anchor-button\>
  */
-export declare const AnchorButtonDefinition: FASTElementDefinition<typeof AnchorButton>;
+export declare const AnchorButtonDefinition: PartialFASTElementDefinition;
 
 /**
  * An Anchor Button can be square, circular or rounded.
@@ -372,6 +373,8 @@ export declare type AnchorTarget = ValuesOf<typeof AnchorTarget>;
  * Based on BaseAvatar and includes style and layout specific attributes
  *
  * @tag fluent-avatar
+ *
+ * @slot badge - Optional badge content displayed with the avatar.
  *
  * @public
  */
@@ -536,13 +539,11 @@ export declare const AvatarColor: {
 export declare type AvatarColor = ValuesOf<typeof AvatarColor>;
 
 /**
- * The Fluent Avatar Element.
+ * The definition for the `<fluent-avatar>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-badge\>
  */
-export declare const AvatarDefinition: FASTElementDefinition<typeof Avatar>;
+export declare const AvatarDefinition: PartialFASTElementDefinition;
 
 /**
  * A specific named color for the Avatar
@@ -635,13 +636,18 @@ export declare const AvatarTemplate: ElementViewTemplate<Avatar>;
 
 /**
  * The base class used for constructing a fluent-badge custom element
+ * @tag fluent-badge
+ *
+ * @slot - Content which can be provided inside the badge.
+ * @slot start - Content which can be provided before the badge content.
+ * @slot end - Content which can be provided after the badge content.
+ *
  * @public
  */
 export declare class Badge extends FASTElement {
     /**
      * The appearance the badge should have.
      *
-     * @tag fluent-badge
      *
      * @public
      * @remarks
@@ -722,12 +728,11 @@ export declare const BadgeColor: {
 export declare type BadgeColor = ValuesOf<typeof BadgeColor>;
 
 /**
+ * The definition for the `<fluent-badge>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-badge\>
  */
-export declare const BadgeDefinition: FASTElementDefinition<typeof Badge>;
+export declare const BadgeDefinition: PartialFASTElementDefinition;
 
 /**
  * A Badge can be square, circular or rounded.
@@ -1082,15 +1087,6 @@ export declare class BaseAvatar extends FASTElement {
  */
 export declare class BaseButton extends FASTElement {
     /**
-     * Indicates the button should be focused when the page is loaded.
-     * @see The {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#autofocus | `autofocus`} attribute
-     *
-     * @public
-     * @remarks
-     * HTML Attribute: `autofocus`
-     */
-    autofocus: boolean;
-    /**
      * Default slotted content.
      *
      * @public
@@ -1320,18 +1316,12 @@ export declare class BaseButton extends FASTElement {
 /**
  * The base class for a component with a toggleable checked state.
  *
+ * @fires { Event } change - Fires a custom 'change' event when the checked state changes
+ * @fires { Event } input - Fires a custom 'input' event when the checked state changes
+ *
  * @public
  */
 export declare class BaseCheckbox extends FASTElement {
-    /**
-     * Indicates that the element should get focus after the page finishes loading.
-     * @see The {@link https://developer.mozilla.org/docs/Web/HTML/Element/input#autofocus | `autofocus`} attribute
-     *
-     * @public
-     * @remarks
-     * HTML Attribute: `autofocus`
-     */
-    autofocus: boolean;
     /**
      * The element's current checked state.
      *
@@ -1729,6 +1719,8 @@ export declare class BaseDivider extends FASTElement {
  * @slot - The default slot. Accepts a {@link (Listbox:class)} element.
  * @slot indicator - The indicator slot.
  * @slot control - The control slot. This slot is automatically populated and should not be manually manipulated.
+ *
+ * @fires { Event } change - Fires a custom 'change' event when the selected option changes
  *
  * @public
  */
@@ -2147,6 +2139,31 @@ export declare class BaseDropdown extends FASTElement {
      */
     protected insertControl(): void;
     /**
+     * The duration in milliseconds after the last character search keystroke before the search string is cleared.
+     */
+    protected searchTimeoutMs: number;
+    /**
+     * The accumulated search string used to match option labels by prefix when printable characters are typed.
+     *
+     * @internal
+     */
+    private searchString;
+    /**
+     * The timeout id used to reset the search string.
+     *
+     * @internal
+     */
+    private searchTimeout?;
+    /**
+     * Handles printable character input by moving {@link Dropdown#activeIndex} to the next option whose label matches the
+     * accumulated search string. When the string is a single character (or the same character repeated), matching
+     * options are cycled through; otherwise the string is treated as a prefix match.
+     *
+     * @param char - the printable character that was pressed
+     * @internal
+     */
+    private handleSearchCharacter;
+    /**
      * Handles the keydown events for the dropdown.
      *
      * @param e - the keyboard event
@@ -2219,7 +2236,18 @@ export declare class BaseDropdown extends FASTElement {
  * @public
  */
 export declare class BaseField extends FASTElement {
-    private slottedInputObserver;
+    /**
+     * The mutation observer for the slotted input.
+     *
+     * @internal
+     */
+    private _slottedInputObserver?;
+    /**
+     * Gets the mutation observer for the slotted input, creating it if it doesn't exist.
+     *
+     * @internal
+     */
+    protected get slottedInputObserver(): MutationObserver;
     /**
      * The slotted label elements.
      *
@@ -2436,7 +2464,7 @@ export declare class BaseProgressBar extends FASTElement {
      *
      * HTML Attribute: `value`
      *
-     * @internal
+     * @public
      */
     value?: number;
     /**
@@ -2451,7 +2479,7 @@ export declare class BaseProgressBar extends FASTElement {
      *
      * HTML Attribute: `min`
      *
-     * @internal
+     * @public
      */
     min?: number;
     /**
@@ -2467,7 +2495,7 @@ export declare class BaseProgressBar extends FASTElement {
      *
      * HTML Attribute: `max`
      *
-     * @internal
+     * @public
      */
     max?: number;
     /**
@@ -2492,6 +2520,8 @@ export declare class BaseProgressBar extends FASTElement {
 /**
  * A Base Radio Group Custom HTML Element.
  * Implements the {@link https://w3c.github.io/aria/#radiogroup | ARIA `radiogroup` role}.
+ *
+ * @fires { Event } change - Fires a custom 'change' event when the checked radio changes
  *
  * @public
  */
@@ -2939,8 +2969,8 @@ export declare class BaseTablist extends FASTElement {
  * @csspart label - The `<label>` element.
  * @csspart root - The container element of the `<textarea>` element.
  * @csspart control - The internal `<textarea>` element.
- * @fires change - Fires after the control loses focus, if the content has changed.
- * @fires select - Fires when the `select()` method is called.
+ * @fires { Event } change - Fires after the control loses focus, if the content has changed.
+ * @fires { Event } select - Fires when the `select()` method is called.
  *
  * @public
  */
@@ -3295,6 +3325,10 @@ export declare class BaseTextArea extends FASTElement {
  * @csspart label - The internal `<label>` element
  * @csspart root - the root container for the internal control
  * @csspart control - The internal `<input>` control
+ *
+ * @fires { Event } change - Fires a custom 'change' event when the value changes and the input loses focus
+ * @fires { Event } select - Fires when the `select()` method is called.
+ *
  * @public
  */
 export declare class BaseTextInput extends FASTElement {
@@ -3307,15 +3341,6 @@ export declare class BaseTextInput extends FASTElement {
      * HTML Attribute: `autocomplete`
      */
     autocomplete?: string;
-    /**
-     * Indicates that the element should get focus after the page finishes loading.
-     * @see The {@link https://developer.mozilla.org/docs/Web/HTML/Element/input#autofocus | `autofocus`} attribute
-     *
-     * @public
-     * @remarks
-     * HTML Attribute: `autofocus`
-     */
-    autofocus: boolean;
     /**
      * The current value of the input.
      * @public
@@ -3606,13 +3631,6 @@ export declare class BaseTextInput extends FASTElement {
     clickHandler(e: MouseEvent): boolean | void;
     connectedCallback(): void;
     /**
-     * Focuses the inner control when the component is focused.
-     *
-     * @param e - the event object
-     * @public
-     */
-    focusinHandler(e: FocusEvent): boolean | void;
-    /**
      * Resets the value to its initial value when the form is reset.
      *
      * @internal
@@ -3738,6 +3756,15 @@ export declare class BaseTree extends FASTElement {
     protected get descendantTreeItems(): BaseTreeItem[];
 }
 
+/**
+ * Base class for Tree Item Custom HTML Element.
+ * Based largely on the {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li | `<li>`} element.
+ *
+ * @fires { ToggleEvent } toggle - Fires when the expanded state changes
+ * @fires { Event } change - Fires when the selected state changes
+ *
+ * @public
+ */
 declare class BaseTreeItem extends FASTElement {
     /**
      * The internal {@link https://developer.mozilla.org/docs/Web/API/ElementInternals | `ElementInternals`} instance for the component.
@@ -3979,13 +4006,11 @@ export declare const ButtonAppearance: {
 export declare type ButtonAppearance = ValuesOf<typeof ButtonAppearance>;
 
 /**
- * The definition for the Fluent Button component.
+ * The definition for the `<fluent-button>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-button>`
  */
-export declare const ButtonDefinition: FASTElementDefinition<typeof Button>;
+export declare const ButtonDefinition: PartialFASTElementDefinition;
 
 /**
  * Button `formtarget` attribute values.
@@ -4078,8 +4103,8 @@ export declare type ButtonType = ValuesOf<typeof ButtonType>;
  *
  * @slot checked-indicator - The checked indicator
  * @slot indeterminate-indicator - The indeterminate indicator
- * @fires change - Emits a custom change event when the checked state changes
- * @fires input - Emits a custom input event when the checked state changes
+ * @fires { Event } change - Emits a custom change event when the checked state changes
+ * @fires { Event } input - Emits a custom input event when the checked state changes
  *
  * @public
  */
@@ -4132,13 +4157,11 @@ export declare class Checkbox extends BaseCheckbox {
 }
 
 /**
- * The Fluent Checkbox Element
+ * The definition for the `<fluent-checkbox>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-checkbox\>
  */
-export declare const CheckboxDefinition: FASTElementDefinition<typeof Checkbox>;
+export declare const CheckboxDefinition: PartialFASTElementDefinition;
 
 /**
  * Checkbox configuration options
@@ -6386,6 +6409,9 @@ export declare const colorTransparentStrokeInteractive = "var(--colorTransparent
  *
  * @tag fluent-compound-button
  *
+ * @slot - The default slot for the main content of the compound button
+ * @slot description - The description of the compound button, shown below the main content
+ *
  * @public
  */
 export declare class CompoundButton extends Button {
@@ -6409,11 +6435,11 @@ export declare const CompoundButtonAppearance: {
 export declare type CompoundButtonAppearance = ValuesOf<typeof CompoundButtonAppearance>;
 
 /**
+ * The definition for the `<fluent-compound-button>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-comopund-button\>
  */
-export declare const CompoundButtonDefinition: FASTElementDefinition<typeof CompoundButton>;
+export declare const CompoundButtonDefinition: PartialFASTElementDefinition;
 
 /**
  * A Compound Button can be square, circular or rounded.
@@ -6461,6 +6487,9 @@ export declare const CompoundButtonTemplate: ElementViewTemplate<CompoundButton>
  * Based on BaseCounterBadge and includes style and layout specific attributes.
  *
  * @tag fluent-counter-badge
+ *
+ * @slot start - Content which can be provided before the badge content.
+ * @slot end - Content which can be provided after the badge content.
  *
  * @public
  */
@@ -6541,11 +6570,11 @@ export declare const CounterBadgeColor: {
 export declare type CounterBadgeColor = ValuesOf<typeof CounterBadgeColor>;
 
 /**
+ * The definition for the `<fluent-counter-badge>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-counter-badge\>
  */
-export declare const CounterBadgeDefinition: FASTElementDefinition<typeof CounterBadge>;
+export declare const CounterBadgeDefinition: PartialFASTElementDefinition;
 
 /**
  * Values for the `shape` attribute on CounterBadge elements.
@@ -6669,6 +6698,10 @@ export declare const curveLinear = "var(--curveLinear)";
  *
  * @tag fluent-dialog
  *
+ * @fires { ToggleEvent } toggle - Event emitted after the dialog's open state changes.
+ * @fires { ToggleEvent } beforetoggle - Event emitted before the dialog's open state changes.
+ * @slot - The default slot. {@link (DialogBody:class)} element recommended.
+ *
  * @public
  */
 export declare class Dialog extends FASTElement {
@@ -6779,6 +6812,15 @@ export declare class Dialog extends FASTElement {
  *
  * @tag fluent-dialog-body
  *
+ * @slot title - Content for the dialog title.
+ * @slot title-action - Content for actions shown near the title.
+ * @slot close - Content for the close action.
+ * @slot action - Content for footer actions.
+ * @slot - Default dialog body content.
+ * @csspart title - The title container.
+ * @csspart content - The content container.
+ * @csspart actions - The actions container.
+ *
  * @public
  * @extends FASTElement
  */
@@ -6793,13 +6835,11 @@ export declare class DialogBody extends FASTElement {
 }
 
 /**
- * The Fluent Dialog Body Element
+ * The definition for the `<fluent-dialog-body>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-dialog-body\>
  */
-export declare const DialogBodyDefinition: FASTElementDefinition<typeof DialogBody>;
+export declare const DialogBodyDefinition: PartialFASTElementDefinition;
 
 /** Dialog Body styles
  * @public
@@ -6813,13 +6853,11 @@ export declare const DialogBodyStyles: ElementStyles;
 export declare const DialogBodyTemplate: ElementViewTemplate;
 
 /**
- * The Fluent Dialog Element
+ * The definition for the `<fluent-dialog>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-dialog\>
  */
-export declare const DialogDefinition: FASTElementDefinition<typeof Dialog>;
+export declare const DialogDefinition: PartialFASTElementDefinition;
 
 /** Dialog styles
  * @public
@@ -6828,6 +6866,11 @@ export declare const DialogStyles: ElementStyles;
 
 /**
  * Template for the Dialog component
+ *
+ * Note: The empty `<div tabindex="-1">` element above the `<slot>` element is
+ * for working around a dialog focus issue, learn more at
+ * https://github.com/microsoft/fluentui/pull/36278
+ *
  * @public
  */
 export declare const DialogTemplate: ElementViewTemplate<Dialog>;
@@ -6929,13 +6972,11 @@ export declare const DividerAppearance: {
 export declare type DividerAppearance = ValuesOf<typeof DividerAppearance>;
 
 /**
- * The Fluent Divider Element
+ * The definition for the `<fluent-divider>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-divider\>
  */
-export declare const DividerDefinition: FASTElementDefinition<typeof Divider>;
+export declare const DividerDefinition: PartialFASTElementDefinition;
 
 /**
  * Divider orientation
@@ -6998,11 +7039,12 @@ export declare const DividerTemplate: ElementViewTemplate<Divider>;
  * @attr ariaLabelledby - The ID of the element that labels the drawer.
  *
  * @csspart dialog - The dialog element of the drawer.
+ * @cssprop --drawer-width - Sets the width of the drawer to a custom value (e.g., 300px).
  *
  * @slot - Default slot for the content of the drawer.
  *
- * @fires toggle - Event emitted after the dialog's open state changes.
- * @fires beforetoggle - Event emitted before the dialog's open state changes.
+ * @fires { ToggleEvent } toggle - Event emitted after the dialog's open state changes.
+ * @fires { ToggleEvent } beforetoggle - Event emitted before the dialog's open state changes.
  *
  * @method show - Method to show the drawer.
  * @method hide - Method to hide the drawer.
@@ -7012,8 +7054,6 @@ export declare const DividerTemplate: ElementViewTemplate<Divider>;
  * @method emitBeforeToggle - Emits an event before the dialog's open state changes.
  *
  * @summary A component that provides a drawer for displaying content in a side panel.
- *
- * @tag fluent-drawer
  */
 export declare class Drawer extends FASTElement {
     /**
@@ -7163,12 +7203,11 @@ export declare class DrawerBody extends FASTElement {
 }
 
 /**
+ * The definition for the `<fluent-drawer-body>` element.
  *
  * @public
- * @remarks
- * HTML Element: <fluent-drawer>
  */
-export declare const DrawerBodyDefinition: FASTElementDefinition<typeof DrawerBody>;
+export declare const DrawerBodyDefinition: PartialFASTElementDefinition;
 
 /** Drawer styles
  * @public
@@ -7178,12 +7217,11 @@ export declare const DrawerBodyStyles: ElementStyles;
 export declare const DrawerBodyTemplate: ElementViewTemplate<DrawerBody>;
 
 /**
+ * The definition for the `<fluent-drawer>` element.
  *
  * @public
- * @remarks
- * HTML Element: <fluent-drawer>
  */
-export declare const DrawerDefinition: FASTElementDefinition<typeof Drawer>;
+export declare const DrawerDefinition: PartialFASTElementDefinition;
 
 /**
  * A drawer can be positioned on the left or right side of the viewport.
@@ -7292,13 +7330,11 @@ export declare type DropdownAppearance = ValuesOf<typeof DropdownAppearance>;
 export declare const dropdownButtonTemplate: ViewTemplate<BaseDropdown, any>;
 
 /**
- * The Fluent Dropdown Element.
+ * The definition for the `<fluent-dropdown>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-dropdown>`
  */
-export declare const DropdownDefinition: FASTElementDefinition<typeof Dropdown>;
+export declare const DropdownDefinition: PartialFASTElementDefinition;
 
 /**
  * The template partial for the dropdown input element. This template is used when the `type` property is set to "combobox".
@@ -7318,8 +7354,11 @@ export declare const dropdownInputTemplate: ViewTemplate<BaseDropdown, any>;
  * @tag fluent-dropdown-option
  *
  * @slot - The default slot for the option's content.
+ * @slot start - Optional content shown at the start of the option.
  * @slot checked-indicator - The checked indicator.
  * @slot description - Optional description content.
+ * @csspart content - The wrapper for the option content.
+ * @csspart description - The wrapper for the option description.
  *
  * @remarks
  * To support single and multiple selection modes with the {@link (BaseDropdown:class)} element, the Option element
@@ -7573,13 +7612,11 @@ export declare class DropdownOption extends FASTElement implements Start {
 }
 
 /**
- * The Fluent Option Element.
+ * The definition for the `<fluent-option>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-option>`
  */
-export declare const DropdownOptionDefinition: FASTElementDefinition<typeof DropdownOption>;
+export declare const DropdownOptionDefinition: PartialFASTElementDefinition;
 
 /**
  * The options for the {@link DropdownOption} component.
@@ -7729,6 +7766,13 @@ export declare function endSlotTemplate<TSource extends StartEnd = StartEnd, TPa
  *
  * @tag fluent-field
  *
+ * @slot label - Label content associated with the control.
+ * @slot input - Input control content.
+ * @slot message - Validation and helper message content.
+ * @csspart label - The label slot container.
+ * @csspart input - The input slot container.
+ * @csspart message - The message slot container.
+ *
  * @public
  */
 export declare class Field extends BaseField {
@@ -7743,13 +7787,11 @@ export declare class Field extends BaseField {
 }
 
 /**
- * The Fluent Field Element
+ * The definition for the `<fluent-field>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-field>`
  */
-export declare const FieldDefinition: FASTElementDefinition<typeof Field>;
+export declare const FieldDefinition: PartialFASTElementDefinition;
 
 /**
  * Label position values
@@ -7900,6 +7942,8 @@ export declare const getDirection: (rootNode: HTMLElement) => Direction;
  *
  * @tag fluent-image
  *
+ * @slot - The default slot. Accepts any `<img>`, `<picture>`, `<video>`, or `<canvas>` element.
+ *
  * @public
  */
 declare class Image_2 extends FASTElement {
@@ -7947,13 +7991,11 @@ declare class Image_2 extends FASTElement {
 export { Image_2 as Image }
 
 /**
- * The Fluent Image Element
+ * The definition for the `<fluent-image>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-image\>
  */
-export declare const ImageDefinition: FASTElementDefinition<typeof Image_2>;
+export declare const ImageDefinition: PartialFASTElementDefinition;
 
 /**
  * Image fit
@@ -8061,6 +8103,9 @@ export declare function isTreeItem(element?: Node | null, tagName?: string): ele
  *
  * @tag fluent-label
  *
+ * @slot - The default slot. Accepts the content of the label.
+ * @csspart asterisk - The required-field asterisk indicator.
+ *
  * @public
  */
 export declare class Label extends FASTElement {
@@ -8099,14 +8144,11 @@ export declare class Label extends FASTElement {
 }
 
 /**
- * The Fluent Label Element.
- *
+ * The definition for the `<fluent-label>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-label\>
  */
-export declare const LabelDefinition: FASTElementDefinition<typeof Label>;
+export declare const LabelDefinition: PartialFASTElementDefinition;
 
 /**
  * A Labels font size can be small, medium, or large
@@ -8253,11 +8295,11 @@ export declare const LinkAppearance: {
 export declare type LinkAppearance = ValuesOf<typeof LinkAppearance>;
 
 /**
+ * The definition for the `<fluent-link>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-link\>
  */
-export declare const LinkDefinition: FASTElementDefinition<typeof Link>;
+export declare const LinkDefinition: PartialFASTElementDefinition;
 
 export declare const LinkStyles: ElementStyles;
 
@@ -8414,13 +8456,11 @@ export declare class Listbox extends FASTElement {
 }
 
 /**
- * The Fluent Listbox Element
+ * The definition for the `<fluent-listbox>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-listbox>`
  */
-export declare const ListboxDefinition: FASTElementDefinition<typeof Listbox>;
+export declare const ListboxDefinition: PartialFASTElementDefinition;
 
 /**
  * Styles for the {@link (Listbox:class)} component.
@@ -8550,25 +8590,25 @@ export declare class Menu extends FASTElement {
      * Defines whether the menu is open or not.
      * @internal
      */
-    private _open;
+    protected _open: boolean;
     /**
      * The trigger element of the menu.
      * @internal
      */
-    private _trigger?;
+    protected _trigger?: HTMLElement;
     /**
      * The menu list element of the menu which has the popover behavior.
      * @internal
      */
-    private _menuList?;
+    protected _menuList?: HTMLElement;
     /**
      * @internal
      */
-    private _triggerAbortController?;
+    protected _triggerAbortController?: AbortController;
     /**
      * @internal
      */
-    private _menuListAbortController?;
+    protected _menuListAbortController?: AbortController;
     /**
      * Called when the element is connected to the DOM.
      * Sets up the component.
@@ -8657,12 +8697,12 @@ export declare class Menu extends FASTElement {
      * Adds trigger-related event listeners.
      * @internal
      */
-    private addTriggerListeners;
+    protected addTriggerListeners(): void;
     /**
      * Adds menu-list event listeners.
      * @internal
      */
-    private addMenuListListeners;
+    protected addMenuListListeners(): void;
     /**
      * Handles keyboard interaction for the menu. Closes the menu and focuses on the trigger when the Escape key is
      * pressed. Closes the menu when the Tab key is pressed.
@@ -8684,7 +8724,7 @@ export declare class Menu extends FASTElement {
      * @internal
      * @param e - The event triggered on document click.
      */
-    private documentClickHandler;
+    protected documentClickHandler: (e: any) => void;
 }
 
 /**
@@ -8715,11 +8755,11 @@ export declare const MenuButtonAppearance: {
 export declare type MenuButtonAppearance = ValuesOf<typeof MenuButtonAppearance>;
 
 /**
+ * The definition for the `<fluent-menu-button>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-button\>
  */
-export declare const MenuButtonDefinition: FASTElementDefinition<typeof MenuButton>;
+export declare const MenuButtonDefinition: PartialFASTElementDefinition;
 
 /**
  * A Menu Button can be square, circular or rounded.
@@ -8760,13 +8800,11 @@ export declare type MenuButtonSize = ValuesOf<typeof MenuButtonSize>;
 export declare const MenuButtonTemplate: ElementViewTemplate<MenuButton>;
 
 /**
- * The Fluent Menu Element.
+ * The definition for the `<fluent-menu>` element.
  *
  * @public
- * @remarks
- * HTML Element: <fluent-menu>
  */
-export declare const MenuDefinition: FASTElementDefinition<typeof Menu>;
+export declare const MenuDefinition: PartialFASTElementDefinition;
 
 /**
  * A Switch Custom HTML Element.
@@ -8781,7 +8819,7 @@ export declare const MenuDefinition: FASTElementDefinition<typeof Menu>;
  * @slot submenu-glyph - The submenu expand/collapse indicator
  * @slot submenu - Used to nest menu's within menu items
  * @csspart content - The element wrapping the menu item content
- * @fires change - Fires a custom 'change' event when a non-submenu item with a role of `menuitemcheckbox`, `menuitemradio`, or `menuitem` is invoked
+ * @fires { Event } change - Fires a custom 'change' event when a non-submenu item with a role of `menuitemcheckbox`, `menuitemradio`, or `menuitem` is invoked
  *
  * @public
  */
@@ -8905,11 +8943,11 @@ export declare interface MenuItem extends StartEnd {
 export declare type MenuItemColumnCount = 0 | 1 | 2;
 
 /**
+ * The definition for the `<fluent-menu-item>` element.
+ *
  * @public
- * @remarks
- * HTML Element: <fluent-menu-item>
  */
-export declare const MenuItemDefinition: FASTElementDefinition<typeof MenuItem>;
+export declare const MenuItemDefinition: PartialFASTElementDefinition;
 
 /**
  * Menu Item configuration options
@@ -8970,11 +9008,11 @@ export declare class MenuList extends BaseMenuList {
 }
 
 /**
+ * The definition for the `<fluent-menu-list>` element.
+ *
  * @public
- * @remarks
- * HTML Element: <fluent-menu-list>
  */
-export declare const MenuListDefinition: FASTElementDefinition<typeof MenuList>;
+export declare const MenuListDefinition: PartialFASTElementDefinition;
 
 /** MenuList styles
  * @public
@@ -8997,7 +9035,9 @@ export declare const MenuTemplate: ElementViewTemplate<Menu>;
  *
  * @slot actions - Content that can be provided for the actions
  * @slot dismiss - Content that can be provided for the dismiss button
+ * @slot icon - Content that can be provided for the leading icon
  * @slot - The default slot for the content
+ * @fires { CustomEvent } dismiss - Fired when the message bar is dismissed.
  * @public
  */
 export declare class MessageBar extends FASTElement {
@@ -9041,13 +9081,11 @@ export declare class MessageBar extends FASTElement {
 }
 
 /**
- * The Fluent MessageBar Element definition.
+ * The definition for the `<fluent-message-bar>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-message-bar>`
  */
-export declare const MessageBarDefinition: FASTElementDefinition<typeof MessageBar>;
+export declare const MessageBarDefinition: PartialFASTElementDefinition;
 
 /**
  * The `intent` variations for the MessageBar component.
@@ -9120,6 +9158,7 @@ export declare type Orientation = (typeof Orientation)[keyof typeof Orientation]
  * Based on BaseProgressBar and includes style and layout specific attributes
  *
  * @tag fluent-progress-bar
+ * @csspart indicator - The internal progress indicator element.
  *
  * @public
  */
@@ -9146,14 +9185,11 @@ export declare class ProgressBar extends BaseProgressBar {
 }
 
 /**
- * The Fluent ProgressBar Element.
- *
+ * The definition for the `<fluent-progress-bar>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-progress-bar\>
  */
-export declare const ProgressBarDefinition: FASTElementDefinition<typeof ProgressBar>;
+export declare const ProgressBarDefinition: PartialFASTElementDefinition;
 
 /**
  * ProgressBarShape Constants
@@ -9217,8 +9253,9 @@ declare type PropertyNameForCalculation = 'max' | 'value';
  * @tag fluent-radio
  *
  * @slot checked-indicator - The checked indicator slot
- * @fires change - Emits a custom change event when the checked state changes
- * @fires input - Emits a custom input event when the checked state changes
+ * @fires {Event} change - Emits a custom change event when the checked state changes
+ * @fires {Event} input - Emits a custom input event when the checked state changes
+ * @fires {CustomEvent} disabled - Emits a custom disabled event when the disabled state changes
  *
  * @public
  */
@@ -9278,14 +9315,11 @@ export declare class Radio extends BaseCheckbox {
 export declare type RadioControl = Pick<HTMLInputElement, 'checked' | 'disabled' | 'focus' | 'setAttribute' | 'getAttribute'>;
 
 /**
- * The Fluent Radio Element.
- *
+ * The definition for the `<fluent-radio>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-radio\>
  */
-export declare const RadioDefinition: FASTElementDefinition<typeof Radio>;
+export declare const RadioDefinition: PartialFASTElementDefinition;
 
 /**
  * A Radio Group Custom HTML Element.
@@ -9294,6 +9328,7 @@ export declare const RadioDefinition: FASTElementDefinition<typeof Radio>;
  * @tag fluent-radio-group
  *
  * @slot - The default slot for the radio group
+ * @fires { Event } change - Fired when the selected radio changes.
  *
  * @public
  */
@@ -9305,14 +9340,11 @@ export declare class RadioGroup extends BaseRadioGroup {
 }
 
 /**
- * The Fluent RadioGroup Element.
- *
+ * The definition for the `<fluent-radio-group>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-radio-group\>
  */
-export declare const RadioGroupDefinition: FASTElementDefinition<typeof RadioGroup>;
+export declare const RadioGroupDefinition: PartialFASTElementDefinition;
 
 /**
  * Radio Group orientation
@@ -9412,13 +9444,11 @@ export declare const RatingDisplayColor: {
 export declare type RatingDisplayColor = ValuesOf<typeof RatingDisplayColor>;
 
 /**
- * The definition for the Fluent Rating Display component.
+ * The definition for the `<fluent-rating-display>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-rating-display>`
  */
-export declare const RatingDisplayDefinition: FASTElementDefinition<typeof RatingDisplay>;
+export declare const RatingDisplayDefinition: PartialFASTElementDefinition;
 
 /**
  * The size of a Rating Display can be `small`, `medium`, or `large`.
@@ -9556,7 +9586,7 @@ export declare const shadow8Brand = "var(--shadow8Brand)";
  * @slot thumb - The slot for a custom thumb element.
  * @csspart thumb-container - The container element of the thumb.
  * @csspart track-container - The container element of the track.
- * @fires change - Fires a custom 'change' event when the value changes.
+ * @fires { Event } change - Fires a custom 'change' event when the value changes.
  *
  * @public
  */
@@ -9920,14 +9950,11 @@ export declare interface SliderConfiguration {
 }
 
 /**
- * The Fluent Slider Element.
- *
+ * The definition for the `<fluent-slider>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-slider\>
  */
-export declare const SliderDefinition: FASTElementDefinition<typeof Slider>;
+export declare const SliderDefinition: PartialFASTElementDefinition;
 
 /**
  * @public
@@ -10173,11 +10200,11 @@ export declare const SpinnerAppearance: {
 export declare type SpinnerAppearance = ValuesOf<typeof SpinnerAppearance>;
 
 /**
+ * The definition for the `<fluent-spinner>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-spinner\>
  */
-export declare const SpinnerDefinition: FASTElementDefinition<typeof Spinner>;
+export declare const SpinnerDefinition: PartialFASTElementDefinition;
 
 /**
  * SpinnerSize constants
@@ -10291,6 +10318,7 @@ export { styles as MenuButtonStyles }
  * Based on BaseCheckbox and includes style and layout specific attributes
  *
  * @tag fluent-switch
+ * @csspart checked-indicator - The internal switch indicator element.
  *
  */
 export declare class Switch extends BaseCheckbox {
@@ -10298,13 +10326,11 @@ export declare class Switch extends BaseCheckbox {
 }
 
 /**
- * The Fluent Switch Element.
+ * The definition for the `<fluent-switch>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-switch\>
  */
-export declare const SwitchDefinition: FASTElementDefinition<typeof Switch>;
+export declare const SwitchDefinition: PartialFASTElementDefinition;
 
 /**
  * SwitchLabelPosition Constants
@@ -10364,12 +10390,18 @@ export declare class Tab extends FASTElement {
 export declare interface Tab extends StartEnd {
 }
 
-export declare const TabDefinition: FASTElementDefinition<typeof Tab>;
+/**
+ * The definition for the `<fluent-tab>` element.
+ *
+ * @public
+ */
+export declare const TabDefinition: PartialFASTElementDefinition;
 
 /**
  * A Tablist component.
  *
  * @tag fluent-tablist
+ * @fires { Event } change - Fired when the active tab changes.
  *
  * @public
  */
@@ -10407,11 +10439,11 @@ export declare const TablistAppearance: {
 export declare type TablistAppearance = ValuesOf<typeof TablistAppearance>;
 
 /**
+ * The definition for the `<fluent-tablist>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-tablist\>
  */
-export declare const TablistDefinition: FASTElementDefinition<typeof Tablist>;
+export declare const TablistDefinition: PartialFASTElementDefinition;
 
 /**
  * The orientation of the component
@@ -10468,6 +10500,8 @@ export declare const TabTemplate: ElementViewTemplate<Tab, any>;
  * The base class used for constructing a fluent-text custom element
  *
  * @tag fluent-text
+ *
+ * @slot - The default slot for the text content of the component. Can be any valid HTML element, but is typically a semantic element such as a heading or paragraph.
  *
  * @public
  */
@@ -10660,13 +10694,11 @@ export declare const TextAreaAutocomplete: {
 export declare type TextAreaAutocomplete = ValuesOf<typeof TextAreaAutocomplete>;
 
 /**
- * The Fluent Textarea Element definition.
+ * The definition for the `<fluent-textarea>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-textarea>`
  */
-export declare const TextAreaDefinition: FASTElementDefinition<typeof TextArea>;
+export declare const TextAreaDefinition: PartialFASTElementDefinition;
 
 /**
  * Values for the `resize` attribute on TextArea elements.
@@ -10706,14 +10738,11 @@ export declare const TextAreaStyles: ElementStyles;
 export declare const TextAreaTemplate: ElementViewTemplate<TextArea>;
 
 /**
- * The Fluent Text Element.
- *
+ * The definition for the `<fluent-text>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-text\>
  */
-export declare const TextDefinition: FASTElementDefinition<typeof Text_2>;
+export declare const TextDefinition: PartialFASTElementDefinition;
 
 /**
  * TextFont Constants
@@ -10736,6 +10765,8 @@ export declare type TextFont = ValuesOf<typeof TextFont>;
  * Based on BaseTextInput and includes style and layout specific attributes
  *
  * @tag fluent-text-input
+ * @fires { Event } change - Fired when the input value is committed via a change event.
+ * @fires { Event } select - Fires when the `select()` method is called.
  *
  * @public
  */
@@ -10796,13 +10827,11 @@ export declare const TextInputControlSize: {
 export declare type TextInputControlSize = ValuesOf<typeof TextInputControlSize>;
 
 /**
- * The Fluent TextInput Element definition.
+ * The definition for the `<fluent-text-input>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-text-input>`
  */
-export declare const TextInputDefinition: FASTElementDefinition<typeof TextInput>;
+export declare const TextInputDefinition: PartialFASTElementDefinition;
 
 /**
  * TextInput configuration options.
@@ -10967,12 +10996,11 @@ export declare const ToggleButtonAppearance: {
 export declare type ToggleButtonAppearance = ValuesOf<typeof ToggleButtonAppearance>;
 
 /**
+ * The definition for the `<fluent-toggle-button>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-toggle-button\>
  */
-export declare const ToggleButtonDefinition: FASTElementDefinition<typeof ToggleButton>;
+export declare const ToggleButtonDefinition: PartialFASTElementDefinition;
 
 /**
  * A Toggle Button can be square, circular or rounded.
@@ -11026,6 +11054,8 @@ export declare const ToggleButtonTemplate: ElementViewTemplate<ToggleButton>;
  * Based on ARIA APG Tooltip Pattern {@link https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/ }
  *
  * @tag fluent-tooltip
+ *
+ * @slot - The default slot. Accepts the content of the tooltip.
  *
  * @public
  */
@@ -11119,13 +11149,11 @@ export declare class Tooltip extends FASTElement {
 }
 
 /**
- * The {@link Tooltip } custom element definition.
+ * The definition for the `<fluent-tooltip>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-tooltip>`
  */
-export declare const TooltipDefinition: FASTElementDefinition<typeof Tooltip>;
+export declare const TooltipDefinition: PartialFASTElementDefinition;
 
 /**
  * The TooltipPositioning options and their corresponding CSS values
@@ -11209,17 +11237,31 @@ export declare class Tree extends BaseTree {
 }
 
 /**
+ * The definition for the `<fluent-tree>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-tree\>
  */
-export declare const TreeDefinition: FASTElementDefinition<typeof Tree>;
+export declare const TreeDefinition: PartialFASTElementDefinition;
 
 /**
  * The Fluent Tree Item Element. Implements {@link @microsoft/fast-foundation#BaseTreeItem}.
  *
  * @tag fluent-tree-item
+ *
+ * @slot - The default slot. Accepts the content of the tree item.
+ * @slot start - Content shown before the item label.
+ * @slot end - Content shown after the item label.
+ * @slot aside - Content shown at the far end of the row.
+ * @slot item - Child tree items.
+ *
+ * @csspart positioning-region - The container for item content and aside regions.
+ * @csspart content - The item content region.
+ * @csspart chevron - The expand/collapse indicator region.
+ * @csspart aside - The trailing aside region.
+ * @csspart items - The child items group region.
+ *
+ * @fires { ToggleEvent } toggle - Fired when expanded state toggles.
+ * @fires { Event } change - Fired when selected state changes.
  *
  */
 export declare class TreeItem extends BaseTreeItem {
@@ -11268,12 +11310,11 @@ export declare const TreeItemAppearance: {
 export declare type TreeItemAppearance = ValuesOf<typeof TreeItemAppearance>;
 
 /**
+ * The definition for the `<fluent-tree-item>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-tree-item\>
  */
-export declare const TreeItemDefinition: FASTElementDefinition<typeof TreeItem>;
+export declare const TreeItemDefinition: PartialFASTElementDefinition;
 
 export declare const TreeItemSize: {
     readonly small: "small";

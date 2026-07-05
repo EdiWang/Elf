@@ -1,9 +1,7 @@
-import { DropdownOption } from './option.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Option Element.
+ * The definition for the `<fluent-option>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-option>`
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof DropdownOption>;
+export declare const definition: PartialFASTElementDefinition;

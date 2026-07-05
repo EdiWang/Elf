@@ -1,12 +1,107 @@
 # Change Log - @fluentui/web-components
 
-This log was last generated on Thu, 28 May 2026 04:09:30 GMT and should not be manually modified.
+This log was last generated on Mon, 29 Jun 2026 22:17:55 GMT and should not be manually modified.
 
 <!-- Start content -->
 
+## [3.0.0](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0)
+
+Mon, 29 Jun 2026 22:17:55 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.31..@fluentui/web-components_v3.0.0)
+
+### Patches
+
+- Promote @fluentui/web-components to 3.0.0 stable release. ([PR #36356](https://github.com/microsoft/fluentui/pull/36356) by 7559015+janechu@users.noreply.github.com)
+
+## [3.0.0-rc.31](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.31)
+
+Mon, 29 Jun 2026 04:08:41 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.30..@fluentui/web-components_v3.0.0-rc.31)
+
+### Changes
+
+- refactor: migrate async definitions to fast-element v3 declarative API ([PR #36351](https://github.com/microsoft/fluentui/pull/36351) by 863023+radium-v@users.noreply.github.com)
+- fix: set focus on autofocus element when a dialog is open ([PR #36355](https://github.com/microsoft/fluentui/pull/36355) by machi@microsoft.com)
+- fix: update link style to latest treatment ([PR #36352](https://github.com/microsoft/fluentui/pull/36352) by 13071055+chrisdholt@users.noreply.github.com)
+
+## [3.0.0-rc.30](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.30)
+
+Thu, 25 Jun 2026 04:09:26 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.29..@fluentui/web-components_v3.0.0-rc.30)
+
+### Changes
+
+- fix: ensure toggle button text is visible in high contrast modes ([PR #36338](https://github.com/microsoft/fluentui/pull/36338) by 13071055+chrisdholt@users.noreply.github.com)
+- refactor: replace compose() with plain definition objects ([PR #36337](https://github.com/microsoft/fluentui/pull/36337) by 863023+radium-v@users.noreply.github.com)
+
+## [3.0.0-rc.29](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.29)
+
+Wed, 24 Jun 2026 04:08:03 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.28..@fluentui/web-components_v3.0.0-rc.29)
+
+### Changes
+
+- fix: ensure message bar color is visible in dark mode themes ([PR #36340](https://github.com/microsoft/fluentui/pull/36340) by 13071055+chrisdholt@users.noreply.github.com)
+- fix: ensure accordion item content is visible in dark mode' ([PR #36339](https://github.com/microsoft/fluentui/pull/36339) by 13071055+chrisdholt@users.noreply.github.com)
+
+## [3.0.0-rc.28](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.28)
+
+Fri, 19 Jun 2026 04:05:26 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.27..@fluentui/web-components_v3.0.0-rc.28)
+
+### Changes
+
+- fix anchor positioning for rtl ([PR #36321](https://github.com/microsoft/fluentui/pull/36321) by machi@microsoft.com)
+
+## [3.0.0-rc.27](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.27)
+
+Fri, 12 Jun 2026 04:07:42 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.26..@fluentui/web-components_v3.0.0-rc.27)
+
+### Changes
+
+- feat(web-components): generate SSR templates and stylesheets into src/ and copy into dist during compile ([PR #36259](https://github.com/microsoft/fluentui/pull/36259) by 863023+radium-v@users.noreply.github.com)
+- fix: make sure autofocus works on all focusable custom elements during initial page load ([PR #36296](https://github.com/microsoft/fluentui/pull/36296) by machi@microsoft.com)
+
+## [3.0.0-rc.26](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.26)
+
+Thu, 11 Jun 2026 04:07:32 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.25..@fluentui/web-components_v3.0.0-rc.26)
+
+### Changes
+
+- docs: update storybook and CEM docs" ([PR #36271](https://github.com/microsoft/fluentui/pull/36271) by rupertdavid@microsoft.com)
+
+## [3.0.0-rc.25](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.25)
+
+Wed, 10 Jun 2026 04:08:48 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.24..@fluentui/web-components_v3.0.0-rc.25)
+
+### Changes
+
+- avoid dialog from focusing on non-active tab upon showing ([PR #36278](https://github.com/microsoft/fluentui/pull/36278) by machi@microsoft.com)
+
+## [3.0.0-rc.24](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.24)
+
+Mon, 08 Jun 2026 04:10:19 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.23..@fluentui/web-components_v3.0.0-rc.24)
+
+### Changes
+
+- make anchor position target fixed position ([PR #36258](https://github.com/microsoft/fluentui/pull/36258) by machi@microsoft.com)
+
+## [3.0.0-rc.23](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.23)
+
+Wed, 03 Jun 2026 04:07:54 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.22..@fluentui/web-components_v3.0.0-rc.23)
+
+### Changes
+
+- add keyboard support for printable characters in Dropdown ([PR #36232](https://github.com/microsoft/fluentui/pull/36232) by machi@microsoft.com)
+
 ## [3.0.0-rc.22](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0-rc.22)
 
-Thu, 28 May 2026 04:09:30 GMT 
+Thu, 28 May 2026 04:09:42 GMT 
 [Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.21..@fluentui/web-components_v3.0.0-rc.22)
 
 ### Changes

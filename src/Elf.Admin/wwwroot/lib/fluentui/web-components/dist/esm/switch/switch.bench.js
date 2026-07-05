@@ -1,6 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
-import { definition } from './switch.definition.js';
-definition.define(FluentDesignSystem.registry);
+import './define.js';
 const itemRenderer = () => {
     const switchEl = document.createElement('fluent-switch');
     switchEl.appendChild(document.createTextNode('Switch'));

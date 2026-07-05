@@ -1,6 +1,8 @@
+import { declarativeTemplate } from '@microsoft/fast-element/declarative.js';
+import { FluentDesignSystem } from '../fluent-design-system.js';
 import { tagName } from './accordion.options.js';
 /**
- * The async definition configuration for the fluent-accordion element.
+ * The async definition configuration for the `<fluent-accordion>` element.
  *
  * @public
  * @remarks
@@ -9,6 +11,7 @@ import { tagName } from './accordion.options.js';
  */
 export const declarativeDefinition = {
     name: tagName,
-    templateOptions: 'defer-and-hydrate',
+    registry: FluentDesignSystem.registry,
+    template: declarativeTemplate(),
 };
 //# sourceMappingURL=accordion.definition-async.js.map

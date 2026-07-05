@@ -1,10 +1,12 @@
 import { __decorate } from "tslib";
-import { attr, FASTElement, Observable, observable } from '@microsoft/fast-element';
+import { attr, FASTElement, Observable, observable, Updates } from '@microsoft/fast-element';
 import { isRadio } from '../radio/radio.options.js';
 import { RadioGroupOrientation } from './radio-group.options.js';
 /**
  * A Base Radio Group Custom HTML Element.
  * Implements the {@link https://w3c.github.io/aria/#radiogroup | ARIA `radiogroup` role}.
+ *
+ * @fires { Event } change - Fires a custom 'change' event when the checked radio changes
  *
  * @public
  */
@@ -126,7 +128,9 @@ export class BaseRadioGroup extends FASTElement {
      * @param next - the current slotted radios
      */
     slottedRadiosChanged(prev, next) {
-        this.radios = [...this.querySelectorAll('*')].filter(x => isRadio(x));
+        Updates.enqueue(() => {
+            this.radios = [...this.querySelectorAll('*')].filter((x) => isRadio(x));
+        });
     }
     /**
      * A collection of child radios that are not disabled.

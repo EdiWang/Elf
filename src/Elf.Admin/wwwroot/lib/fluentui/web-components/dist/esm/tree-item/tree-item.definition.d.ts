@@ -1,8 +1,7 @@
-import { TreeItem } from './tree-item.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
+ * The definition for the `<fluent-tree-item>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-tree-item\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof TreeItem>;
+export declare const definition: PartialFASTElementDefinition;

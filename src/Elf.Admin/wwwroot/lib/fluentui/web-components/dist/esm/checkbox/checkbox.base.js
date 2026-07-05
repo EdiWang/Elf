@@ -1,8 +1,12 @@
 import { __decorate } from "tslib";
 import { attr, FASTElement, Observable, observable } from '@microsoft/fast-element';
 import { toggleState } from '../utils/element-internals.js';
+import { maybeSetAutoFocus } from '../utils/autofocus.js';
 /**
  * The base class for a component with a toggleable checked state.
+ *
+ * @fires { Event } change - Fires a custom 'change' event when the checked state changes
+ * @fires { Event } input - Fires a custom 'input' event when the checked state changes
  *
  * @public
  */
@@ -248,6 +252,7 @@ export class BaseCheckbox extends FASTElement {
         this.disabled = !!this.disabledAttribute;
         this.setAriaChecked();
         this.setValidity();
+        maybeSetAutoFocus(this);
     }
     /**
      * Updates the form value when a user changes the `checked` state.
@@ -363,9 +368,6 @@ export class BaseCheckbox extends FASTElement {
         this.checked = force;
     }
 }
-__decorate([
-    attr({ mode: 'boolean' })
-], BaseCheckbox.prototype, "autofocus", void 0);
 __decorate([
     observable
 ], BaseCheckbox.prototype, "disabled", void 0);

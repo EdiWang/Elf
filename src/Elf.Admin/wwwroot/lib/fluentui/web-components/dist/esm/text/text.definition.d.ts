@@ -1,10 +1,7 @@
-import { Text } from './text.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Text Element.
- *
+ * The definition for the `<fluent-text>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-text\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Text>;
+export declare const definition: PartialFASTElementDefinition;

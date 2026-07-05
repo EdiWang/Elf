@@ -8,6 +8,8 @@ import { BaseTextInput } from './text-input.base.js';
  * Based on BaseTextInput and includes style and layout specific attributes
  *
  * @tag fluent-text-input
+ * @fires { Event } change - Fired when the input value is committed via a change event.
+ * @fires { Event } select - Fires when the `select()` method is called.
  *
  * @public
  */

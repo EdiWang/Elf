@@ -1,7 +1,17 @@
 import { __decorate } from "tslib";
 import { attr, css, FASTElement, observable } from '@microsoft/fast-element';
 import { toggleState } from '../utils/element-internals.js';
+import { maybeSetAutoFocus } from '../utils/autofocus.js';
 import { isTreeItem } from './tree-item.options.js';
+/**
+ * Base class for Tree Item Custom HTML Element.
+ * Based largely on the {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li | `<li>`} element.
+ *
+ * @fires { ToggleEvent } toggle - Fires when the expanded state changes
+ * @fires { Event } change - Fires when the selected state changes
+ *
+ * @public
+ */
 export class BaseTreeItem extends FASTElement {
     /**
      * Calls the slot change handler when the `itemSlot` reference is updated
@@ -48,6 +58,7 @@ export class BaseTreeItem extends FASTElement {
         if (isTreeItem(this.parentElement)) {
             this.slot ||= 'item';
         }
+        maybeSetAutoFocus(this);
     }
     /**
      * Handles changes to the expanded attribute

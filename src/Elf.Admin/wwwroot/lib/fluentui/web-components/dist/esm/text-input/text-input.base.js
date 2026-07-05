@@ -1,5 +1,6 @@
 import { __decorate } from "tslib";
-import { attr, FASTElement, nullableNumberConverter, Observable, observable, Updates, } from '@microsoft/fast-element';
+import { attr, FASTElement, nullableNumberConverter, Observable, observable, Updates } from '@microsoft/fast-element';
+import { maybeSetAutoFocus } from '../utils/autofocus.js';
 import { ImplicitSubmissionBlockingTypes, TextInputType } from './text-input.options.js';
 /**
  * A Text Input Custom HTML Element.
@@ -11,6 +12,10 @@ import { ImplicitSubmissionBlockingTypes, TextInputType } from './text-input.opt
  * @csspart label - The internal `<label>` element
  * @csspart root - the root container for the internal control
  * @csspart control - The internal `<input>` control
+ *
+ * @fires { Event } change - Fires a custom 'change' event when the value changes and the input loses focus
+ * @fires { Event } select - Fires when the `select()` method is called.
+ *
  * @public
  */
 export class BaseTextInput extends FASTElement {
@@ -211,21 +216,9 @@ export class BaseTextInput extends FASTElement {
     }
     connectedCallback() {
         super.connectedCallback();
-        this.tabIndex = Number(this.getAttribute('tabindex') ?? 0) < 0 ? -1 : 0;
         this.setFormValue(this.value);
         this.setValidity();
-    }
-    /**
-     * Focuses the inner control when the component is focused.
-     *
-     * @param e - the event object
-     * @public
-     */
-    focusinHandler(e) {
-        if (e.target === this) {
-            this.control?.focus();
-        }
-        return true;
+        maybeSetAutoFocus(this);
     }
     /**
      * Resets the value to its initial value when the form is reset.
@@ -348,9 +341,6 @@ export class BaseTextInput extends FASTElement {
 __decorate([
     attr
 ], BaseTextInput.prototype, "autocomplete", void 0);
-__decorate([
-    attr({ mode: 'boolean' })
-], BaseTextInput.prototype, "autofocus", void 0);
 __decorate([
     attr({ attribute: 'current-value' })
 ], BaseTextInput.prototype, "currentValue", void 0);

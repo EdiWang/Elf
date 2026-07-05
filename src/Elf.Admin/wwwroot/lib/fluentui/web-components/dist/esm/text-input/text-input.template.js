@@ -7,10 +7,7 @@ import { endSlotTemplate, startSlotTemplate } from '../patterns/start-end.js';
  */
 export function textInputTemplate(options = {}) {
     return html `
-    <template
-      @focusin="${(x, c) => x.focusinHandler(c.event)}"
-      @keydown="${(x, c) => x.keydownHandler(c.event)}"
-    >
+    <template @keydown="${(x, c) => x.keydownHandler(c.event)}">
       <label part="label" for="control" class="label" ${ref('controlLabel')}>
         <slot ${slotted('defaultSlottedNodes')}></slot>
       </label>
@@ -22,7 +19,6 @@ export function textInputTemplate(options = {}) {
           id="control"
           @change="${(x, c) => x.changeHandler(c.event)}"
           @input="${(x, c) => x.inputHandler(c.event)}"
-          ?autofocus="${x => x.autofocus}"
           autocomplete="${x => x.autocomplete}"
           ?disabled="${x => x.disabled}"
           list="${x => x.list}"

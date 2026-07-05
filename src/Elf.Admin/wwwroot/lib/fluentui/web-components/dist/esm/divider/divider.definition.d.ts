@@ -1,9 +1,7 @@
-import { Divider } from './divider.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Divider Element
+ * The definition for the `<fluent-divider>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-divider\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Divider>;
+export declare const definition: PartialFASTElementDefinition;

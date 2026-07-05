@@ -1,4 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
 import { definition } from './rating-display.definition.js';
-definition.define(FluentDesignSystem.registry);
+import { RatingDisplay } from './rating-display.js';
+RatingDisplay.define(definition);
 //# sourceMappingURL=define.js.map

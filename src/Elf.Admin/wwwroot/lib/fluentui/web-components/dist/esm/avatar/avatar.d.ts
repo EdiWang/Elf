@@ -6,6 +6,8 @@ import { type AvatarActive, type AvatarAppearance, AvatarColor, AvatarNamedColor
  *
  * @tag fluent-avatar
  *
+ * @slot badge - Optional badge content displayed with the avatar.
+ *
  * @public
  */
 export declare class Avatar extends BaseAvatar {

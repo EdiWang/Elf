@@ -12,7 +12,6 @@ export const styles = css `
   ${display('inline-flex')}
 
   :host {
-    anchor-name: --dropdown-trigger;
     box-sizing: border-box;
     color: ${colorNeutralForeground1};
     cursor: pointer;
@@ -214,5 +213,6 @@ export const styles = css `
     :host(:disabled) :where(slot[name='indicator'] > *, ::slotted([slot='indicator'])) {
       color: GrayText;
     }
+  }
 `;
 //# sourceMappingURL=dropdown.styles.js.map

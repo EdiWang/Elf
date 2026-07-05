@@ -1,20 +1,19 @@
+import { FluentDesignSystem } from '../fluent-design-system.js';
 import { tagName } from './text-input.options.js';
-import { TextInput } from './text-input.js';
 import { styles } from './text-input.styles.js';
 import { template } from './text-input.template.js';
 /**
- * The Fluent TextInput Element definition.
+ * The definition for the `<fluent-text-input>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-text-input>`
  */
-export const definition = TextInput.compose({
+export const definition = {
     name: tagName,
-    template,
-    styles,
+    registry: FluentDesignSystem.registry,
     shadowOptions: {
         delegatesFocus: true,
     },
-});
+    styles,
+    template,
+};
 //# sourceMappingURL=text-input.definition.js.map

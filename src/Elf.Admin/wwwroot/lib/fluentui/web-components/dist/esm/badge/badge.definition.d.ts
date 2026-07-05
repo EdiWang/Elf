@@ -1,8 +1,7 @@
-import { Badge } from './badge.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
+ * The definition for the `<fluent-badge>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-badge\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Badge>;
+export declare const definition: PartialFASTElementDefinition;

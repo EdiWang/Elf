@@ -6,6 +6,7 @@ import { BaseProgressBar } from './progress-bar.base.js';
  * Based on BaseProgressBar and includes style and layout specific attributes
  *
  * @tag fluent-progress-bar
+ * @csspart indicator - The internal progress indicator element.
  *
  * @public
  */

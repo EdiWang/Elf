@@ -7,6 +7,7 @@ export const styles = css `
   :host {
     max-width: fit-content;
     contain: content;
+    color: ${colorNeutralForeground1};
   }
 
   .heading {
@@ -27,7 +28,7 @@ export const styles = css `
     background: ${colorTransparentBackground};
     border: none;
     box-sizing: border-box;
-    color: ${colorNeutralForeground1};
+    color: inherit;
     cursor: pointer;
     font: inherit;
     grid-column: auto / span 2;
@@ -137,6 +138,7 @@ export const styles = css `
 
   :host([marker-position='end']) ::slotted([slot='start']) {
     grid-column: 1 / span 1;
+    color: currentColor;
   }
 
   :host([marker-position='end']) :is(.default-marker-collapsed, .default-marker-expanded) {

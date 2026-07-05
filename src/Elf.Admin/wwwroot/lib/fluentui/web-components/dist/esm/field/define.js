@@ -1,4 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
 import { definition } from './field.definition.js';
-definition.define(FluentDesignSystem.registry);
+import { Field } from './field.js';
+Field.define(definition);
 //# sourceMappingURL=define.js.map

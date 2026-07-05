@@ -1,4 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
 import { definition } from './counter-badge.definition.js';
-definition.define(FluentDesignSystem.registry);
+import { CounterBadge } from './counter-badge.js';
+CounterBadge.define(definition);
 //# sourceMappingURL=define.js.map

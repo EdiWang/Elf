@@ -1,9 +1,7 @@
-import { TextInput } from './text-input.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent TextInput Element definition.
+ * The definition for the `<fluent-text-input>` element.
  *
  * @public
- * @remarks
- * HTML Element: `<fluent-text-input>`
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof TextInput>;
+export declare const definition: PartialFASTElementDefinition;

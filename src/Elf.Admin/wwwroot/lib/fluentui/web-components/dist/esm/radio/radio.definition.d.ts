@@ -1,10 +1,7 @@
-import { Radio } from './radio.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Radio Element.
- *
+ * The definition for the `<fluent-radio>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-radio\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Radio>;
+export declare const definition: PartialFASTElementDefinition;

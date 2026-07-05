@@ -1,6 +1,6 @@
 import { css } from '@microsoft/fast-element';
 import { display } from '../utils/display.js';
-import { colorBackgroundOverlay, colorNeutralBackground1, colorNeutralForeground1, colorTransparentStroke, curveAccelerateMid, curveDecelerateMid, curveLinear, durationGentle, fontFamilyBase, fontSizeBase300, fontWeightRegular, lineHeightBase300, shadow64, strokeWidthThin, } from '../theme/design-tokens.js';
+import { colorBackgroundOverlay, colorNeutralBackground1, colorNeutralForeground1, colorTransparentStroke, curveAccelerateMid, curveDecelerateMid, curveLinear, durationGentle, fontFamilyBase, fontSizeBase300, fontWeightRegular, lineHeightBase300, shadow64, spacingHorizontalXXL, strokeWidthThin, } from '../theme/design-tokens.js';
 /** Drawer styles
  * @public
  */
@@ -52,30 +52,29 @@ export const styles = css `
   }
 
   dialog {
-    box-sizing: border-box;
-    z-index: var(--drawer-elevation, 1000);
-    font-size: ${fontSizeBase300};
-    line-height: ${lineHeightBase300};
-    font-family: ${fontFamilyBase};
-    font-weight: ${fontWeightRegular};
-    color: ${colorNeutralForeground1};
-    max-width: var(--drawer-width, 592px);
-    max-height: 100vh;
-    height: 100%;
-    margin-inline-start: 0;
-    margin-inline-end: auto;
+    background: ${colorNeutralBackground1};
+    border-radius: 0;
+    border: ${strokeWidthThin} solid ${colorTransparentStroke};
     border-inline-end-color: ${colorTransparentStroke};
     border-inline-start-color: var(--drawer-separator, ${colorTransparentStroke});
-    outline: none;
-    top: 0;
-    bottom: 0;
-    width: var(--drawer-width, 592px);
-    border-radius: 0;
-    padding: 0;
-    max-width: var(--drawer-width, 592px);
     box-shadow: ${shadow64};
-    border: ${strokeWidthThin} solid ${colorTransparentStroke};
-    background: ${colorNeutralBackground1};
+    box-sizing: border-box;
+    color: ${colorNeutralForeground1};
+    font-family: ${fontFamilyBase};
+    font-size: ${fontSizeBase300};
+    font-weight: ${fontWeightRegular};
+    height: 100%;
+    line-height: ${lineHeightBase300};
+    margin-inline-end: auto;
+    margin-inline-start: 0;
+    max-height: 100vh;
+    max-width: calc(100vw - ${spacingHorizontalXXL});
+    outline: none;
+    padding: 0;
+    bottom: 0;
+    top: 0;
+    width: var(--drawer-width, 592px);
+    z-index: var(--drawer-elevation, 1000);
   }
 
   dialog::backdrop {

@@ -1,1 +1,1 @@
-{"version":3,"file":"define-async.js","sourceRoot":"","sources":["../../../src/option/define-async.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,qBAAqB,EAAE,MAAM,sBAAsB,CAAC;AAC7D,OAAO,EAAE,UAAU,EAAE,MAAM,8BAA8B,CAAC;AAC1D,OAAO,EAAE,cAAc,EAAE,MAAM,aAAa,CAAC;AAE7C,qBAAqB,CAAC,cAAc,CAAC,CAAC,WAAW,CAAC,UAAU,CAAC,CAAC"}
+{"version":3,"file":"define-async.js","sourceRoot":"","sources":["../../../src/option/define-async.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,qBAAqB,EAAE,MAAM,8BAA8B,CAAC;AACrE,OAAO,EAAE,cAAc,EAAE,MAAM,aAAa,CAAC;AAE7C,cAAc,CAAC,MAAM,CAAC,qBAAqB,CAAC,CAAC"}

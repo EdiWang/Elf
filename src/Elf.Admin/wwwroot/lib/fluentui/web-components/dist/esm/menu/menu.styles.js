@@ -15,18 +15,17 @@ export const styles = css `
     margin: 0;
     max-height: var(--menu-max-height, auto);
     position-anchor: --menu-trigger;
-    position-area: block-end span-inline-end;
-    position-try-fallbacks: flip-block;
-    position: absolute;
+    inset: unset;
+    inset-block-start: anchor(outside);
+    inset-inline-start: anchor(self-start);
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    position: fixed;
     z-index: 1;
   }
 
   :host([split]) ::slotted([popover]) {
-    position-area: block-end span-inline-start;
-  }
-
-  ::slotted([popover]:popover-open) {
-    inset: unset;
+    inset-inline-start: unset;
+    inset-inline-end: anchor(self-end);
   }
 
   ::slotted([popover]:not(:popover-open)) {

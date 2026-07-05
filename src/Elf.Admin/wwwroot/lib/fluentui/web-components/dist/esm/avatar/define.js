@@ -1,4 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
 import { definition } from './avatar.definition.js';
-definition.define(FluentDesignSystem.registry);
+import { Avatar } from './avatar.js';
+Avatar.define(definition);
 //# sourceMappingURL=define.js.map

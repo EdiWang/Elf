@@ -13,15 +13,6 @@ import { type ButtonFormTarget, ButtonType } from './button.options.js';
  */
 export declare class BaseButton extends FASTElement {
     /**
-     * Indicates the button should be focused when the page is loaded.
-     * @see The {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#autofocus | `autofocus`} attribute
-     *
-     * @public
-     * @remarks
-     * HTML Attribute: `autofocus`
-     */
-    autofocus: boolean;
-    /**
      * Default slotted content.
      *
      * @public

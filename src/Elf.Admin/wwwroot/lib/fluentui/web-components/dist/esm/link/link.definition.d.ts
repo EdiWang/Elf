@@ -1,7 +1,7 @@
-import { Link } from './link.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
+ * The definition for the `<fluent-link>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-link\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Link>;
+export declare const definition: PartialFASTElementDefinition;

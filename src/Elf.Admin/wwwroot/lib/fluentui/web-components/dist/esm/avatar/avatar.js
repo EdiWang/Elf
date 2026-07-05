@@ -9,6 +9,8 @@ import { AvatarColor, AvatarNamedColor, } from './avatar.options.js';
  *
  * @tag fluent-avatar
  *
+ * @slot badge - Optional badge content displayed with the avatar.
+ *
  * @public
  */
 export class Avatar extends BaseAvatar {
@@ -96,7 +98,7 @@ const getHashCode = (str) => {
     for (let len = str.length - 1; len >= 0; len--) {
         const ch = str.charCodeAt(len);
         const shift = len % 8;
-        hashCode ^= (ch << shift) + (ch >> (8 - shift)); // eslint-disable-line no-bitwise
+        hashCode ^= (ch << shift) + (ch >> (8 - shift));
     }
     return hashCode;
 };

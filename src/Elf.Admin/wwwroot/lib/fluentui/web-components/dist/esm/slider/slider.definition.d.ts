@@ -1,10 +1,7 @@
-import { Slider } from './slider.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Slider Element.
- *
+ * The definition for the `<fluent-slider>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-slider\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Slider>;
+export declare const definition: PartialFASTElementDefinition;

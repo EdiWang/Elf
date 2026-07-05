@@ -5,6 +5,8 @@ import { RadioGroupOrientation } from './radio-group.options.js';
  * A Base Radio Group Custom HTML Element.
  * Implements the {@link https://w3c.github.io/aria/#radiogroup | ARIA `radiogroup` role}.
  *
+ * @fires { Event } change - Fires a custom 'change' event when the checked radio changes
+ *
  * @public
  */
 export declare class BaseRadioGroup extends FASTElement {

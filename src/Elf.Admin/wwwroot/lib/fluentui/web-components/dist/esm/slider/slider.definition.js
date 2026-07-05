@@ -1,18 +1,16 @@
+import { FluentDesignSystem } from '../fluent-design-system.js';
 import { tagName } from './slider.options.js';
-import { Slider } from './slider.js';
 import { styles } from './slider.styles.js';
 import { template } from './slider.template.js';
 /**
- * The Fluent Slider Element.
- *
+ * The definition for the `<fluent-slider>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-slider\>
  */
-export const definition = Slider.compose({
+export const definition = {
     name: tagName,
-    template,
+    registry: FluentDesignSystem.registry,
     styles,
-});
+    template,
+};
 //# sourceMappingURL=slider.definition.js.map

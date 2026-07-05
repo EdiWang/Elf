@@ -1,6 +1,6 @@
-import { type PartialFASTElementDefinition } from '@microsoft/fast-element';
+import { type PartialFASTElementDefinition } from '@microsoft/fast-element/declarative.js';
 /**
- * The async definition configuration for the fluent-accordion element.
+ * The async definition configuration for the `<fluent-accordion>` element.
  *
  * @public
  * @remarks

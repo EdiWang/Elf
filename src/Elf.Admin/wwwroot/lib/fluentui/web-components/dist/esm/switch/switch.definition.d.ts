@@ -1,9 +1,7 @@
-import { Switch } from './switch.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Switch Element.
+ * The definition for the `<fluent-switch>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-switch\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Switch>;
+export declare const definition: PartialFASTElementDefinition;

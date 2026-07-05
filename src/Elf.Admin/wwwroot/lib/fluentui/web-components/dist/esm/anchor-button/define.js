@@ -1,4 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
 import { definition } from './anchor-button.definition.js';
-definition.define(FluentDesignSystem.registry);
+import { AnchorButton } from './anchor-button.js';
+AnchorButton.define(definition);
 //# sourceMappingURL=define.js.map

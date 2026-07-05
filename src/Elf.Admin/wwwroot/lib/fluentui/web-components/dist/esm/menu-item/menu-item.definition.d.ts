@@ -1,7 +1,7 @@
-import { MenuItem } from './menu-item.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
+ * The definition for the `<fluent-menu-item>` element.
+ *
  * @public
- * @remarks
- * HTML Element: <fluent-menu-item>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof MenuItem>;
+export declare const definition: PartialFASTElementDefinition;

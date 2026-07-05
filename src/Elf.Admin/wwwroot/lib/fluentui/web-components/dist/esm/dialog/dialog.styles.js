@@ -28,7 +28,6 @@ export const styles = css `
 
     :host([type='non-modal']) dialog {
       inset: 0;
-      position: fixed;
       z-index: 2;
       overflow: auto;
     }

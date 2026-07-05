@@ -10,6 +10,17 @@ import { ValidationFlags } from './field.options.js';
  */
 export class BaseField extends FASTElement {
     /**
+     * Gets the mutation observer for the slotted input, creating it if it doesn't exist.
+     *
+     * @internal
+     */
+    get slottedInputObserver() {
+        this._slottedInputObserver ??= new MutationObserver(() => {
+            this.setStates();
+        });
+        return this._slottedInputObserver;
+    }
+    /**
      * Updates attributes on the slotted label elements.
      *
      * @param prev - the previous list of slotted label elements
@@ -54,7 +65,7 @@ export class BaseField extends FASTElement {
         if (next) {
             this.setStates();
             this.setLabelProperties();
-            this.slottedInputObserver.observe(this.input, {
+            this.slottedInputObserver.observe(next, {
                 attributes: true,
                 attributeFilter: ['disabled', 'required', 'readonly'],
                 subtree: true,
@@ -103,9 +114,6 @@ export class BaseField extends FASTElement {
     connectedCallback() {
         super.connectedCallback();
         this.addEventListener('invalid', this.invalidHandler, { capture: true });
-        this.slottedInputObserver = new MutationObserver(() => {
-            this.setStates();
-        });
     }
     disconnectedCallback() {
         this.slottedInputObserver.disconnect();

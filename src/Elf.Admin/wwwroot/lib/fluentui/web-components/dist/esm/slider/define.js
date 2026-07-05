@@ -1,4 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
 import { definition } from './slider.definition.js';
-definition.define(FluentDesignSystem.registry);
+import { Slider } from './slider.js';
+Slider.define(definition);
 //# sourceMappingURL=define.js.map

@@ -5,6 +5,8 @@ import { attr, FASTElement } from '@microsoft/fast-element';
  *
  * @tag fluent-image
  *
+ * @slot - The default slot. Accepts any `<img>`, `<picture>`, `<video>`, or `<canvas>` element.
+ *
  * @public
  */
 export class Image extends FASTElement {

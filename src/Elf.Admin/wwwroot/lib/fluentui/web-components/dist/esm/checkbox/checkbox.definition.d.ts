@@ -1,9 +1,7 @@
-import { Checkbox } from './checkbox.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
- * The Fluent Checkbox Element
+ * The definition for the `<fluent-checkbox>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-checkbox\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof Checkbox>;
+export declare const definition: PartialFASTElementDefinition;

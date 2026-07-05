@@ -1,7 +1,7 @@
-import { CompoundButton } from './compound-button.js';
+import type { PartialFASTElementDefinition } from '@microsoft/fast-element';
 /**
+ * The definition for the `<fluent-compound-button>` element.
+ *
  * @public
- * @remarks
- * HTML Element: \<fluent-comopund-button\>
  */
-export declare const definition: import("@microsoft/fast-element").FASTElementDefinition<typeof CompoundButton>;
+export declare const definition: PartialFASTElementDefinition;

@@ -1,4 +1,4 @@
-import { FluentDesignSystem } from '../fluent-design-system.js';
 import { definition } from './menu-button.definition.js';
-definition.define(FluentDesignSystem.registry);
+import { MenuButton } from './menu-button.js';
+MenuButton.define(definition);
 //# sourceMappingURL=define.js.map

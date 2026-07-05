@@ -1,17 +1,16 @@
+import { FluentDesignSystem } from '../fluent-design-system.js';
 import { tagName } from './divider.options.js';
-import { Divider } from './divider.js';
-import { template } from './divider.template.js';
 import { styles } from './divider.styles.js';
+import { template } from './divider.template.js';
 /**
- * The Fluent Divider Element
+ * The definition for the `<fluent-divider>` element.
  *
  * @public
- * @remarks
- * HTML Element: \<fluent-divider\>
  */
-export const definition = Divider.compose({
+export const definition = {
     name: tagName,
-    template,
+    registry: FluentDesignSystem.registry,
     styles,
-});
+    template,
+};
 //# sourceMappingURL=divider.definition.js.map

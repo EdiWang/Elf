@@ -2,6 +2,7 @@ import { __decorate } from "tslib";
 import { attr, css, FASTElement } from '@microsoft/fast-element';
 import { StartEnd } from '../patterns/start-end.js';
 import { applyMixins } from '../utils/apply-mixins.js';
+import { maybeSetAutoFocus } from '../utils/autofocus.js';
 /**
  * Tab extends the FASTTab and is a child of the TabList
  *
@@ -34,6 +35,7 @@ export class Tab extends FASTElement {
       }
     `;
         this.$fastController.addStyles(this.styles);
+        maybeSetAutoFocus(this);
     }
     setDisabledSideEffect(disabled) {
         if (disabled) {
