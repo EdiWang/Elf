@@ -13,6 +13,7 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="10.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="10.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
 	</ItemGroup>
 
 	<ItemGroup>

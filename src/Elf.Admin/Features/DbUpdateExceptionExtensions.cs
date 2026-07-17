@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Elf.Admin.Features;
 
@@ -12,6 +13,12 @@ internal static class DbUpdateExceptionExtensions
         {
             if (currentException is SqlException sqlException &&
                 sqlException.Errors.Cast<SqlError>().Any(error => error.Number is 2601 or 2627))
+            {
+                return true;
+            }
+
+            if (currentException is PostgresException postgresException &&
+                postgresException.SqlState == PostgresErrorCodes.UniqueViolation)
             {
                 return true;
             }

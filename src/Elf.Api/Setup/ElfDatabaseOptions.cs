@@ -1,10 +1,6 @@
-namespace Elf.Api.Setup;
+using Elf.Data;
 
-public enum ElfDatabaseProvider
-{
-    SqlServer,
-    PostgreSql
-}
+namespace Elf.Api.Setup;
 
 public sealed record ElfDatabaseOptions(ElfDatabaseProvider Provider)
 {
