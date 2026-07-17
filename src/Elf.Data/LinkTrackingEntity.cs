@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.ComponentModel.DataAnnotations;
 
-namespace Elf.Admin.Data;
+namespace Elf.Data;
 
 public class LinkTrackingEntity
 {
@@ -42,6 +42,9 @@ internal class LinkTrackingEntityConfiguration : IEntityTypeConfiguration<LinkTr
     public void Configure(EntityTypeBuilder<LinkTrackingEntity> builder)
     {
         builder.Property(e => e.Id).ValueGeneratedNever();
+        builder.Property(e => e.IpAddress).HasMaxLength(64).IsUnicode(false);
+        builder.Property(e => e.IPASN).HasMaxLength(16).IsUnicode(false);
+        builder.Property(e => e.IPOrg).HasMaxLength(64).IsUnicode(false);
         builder.Property(e => e.RequestTimeUtc).HasColumnType("datetime");
 
         builder.HasIndex(e => new { e.LinkId, e.RequestTimeUtc });

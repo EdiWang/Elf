@@ -1,4 +1,5 @@
-using Dapper;
+using Elf.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -11,7 +12,7 @@ public interface IDatabaseSchemaRunner
 }
 
 public partial class DatabaseSchemaRunner(
-    IDbConnection dbConnection,
+    ElfDbContext dbContext,
     ILogger<DatabaseSchemaRunner> logger) : IDatabaseSchemaRunner
 {
     public async Task<bool> ExecuteSchemaScriptAsync(CancellationToken cancellationToken = default)
@@ -41,15 +42,33 @@ public partial class DatabaseSchemaRunner(
 
             logger.LogInformation("Executing schema script to create database tables...");
 
-            // Split the script by 'GO' statements and execute each batch
             var batches = SplitScriptIntoBatches(sqlScript);
+            var connection = dbContext.Database.GetDbConnection();
+            var closeConnection = connection.State != ConnectionState.Open;
 
-            foreach (var batch in batches)
+            if (closeConnection)
             {
-                var trimmedBatch = batch.Trim();
-                if (!string.IsNullOrWhiteSpace(trimmedBatch))
+                await connection.OpenAsync(cancellationToken);
+            }
+
+            try
+            {
+                foreach (var batch in batches)
                 {
-                    await dbConnection.ExecuteAsync(trimmedBatch);
+                    var trimmedBatch = batch.Trim();
+                    if (!string.IsNullOrWhiteSpace(trimmedBatch))
+                    {
+                        using var command = connection.CreateCommand();
+                        command.CommandText = trimmedBatch;
+                        await command.ExecuteNonQueryAsync(cancellationToken);
+                    }
+                }
+            }
+            finally
+            {
+                if (closeConnection)
+                {
+                    await connection.CloseAsync();
                 }
             }
 

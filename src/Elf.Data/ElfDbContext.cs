@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
-namespace Elf.Admin.Data;
+namespace Elf.Data;
 
 public class ElfDbContext : DbContext
 {
@@ -21,11 +21,14 @@ public class ElfDbContext : DbContext
 
     public virtual DbSet<LinkTrackingEntity> LinkTracking { get; set; }
 
+    public virtual DbSet<ElfConfigurationEntity> ElfConfiguration { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new LinkEntityConfiguration());
         modelBuilder.ApplyConfiguration(new TagEntityConfiguration());
         modelBuilder.ApplyConfiguration(new LinkTrackingEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new ElfConfigurationEntityConfiguration());
 
         modelBuilder
             .Entity<LinkEntity>()

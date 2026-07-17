@@ -1,4 +1,4 @@
-﻿namespace Elf.Admin.Data;
+namespace Elf.Data;
 
 public class LinkTagEntity
 {

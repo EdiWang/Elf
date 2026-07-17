@@ -1,4 +1,5 @@
-﻿using Dapper;
+using Elf.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace Elf.Api.Setup;
@@ -10,7 +11,7 @@ public interface IStartUpInitializer
 
 public class StartUpInitializer(
     ILogger<StartUpInitializer> logger,
-    IDbConnection dbConnection,
+    ElfDbContext dbContext,
     IDatabaseSchemaRunner schemaRunner
     ) : IStartUpInitializer
 {
@@ -24,12 +25,15 @@ public class StartUpInitializer(
 
         try
         {
-            // Step 1: Try to connect to the database
             logger.LogInformation("Testing database connection...");
 
             try
             {
-                await dbConnection.ExecuteScalarAsync<int>("SELECT 1", cancellationToken);
+                if (!await dbContext.Database.CanConnectAsync(cancellationToken))
+                {
+                    throw new InvalidOperationException("Database connection failed");
+                }
+
                 logger.LogInformation("Database connection successful");
             }
             catch (Exception ex)
@@ -38,7 +42,6 @@ public class StartUpInitializer(
                 throw new InvalidOperationException("Database connection failed", ex);
             }
 
-            // Step 2: Check if database has been initialized
             logger.LogInformation("Checking database initialization status...");
 
             var existingTables = await GetExistingTablesAsync(cancellationToken);
@@ -46,7 +49,6 @@ public class StartUpInitializer(
 
             if (missingTables.Count == 0)
             {
-                // All tables exist - database is initialized
                 logger.LogInformation("Database is already initialized with all required tables");
                 stopwatch.Stop();
                 logger.LogInformation("Application initialization completed successfully in {ElapsedMs}ms",
@@ -56,7 +58,6 @@ public class StartUpInitializer(
 
             if (existingTables.Count == 0)
             {
-                // No tables exist - execute schema script
                 logger.LogInformation("Database has no tables. Executing schema script...");
 
                 var schemaResult = await schemaRunner.ExecuteSchemaScriptAsync(cancellationToken);
@@ -73,7 +74,6 @@ public class StartUpInitializer(
                 return InitStartUpResult.Success;
             }
 
-            // Some tables exist but not all - this is an inconsistent state
             logger.LogError("Database is in an inconsistent state. Missing tables: {MissingTables}",
                 string.Join(", ", missingTables));
             throw new InvalidOperationException(
@@ -95,14 +95,43 @@ public class StartUpInitializer(
 
     private async Task<List<string>> GetExistingTablesAsync(CancellationToken cancellationToken)
     {
-        const string sql = @"
-            SELECT TABLE_NAME 
-            FROM INFORMATION_SCHEMA.TABLES 
-            WHERE TABLE_TYPE = 'BASE TABLE' 
-            AND TABLE_NAME IN @RequiredTables";
+        var tableNames = string.Join(", ", RequiredTables.Select(tableName => $"'{tableName.Replace("'", "''")}'"));
+        var sql = $"""
+            SELECT TABLE_NAME
+            FROM INFORMATION_SCHEMA.TABLES
+            WHERE TABLE_TYPE = 'BASE TABLE'
+            AND TABLE_NAME IN ({tableNames})
+            """;
 
-        var tables = await dbConnection.QueryAsync<string>(sql, new { RequiredTables });
-        return tables.ToList();
+        var connection = dbContext.Database.GetDbConnection();
+        var closeConnection = connection.State != ConnectionState.Open;
+
+        if (closeConnection)
+        {
+            await connection.OpenAsync(cancellationToken);
+        }
+
+        try
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            var tables = new List<string>();
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                tables.Add(reader.GetString(0));
+            }
+
+            return tables;
+        }
+        finally
+        {
+            if (closeConnection)
+            {
+                await connection.CloseAsync();
+            }
+        }
     }
 }
 

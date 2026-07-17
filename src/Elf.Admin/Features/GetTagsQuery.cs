@@ -1,4 +1,4 @@
-﻿using Elf.Admin.Data;
+using Elf.Data;
 using LiteBus.Queries.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
