@@ -70,7 +70,7 @@ flowchart TD
 
 > You need to install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest&WT.mc_id=AZ-MVP-5002809) and login to Azure first.
 
-The [deployment script](./deployment/main.bicep) will deploy both Forwarder API and Admin UI to Azure App Service using Linux + Docker. You need to provide a strong password for the SQL Server admin account.
+The [deployment script](./deployment/main.bicep) will deploy both Forwarder API and Admin UI to Azure App Service using Linux + Docker and Azure SQL Database. You need to provide a strong password for the SQL Server admin account.
 
 First, clone this repo and `cd` to `deployment` directory. Or you can just download the [deployment script](./deployment/main.bicep) to your machine. And run:
 
@@ -93,18 +93,61 @@ You may need to add authentication for the Admin UI, see "Setup Authentication" 
 
 #### Setup Database
 
-[Create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started?WT.mc_id=AZ-MVP-5002809) or a SQL Server 2019+ database on premises.
+Elf supports SQL Server and PostgreSQL.
+
+For SQL Server, [create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started?WT.mc_id=AZ-MVP-5002809) or a SQL Server 2019+ database on premises.
+
+For PostgreSQL, create an empty PostgreSQL database. For example:
+
+```bash
+docker run -d \
+  --name elf-postgres \
+  -e POSTGRES_USER=elf \
+  -e POSTGRES_PASSWORD="<Your PostgreSQL Password>" \
+  -e POSTGRES_DB=elf \
+  -p 5432:5432 \
+  postgres:latest
+```
+
+`Database__Provider` controls the database provider:
+
+- `SqlServer` (default)
+- `PostgreSql`
+
+Visit the Forwarder API URL for the first time to initialize an empty database schema before using Admin UI.
 
 #### Forwarder API
+
+SQL Server:
 
 ```bash
 docker run -d -p 80:8080 -e ConnectionStrings__ElfDatabase="<Your SQL Server Connection String>" --name elf-api ediwang/elf:latest
 ```
 
+PostgreSQL:
+
+```bash
+docker run -d -p 80:8080 \
+  -e Database__Provider="PostgreSql" \
+  -e ConnectionStrings__ElfDatabase="Host=<Your PostgreSQL Host>;Port=5432;Database=elf;Username=elf;Password=<Your PostgreSQL Password>" \
+  --name elf-api ediwang/elf:latest
+```
+
 #### Manually Deploy Admin UI
+
+SQL Server:
 
 ```bash
 docker run -d -p 80:8080 -e ConnectionStrings__ElfDatabase="<Your SQL Server Connection String>" --name elf-admin ediwang/elf-admin:latest
+```
+
+PostgreSQL:
+
+```bash
+docker run -d -p 80:8080 \
+  -e Database__Provider="PostgreSql" \
+  -e ConnectionStrings__ElfDatabase="Host=<Your PostgreSQL Host>;Port=5432;Database=elf;Username=elf;Password=<Your PostgreSQL Password>" \
+  --name elf-admin ediwang/elf-admin:latest
 ```
 
 If you deploy both `elf-api` and `elf-admin` on the same server, make sure to use different ports. You may [work 996](https://996.icu/) to figure out the correct network setup yourself. I am rich, I choose Azure!
