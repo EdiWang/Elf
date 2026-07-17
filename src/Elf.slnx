@@ -4,6 +4,7 @@
     <Project Path="Elf.Api/Elf.Api.csproj" />
   </Folder>
   <Folder Name="/Shared/">
+    <Project Path="Elf.Data/Elf.Data.csproj" />
     <Project Path="Elf.Shared/Elf.Shared.csproj" />
     <Project Path="Elf.TokenGenerator/Elf.TokenGenerator.csproj" />
   </Folder>

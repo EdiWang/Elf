@@ -1,20 +1,17 @@
-﻿using Dapper;
+using Elf.Data;
 using LiteBus.Queries.Abstractions;
-using System.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Elf.Api.Features;
 
 public record GetTokenByAkaNameQuery(string AkaName) : IQuery<string>;
 
-public class GetTokenByAkaNameQueryHandler(IDbConnection dbConnection) : IQueryHandler<GetTokenByAkaNameQuery, string>
+public class GetTokenByAkaNameQueryHandler(ElfDbContext dbContext) : IQueryHandler<GetTokenByAkaNameQuery, string>
 {
-    public async Task<string> HandleAsync(GetTokenByAkaNameQuery message, CancellationToken ct = default)
-    {
-        const string sql = @"
-            SELECT FwToken
-            FROM Link 
-            WHERE AkaName = @AkaName";
-
-        return await dbConnection.QueryFirstOrDefaultAsync<string>(sql, new { message.AkaName });
-    }
+    public Task<string> HandleAsync(GetTokenByAkaNameQuery message, CancellationToken ct = default) =>
+        dbContext.Link
+            .AsNoTracking()
+            .Where(link => link.AkaName == message.AkaName)
+            .Select(link => link.FwToken)
+            .FirstOrDefaultAsync(ct);
 }

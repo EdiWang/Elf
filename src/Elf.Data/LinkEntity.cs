@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Text.Json.Serialization;
 
-namespace Elf.Admin.Data;
+namespace Elf.Data;
 
 public class LinkEntity
 {
@@ -33,8 +33,8 @@ internal class LinkEntityConfiguration : IEntityTypeConfiguration<LinkEntity>
     public void Configure(EntityTypeBuilder<LinkEntity> builder)
     {
         builder.Property(e => e.OriginUrl).HasMaxLength(256);
-        builder.Property(e => e.FwToken).HasMaxLength(32);
-        builder.Property(e => e.AkaName).HasMaxLength(32);
+        builder.Property(e => e.FwToken).HasMaxLength(32).IsUnicode(false);
+        builder.Property(e => e.AkaName).HasMaxLength(32).IsUnicode(false);
         builder.Property(e => e.UpdateTimeUtc).HasColumnType("datetime");
 
         builder.HasIndex(e => e.FwToken).IsUnique().HasFilter("[FwToken] IS NOT NULL");

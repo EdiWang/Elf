@@ -2,15 +2,15 @@ using Edi.AspNetCore.Utils;
 using Elf.Api;
 using Elf.Api.Services;
 using Elf.Api.Setup;
+using Elf.Data;
 using Elf.Shared;
 using Elf.TokenGenerator;
 using LiteBus.Commands;
 using LiteBus.Extensions.Microsoft.DependencyInjection;
 using LiteBus.Queries;
-using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
 using Polly;
-using System.Data;
 using System.Globalization;
 using System.Net;
 using System.Threading.RateLimiting;
@@ -81,11 +81,10 @@ void ConfigureServices(IServiceCollection services)
                 client.Timeout = TimeSpan.FromSeconds(3);
             })
             .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(3, retryCount => TimeSpan.FromSeconds(Math.Pow(2, retryCount))));
-    services.AddScoped<IDbConnection>(provider =>
-    {
-        var connectionString = builder.Configuration.GetConnectionString("ElfDatabase");
-        return new SqlConnection(connectionString);
-    });
+
+    services.AddDbContext<ElfDbContext>(options => options
+        .UseSqlServer(builder.Configuration.GetConnectionString("ElfDatabase"))
+        .EnableDetailedErrors());
 }
 
 void ConfigureMiddleware()
