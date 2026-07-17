@@ -25,10 +25,12 @@ public class ElfDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new LinkEntityConfiguration());
+        var providerName = Database.ProviderName ?? string.Empty;
+
+        modelBuilder.ApplyConfiguration(new LinkEntityConfiguration(providerName));
         modelBuilder.ApplyConfiguration(new TagEntityConfiguration());
-        modelBuilder.ApplyConfiguration(new LinkTrackingEntityConfiguration());
-        modelBuilder.ApplyConfiguration(new ElfConfigurationEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new LinkTrackingEntityConfiguration(providerName));
+        modelBuilder.ApplyConfiguration(new ElfConfigurationEntityConfiguration(providerName));
 
         modelBuilder
             .Entity<LinkEntity>()

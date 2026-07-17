@@ -82,9 +82,26 @@ void ConfigureServices(IServiceCollection services)
             })
             .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(3, retryCount => TimeSpan.FromSeconds(Math.Pow(2, retryCount))));
 
-    services.AddDbContext<ElfDbContext>(options => options
-        .UseSqlServer(builder.Configuration.GetConnectionString("ElfDatabase"))
-        .EnableDetailedErrors());
+    var databaseProvider = GetDatabaseProvider(builder.Configuration);
+    services.AddSingleton(new ElfDatabaseOptions(databaseProvider));
+    services.AddDbContextPool<ElfDbContext>(options =>
+    {
+        var connectionString = builder.Configuration.GetConnectionString("ElfDatabase");
+
+        switch (databaseProvider)
+        {
+            case ElfDatabaseProvider.SqlServer:
+                options.UseSqlServer(connectionString);
+                break;
+            case ElfDatabaseProvider.PostgreSql:
+                options.UseNpgsql(connectionString);
+                break;
+            default:
+                throw new NotSupportedException($"Unsupported database provider: {databaseProvider}");
+        }
+
+        options.EnableDetailedErrors();
+    });
 }
 
 void ConfigureMiddleware()
@@ -192,4 +209,23 @@ static string GetIPv6Subnet(IPAddress ipv6Address)
 
     var subnetAddress = new IPAddress(subnetBytes);
     return $"{subnetAddress}/64";
+}
+
+static ElfDatabaseProvider GetDatabaseProvider(IConfiguration configuration)
+{
+    var configuredProvider = configuration["Database:Provider"];
+    if (string.IsNullOrWhiteSpace(configuredProvider))
+    {
+        return ElfDatabaseProvider.SqlServer;
+    }
+
+    if (string.Equals(configuredProvider, "Postgres", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(configuredProvider, "PostgreSQL", StringComparison.OrdinalIgnoreCase))
+    {
+        return ElfDatabaseProvider.PostgreSql;
+    }
+
+    return Enum.TryParse<ElfDatabaseProvider>(configuredProvider, ignoreCase: true, out var provider)
+        ? provider
+        : throw new InvalidOperationException($"Unsupported database provider: {configuredProvider}");
 }

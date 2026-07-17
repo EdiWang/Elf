@@ -76,9 +76,26 @@ public class Program
         services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
         services.AddScoped<ILinkVerifier, LinkVerifier>();
 
-        services.AddDbContext<ElfDbContext>(options => options.UseLazyLoadingProxies()
-            .UseSqlServer(configuration.GetConnectionString("ElfDatabase"))
-            .EnableDetailedErrors());
+        var databaseProvider = GetDatabaseProvider(configuration);
+        services.AddDbContext<ElfDbContext>(options =>
+        {
+            options.UseLazyLoadingProxies();
+
+            var connectionString = configuration.GetConnectionString("ElfDatabase");
+            switch (databaseProvider)
+            {
+                case ElfDatabaseProvider.SqlServer:
+                    options.UseSqlServer(connectionString);
+                    break;
+                case ElfDatabaseProvider.PostgreSql:
+                    options.UseNpgsql(connectionString);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported database provider: {databaseProvider}");
+            }
+
+            options.EnableDetailedErrors();
+        });
 
         // Add response compression with GZIP
         services.AddResponseCompression(options =>
@@ -119,5 +136,24 @@ public class Program
         });
 
         app.MapControllers();
+    }
+
+    private static ElfDatabaseProvider GetDatabaseProvider(IConfiguration configuration)
+    {
+        var configuredProvider = configuration["Database:Provider"];
+        if (string.IsNullOrWhiteSpace(configuredProvider))
+        {
+            return ElfDatabaseProvider.SqlServer;
+        }
+
+        if (string.Equals(configuredProvider, "Postgres", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(configuredProvider, "PostgreSQL", StringComparison.OrdinalIgnoreCase))
+        {
+            return ElfDatabaseProvider.PostgreSql;
+        }
+
+        return Enum.TryParse<ElfDatabaseProvider>(configuredProvider, ignoreCase: true, out var provider)
+            ? provider
+            : throw new InvalidOperationException($"Unsupported database provider: {configuredProvider}");
     }
 }

@@ -37,7 +37,7 @@ public class LinkTrackingEntity
     public virtual LinkEntity Link { get; set; }
 }
 
-internal class LinkTrackingEntityConfiguration : IEntityTypeConfiguration<LinkTrackingEntity>
+internal class LinkTrackingEntityConfiguration(string providerName) : IEntityTypeConfiguration<LinkTrackingEntity>
 {
     public void Configure(EntityTypeBuilder<LinkTrackingEntity> builder)
     {
@@ -45,7 +45,15 @@ internal class LinkTrackingEntityConfiguration : IEntityTypeConfiguration<LinkTr
         builder.Property(e => e.IpAddress).HasMaxLength(64).IsUnicode(false);
         builder.Property(e => e.IPASN).HasMaxLength(16).IsUnicode(false);
         builder.Property(e => e.IPOrg).HasMaxLength(64).IsUnicode(false);
-        builder.Property(e => e.RequestTimeUtc).HasColumnType("datetime");
+
+        if (EfProviderNames.IsSqlServer(providerName))
+        {
+            builder.Property(e => e.RequestTimeUtc).HasColumnType("datetime");
+        }
+        else if (EfProviderNames.IsPostgreSql(providerName))
+        {
+            builder.Property(e => e.RequestTimeUtc).HasColumnType("timestamp with time zone");
+        }
 
         builder.HasIndex(e => new { e.LinkId, e.RequestTimeUtc });
         builder.HasIndex(e => e.RequestTimeUtc);

@@ -15,12 +15,20 @@ public class ElfConfigurationEntity
     public DateTime? LastModifiedTimeUtc { get; set; }
 }
 
-internal class ElfConfigurationEntityConfiguration : IEntityTypeConfiguration<ElfConfigurationEntity>
+internal class ElfConfigurationEntityConfiguration(string providerName) : IEntityTypeConfiguration<ElfConfigurationEntity>
 {
     public void Configure(EntityTypeBuilder<ElfConfigurationEntity> builder)
     {
         builder.ToTable("ElfConfiguration");
         builder.Property(e => e.CfgKey).HasMaxLength(64).IsUnicode(false);
-        builder.Property(e => e.LastModifiedTimeUtc).HasColumnType("datetime");
+
+        if (EfProviderNames.IsSqlServer(providerName))
+        {
+            builder.Property(e => e.LastModifiedTimeUtc).HasColumnType("datetime");
+        }
+        else if (EfProviderNames.IsPostgreSql(providerName))
+        {
+            builder.Property(e => e.LastModifiedTimeUtc).HasColumnType("timestamp with time zone");
+        }
     }
 }

@@ -28,17 +28,32 @@ public class LinkEntity
     public virtual ICollection<TagEntity> Tags { get; set; }
 }
 
-internal class LinkEntityConfiguration : IEntityTypeConfiguration<LinkEntity>
+internal class LinkEntityConfiguration(string providerName) : IEntityTypeConfiguration<LinkEntity>
 {
     public void Configure(EntityTypeBuilder<LinkEntity> builder)
     {
         builder.Property(e => e.OriginUrl).HasMaxLength(256);
         builder.Property(e => e.FwToken).HasMaxLength(32).IsUnicode(false);
         builder.Property(e => e.AkaName).HasMaxLength(32).IsUnicode(false);
-        builder.Property(e => e.UpdateTimeUtc).HasColumnType("datetime");
 
-        builder.HasIndex(e => e.FwToken).IsUnique().HasFilter("[FwToken] IS NOT NULL");
-        builder.HasIndex(e => e.AkaName).IsUnique().HasFilter("[AkaName] IS NOT NULL");
+        if (EfProviderNames.IsSqlServer(providerName))
+        {
+            builder.Property(e => e.UpdateTimeUtc).HasColumnType("datetime");
+            builder.HasIndex(e => e.FwToken).IsUnique().HasFilter("[FwToken] IS NOT NULL");
+            builder.HasIndex(e => e.AkaName).IsUnique().HasFilter("[AkaName] IS NOT NULL");
+        }
+        else if (EfProviderNames.IsPostgreSql(providerName))
+        {
+            builder.Property(e => e.UpdateTimeUtc).HasColumnType("timestamp with time zone");
+            builder.HasIndex(e => e.FwToken).IsUnique().HasFilter("\"FwToken\" IS NOT NULL");
+            builder.HasIndex(e => e.AkaName).IsUnique().HasFilter("\"AkaName\" IS NOT NULL");
+        }
+        else
+        {
+            builder.HasIndex(e => e.FwToken).IsUnique();
+            builder.HasIndex(e => e.AkaName).IsUnique();
+        }
+
         builder.HasIndex(e => e.UpdateTimeUtc);
     }
 }
