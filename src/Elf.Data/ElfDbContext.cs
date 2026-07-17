@@ -25,7 +25,7 @@ public class ElfDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var providerName = Database.ProviderName;
+        var providerName = Database.ProviderName ?? string.Empty;
 
         modelBuilder.ApplyConfiguration(new LinkEntityConfiguration(providerName));
         modelBuilder.ApplyConfiguration(new TagEntityConfiguration());

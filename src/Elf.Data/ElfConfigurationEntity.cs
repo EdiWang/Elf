@@ -26,5 +26,9 @@ internal class ElfConfigurationEntityConfiguration(string providerName) : IEntit
         {
             builder.Property(e => e.LastModifiedTimeUtc).HasColumnType("datetime");
         }
+        else if (EfProviderNames.IsPostgreSql(providerName))
+        {
+            builder.Property(e => e.LastModifiedTimeUtc).HasColumnType("timestamp with time zone");
+        }
     }
 }

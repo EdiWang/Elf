@@ -44,6 +44,7 @@ internal class LinkEntityConfiguration(string providerName) : IEntityTypeConfigu
         }
         else if (EfProviderNames.IsPostgreSql(providerName))
         {
+            builder.Property(e => e.UpdateTimeUtc).HasColumnType("timestamp with time zone");
             builder.HasIndex(e => e.FwToken).IsUnique().HasFilter("\"FwToken\" IS NOT NULL");
             builder.HasIndex(e => e.AkaName).IsUnique().HasFilter("\"AkaName\" IS NOT NULL");
         }

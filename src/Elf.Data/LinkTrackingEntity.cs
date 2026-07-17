@@ -50,6 +50,10 @@ internal class LinkTrackingEntityConfiguration(string providerName) : IEntityTyp
         {
             builder.Property(e => e.RequestTimeUtc).HasColumnType("datetime");
         }
+        else if (EfProviderNames.IsPostgreSql(providerName))
+        {
+            builder.Property(e => e.RequestTimeUtc).HasColumnType("timestamp with time zone");
+        }
 
         builder.HasIndex(e => new { e.LinkId, e.RequestTimeUtc });
         builder.HasIndex(e => e.RequestTimeUtc);
