@@ -4,7 +4,8 @@ public static class WebApplicationExtensions
 {
     private static readonly Dictionary<InitStartUpResult, string> ErrorMessages = new()
     {
-        { InitStartUpResult.FailedCreateDatabase, "Database connection test failed, please check your connection string and firewall settings, then RESTART Elf manually." },
+        { InitStartUpResult.FailedDatabaseConnection, "Database connection test failed, please check your connection string and firewall settings, then RESTART Elf manually." },
+        { InitStartUpResult.FailedCreateDatabase, "Failed to create database schema, please check error log, then RESTART Elf manually." },
         { InitStartUpResult.FailedDatabaseMigration, "Error migrating database, please check error log, then RESTART Elf manually." }
     };
 

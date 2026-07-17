@@ -12,6 +12,7 @@ public interface IStartUpInitializer
 public class StartUpInitializer(
     ILogger<StartUpInitializer> logger,
     ElfDbContext dbContext,
+    ElfDatabaseOptions databaseOptions,
     IDatabaseSchemaRunner schemaRunner
     ) : IStartUpInitializer
 {
@@ -39,7 +40,7 @@ public class StartUpInitializer(
             catch (Exception ex)
             {
                 logger.LogError(ex, "Failed to connect to database");
-                throw new InvalidOperationException("Database connection failed", ex);
+                return InitStartUpResult.FailedDatabaseConnection;
             }
 
             logger.LogInformation("Checking database initialization status...");
@@ -96,11 +97,15 @@ public class StartUpInitializer(
     private async Task<List<string>> GetExistingTablesAsync(CancellationToken cancellationToken)
     {
         var tableNames = string.Join(", ", RequiredTables.Select(tableName => $"'{tableName.Replace("'", "''")}'"));
+        var schemaFilter = databaseOptions.Provider == ElfDatabaseProvider.PostgreSql
+            ? "AND TABLE_SCHEMA = 'public'"
+            : string.Empty;
         var sql = $"""
             SELECT TABLE_NAME
             FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_TYPE = 'BASE TABLE'
             AND TABLE_NAME IN ({tableNames})
+            {schemaFilter}
             """;
 
         var connection = dbContext.Database.GetDbConnection();
@@ -138,6 +143,7 @@ public class StartUpInitializer(
 public enum InitStartUpResult
 {
     Success = 0,
+    FailedDatabaseConnection,
     FailedCreateDatabase,
     FailedDatabaseMigration,
     FailedCancellation,

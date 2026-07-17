@@ -13,16 +13,17 @@ public interface IDatabaseSchemaRunner
 
 public partial class DatabaseSchemaRunner(
     ElfDbContext dbContext,
+    ElfDatabaseOptions databaseOptions,
     ILogger<DatabaseSchemaRunner> logger) : IDatabaseSchemaRunner
 {
     public async Task<bool> ExecuteSchemaScriptAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            logger.LogInformation("Reading embedded schema.sql script...");
+            logger.LogInformation("Reading embedded schema script for {Provider}...", databaseOptions.Provider);
 
             var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "Elf.Api.Setup.SQL.schema.sql";
+            var resourceName = databaseOptions.SchemaResourceName;
 
             await using var stream = assembly.GetManifestResourceStream(resourceName);
             if (stream == null)
