@@ -23,31 +23,31 @@ var tables = new[]
         "Link",
         """SELECT [Id], [OriginUrl], [FwToken], [Note], [IsEnabled], [UpdateTimeUtc], [AkaName], [TTL] FROM [dbo].[Link] ORDER BY [Id]""",
         """SELECT "Id", "OriginUrl", "FwToken", "Note", "IsEnabled", "UpdateTimeUtc", "AkaName", "TTL" FROM "Link" ORDER BY "Id" """,
-        """INSERT INTO "Link" ("Id", "OriginUrl", "FwToken", "Note", "IsEnabled", "UpdateTimeUtc", "AkaName", "TTL") VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)""",
+        """COPY "Link" ("Id", "OriginUrl", "FwToken", "Note", "IsEnabled", "UpdateTimeUtc", "AkaName", "TTL") FROM STDIN (FORMAT BINARY)""",
         [NpgsqlDbType.Integer, NpgsqlDbType.Varchar, NpgsqlDbType.Varchar, NpgsqlDbType.Text, NpgsqlDbType.Boolean, NpgsqlDbType.TimestampTz, NpgsqlDbType.Varchar, NpgsqlDbType.Integer]),
     new TableSpec(
         "Tag",
         """SELECT [Id], [Name] FROM [dbo].[Tag] ORDER BY [Id]""",
         """SELECT "Id", "Name" FROM "Tag" ORDER BY "Id" """,
-        """INSERT INTO "Tag" ("Id", "Name") VALUES (@p0, @p1)""",
+        """COPY "Tag" ("Id", "Name") FROM STDIN (FORMAT BINARY)""",
         [NpgsqlDbType.Integer, NpgsqlDbType.Varchar]),
     new TableSpec(
         "LinkTag",
         """SELECT [LinkId], [TagId] FROM [dbo].[LinkTag] ORDER BY [LinkId], [TagId]""",
         """SELECT "LinkId", "TagId" FROM "LinkTag" ORDER BY "LinkId", "TagId" """,
-        """INSERT INTO "LinkTag" ("LinkId", "TagId") VALUES (@p0, @p1)""",
+        """COPY "LinkTag" ("LinkId", "TagId") FROM STDIN (FORMAT BINARY)""",
         [NpgsqlDbType.Integer, NpgsqlDbType.Integer]),
     new TableSpec(
         "LinkTracking",
         """SELECT [Id], [LinkId], [UserAgent], [IpAddress], [RequestTimeUtc], [IPCountry], [IPRegion], [IPCity], [IPASN], [IPOrg] FROM [dbo].[LinkTracking] ORDER BY CONVERT(varchar(36), [Id])""",
         """SELECT "Id", "LinkId", "UserAgent", "IpAddress", "RequestTimeUtc", "IPCountry", "IPRegion", "IPCity", "IPASN", "IPOrg" FROM "LinkTracking" ORDER BY "Id"::text """,
-        """INSERT INTO "LinkTracking" ("Id", "LinkId", "UserAgent", "IpAddress", "RequestTimeUtc", "IPCountry", "IPRegion", "IPCity", "IPASN", "IPOrg") VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9)""",
+        """COPY "LinkTracking" ("Id", "LinkId", "UserAgent", "IpAddress", "RequestTimeUtc", "IPCountry", "IPRegion", "IPCity", "IPASN", "IPOrg") FROM STDIN (FORMAT BINARY)""",
         [NpgsqlDbType.Uuid, NpgsqlDbType.Integer, NpgsqlDbType.Varchar, NpgsqlDbType.Varchar, NpgsqlDbType.TimestampTz, NpgsqlDbType.Varchar, NpgsqlDbType.Varchar, NpgsqlDbType.Varchar, NpgsqlDbType.Varchar, NpgsqlDbType.Varchar]),
     new TableSpec(
         "ElfConfiguration",
         """SELECT [CfgKey], [CfgValue], [LastModifiedTimeUtc] FROM [dbo].[ElfConfiguration] ORDER BY [CfgKey]""",
         """SELECT "CfgKey", "CfgValue", "LastModifiedTimeUtc" FROM "ElfConfiguration" ORDER BY "CfgKey" """,
-        """INSERT INTO "ElfConfiguration" ("CfgKey", "CfgValue", "LastModifiedTimeUtc") VALUES (@p0, @p1, @p2)""",
+        """COPY "ElfConfiguration" ("CfgKey", "CfgValue", "LastModifiedTimeUtc") FROM STDIN (FORMAT BINARY)""",
         [NpgsqlDbType.Varchar, NpgsqlDbType.Text, NpgsqlDbType.TimestampTz])
 };
 
@@ -120,26 +120,29 @@ static async Task<long> CopyTableAsync(
 {
     await using var select = new SqlCommand(table.SourceQuery, source) { CommandTimeout = 120 };
     await using var reader = await select.ExecuteReaderAsync();
-    await using var insert = new NpgsqlCommand(table.InsertSql, target, transaction) { CommandTimeout = 120 };
+    await using var import = await target.BeginBinaryImportAsync(table.CopySql);
 
-    for (var i = 0; i < table.Types.Length; i++)
-    {
-        insert.Parameters.Add(new NpgsqlParameter($"p{i}", table.Types[i]));
-    }
-
-    await insert.PrepareAsync();
     long count = 0;
     while (await reader.ReadAsync())
     {
+        await import.StartRowAsync();
         for (var i = 0; i < reader.FieldCount; i++)
         {
-            insert.Parameters[i].Value = GetPortableValue(reader, i);
+            var value = GetPortableValue(reader, i);
+            if (value is DBNull)
+            {
+                await import.WriteNullAsync();
+            }
+            else
+            {
+                await import.WriteAsync(value, table.Types[i]);
+            }
         }
 
-        await insert.ExecuteNonQueryAsync();
         count++;
     }
 
+    await import.CompleteAsync();
     return count;
 }
 
@@ -211,5 +214,5 @@ internal sealed record TableSpec(
     string Name,
     string SourceQuery,
     string TargetQuery,
-    string InsertSql,
+    string CopySql,
     NpgsqlDbType[] Types);
