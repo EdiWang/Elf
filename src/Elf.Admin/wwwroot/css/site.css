@@ -565,6 +565,124 @@ main {
     height: 16px;
 }
 
+.auth-page {
+    min-height: 100vh;
+    background: #f5f5f5;
+}
+
+.auth-shell {
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
+    padding: 24px;
+}
+
+.auth-panel {
+    width: min(100%, 420px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+}
+
+.auth-panel-wide {
+    width: min(100%, 620px);
+}
+
+.auth-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.auth-header h1 {
+    margin: 0;
+    color: var(--text);
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.auth-header p {
+    margin: 4px 0 0;
+    color: var(--text-muted);
+}
+
+.auth-mark {
+    display: inline-grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 8px;
+    background: #edf5fd;
+    color: var(--accent);
+    font-size: 20px;
+}
+
+.auth-form {
+    display: grid;
+    gap: 14px;
+}
+
+.auth-form fluent-text-input {
+    width: 100%;
+}
+
+.auth-submit {
+    justify-self: stretch;
+}
+
+.auth-submit::part(control) {
+    width: 100%;
+}
+
+.auth-validation {
+    color: var(--danger);
+}
+
+.auth-validation ul {
+    margin: 0 0 0 18px;
+    padding: 0;
+}
+
+.auth-setup-grid {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 18px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.auth-qr-box {
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    background: var(--surface-subtle);
+    padding: 12px;
+}
+
+.auth-qr-box img {
+    width: 156px;
+    height: 156px;
+}
+
+.auth-setup-copy {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+.auth-setup-copy label {
+    font-weight: 600;
+}
+
+.auth-setup-key {
+    font-family: "Cascadia Code", Consolas, monospace;
+}
+
 .form-card,
 .chart-card,
 .tag-pill {
@@ -1093,5 +1211,23 @@ main {
     .pagination-actions,
     .button-row {
         flex-wrap: wrap;
+    }
+
+    .auth-shell {
+        padding: 16px;
+    }
+
+    .auth-panel,
+    .auth-panel-wide {
+        padding: 18px;
+    }
+
+    .auth-setup-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-qr-box {
+        justify-self: center;
+        width: 180px;
     }
 }

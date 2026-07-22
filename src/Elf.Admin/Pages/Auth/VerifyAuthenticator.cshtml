@@ -1,0 +1,52 @@
+@page "/auth/verify-authenticator"
+@model Elf.Admin.Pages.Auth.VerifyAuthenticatorModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Verify authenticator";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify authenticator - Elf Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="auth-page">
+    <main class="auth-shell" role="main">
+        <section class="auth-panel" aria-labelledby="verify-title">
+            <div class="auth-header">
+                <span class="auth-mark" aria-hidden="true"><i class="bi bi-shield-check"></i></span>
+                <div>
+                    <h1 id="verify-title">Verify authenticator</h1>
+                    <p>Enter the 6-digit code from your authenticator app.</p>
+                </div>
+            </div>
+
+            <form method="post" class="auth-form">
+                <div asp-validation-summary="All" class="auth-validation"></div>
+
+                <fluent-text-input id="AuthenticatorCode"
+                                   name="AuthenticatorCode"
+                                   type="text"
+                                   inputmode="numeric"
+                                   autocomplete="one-time-code"
+                                   pattern="[0-9]{6}"
+                                   minlength="6"
+                                   maxlength="6"
+                                   required>Authenticator code</fluent-text-input>
+
+                <fluent-button appearance="primary" type="submit" class="auth-submit">
+                    <i class="bi bi-check-lg" aria-hidden="true"></i>
+                    Verify
+                </fluent-button>
+            </form>
+        </section>
+    </main>
+
+    <script src="~/js/main.mjs" type="module" asp-append-version="true"></script>
+</body>
+</html>
