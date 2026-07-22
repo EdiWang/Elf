@@ -1,4 +1,5 @@
 using Edi.AspNetCore.Utils;
+using Elf.Admin.Auth;
 using Elf.Admin.Services;
 using Elf.Data;
 using Elf.Shared;
@@ -54,6 +55,7 @@ public class Program
 
         services.AddRazorPages();
         services.AddControllers();
+        services.AddElfAdminAuthentication(configuration);
         services.AddHealthChecks();
         services.AddOptions();
         services.Configure<LinkTrackingCleanupOptions>(configuration.GetSection("LinkTrackingCleanup"));
@@ -128,6 +130,9 @@ public class Program
         app.UseStaticFiles();
 
         app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         app.MapRazorPages();
 
         app.MapHealthChecks("/health", new()
