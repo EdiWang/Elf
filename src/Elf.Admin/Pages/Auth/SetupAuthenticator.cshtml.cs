@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using QRCoder;
 using System.ComponentModel.DataAnnotations;
@@ -11,6 +12,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Elf.Admin.Pages.Auth;
 
 [Authorize(AuthenticationSchemes = ElfAuthSchemes.LocalAccountSetup)]
+[EnableRateLimiting(ElfRateLimitPolicies.Auth)]
 public class SetupAuthenticatorModel(
     IOptions<AuthenticationSettings> authSettings,
     ILocalAccountStore localAccountStore,

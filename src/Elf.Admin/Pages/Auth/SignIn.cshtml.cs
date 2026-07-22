@@ -5,12 +5,14 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 
 namespace Elf.Admin.Pages.Auth;
 
 [AllowAnonymous]
+[EnableRateLimiting(ElfRateLimitPolicies.Auth)]
 public class SignInModel(
     IOptions<AuthenticationSettings> authSettings,
     ILocalAccountStore localAccountStore,

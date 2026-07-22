@@ -57,7 +57,12 @@ public static class ServiceCollectionExtensions
                     });
                 break;
             case AuthenticationProvider.External:
-                services.AddAuthentication();
+                services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+                    {
+                        options.AccessDeniedPath = "/auth/accessdenied";
+                        options.LoginPath = "/auth/signin";
+                    });
                 break;
             default:
                 throw new NotSupportedException($"Authentication provider '{authentication.Provider}' is not supported.");

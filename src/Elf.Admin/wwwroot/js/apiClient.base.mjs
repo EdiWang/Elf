@@ -25,6 +25,16 @@ function normalizeRequestOptions(paramsOrSuccessMessage = null, successMessage =
     };
 }
 
+function getAntiforgeryToken() {
+    return document.querySelector('#antiforgeryTokenHost input[name="__RequestVerificationToken"]')?.value
+        ?? document.querySelector('input[name="__RequestVerificationToken"]')?.value
+        ?? '';
+}
+
+function shouldSendAntiforgeryToken(method) {
+    return !['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method.toUpperCase());
+}
+
 // Helper function to handle API responses
 export async function handleResponse(response, successMessage = null) {
     if (response.ok) {
@@ -47,14 +57,20 @@ export async function handleResponse(response, successMessage = null) {
 
 // Helper function to make API requests
 export async function apiRequest(url, options = {}) {
-    const defaultOptions = {
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        }
+    const method = options.method ?? 'GET';
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers
     };
 
-    const response = await fetch(url, { ...defaultOptions, ...options });
+    if (shouldSendAntiforgeryToken(method) && !headers.RequestVerificationToken) {
+        const token = getAntiforgeryToken();
+        if (token) {
+            headers.RequestVerificationToken = token;
+        }
+    }
+
+    const response = await fetch(url, { ...options, headers });
     return response;
 }
 

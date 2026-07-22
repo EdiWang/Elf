@@ -7,10 +7,13 @@ using Elf.TokenGenerator;
 using LiteBus.Commands;
 using LiteBus.Extensions.Microsoft.DependencyInjection;
 using LiteBus.Queries;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
 using System.IO.Compression;
+using System.Threading.RateLimiting;
 
 namespace Elf.Admin;
 
@@ -54,8 +57,27 @@ public class Program
         });
 
         services.AddRazorPages();
-        services.AddControllers();
+        services.AddControllers(options =>
+        {
+            options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+        });
+        services.AddAntiforgery(options =>
+        {
+            options.HeaderName = "RequestVerificationToken";
+        });
         services.AddElfAdminAuthentication(configuration);
+        services.AddRateLimiter(options =>
+        {
+            options.AddPolicy(ElfRateLimitPolicies.Auth, httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    GetRateLimitPartitionKey(httpContext),
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 8,
+                        Window = TimeSpan.FromMinutes(5),
+                        QueueLimit = 0
+                    }));
+        });
         services.AddHealthChecks();
         services.AddOptions();
         services.Configure<LinkTrackingCleanupOptions>(configuration.GetSection("LinkTrackingCleanup"));
@@ -132,15 +154,33 @@ public class Program
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseRateLimiter();
 
-        app.MapRazorPages();
+        var razorPages = app.MapRazorPages();
+        var controllers = app.MapControllers();
+
+        if (UseInAppAuthorization(app.Configuration))
+        {
+            razorPages.RequireAuthorization();
+            controllers.RequireAuthorization();
+        }
 
         app.MapHealthChecks("/health", new()
         {
             ResponseWriter = PingEndpoint.WriteResponse
         });
+    }
 
-        app.MapControllers();
+    private static bool UseInAppAuthorization(IConfiguration configuration)
+    {
+        var provider = configuration.GetValue("Authentication:Provider", AuthenticationProvider.Local);
+        return provider != AuthenticationProvider.External;
+    }
+
+    private static string GetRateLimitPartitionKey(HttpContext httpContext)
+    {
+        var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString();
+        return string.IsNullOrWhiteSpace(ipAddress) ? "unknown" : ipAddress;
     }
 
     private static ElfDatabaseProvider GetDatabaseProvider(IConfiguration configuration)
