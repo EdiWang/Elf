@@ -16,6 +16,9 @@
     @await RenderSectionAsync("head", required: false)
 </head>
 <body>
+    <div class="d-none" id="antiforgeryTokenHost" aria-hidden="true">
+        @Html.AntiForgeryToken()
+    </div>
     <header class="navbar">
         <div class="navbar-left">
             <a class="navbar-brand" asp-area="" asp-page="/Index">Elf Admin</a>

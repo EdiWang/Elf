@@ -1,0 +1,62 @@
+@page "/auth/setup-authenticator"
+@model Elf.Admin.Pages.Auth.SetupAuthenticatorModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Set up authenticator";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Set up authenticator - Elf Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="auth-page">
+    <main class="auth-shell" role="main">
+        <section class="auth-panel auth-panel-wide" aria-labelledby="setup-title">
+            <div class="auth-header">
+                <span class="auth-mark" aria-hidden="true"><i class="bi bi-qr-code"></i></span>
+                <div>
+                    <h1 id="setup-title">Set up authenticator</h1>
+                    <p>Scan the QR code with an authenticator app, then enter the current code.</p>
+                </div>
+            </div>
+
+            <div class="auth-setup-grid">
+                <div class="auth-qr-box">
+                    <img src="@Model.QrCodeImageUri" alt="Authenticator QR code" />
+                </div>
+                <div class="auth-setup-copy">
+                    <label for="setup-key">Manual setup key</label>
+                    <input id="setup-key" class="elf-input auth-setup-key" value="@Model.SetupKey" readonly />
+                </div>
+            </div>
+
+            <form method="post" class="auth-form">
+                <div asp-validation-summary="All" class="auth-validation"></div>
+
+                <fluent-text-input id="AuthenticatorCode"
+                                   name="AuthenticatorCode"
+                                   type="text"
+                                   inputmode="numeric"
+                                   autocomplete="one-time-code"
+                                   pattern="[0-9]{6}"
+                                   minlength="6"
+                                   maxlength="6"
+                                   required>Authenticator code</fluent-text-input>
+
+                <fluent-button appearance="primary" type="submit" class="auth-submit">
+                    <i class="bi bi-check-lg" aria-hidden="true"></i>
+                    Verify
+                </fluent-button>
+            </form>
+        </section>
+    </main>
+
+    <script src="~/js/main.mjs" type="module" asp-append-version="true"></script>
+</body>
+</html>

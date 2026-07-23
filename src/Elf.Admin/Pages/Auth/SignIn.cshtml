@@ -1,0 +1,59 @@
+@page "/auth/signin"
+@model Elf.Admin.Pages.Auth.SignInModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Sign in";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in - Elf Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="auth-page">
+    <main class="auth-shell" role="main">
+        <section class="auth-panel" aria-labelledby="signin-title">
+            <div class="auth-header">
+                <span class="auth-mark" aria-hidden="true"><i class="bi bi-shield-lock"></i></span>
+                <div>
+                    <h1 id="signin-title">Elf Admin</h1>
+                    <p>Sign in with your local administrator account.</p>
+                </div>
+            </div>
+
+            <form method="post" class="auth-form">
+                <div asp-validation-summary="All" class="auth-validation"></div>
+
+                <fluent-text-input id="Username"
+                                   name="Username"
+                                   type="text"
+                                   required
+                                   minlength="2"
+                                   maxlength="64"
+                                   autocomplete="username"
+                                   value="@Model.Username">Username</fluent-text-input>
+
+                <fluent-text-input id="Password"
+                                   name="Password"
+                                   type="password"
+                                   required
+                                   minlength="8"
+                                   maxlength="128"
+                                   autocomplete="current-password">Password</fluent-text-input>
+
+                <fluent-button appearance="primary" type="submit" class="auth-submit">
+                    <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
+                    Sign in
+                </fluent-button>
+            </form>
+        </section>
+    </main>
+
+    <script src="~/js/main.mjs" type="module" asp-append-version="true"></script>
+</body>
+</html>

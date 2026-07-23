@@ -1,0 +1,134 @@
+@page "/Account"
+@model Elf.Admin.Pages.AccountModel
+@{
+    ViewData["Title"] = "Account";
+    ViewBag.XData = "accountManager";
+}
+
+<section class="account-sections" aria-labelledby="account-title">
+    <div class="account-header">
+        <div>
+            <h1 id="account-title">Account</h1>
+            <p class="muted-text">Manage the local administrator account and authenticator setup.</p>
+        </div>
+    </div>
+
+    <fluent-card class="account-card form-card">
+        <div class="account-card-header">
+            <div>
+                <h2>Credentials</h2>
+                <p class="muted-text">Update the sign-in name or password after confirming the current password.</p>
+            </div>
+        </div>
+
+        <form x-ref="credentialsForm" class="account-form" id="credentialsForm">
+            <div class="form-grid two-even">
+                <div class="form-field">
+                    <fluent-text-input x-ref="username"
+                                       id="username"
+                                       name="username"
+                                       type="text"
+                                       minlength="2"
+                                       maxlength="64"
+                                       autocomplete="username"
+                                       required>Username</fluent-text-input>
+                    <div class="invalid-feedback" x-text="validation.username"></div>
+                </div>
+                <div class="form-field">
+                    <fluent-text-input x-ref="currentPassword"
+                                       id="currentPassword"
+                                       name="currentPassword"
+                                       type="password"
+                                       minlength="8"
+                                       maxlength="128"
+                                       autocomplete="current-password"
+                                       required>Current password</fluent-text-input>
+                    <div class="invalid-feedback" x-text="validation.currentPassword"></div>
+                </div>
+            </div>
+
+            <div class="form-grid two-even">
+                <div class="form-field">
+                    <fluent-text-input x-ref="newPassword"
+                                       id="newPassword"
+                                       name="newPassword"
+                                       type="password"
+                                       minlength="8"
+                                       maxlength="128"
+                                       autocomplete="new-password">New password</fluent-text-input>
+                    <div class="form-help">Leave blank to keep the current password.</div>
+                    <div class="invalid-feedback" x-text="validation.newPassword"></div>
+                </div>
+                <div class="form-field">
+                    <fluent-text-input x-ref="confirmPassword"
+                                       id="confirmPassword"
+                                       name="confirmPassword"
+                                       type="password"
+                                       minlength="8"
+                                       maxlength="128"
+                                       autocomplete="new-password">Confirm new password</fluent-text-input>
+                    <div class="invalid-feedback" x-text="validation.confirmPassword"></div>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <fluent-button x-ref="saveCredentialsButton" appearance="primary" type="submit">
+                    <span x-show="isSaving"><fluent-progress-ring class="inline-progress" aria-hidden="true"></fluent-progress-ring></span>
+                    <i x-show="!isSaving" class="bi bi-check-lg" aria-hidden="true"></i>
+                    <span x-text="isSaving ? 'Saving...' : 'Save'"></span>
+                </fluent-button>
+            </div>
+        </form>
+    </fluent-card>
+
+    <fluent-card class="account-card form-card">
+        <div class="account-card-header">
+            <div>
+                <h2>Authenticator</h2>
+                <p class="muted-text">Reset the TOTP secret when the authenticator device is lost or replaced.</p>
+            </div>
+            <fluent-badge appearance="accent" x-text="totpStatus"></fluent-badge>
+        </div>
+
+        <div class="account-authenticator-actions">
+            <p>Resetting the authenticator signs out the current session. The next successful password login must set up TOTP again.</p>
+            <fluent-button x-ref="showResetAuthenticatorButton" type="button" class="danger-action">
+                <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+                Reset authenticator
+            </fluent-button>
+        </div>
+    </fluent-card>
+</section>
+
+<fluent-dialog x-ref="resetAuthenticatorDialog" type="modal" aria-labelledby="resetAuthenticatorTitle">
+    <fluent-dialog-body>
+        <span slot="title" id="resetAuthenticatorTitle">Reset authenticator</span>
+        <p class="danger-text">
+            <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+            This signs you out and requires TOTP setup on the next login.
+        </p>
+        <form x-ref="resetAuthenticatorForm" id="resetAuthenticatorForm">
+            <div class="form-field">
+                <fluent-text-input x-ref="resetCurrentPassword"
+                                   id="resetCurrentPassword"
+                                   name="resetCurrentPassword"
+                                   type="password"
+                                   minlength="8"
+                                   maxlength="128"
+                                   autocomplete="current-password"
+                                   required>Current password</fluent-text-input>
+                <div class="invalid-feedback" x-text="validation.resetCurrentPassword"></div>
+            </div>
+        </form>
+        <fluent-button slot="action" appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
+        <fluent-button x-ref="confirmResetAuthenticatorButton" slot="action" appearance="primary" type="button" id="confirmResetAuthenticatorButton">
+            <span x-show="isResetting"><fluent-progress-ring class="inline-progress" aria-hidden="true"></fluent-progress-ring></span>
+            <i x-show="!isResetting" class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+            <span x-text="isResetting ? 'Resetting...' : 'Reset'"></span>
+        </fluent-button>
+    </fluent-dialog-body>
+</fluent-dialog>
+
+@section scripts {
+    <script type="module" src="~/js/account.mjs" asp-append-version="true"></script>
+}
