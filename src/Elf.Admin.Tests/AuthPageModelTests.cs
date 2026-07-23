@@ -1,5 +1,7 @@
 using Elf.Admin.Auth;
 using Elf.Admin.Controllers;
+using Elf.Admin.Models;
+using Elf.Admin.Pages;
 using Elf.Admin.Pages.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -236,6 +238,149 @@ public class AuthPageModelTests
             signOut.AuthenticationSchemes);
     }
 
+    [Fact]
+    public async Task AccountController_Get_WhenProviderIsLocal_ReturnsProfile()
+    {
+        var passwordService = new LocalAccountPasswordService();
+        var account = CreateAccount(passwordService, isTotpEnabled: true);
+        var controller = CreateAccountController(
+            new AuthenticationSettings { Provider = AuthenticationProvider.Local },
+            new FakeLocalAccountStore(account),
+            passwordService);
+
+        var result = await controller.Get(TestContext.Current.CancellationToken);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var profile = Assert.IsType<LocalAccountProfile>(ok.Value);
+        Assert.Equal("admin", profile.Username);
+        Assert.True(profile.IsTotpConfigured);
+    }
+
+    [Fact]
+    public async Task AccountController_Update_WhenCurrentPasswordIsValid_UpdatesAccountAndRefreshesCookie()
+    {
+        var passwordService = new LocalAccountPasswordService();
+        var account = CreateAccount(passwordService, isTotpEnabled: true);
+        var store = new FakeLocalAccountStore(account);
+        var authenticationService = CreateAuthenticationService();
+        var controller = CreateAccountController(
+            new AuthenticationSettings { Provider = AuthenticationProvider.Local },
+            store,
+            passwordService,
+            authenticationService);
+
+        var result = await controller.Update(new UpdateLocalAccountRequest
+        {
+            Username = "owner",
+            CurrentPassword = ValidPassword,
+            NewPassword = "NewPassword1!"
+        }, TestContext.Current.CancellationToken);
+
+        Assert.IsType<NoContentResult>(result);
+        Assert.Equal("owner", account.Username);
+        Assert.True(passwordService.VerifyPassword(account, "NewPassword1!"));
+        Assert.False(passwordService.VerifyPassword(account, ValidPassword));
+        Assert.Equal(1, store.SaveCount);
+        authenticationService.Verify(x => x.SignInAsync(
+            controller.HttpContext,
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            It.Is<ClaimsPrincipal>(p => p.Identity!.Name == "owner"),
+            It.IsAny<AuthenticationProperties>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task AccountController_Update_WhenCurrentPasswordIsInvalid_ReturnsBadRequest()
+    {
+        var passwordService = new LocalAccountPasswordService();
+        var account = CreateAccount(passwordService, isTotpEnabled: true);
+        var store = new FakeLocalAccountStore(account);
+        var authenticationService = CreateAuthenticationService();
+        var controller = CreateAccountController(
+            new AuthenticationSettings { Provider = AuthenticationProvider.Local },
+            store,
+            passwordService,
+            authenticationService);
+
+        var result = await controller.Update(new UpdateLocalAccountRequest
+        {
+            Username = "owner",
+            CurrentPassword = "WrongPassword1!",
+            NewPassword = "NewPassword1!"
+        }, TestContext.Current.CancellationToken);
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Current password is invalid.", badRequest.Value);
+        Assert.Equal("admin", account.Username);
+        Assert.Equal(0, store.SaveCount);
+        authenticationService.Verify(x => x.SignInAsync(
+            It.IsAny<HttpContext>(),
+            It.IsAny<string>(),
+            It.IsAny<ClaimsPrincipal>(),
+            It.IsAny<AuthenticationProperties>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task AccountController_ResetAuthenticator_WhenCurrentPasswordIsValid_ClearsTotpAndSignsOut()
+    {
+        var passwordService = new LocalAccountPasswordService();
+        var account = CreateAccount(passwordService, isTotpEnabled: true);
+        var store = new FakeLocalAccountStore(account);
+        var authenticationService = CreateAuthenticationService();
+        var controller = CreateAccountController(
+            new AuthenticationSettings { Provider = AuthenticationProvider.Local },
+            store,
+            passwordService,
+            authenticationService);
+
+        var result = await controller.ResetAuthenticator(new ResetLocalAuthenticatorRequest
+        {
+            CurrentPassword = ValidPassword
+        }, TestContext.Current.CancellationToken);
+
+        Assert.IsType<NoContentResult>(result);
+        Assert.False(account.IsTotpEnabled);
+        Assert.Empty(account.TotpSecret);
+        Assert.Equal(1, store.SaveCount);
+        authenticationService.Verify(x => x.SignOutAsync(
+            controller.HttpContext,
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            null), Times.Once);
+        authenticationService.Verify(x => x.SignOutAsync(
+            controller.HttpContext,
+            ElfAuthSchemes.LocalAccountSetup,
+            null), Times.Once);
+        authenticationService.Verify(x => x.SignOutAsync(
+            controller.HttpContext,
+            ElfAuthSchemes.LocalAccountTwoFactor,
+            null), Times.Once);
+    }
+
+    [Fact]
+    public void Account_OnGet_WhenProviderIsNotLocal_ReturnsNotFound()
+    {
+        var model = new AccountModel(Options.Create(new AuthenticationSettings
+        {
+            Provider = AuthenticationProvider.EntraID
+        }));
+
+        var result = model.OnGet();
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public void Account_OnGet_WhenProviderIsLocal_ReturnsPage()
+    {
+        var model = new AccountModel(Options.Create(new AuthenticationSettings
+        {
+            Provider = AuthenticationProvider.Local
+        }));
+
+        var result = model.OnGet();
+
+        Assert.IsType<PageResult>(result);
+    }
+
     private const string ValidPassword = "Password1!";
 
     private static LocalAccountSettings CreateAccount(
@@ -309,6 +454,26 @@ public class AuthPageModelTests
         Mock<IAuthenticationService> authenticationService = null)
     {
         var controller = new AuthController(Options.Create(authenticationSettings));
+        var httpContext = CreateHttpContext(authenticationService ?? CreateAuthenticationService());
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+
+        return controller;
+    }
+
+    private static AccountController CreateAccountController(
+        AuthenticationSettings authenticationSettings,
+        ILocalAccountStore localAccountStore,
+        ILocalAccountPasswordService passwordService,
+        Mock<IAuthenticationService> authenticationService = null)
+    {
+        var controller = new AccountController(
+            Options.Create(authenticationSettings),
+            localAccountStore,
+            passwordService,
+            NullLogger<AccountController>.Instance);
         var httpContext = CreateHttpContext(authenticationService ?? CreateAuthenticationService());
         controller.ControllerContext = new ControllerContext
         {

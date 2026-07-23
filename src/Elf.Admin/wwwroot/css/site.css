@@ -1002,6 +1002,54 @@ main {
     gap: 12px;
 }
 
+.account-sections {
+    display: grid;
+    gap: 16px;
+    max-width: 920px;
+}
+
+.account-header h1 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.account-header p {
+    margin: 0;
+}
+
+.account-card {
+    display: grid;
+    gap: 16px;
+}
+
+.account-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.account-card-header h2 {
+    margin: 0 0 4px;
+}
+
+.account-card-header p,
+.account-authenticator-actions p {
+    margin: 0;
+}
+
+.account-form {
+    display: grid;
+    gap: 16px;
+}
+
+.account-authenticator-actions {
+    display: grid;
+    gap: 12px;
+    justify-items: start;
+}
+
 .elf-disclosure {
     border: 1px solid var(--border-subtle);
     border-radius: 8px;
@@ -1155,6 +1203,11 @@ main {
 
     .chart-grid {
         grid-template-columns: 1fr;
+    }
+
+    .account-card-header {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }
 
