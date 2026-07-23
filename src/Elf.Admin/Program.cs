@@ -11,13 +11,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
+using System.Globalization;
 using System.IO.Compression;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading.RateLimiting;
 
 namespace Elf.Admin;
 
 public class Program
 {
+    private const int AuthRateLimitPermitLimit = 8;
+    private static readonly TimeSpan AuthRateLimitWindow = TimeSpan.FromMinutes(5);
+
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -67,13 +73,29 @@ public class Program
         services.AddElfAdminAuthentication(configuration);
         services.AddRateLimiter(options =>
         {
+            options.OnRejected = async (context, ct) =>
+            {
+                if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+                {
+                    context.HttpContext.Response.Headers.RetryAfter =
+                        ((int)retryAfter.TotalSeconds).ToString(NumberFormatInfo.InvariantInfo);
+                }
+
+                context.HttpContext.Response.Headers["x-ratelimit-limit"] = AuthRateLimitPermitLimit.ToString(NumberFormatInfo.InvariantInfo);
+                context.HttpContext.Response.Headers["x-ratelimit-remaining"] = "0";
+                context.HttpContext.Response.Headers["x-ratelimit-reset"] = DateTimeOffset.UtcNow.Add(AuthRateLimitWindow).ToUnixTimeSeconds().ToString(NumberFormatInfo.InvariantInfo);
+
+                context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                await context.HttpContext.Response.WriteAsync("Too Many Requests", ct);
+            };
+
             options.AddPolicy(ElfRateLimitPolicies.Auth, httpContext =>
                 RateLimitPartition.GetFixedWindowLimiter(
                     GetRateLimitPartitionKey(httpContext),
                     _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 8,
-                        Window = TimeSpan.FromMinutes(5),
+                        PermitLimit = AuthRateLimitPermitLimit,
+                        Window = AuthRateLimitWindow,
                         QueueLimit = 0
                     }));
         });
@@ -178,8 +200,29 @@ public class Program
 
     private static string GetRateLimitPartitionKey(HttpContext httpContext)
     {
-        var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString();
-        return string.IsNullOrWhiteSpace(ipAddress) ? "unknown" : ipAddress;
+        var ipAddress = httpContext.Connection.RemoteIpAddress;
+        if (ipAddress is null)
+        {
+            return "unknown";
+        }
+
+        return ipAddress.AddressFamily == AddressFamily.InterNetworkV6
+            ? GetIPv6Subnet(ipAddress)
+            : ipAddress.ToString();
+    }
+
+    private static string GetIPv6Subnet(IPAddress ipv6Address)
+    {
+        if (ipv6Address.AddressFamily != AddressFamily.InterNetworkV6)
+        {
+            throw new ArgumentException("Address must be IPv6", nameof(ipv6Address));
+        }
+
+        var addressBytes = ipv6Address.GetAddressBytes();
+        var subnetBytes = new byte[16];
+        Array.Copy(addressBytes, 0, subnetBytes, 0, 8);
+
+        return $"{new IPAddress(subnetBytes)}/64";
     }
 
     private static ElfDatabaseProvider GetDatabaseProvider(IConfiguration configuration)

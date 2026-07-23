@@ -1,5 +1,6 @@
 using Elf.Admin.Auth;
 using Elf.Admin.Pages.Auth;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
@@ -54,6 +55,28 @@ public class AdminAuthorizationIntegrationTests
         var response = await client.GetAsync("/auth/signin", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AuthSignIn_WhenAuthRateLimitIsExceeded_ReturnsTooManyRequests()
+    {
+        using var factory = CreateFactory(AuthenticationProvider.Local);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+
+        HttpResponseMessage response = null;
+        for (var i = 0; i < 9; i++)
+        {
+            response = await client.GetAsync("/auth/signin", TestContext.Current.CancellationToken);
+        }
+
+        Assert.NotNull(response);
+        Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
+        Assert.Equal("0", response.Headers.GetValues("x-ratelimit-remaining").Single());
+        Assert.Equal("8", response.Headers.GetValues("x-ratelimit-limit").Single());
+        Assert.Equal("Too Many Requests", await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -129,6 +152,22 @@ public class AdminAuthorizationIntegrationTests
         Assert.Equal(ElfRateLimitPolicies.Auth, attribute.PolicyName);
     }
 
+    [Fact]
+    public void AuthRateLimitPartitionKey_WhenIpv6AddressesShare64Subnet_ReturnsSameSubnetKey()
+    {
+        var firstContext = new DefaultHttpContext();
+        firstContext.Connection.RemoteIpAddress = IPAddress.Parse("2001:db8:abcd:1234::1");
+
+        var secondContext = new DefaultHttpContext();
+        secondContext.Connection.RemoteIpAddress = IPAddress.Parse("2001:db8:abcd:1234::ffff");
+
+        var firstKey = InvokeGetRateLimitPartitionKey(firstContext);
+        var secondKey = InvokeGetRateLimitPartitionKey(secondContext);
+
+        Assert.Equal("2001:db8:abcd:1234::/64", firstKey);
+        Assert.Equal(firstKey, secondKey);
+    }
+
     private static WebApplicationFactory<Program> CreateFactory(AuthenticationProvider provider) =>
         new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
@@ -142,4 +181,14 @@ public class AdminAuthorizationIntegrationTests
                     });
                 });
             });
+
+    private static string InvokeGetRateLimitPartitionKey(HttpContext httpContext)
+    {
+        var method = typeof(Program).GetMethod(
+            "GetRateLimitPartitionKey",
+            BindingFlags.NonPublic | BindingFlags.Static);
+
+        Assert.NotNull(method);
+        return Assert.IsType<string>(method.Invoke(null, [httpContext]));
+    }
 }
