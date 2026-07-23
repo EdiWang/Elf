@@ -20,6 +20,43 @@ param sqlDbName string = 'elfdb'
 @description('Service region')
 param location string = resourceGroup().location
 
+@allowed([
+  'Local'
+  'EntraID'
+  'External'
+])
+@description('Admin authentication provider. Local uses the built-in local account + TOTP flow. EntraID uses in-app OpenID Connect. External leaves Admin protection to a reverse proxy or hosting layer.')
+param adminAuthenticationProvider string = 'Local'
+
+@description('Admin local account bootstrap username. Used only when Authentication Provider is Local and no LocalAccount exists in ElfConfiguration.')
+param adminLocalBootstrapUsername string = 'admin'
+
+@secure()
+@description('Admin local account bootstrap password. Used only to initialize the first LocalAccount. Clear this app setting after first sign-in if desired.')
+param adminLocalBootstrapPassword string = ''
+
+@description('TOTP issuer name displayed by authenticator apps for the Admin local account.')
+param adminTotpIssuer string = 'Elf'
+
+@description('Microsoft Entra ID authority instance for Admin in-app OpenID Connect.')
+param adminEntraInstance string = environment().authentication.loginEndpoint
+
+@description('Microsoft Entra ID tenant ID for Admin in-app OpenID Connect. Use a tenant ID or common.')
+param adminEntraTenantId string = ''
+
+@description('Microsoft Entra ID application client ID for Admin in-app OpenID Connect.')
+param adminEntraClientId string = ''
+
+@secure()
+@description('Microsoft Entra ID application client secret for Admin in-app OpenID Connect.')
+param adminEntraClientSecret string = ''
+
+@description('Microsoft Entra ID redirect callback path for Admin in-app OpenID Connect.')
+param adminEntraCallbackPath string = '/signin-oidc'
+
+@description('Optional list of allowed Entra users for Admin. Values are matched against name, email, UPN, or preferred_username claims. Empty allows any authenticated tenant user.')
+param adminEntraAllowedUsers array = []
+
 // Create App Service Plan
 resource appServicePlan 'Microsoft.Web/serverfarms@2024-11-01' = {
   name: 'elf-plan-${uniqueString(resourceGroup().id)}'
@@ -137,6 +174,24 @@ resource allowAzureServices 'Microsoft.Sql/servers/firewallRules@2024-11-01-prev
 // Build database connection string
 var connectionString = 'Server=tcp:${sqlServer.name}.${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlDatabase.name};Persist Security Info=False;User ID=${sqlAdminUsername};Password=${sqlAdminPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
 
+var adminBaseAppSettings = {
+  ForwarderBaseUrl: 'https://${forwarderApp.properties.defaultHostName}'
+  Authentication__Provider: adminAuthenticationProvider
+  Authentication__Local__BootstrapUsername: adminLocalBootstrapUsername
+  Authentication__Local__BootstrapPassword: adminLocalBootstrapPassword
+  Authentication__Totp__Issuer: adminTotpIssuer
+  Authentication__EntraID__Instance: adminEntraInstance
+  Authentication__EntraID__TenantId: adminEntraTenantId
+  Authentication__EntraID__ClientId: adminEntraClientId
+  Authentication__EntraID__ClientSecret: adminEntraClientSecret
+  Authentication__EntraID__CallbackPath: adminEntraCallbackPath
+  Authentication__EntraID__AllowedUsers__0: length(adminEntraAllowedUsers) > 0 ? adminEntraAllowedUsers[0] : ''
+  Authentication__EntraID__AllowedUsers__1: length(adminEntraAllowedUsers) > 1 ? adminEntraAllowedUsers[1] : ''
+  Authentication__EntraID__AllowedUsers__2: length(adminEntraAllowedUsers) > 2 ? adminEntraAllowedUsers[2] : ''
+  Authentication__EntraID__AllowedUsers__3: length(adminEntraAllowedUsers) > 3 ? adminEntraAllowedUsers[3] : ''
+  Authentication__EntraID__AllowedUsers__4: length(adminEntraAllowedUsers) > 4 ? adminEntraAllowedUsers[4] : ''
+}
+
 // Add the connection string to the Web App's application settings
 resource forwarderConnectionString 'Microsoft.Web/sites/config@2022-09-01' = {
   parent: forwarderApp
@@ -160,12 +215,10 @@ resource adminConnectionString 'Microsoft.Web/sites/config@2022-09-01' = {
   }
 }
 
-resource adminForwarderBaseUrl 'Microsoft.Web/sites/config@2022-09-01' = {
+resource adminAppSettings 'Microsoft.Web/sites/config@2022-09-01' = {
   parent: adminApp
   name: 'appsettings'
-  properties: {
-    ForwarderBaseUrl: 'https://${forwarderApp.properties.defaultHostName}'
-  }
+  properties: adminBaseAppSettings
 }
 
 output forwarderAppUrl string = forwarderApp.properties.defaultHostName

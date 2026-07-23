@@ -82,12 +82,16 @@ az login
 az group create --name elf-rg --location westus2
 
 # Create resources with Bicep
-az deployment group create --resource-group elf-rg --template-file main.bicep --parameters sqlAdminPassword=<Your Strong Password>
+az deployment group create `
+  --resource-group elf-rg `
+  --template-file main.bicep `
+  --parameters sqlAdminPassword=<Your Strong SQL Password> `
+               adminLocalBootstrapPassword=<Your Strong Admin Password>
 ```
 
 Visit the Forwarder API URL for the first time to initialize the database. Then visit the Admin UI URL to create your first forward link. 
 
-You may need to add authentication for the Admin UI, see "Setup Authentication" section below.
+The Bicep template configures Admin to use built-in local account authentication by default. Sign in with `adminLocalBootstrapUsername` and `adminLocalBootstrapPassword`, then complete the TOTP setup flow.
 
 ### Manual Deployment by Docker
 
@@ -135,10 +139,18 @@ docker run -d -p 80:8080 \
 
 #### Manually Deploy Admin UI
 
+Admin uses built-in local account authentication by default. The first local account is initialized from `Authentication__Local__BootstrapUsername` and `Authentication__Local__BootstrapPassword` when no `LocalAccount` exists in `ElfConfiguration`.
+
 SQL Server:
 
 ```bash
-docker run -d -p 80:8080 -e ConnectionStrings__ElfDatabase="<Your SQL Server Connection String>" --name elf-admin ediwang/elf-admin:latest
+docker run -d -p 80:8080 \
+  -e ConnectionStrings__ElfDatabase="<Your SQL Server Connection String>" \
+  -e Authentication__Provider="Local" \
+  -e Authentication__Local__BootstrapUsername="admin" \
+  -e Authentication__Local__BootstrapPassword="<Your Strong Admin Password>" \
+  -e Authentication__Totp__Issuer="Elf" \
+  --name elf-admin ediwang/elf-admin:latest
 ```
 
 PostgreSQL:
@@ -147,6 +159,10 @@ PostgreSQL:
 docker run -d -p 80:8080 \
   -e Database__Provider="PostgreSql" \
   -e ConnectionStrings__ElfDatabase="Host=<Your PostgreSQL Host>;Port=5432;Database=elf;Username=elf;Password=<Your PostgreSQL Password>" \
+  -e Authentication__Provider="Local" \
+  -e Authentication__Local__BootstrapUsername="admin" \
+  -e Authentication__Local__BootstrapPassword="<Your Strong Admin Password>" \
+  -e Authentication__Totp__Issuer="Elf" \
   --name elf-admin ediwang/elf-admin:latest
 ```
 
@@ -156,20 +172,82 @@ If you deploy both `elf-api` and `elf-admin` on the same server, make sure to us
 
 Typically, `Elf.Api` should be publicly accessible, while `Elf.Admin` should be protected.
 
-`Elf.Admin` does not have authentication out of box. It is up to you to setup authentication in front of them. You can use, but not limited to:
+`Elf.Admin` supports three authentication providers through `Authentication__Provider`:
 
-- Azure App Service Authentication
-- Azure Container Apps Authentication
-- Azure API Management
+- `Local`: built-in single administrator account with password + TOTP. This is the default.
+- `EntraID`: built-in OpenID Connect login with Microsoft Entra ID. This does not require Azure App Service Authentication.
+- `External`: disables in-app Admin authorization so a reverse proxy or hosting layer can protect Admin.
 
-#### Example: Azure App Service Authentication
+#### Local Account
 
-1. Create an [Azure App Service](https://docs.microsoft.com/en-us/azure/app-service/quickstart-dotnetcore?WT.mc_id=AZ-MVP-5002809)
-2. Deploy `Elf.Admin` to the App Service
-3. Enable [App Service Authentication](https://docs.microsoft.com/en-us/azure/app-service/overview-authentication-authorization?WT.mc_id=AZ-MVP-5002809)
-4. Choose an identity provider, e.g. Microsoft
-5. Configure the authentication settings to allow only authenticated users
-6. Access the Elf Admin site, login with the identity provider
+Local account settings:
+
+```bash
+Authentication__Provider=Local
+Authentication__Local__BootstrapUsername=admin
+Authentication__Local__BootstrapPassword=<Your Strong Admin Password>
+Authentication__Totp__Issuer=Elf
+```
+
+The bootstrap password is used only when the `LocalAccount` record does not exist in `ElfConfiguration`. After the first successful sign-in and TOTP setup, the account is maintained from the Admin Account page. You can clear `Authentication__Local__BootstrapPassword` from the runtime environment after initialization.
+
+#### Microsoft Entra ID
+
+Create an app registration for Admin and add a Web redirect URI:
+
+```text
+https://<your-admin-host>/signin-oidc
+```
+
+Configure Admin with:
+
+```bash
+Authentication__Provider=EntraID
+Authentication__EntraID__Instance=https://login.microsoftonline.com/
+Authentication__EntraID__TenantId=<Tenant ID>
+Authentication__EntraID__ClientId=<Application client ID>
+Authentication__EntraID__ClientSecret=<Client secret>
+Authentication__EntraID__CallbackPath=/signin-oidc
+```
+
+Optionally restrict access to specific users. Values are matched against the name, email, UPN, or `preferred_username` claims:
+
+```bash
+Authentication__EntraID__AllowedUsers__0=admin1@example.com
+Authentication__EntraID__AllowedUsers__1=admin2@example.com
+```
+
+For Azure Bicep deployment, set:
+
+```powershell
+az deployment group create `
+  --resource-group elf-rg `
+  --template-file main.bicep `
+  --parameters sqlAdminPassword=<Your Strong SQL Password> `
+               adminAuthenticationProvider=EntraID `
+               adminEntraTenantId=<Tenant ID> `
+               adminEntraClientId=<Application client ID> `
+               adminEntraClientSecret=<Client secret> `
+               adminEntraAllowedUsers='["admin@example.com"]'
+```
+
+The Bicep template maps the first five `adminEntraAllowedUsers` entries to app settings. Add more users directly in App Service configuration with `Authentication__EntraID__AllowedUsers__5`, `Authentication__EntraID__AllowedUsers__6`, and so on if needed.
+
+#### External Proxy Mode
+
+Use `External` only when another layer already enforces Admin authentication, for example a reverse proxy, Cloudflare Access, Azure App Service Authentication, Azure Container Apps Authentication, or Azure API Management:
+
+```bash
+Authentication__Provider=External
+```
+
+In this mode, Elf does not challenge users or apply in-app authorization to Admin pages and API controllers. The external layer must deny anonymous traffic before it reaches `Elf.Admin`.
+
+#### TOTP Recovery
+
+If you still have a valid Admin session, use the Account page to reset the authenticator. This signs out the current session and forces TOTP setup on the next password login.
+
+If all authenticator access is lost, stop Admin, configure a temporary strong `Authentication__Local__BootstrapPassword`, and remove the `LocalAccount` row from `ElfConfiguration`. Restart Admin and sign in with the bootstrap account to create a new password hash and TOTP secret. Back up the database first; this resets only the local Admin account record.
 
 ### Optional: Azure Cache for Redis
 
