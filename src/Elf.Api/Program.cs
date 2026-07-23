@@ -7,6 +7,7 @@ using Elf.Shared;
 using Elf.TokenGenerator;
 using LiteBus.Commands;
 using LiteBus.Extensions.Microsoft.DependencyInjection;
+using LiteBus.Messaging;
 using LiteBus.Queries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
@@ -32,12 +33,14 @@ void ConfigureServices(IServiceCollection services)
 {
     builder.Services.AddLiteBus(liteBus =>
     {
-        liteBus.AddCommandModule(module =>
+        liteBus.AddMessaging(_ => { });
+
+        liteBus.AddCommands(module =>
         {
             module.RegisterFromAssembly(typeof(Program).Assembly);
         });
 
-        liteBus.AddQueryModule(module =>
+        liteBus.AddQueries(module =>
         {
             module.RegisterFromAssembly(typeof(Program).Assembly);
         });

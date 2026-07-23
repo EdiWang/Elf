@@ -6,6 +6,7 @@ using Elf.Shared;
 using Elf.TokenGenerator;
 using LiteBus.Commands;
 using LiteBus.Extensions.Microsoft.DependencyInjection;
+using LiteBus.Messaging;
 using LiteBus.Queries;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -50,12 +51,14 @@ public class Program
     {
         services.AddLiteBus(liteBus =>
         {
-            liteBus.AddCommandModule(module =>
+            liteBus.AddMessaging(_ => { });
+
+            liteBus.AddCommands(module =>
             {
                 module.RegisterFromAssembly(typeof(Program).Assembly);
             });
 
-            liteBus.AddQueryModule(module =>
+            liteBus.AddQueries(module =>
             {
                 module.RegisterFromAssembly(typeof(Program).Assembly);
             });

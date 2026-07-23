@@ -5,6 +5,7 @@ using Elf.Shared;
 using LiteBus.Commands;
 using LiteBus.Commands.Abstractions;
 using LiteBus.Extensions.Microsoft.DependencyInjection;
+using LiteBus.Messaging;
 using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -67,7 +68,9 @@ public class LinkControllerCacheInvalidationTests
         services.AddTransient<SetEnableCommandHandler>();
         services.AddLiteBus(liteBus =>
         {
-            liteBus.AddCommandModule(module =>
+            liteBus.AddMessaging(_ => { });
+
+            liteBus.AddCommands(module =>
             {
                 module.RegisterFromAssembly(typeof(SetEnableCommand).Assembly);
             });
