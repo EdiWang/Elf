@@ -1,12 +1,11 @@
 import { html, ref } from '@microsoft/fast-element';
 export const template = html `
   <template
-    tabindex="0"
     focusgroup="menu inline block nowrap nomemory"
     @click="${(x, c) => x.clickHandler(c.event)}"
     @keydown="${(x, c) => x.keydownHandler(c.event)}"
     @change="${(x, c) => x.changeHandler(c.event)}"
-    @toggle="${(x, c) => x.itemToggleHandler()}"
+    @toggle="${x => x.itemToggleHandler()}"
   >
     <slot ${ref('defaultSlot')} @slotchange="${x => x.handleDefaultSlotChange()}"></slot>
   </template>

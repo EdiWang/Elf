@@ -28501,38 +28501,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/accordion-item/accordion-item.definition-async.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "declarativeDefinition",
-          "type": {
-            "text": "PartialFASTElementDefinition"
-          },
-          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
-          "description": "The async definition configuration for the `<fluent-accordion-item>` element.",
-          "privacy": "public"
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "declarativeDefinition",
-          "declaration": {
-            "name": "declarativeDefinition",
-            "module": "src/accordion-item/accordion-item.definition-async.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/accordion-item/define-async.ts",
-      "declarations": [],
-      "exports": []
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/anchor-button/anchor-button.definition-async.ts",
       "declarations": [
         {
@@ -28560,6 +28528,38 @@
     {
       "kind": "javascript-module",
       "path": "src/anchor-button/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/accordion-item/accordion-item.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "declarativeDefinition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-accordion-item>` element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "declarativeDefinition",
+          "declaration": {
+            "name": "declarativeDefinition",
+            "module": "src/accordion-item/accordion-item.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/accordion-item/define-async.ts",
       "declarations": [],
       "exports": []
     },
@@ -28597,38 +28597,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/button/button.definition-async.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "declarativeDefinition",
-          "type": {
-            "text": "PartialFASTElementDefinition"
-          },
-          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
-          "description": "The async definition configuration for the `<fluent-button>` element.",
-          "privacy": "public"
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "declarativeDefinition",
-          "declaration": {
-            "name": "declarativeDefinition",
-            "module": "src/button/button.definition-async.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/button/define-async.ts",
-      "declarations": [],
-      "exports": []
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/avatar/avatar.definition-async.ts",
       "declarations": [
         {
@@ -28656,6 +28624,38 @@
     {
       "kind": "javascript-module",
       "path": "src/avatar/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/button/button.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "declarativeDefinition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-button>` element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "declarativeDefinition",
+          "declaration": {
+            "name": "declarativeDefinition",
+            "module": "src/button/button.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/button/define-async.ts",
       "declarations": [],
       "exports": []
     },

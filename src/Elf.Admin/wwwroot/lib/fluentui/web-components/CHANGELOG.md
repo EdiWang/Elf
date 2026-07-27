@@ -1,12 +1,30 @@
 # Change Log - @fluentui/web-components
 
-This log was last generated on Mon, 29 Jun 2026 22:17:55 GMT and should not be manually modified.
+This log was last generated on Mon, 13 Jul 2026 04:09:41 GMT and should not be manually modified.
 
 <!-- Start content -->
 
+## [3.0.2](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.2)
+
+Mon, 13 Jul 2026 04:09:41 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.1..@fluentui/web-components_v3.0.2)
+
+### Patches
+
+- fix focusgroup in tree when focusgroup is natively supported ([PR #36379](https://github.com/microsoft/fluentui/pull/36379) by machi@microsoft.com)
+
+## [3.0.1](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.1)
+
+Tue, 07 Jul 2026 04:09:49 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0..@fluentui/web-components_v3.0.1)
+
+### Patches
+
+- fix: selected indocator position in vertical tablist ([PR #36371](https://github.com/microsoft/fluentui/pull/36371) by machi@microsoft.com)
+
 ## [3.0.0](https://github.com/microsoft/fluentui/tree/@fluentui/web-components_v3.0.0)
 
-Mon, 29 Jun 2026 22:17:55 GMT 
+Mon, 29 Jun 2026 22:18:05 GMT 
 [Compare changes](https://github.com/microsoft/fluentui/compare/@fluentui/web-components_v3.0.0-rc.31..@fluentui/web-components_v3.0.0)
 
 ### Patches
