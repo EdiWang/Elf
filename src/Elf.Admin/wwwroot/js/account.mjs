@@ -10,6 +10,7 @@ Alpine.data('accountManager', () => ({
     },
     isSaving: false,
     isResetting: false,
+    credentialsDialog: null,
     resetDialog: null,
     validation: {
         username: '',
@@ -20,9 +21,16 @@ Alpine.data('accountManager', () => ({
     },
 
     async init() {
+        this.credentialsDialog = createDialogController(this.$refs.credentialsDialog);
         this.resetDialog = createDialogController(this.$refs.resetAuthenticatorDialog);
+        this.$refs.credentialsDialog?.addEventListener('shown.elf.dialog', () => this.focusCredentialsDialog());
+        this.$refs.credentialsDialog?.addEventListener('close', () => this.resetCredentialsDialogState());
         this.$refs.credentialsForm?.addEventListener('submit', event => {
             event.preventDefault();
+            void this.saveCredentials();
+        });
+        this.$refs.showCredentialsButton?.addEventListener('click', () => this.showCredentialsDialog());
+        this.$refs.saveCredentialsButton?.addEventListener('click', () => {
             void this.saveCredentials();
         });
         this.$refs.showResetAuthenticatorButton?.addEventListener('click', () => this.showResetDialog());
@@ -70,12 +78,21 @@ Alpine.data('accountManager', () => ({
             });
             this.profile.username = request.username;
             this.clearCredentialPasswords();
+            this.credentialsDialog.hide();
         } catch (err) {
             console.error('Error updating local account:', err);
         } finally {
             this.isSaving = false;
             this.syncSavingState();
         }
+    },
+
+    showCredentialsDialog() {
+        this.clearValidation(['username', 'currentPassword', 'newPassword', 'confirmPassword']);
+        this.syncProfileInputs();
+        this.clearCredentialPasswords();
+        this.syncValidationState();
+        this.credentialsDialog.show();
     },
 
     showResetDialog() {
@@ -114,6 +131,25 @@ Alpine.data('accountManager', () => ({
             newPassword: this.$refs.newPassword?.value ?? '',
             confirmPassword: this.$refs.confirmPassword?.value ?? ''
         };
+    },
+
+    resetCredentialsDialogState() {
+        if (this.isSaving) return;
+
+        this.clearValidation(['username', 'currentPassword', 'newPassword', 'confirmPassword']);
+        this.syncProfileInputs();
+        this.clearCredentialPasswords();
+        this.syncValidationState();
+    },
+
+    focusCredentialsDialog() {
+        this.$nextTick(() => {
+            this.$refs.username?.focus();
+
+            if (typeof this.$refs.username?.select === 'function') {
+                this.$refs.username.select();
+            }
+        });
     },
 
     validateCredentials(request) {

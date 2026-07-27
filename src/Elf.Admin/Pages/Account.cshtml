@@ -13,16 +13,79 @@
         </div>
     </div>
 
-    <fluent-card class="account-card form-card">
-        <div class="account-card-header">
-            <div>
-                <h2>Credentials</h2>
-                <p class="muted-text">Update the sign-in name or password after confirming the current password.</p>
+    <div class="account-overview-grid">
+        <fluent-card class="account-card account-profile-card">
+            <div class="account-card-header">
+                <div class="account-title-stack">
+                    <span class="account-card-icon" aria-hidden="true"><i class="bi bi-person-gear"></i></span>
+                    <div>
+                        <h2>Local administrator</h2>
+                        <p class="muted-text">Sign-in profile and password-protected changes.</p>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <form x-ref="credentialsForm" class="account-form" id="credentialsForm">
-            <div class="form-grid two-even">
+            <dl class="account-summary-list">
+                <div class="account-summary-row">
+                    <dt>Username</dt>
+                    <dd x-text="profile.username || 'Loading...'"></dd>
+                </div>
+                <div class="account-summary-row">
+                    <dt>Password</dt>
+                    <dd>Configured</dd>
+                </div>
+                <div class="account-summary-row">
+                    <dt>Authenticator</dt>
+                    <dd>
+                        <fluent-badge appearance="accent" x-text="totpStatus"></fluent-badge>
+                    </dd>
+                </div>
+            </dl>
+
+            <div class="button-row">
+                <fluent-button x-ref="showCredentialsButton" appearance="primary" type="button">
+                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                    Edit credentials
+                </fluent-button>
+            </div>
+        </fluent-card>
+
+        <fluent-card class="account-card account-authenticator-card">
+            <div class="account-card-header">
+                <div class="account-title-stack">
+                    <span class="account-card-icon" aria-hidden="true"><i class="bi bi-shield-lock"></i></span>
+                    <div>
+                        <h2>Authenticator</h2>
+                        <p class="muted-text">TOTP setup for the local administrator session.</p>
+                    </div>
+                </div>
+                <fluent-badge appearance="accent" x-text="totpStatus"></fluent-badge>
+            </div>
+
+            <div class="account-callout danger">
+                <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+                <div>
+                    <strong>Reset requires a fresh TOTP setup.</strong>
+                    <p>Resetting the authenticator signs out the current session. The next successful password login must set up TOTP again.</p>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <fluent-button x-ref="showResetAuthenticatorButton" type="button" class="danger-action">
+                    <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+                    Reset authenticator
+                </fluent-button>
+            </div>
+        </fluent-card>
+    </div>
+</section>
+
+<fluent-dialog x-ref="credentialsDialog" type="modal" aria-labelledby="credentialsDialogTitle">
+    <fluent-dialog-body>
+        <span slot="title" id="credentialsDialogTitle">Edit credentials</span>
+        <p class="dialog-intro">Change the sign-in name or set a new password after confirming the current password.</p>
+        <form x-ref="credentialsForm" class="account-form account-dialog-form" id="credentialsForm">
+            <div class="form-grid">
                 <div class="form-field">
                     <fluent-text-input x-ref="username"
                                        id="username"
@@ -47,7 +110,7 @@
                 </div>
             </div>
 
-            <div class="form-grid two-even">
+            <div class="form-grid">
                 <div class="form-field">
                     <fluent-text-input x-ref="newPassword"
                                        id="newPassword"
@@ -70,35 +133,15 @@
                     <div class="invalid-feedback" x-text="validation.confirmPassword"></div>
                 </div>
             </div>
-
-            <div class="button-row">
-                <fluent-button x-ref="saveCredentialsButton" appearance="primary" type="submit">
-                    <span x-show="isSaving"><fluent-progress-ring class="inline-progress" aria-hidden="true"></fluent-progress-ring></span>
-                    <i x-show="!isSaving" class="bi bi-check-lg" aria-hidden="true"></i>
-                    <span x-text="isSaving ? 'Saving...' : 'Save'"></span>
-                </fluent-button>
-            </div>
         </form>
-    </fluent-card>
-
-    <fluent-card class="account-card form-card">
-        <div class="account-card-header">
-            <div>
-                <h2>Authenticator</h2>
-                <p class="muted-text">Reset the TOTP secret when the authenticator device is lost or replaced.</p>
-            </div>
-            <fluent-badge appearance="accent" x-text="totpStatus"></fluent-badge>
-        </div>
-
-        <div class="account-authenticator-actions">
-            <p>Resetting the authenticator signs out the current session. The next successful password login must set up TOTP again.</p>
-            <fluent-button x-ref="showResetAuthenticatorButton" type="button" class="danger-action">
-                <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
-                Reset authenticator
-            </fluent-button>
-        </div>
-    </fluent-card>
-</section>
+        <fluent-button slot="action" appearance="secondary" type="button" data-dialog-close>Cancel</fluent-button>
+        <fluent-button x-ref="saveCredentialsButton" slot="action" appearance="primary" type="button">
+            <span x-show="isSaving"><fluent-progress-ring class="inline-progress" aria-hidden="true"></fluent-progress-ring></span>
+            <i x-show="!isSaving" class="bi bi-check-lg" aria-hidden="true"></i>
+            <span x-text="isSaving ? 'Saving...' : 'Save changes'"></span>
+        </fluent-button>
+    </fluent-dialog-body>
+</fluent-dialog>
 
 <fluent-dialog x-ref="resetAuthenticatorDialog" type="modal" aria-labelledby="resetAuthenticatorTitle">
     <fluent-dialog-body>

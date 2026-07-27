@@ -1004,8 +1004,8 @@ main {
 
 .account-sections {
     display: grid;
-    gap: 16px;
-    max-width: 920px;
+    gap: 18px;
+    max-width: 980px;
 }
 
 .account-header h1 {
@@ -1018,9 +1018,20 @@ main {
     margin: 0;
 }
 
+.account-overview-grid {
+    display: grid;
+    grid-template-columns: minmax(360px, 1fr) minmax(360px, 1fr);
+    gap: 16px;
+    align-items: start;
+    margin-left: -16px;
+}
+
 .account-card {
     display: grid;
     gap: 16px;
+    height: 100%;
+    border-radius: 6px;
+    padding: 18px;
 }
 
 .account-card-header {
@@ -1034,14 +1045,88 @@ main {
     margin: 0 0 4px;
 }
 
+.account-title-stack {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    min-width: 0;
+}
+
+.account-card-icon {
+    display: inline-grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid #cfe4fa;
+    border-radius: 6px;
+    background: #edf5fd;
+    color: var(--accent);
+    font-size: 17px;
+}
+
 .account-card-header p,
 .account-authenticator-actions p {
     margin: 0;
 }
 
+.account-summary-list {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.account-summary-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.45fr) minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+    min-height: 42px;
+    padding: 8px 12px;
+    background: var(--surface);
+}
+
+    .account-summary-row + .account-summary-row {
+        border-top: 1px solid var(--border-subtle);
+    }
+
+    .account-summary-row dt {
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .account-summary-row dd {
+        min-width: 0;
+        margin: 0;
+        overflow: hidden;
+        color: var(--text);
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
 .account-form {
     display: grid;
     gap: 16px;
+}
+
+.account-dialog-form {
+    width: min(560px, calc(100vw - 64px));
+    max-width: 100%;
+}
+
+.account-dialog-form fluent-text-input {
+    width: 100%;
+}
+
+.dialog-intro {
+    max-width: 620px;
+    margin: 0 0 16px;
+    color: var(--text-muted);
 }
 
 .account-authenticator-actions {
@@ -1049,6 +1134,33 @@ main {
     gap: 12px;
     justify-items: start;
 }
+
+.account-callout {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 12px;
+}
+
+    .account-callout.danger {
+        border-color: #eeacb2;
+        background: var(--danger-bg);
+        color: var(--danger);
+    }
+
+    .account-callout strong {
+        display: block;
+        margin-bottom: 3px;
+        color: inherit;
+    }
+
+    .account-callout p {
+        margin: 0;
+        color: var(--text);
+    }
 
 .elf-disclosure {
     border: 1px solid var(--border-subtle);
@@ -1205,6 +1317,10 @@ main {
         grid-template-columns: 1fr;
     }
 
+    .account-overview-grid {
+        grid-template-columns: 1fr;
+    }
+
     .account-card-header {
         align-items: flex-start;
         flex-direction: column;
@@ -1282,5 +1398,14 @@ main {
     .auth-qr-box {
         justify-self: center;
         width: 180px;
+    }
+
+    .account-dialog-form {
+        width: 100%;
+    }
+
+    .account-summary-row {
+        grid-template-columns: 1fr;
+        gap: 3px;
     }
 }
