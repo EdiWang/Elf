@@ -99,6 +99,14 @@ public class SignInModel(
             return Page();
         }
 
+        if (!_authenticationSettings.Totp.Enabled)
+        {
+            await HttpContext.SignOutAsync(ElfAuthSchemes.LocalAccountSetup);
+            await HttpContext.SignOutAsync(ElfAuthSchemes.LocalAccountTwoFactor);
+            await SignInAdminAsync(account.Username);
+            return RedirectToPage("/Index");
+        }
+
         if (!account.IsTotpConfigured)
         {
             await HttpContext.SignOutAsync(ElfAuthSchemes.LocalAccountTwoFactor);
@@ -128,5 +136,11 @@ public class SignInModel(
     {
         var principal = LocalAccountPrincipalFactory.Create(username, ElfAuthSchemes.LocalAccountTwoFactor);
         await HttpContext.SignInAsync(ElfAuthSchemes.LocalAccountTwoFactor, principal);
+    }
+
+    private async Task SignInAdminAsync(string username)
+    {
+        var principal = LocalAccountPrincipalFactory.Create(username, CookieAuthenticationDefaults.AuthenticationScheme);
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
     }
 }

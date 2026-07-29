@@ -20,6 +20,8 @@ public class LocalAuthenticationSettings
 
 public class TotpAuthenticationSettings
 {
+    public bool Enabled { get; set; } = true;
+
     public string Issuer { get; set; } = "Elf";
 }
 

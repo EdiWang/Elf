@@ -76,6 +76,52 @@ public class AuthPageModelTests
     }
 
     [Fact]
+    public async Task SignIn_OnPostAsync_WhenTotpIsDisabled_SignsInAdmin()
+    {
+        var passwordService = new LocalAccountPasswordService();
+        var account = CreateAccount(passwordService, isTotpEnabled: true);
+        var authenticationService = CreateAuthenticationService();
+        var model = CreateSignInModel(
+            new FakeLocalAccountStore(account),
+            passwordService,
+            authenticationService,
+            new AuthenticationSettings
+            {
+                Totp = new TotpAuthenticationSettings { Enabled = false }
+            });
+        model.Username = account.Username;
+        model.Password = ValidPassword;
+
+        var result = await model.OnPostAsync();
+
+        var redirect = Assert.IsType<RedirectToPageResult>(result);
+        Assert.Equal("/Index", redirect.PageName);
+        authenticationService.Verify(x => x.SignOutAsync(
+            model.HttpContext,
+            ElfAuthSchemes.LocalAccountSetup,
+            null), Times.Once);
+        authenticationService.Verify(x => x.SignOutAsync(
+            model.HttpContext,
+            ElfAuthSchemes.LocalAccountTwoFactor,
+            null), Times.Once);
+        authenticationService.Verify(x => x.SignInAsync(
+            model.HttpContext,
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            It.Is<ClaimsPrincipal>(p => p.Identity!.Name == account.Username),
+            It.IsAny<AuthenticationProperties>()), Times.Once);
+        authenticationService.Verify(x => x.SignInAsync(
+            model.HttpContext,
+            ElfAuthSchemes.LocalAccountSetup,
+            It.IsAny<ClaimsPrincipal>(),
+            It.IsAny<AuthenticationProperties>()), Times.Never);
+        authenticationService.Verify(x => x.SignInAsync(
+            model.HttpContext,
+            ElfAuthSchemes.LocalAccountTwoFactor,
+            It.IsAny<ClaimsPrincipal>(),
+            It.IsAny<AuthenticationProperties>()), Times.Never);
+    }
+
+    [Fact]
     public async Task SignIn_OnPostAsync_WhenPasswordIsInvalid_ReturnsPageWithoutSignIn()
     {
         var passwordService = new LocalAccountPasswordService();
