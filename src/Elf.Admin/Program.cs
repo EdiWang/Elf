@@ -30,7 +30,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         ConfigureLogging(builder);
-        ConfigureServices(builder.Services, builder.Configuration);
+        ConfigureServices(builder.Services, builder.Configuration, builder.Environment);
 
         var app = builder.Build();
 
@@ -47,7 +47,7 @@ public class Program
         }
     }
 
-    private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+    private static void ConfigureServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
         services.AddLiteBus(liteBus =>
         {
@@ -142,7 +142,10 @@ public class Program
                     throw new NotSupportedException($"Unsupported database provider: {databaseProvider}");
             }
 
-            options.EnableDetailedErrors();
+            if (environment.IsDevelopment())
+            {
+                options.EnableDetailedErrors();
+            }
         });
 
         // Add response compression with GZIP

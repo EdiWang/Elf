@@ -64,6 +64,39 @@ public class LinkVerifierTests
         Assert.Equal(LinkVerifyResult.InvalidLocal, result);
     }
 
+    [Theory]
+    [InlineData("http://localhost")]
+    [InlineData("https://localhost.")]
+    [InlineData("https://admin.localhost/path")]
+    [InlineData("http://127.0.0.1")]
+    [InlineData("http://0.0.0.0")]
+    [InlineData("http://10.0.0.1")]
+    [InlineData("http://100.64.0.1")]
+    [InlineData("http://169.254.1.1")]
+    [InlineData("http://172.16.0.1")]
+    [InlineData("http://172.31.255.255")]
+    [InlineData("http://192.168.1.1")]
+    [InlineData("http://198.18.0.1")]
+    [InlineData("http://224.0.0.1")]
+    [InlineData("http://[::1]/")]
+    [InlineData("http://[::]/")]
+    [InlineData("http://[fe80::1]/")]
+    [InlineData("http://[fc00::1]/")]
+    [InlineData("http://[fd12:3456::1]/")]
+    [InlineData("http://[ff02::1]/")]
+    [InlineData("http://[::ffff:10.0.0.1]/")]
+    public void Verify_LocalOrPrivateTarget_ReturnsInvalidLocal(string url)
+    {
+        // Arrange
+        _mockUrlHelper.Setup(x => x.IsLocalUrl(url)).Returns(false);
+
+        // Act
+        var result = _linkVerifier.Verify(url, _mockUrlHelper.Object, _mockHttpRequest.Object);
+
+        // Assert
+        Assert.Equal(LinkVerifyResult.InvalidLocal, result);
+    }
+
     [Fact]
     public void Verify_SelfReferenceToForwardEndpoint_ReturnsInvalidSelfReference()
     {
@@ -104,6 +137,7 @@ public class LinkVerifierTests
     [InlineData("https://google.com")]
     [InlineData("http://github.com/user/repo")]
     [InlineData("https://api.example.com/endpoint")]
+    [InlineData("https://8.8.8.8/dns-query")]
     public void Verify_ValidExternalUrl_ReturnsValid(string url)
     {
         // Arrange

@@ -6,11 +6,11 @@ namespace Elf.Api.Features;
 
 public record LinkTrackingRequest(string IpAddress, string UserAgent, int LinkId);
 
-public record TrackSucessRedirectionCommand(LinkTrackingRequest Request, IPLocation Location) : ICommand;
+public record TrackSuccessRedirectionCommand(LinkTrackingRequest Request, IPLocation Location) : ICommand;
 
-public class TrackSucessRedirectionCommandHandler(ElfDbContext dbContext) : ICommandHandler<TrackSucessRedirectionCommand>
+public class TrackSuccessRedirectionCommandHandler(ElfDbContext dbContext) : ICommandHandler<TrackSuccessRedirectionCommand>
 {
-    public async Task HandleAsync(TrackSucessRedirectionCommand request, CancellationToken ct)
+    public async Task HandleAsync(TrackSuccessRedirectionCommand request, CancellationToken ct)
     {
         var ((ipAddress, userAgent, linkId), ipLocation) = request;
 

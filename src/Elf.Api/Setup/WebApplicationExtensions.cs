@@ -10,7 +10,7 @@ public static class WebApplicationExtensions
     };
 
     /// <summary>
-    /// Runs Moonglade startup initialization and handles failures gracefully.
+    /// Runs Elf startup initialization and handles failures gracefully.
     /// </summary>
     /// <param name="app">The web application.</param>
     public static async Task InitStartUp(this WebApplication app)

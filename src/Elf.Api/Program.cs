@@ -103,7 +103,10 @@ void ConfigureServices(IServiceCollection services)
                 throw new NotSupportedException($"Unsupported database provider: {databaseProvider}");
         }
 
-        options.EnableDetailedErrors();
+        if (builder.Environment.IsDevelopment())
+        {
+            options.EnableDetailedErrors();
+        }
     });
 }
 
@@ -126,9 +129,9 @@ void ConfigureMiddleware()
     else
     {
         app.UseStatusCodePages();
+        app.UseHsts();
     }
 
-    app.UseHsts();
     app.UseHttpsRedirection();
 
     app.UseStaticFiles();

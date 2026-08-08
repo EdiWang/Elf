@@ -174,7 +174,7 @@ public class ForwardController(
             {
                 var location = await ipLocationService.GetLocationAsync(ip, userAgent, ct);
                 var request = new LinkTrackingRequest(ip, userAgent, linkId);
-                await commandMediator.SendAsync(new TrackSucessRedirectionCommand(request, location), ct);
+                await commandMediator.SendAsync(new TrackSuccessRedirectionCommand(request, location), ct);
             }
             catch (Exception ex)
             {
@@ -183,7 +183,7 @@ public class ForwardController(
                 try
                 {
                     var request = new LinkTrackingRequest(ip, userAgent, linkId);
-                    await commandMediator.SendAsync(new TrackSucessRedirectionCommand(request, null), ct);
+                    await commandMediator.SendAsync(new TrackSuccessRedirectionCommand(request, null), ct);
                 }
                 catch (Exception fallbackEx)
                 {

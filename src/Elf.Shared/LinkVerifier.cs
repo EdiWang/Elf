@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Elf.Shared;
 
@@ -22,23 +23,22 @@ public class LinkVerifier : ILinkVerifier
 
     public LinkVerifyResult Verify(string url, IUrlHelper urlHelper, HttpRequest currentRequest, bool allowSelfRedirection = false)
     {
-        // Early validation for null or empty URL
         if (string.IsNullOrWhiteSpace(url))
         {
             return LinkVerifyResult.InvalidFormat;
         }
 
-        if (!url.IsValidUrl())
+        if (!url.IsValidUrl() || !Uri.TryCreate(url, UriKind.Absolute, out var uri))
         {
             return LinkVerifyResult.InvalidFormat;
         }
 
-        if (urlHelper.IsLocalUrl(url))
+        if (urlHelper.IsLocalUrl(url) || IsLocalOrPrivateTarget(uri))
         {
             return LinkVerifyResult.InvalidLocal;
         }
 
-        if (!allowSelfRedirection && IsSelfReference(url, currentRequest))
+        if (!allowSelfRedirection && IsSelfReference(uri, currentRequest))
         {
             return LinkVerifyResult.InvalidSelfReference;
         }
@@ -46,24 +46,27 @@ public class LinkVerifier : ILinkVerifier
         return LinkVerifyResult.Valid;
     }
 
-    private static bool IsSelfReference(string url, HttpRequest currentRequest)
+    private static bool IsLocalOrPrivateTarget(Uri uri)
     {
-        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+        var host = uri.Host.Trim('[', ']').TrimEnd('.');
+
+        if (string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase) ||
+            host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase))
         {
-            return false;
+            return true;
         }
 
+        return IPAddress.TryParse(host, out var ipAddress) && Utils.IsPrivateIP(ipAddress);
+    }
+
+    private static bool IsSelfReference(Uri uri, HttpRequest currentRequest)
+    {
         var isSameHost = string.Equals(uri.Authority, currentRequest.Host.ToString(), StringComparison.OrdinalIgnoreCase);
         var isSameScheme = string.Equals(uri.Scheme, currentRequest.Scheme, StringComparison.OrdinalIgnoreCase);
 
         return isSameHost && isSameScheme && IsForwardEndpoint(uri);
     }
 
-    /// <summary>
-    /// Checks if the URI points to a forward endpoint (fw, aka) as suggested in issue #10
-    /// </summary>
-    /// <param name="uri">The URI to check</param>
-    /// <returns>True if the URI is a forward endpoint, false otherwise</returns>
     public static bool IsForwardEndpoint(Uri uri)
     {
         ArgumentNullException.ThrowIfNull(uri);
@@ -73,7 +76,6 @@ public class LinkVerifier : ILinkVerifier
             return false;
         }
 
-        // Check the first non-root segment for forward endpoints
         var firstSegment = uri.Segments[1];
         if (firstSegment == "/")
         {
