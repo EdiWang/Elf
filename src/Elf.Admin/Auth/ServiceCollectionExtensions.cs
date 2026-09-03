@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 
 namespace Elf.Admin.Auth;
 
@@ -14,8 +13,12 @@ public static class ServiceCollectionExtensions
     {
         var section = configuration.GetSection("Authentication");
         var authentication = section.Get<AuthenticationSettings>() ?? new AuthenticationSettings();
+        var oidc = authentication.OpenIdConnect ?? new OpenIdConnectAuthenticationSettings();
 
-        services.Configure<AuthenticationSettings>(section);
+        services.AddSingleton<IValidateOptions<AuthenticationSettings>, AuthenticationSettingsValidator>();
+        services.AddOptions<AuthenticationSettings>()
+            .Bind(section)
+            .ValidateOnStart();
         services.AddSingleton<ILocalAccountPasswordService, LocalAccountPasswordService>();
         services.AddSingleton<ILocalAccountTotpService, LocalAccountTotpService>();
         services.AddScoped<ILocalAccountStore, LocalAccountStore>();
@@ -24,45 +27,41 @@ public static class ServiceCollectionExtensions
         {
             case AuthenticationProvider.Local:
                 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-                    {
-                        options.AccessDeniedPath = "/auth/accessdenied";
-                        options.LoginPath = "/auth/signin";
-                        options.LogoutPath = "/auth/signout";
-                    });
+                    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, ConfigureApplicationCookie);
                 break;
-            case AuthenticationProvider.EntraID:
+            case AuthenticationProvider.OpenIdConnect:
                 services.AddAuthentication(options =>
                     {
                         options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = ElfAuthSchemes.OpenIdConnect;
                     })
-                    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-                    .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+                    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, ConfigureApplicationCookie)
+                    .AddOpenIdConnect(ElfAuthSchemes.OpenIdConnect, options =>
                     {
-                        var entraId = authentication.EntraID;
-                        options.Authority = BuildEntraAuthority(entraId);
-                        options.ClientId = entraId.ClientId;
-                        options.ClientSecret = entraId.ClientSecret;
-                        options.CallbackPath = string.IsNullOrWhiteSpace(entraId.CallbackPath)
-                            ? "/signin-oidc"
-                            : entraId.CallbackPath;
+                        options.Authority = oidc.Authority;
+                        options.ClientId = oidc.ClientId;
+                        options.ClientSecret = oidc.ClientSecret;
+                        options.CallbackPath = oidc.CallbackPath;
+                        options.SignedOutCallbackPath = oidc.SignedOutCallbackPath;
+                        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                         options.ResponseType = OpenIdConnectResponseType.Code;
+                        options.UsePkce = true;
+                        options.RequireHttpsMetadata = true;
+                        options.GetClaimsFromUserInfoEndpoint = true;
                         options.SaveTokens = false;
                         options.MapInboundClaims = false;
-                        options.TokenValidationParameters = new TokenValidationParameters
+                        options.TokenValidationParameters.NameClaimType = oidc.NameClaimType;
+
+                        options.Scope.Clear();
+                        foreach (var scope in oidc.Scopes ?? [])
                         {
-                            NameClaimType = "preferred_username"
-                        };
+                            options.Scope.Add(scope);
+                        }
                     });
                 break;
             case AuthenticationProvider.External:
                 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-                    {
-                        options.AccessDeniedPath = "/auth/accessdenied";
-                        options.LoginPath = "/auth/signin";
-                    });
+                    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, ConfigureApplicationCookie);
                 break;
             default:
                 throw new NotSupportedException($"Authentication provider '{authentication.Provider}' is not supported.");
@@ -84,55 +83,40 @@ public static class ServiceCollectionExtensions
                 options.SlidingExpiration = false;
             });
 
-        services.AddAuthorization(options =>
-        {
-            var adminPolicy = BuildAdminPolicy(authentication);
-            options.DefaultPolicy = adminPolicy;
-            options.AddPolicy(ElfAuthorizationPolicies.Admin, adminPolicy);
-        });
+        services.AddAuthorizationBuilder()
+            .AddPolicy(ElfAuthorizationPolicies.Admin, policy =>
+            {
+                if (authentication.Provider == AuthenticationProvider.External)
+                {
+                    policy.RequireAssertion(_ => true);
+                    return;
+                }
+
+                policy.RequireAuthenticatedUser();
+
+                if (authentication.Provider == AuthenticationProvider.Local)
+                {
+                    policy.RequireRole("Administrator");
+                    return;
+                }
+
+                if (authentication.Provider == AuthenticationProvider.OpenIdConnect)
+                {
+                    var allowedSubjects = (oidc.AllowedSubjects ?? [])
+                        .ToHashSet(StringComparer.Ordinal);
+                    policy.RequireAssertion(context =>
+                        context.User.FindAll("sub")
+                            .Any(claim => allowedSubjects.Contains(claim.Value)));
+                }
+            });
 
         return services;
     }
 
-    private static AuthorizationPolicy BuildAdminPolicy(AuthenticationSettings authentication)
+    private static void ConfigureApplicationCookie(CookieAuthenticationOptions options)
     {
-        var builder = new AuthorizationPolicyBuilder()
-            .RequireAuthenticatedUser();
-
-        if (authentication.Provider == AuthenticationProvider.Local)
-        {
-            builder.RequireRole("Administrator");
-        }
-
-        if (authentication.Provider == AuthenticationProvider.EntraID)
-        {
-            var allowedUsers = authentication.EntraID.AllowedUsers
-                .Where(user => !string.IsNullOrWhiteSpace(user))
-                .Select(user => user.Trim())
-                .ToArray();
-
-            builder.RequireAssertion(context =>
-                ElfAuthorizationPolicies.IsAllowedEntraUser(context.User, allowedUsers));
-        }
-
-        return builder.Build();
-    }
-
-    private static string BuildEntraAuthority(EntraIdAuthenticationSettings settings)
-    {
-        var instance = string.IsNullOrWhiteSpace(settings.Instance)
-            ? "https://login.microsoftonline.com/"
-            : settings.Instance.Trim();
-
-        if (!instance.EndsWith('/'))
-        {
-            instance += "/";
-        }
-
-        var tenantId = string.IsNullOrWhiteSpace(settings.TenantId)
-            ? "common"
-            : settings.TenantId.Trim();
-
-        return $"{instance}{tenantId}/v2.0";
+        options.AccessDeniedPath = "/auth/accessdenied";
+        options.LoginPath = "/auth/signin";
+        options.LogoutPath = "/auth/signout";
     }
 }

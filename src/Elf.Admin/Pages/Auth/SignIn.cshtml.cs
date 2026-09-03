@@ -1,7 +1,6 @@
 using Elf.Admin.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -40,10 +39,10 @@ public class SignInModel(
     {
         switch (_authenticationSettings.Provider)
         {
-            case AuthenticationProvider.EntraID:
+            case AuthenticationProvider.OpenIdConnect:
                 return Challenge(
                     new AuthenticationProperties { RedirectUri = "/" },
-                    OpenIdConnectDefaults.AuthenticationScheme);
+                    ElfAuthSchemes.OpenIdConnect);
             case AuthenticationProvider.Local:
                 await SignOutLocalCookiesAsync();
                 return Page();
@@ -61,10 +60,10 @@ public class SignInModel(
         {
             case AuthenticationProvider.Local:
                 break;
-            case AuthenticationProvider.EntraID:
+            case AuthenticationProvider.OpenIdConnect:
                 return Challenge(
                     new AuthenticationProperties { RedirectUri = "/" },
-                    OpenIdConnectDefaults.AuthenticationScheme);
+                    ElfAuthSchemes.OpenIdConnect);
             case AuthenticationProvider.External:
                 return RedirectToPage("/Index");
             default:

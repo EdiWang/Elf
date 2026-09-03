@@ -2,12 +2,14 @@ using Elf.Admin.Auth;
 using Elf.Admin.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace Elf.Admin.Controllers;
 
 [ApiController]
+[Authorize(Policy = ElfAuthorizationPolicies.Admin)]
 [Route("api/account")]
 public class AccountController(
     IOptions<AuthenticationSettings> authSettings,

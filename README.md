@@ -175,7 +175,7 @@ Typically, `Elf.Api` should be publicly accessible, while `Elf.Admin` should be 
 `Elf.Admin` supports three authentication providers through `Authentication__Provider`:
 
 - `Local`: built-in single administrator account with password + TOTP. This is the default.
-- `EntraID`: built-in OpenID Connect login with Microsoft Entra ID. This does not require Azure App Service Authentication.
+- `OpenIdConnect`: standards-based OpenID Connect login using authorization code flow with PKCE.
 - `External`: disables in-app Admin authorization so a reverse proxy or hosting layer can protect Admin.
 
 #### Local Account
@@ -191,47 +191,64 @@ Authentication__Totp__Issuer=Elf
 
 The bootstrap password is used only when the `LocalAccount` record does not exist in `ElfConfiguration`. After the first successful sign-in and TOTP setup, the account is maintained from the Admin Account page. You can clear `Authentication__Local__BootstrapPassword` from the runtime environment after initialization.
 
-#### Microsoft Entra ID
+#### OpenID Connect
 
-Create an app registration for Admin and add a Web redirect URI:
+Configure Elf as a confidential web client in an OIDC provider that publishes discovery metadata over HTTPS. Register both callback URLs:
 
 ```text
 https://<your-admin-host>/signin-oidc
+https://<your-admin-host>/signout-callback-oidc
 ```
 
 Configure Admin with:
 
 ```bash
-Authentication__Provider=EntraID
-Authentication__EntraID__Instance=https://login.microsoftonline.com/
-Authentication__EntraID__TenantId=<Tenant ID>
-Authentication__EntraID__ClientId=<Application client ID>
-Authentication__EntraID__ClientSecret=<Client secret>
-Authentication__EntraID__CallbackPath=/signin-oidc
+Authentication__Provider=OpenIdConnect
+Authentication__OpenIdConnect__Authority=https://identity.example.com/
+Authentication__OpenIdConnect__ClientId=<Client ID>
+Authentication__OpenIdConnect__ClientSecret=<Client secret>
+Authentication__OpenIdConnect__CallbackPath=/signin-oidc
+Authentication__OpenIdConnect__SignedOutCallbackPath=/signout-callback-oidc
+Authentication__OpenIdConnect__NameClaimType=name
+Authentication__OpenIdConnect__Scopes__0=openid
+Authentication__OpenIdConnect__Scopes__1=profile
+Authentication__OpenIdConnect__Scopes__2=email
 ```
 
-Optionally restrict access to specific users. Values are matched against the name, email, UPN, or `preferred_username` claims:
+Store the client secret in the deployment secret-management system, not in `appsettings.json` or source control.
+
+OIDC authentication does not automatically grant Admin access. Add each administrator's exact, stable `sub` claim to the allowlist:
 
 ```bash
-Authentication__EntraID__AllowedUsers__0=admin1@example.com
-Authentication__EntraID__AllowedUsers__1=admin2@example.com
+Authentication__OpenIdConnect__AllowedSubjects__0=<administrator subject>
+Authentication__OpenIdConnect__AllowedSubjects__1=<another administrator subject>
 ```
 
-For Azure Bicep deployment, set:
+An empty allowlist denies Admin access to every OIDC identity. To bootstrap the first administrator, sign in through `/auth/signin`, open `/auth/identity` in the same browser session, copy the returned `subject` value into `AllowedSubjects`, restart Elf.Admin, and sign in again. Do not authorize by email, name, or preferred username because those values can change.
+
+Microsoft Entra ID remains supported as a standard OIDC provider. Use a tenant-specific v2 authority:
+
+```text
+https://login.microsoftonline.com/<tenant-id>/v2.0
+```
+
+For Azure Bicep deployment with Entra ID, set:
 
 ```powershell
 az deployment group create `
   --resource-group elf-rg `
   --template-file main.bicep `
   --parameters sqlAdminPassword=<Your Strong SQL Password> `
-               adminAuthenticationProvider=EntraID `
-               adminEntraTenantId=<Tenant ID> `
-               adminEntraClientId=<Application client ID> `
-               adminEntraClientSecret=<Client secret> `
-               adminEntraAllowedUsers='["admin@example.com"]'
+               adminAuthenticationProvider=OpenIdConnect `
+               adminOidcAuthority=https://login.microsoftonline.com/<tenant-id>/v2.0 `
+               adminOidcClientId=<Application client ID> `
+               adminOidcClientSecret=<Client secret> `
+               adminOidcAllowedSubjects='["<administrator subject>"]'
 ```
 
-The Bicep template maps the first five `adminEntraAllowedUsers` entries to app settings. Add more users directly in App Service configuration with `Authentication__EntraID__AllowedUsers__5`, `Authentication__EntraID__AllowedUsers__6`, and so on if needed.
+The OIDC settings are validated at startup. The authority must be an absolute HTTPS URL without a query or fragment, callback paths must be application-relative, and scopes must include `openid`. Access and refresh tokens are not persisted in the application cookie.
+
+Existing Entra-specific deployments must replace `Authentication__Provider=EntraID` and all `Authentication__EntraID__*` keys. Build the new `Authority` as `https://login.microsoftonline.com/<tenant-id>/v2.0`. Email-based `AllowedUsers` values cannot be migrated safely; bootstrap each administrator's OIDC `sub` through `/auth/identity` and configure it under `AllowedSubjects`.
 
 #### External Proxy Mode
 

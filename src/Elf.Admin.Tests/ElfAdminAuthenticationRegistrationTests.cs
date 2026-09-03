@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Security.Claims;
 
 namespace Elf.Admin.Tests;
@@ -55,25 +56,59 @@ public class ElfAdminAuthenticationRegistrationTests
     }
 
     [Fact]
-    public async Task AdminPolicy_WhenProviderIsEntraIdAndAllowedUsersConfigured_RequiresAllowedUser()
+    public void AddElfAdminAuthentication_WhenProviderIsOpenIdConnect_RegistersSecureOidcCodeFlow()
     {
         using var serviceProvider = BuildServiceProvider(new Dictionary<string, string>
         {
-            ["Authentication:Provider"] = "EntraID",
-            ["Authentication:EntraID:Instance"] = "https://login.microsoftonline.com/",
-            ["Authentication:EntraID:TenantId"] = "00000000-0000-0000-0000-000000000000",
-            ["Authentication:EntraID:ClientId"] = "11111111-1111-1111-1111-111111111111",
-            ["Authentication:EntraID:CallbackPath"] = "/signin-oidc",
-            ["Authentication:EntraID:AllowedUsers:0"] = "admin@example.com"
+            ["Authentication:Provider"] = "OpenIdConnect",
+            ["Authentication:OpenIdConnect:Authority"] = "https://identity.example.com/",
+            ["Authentication:OpenIdConnect:ClientId"] = "elf-admin",
+            ["Authentication:OpenIdConnect:ClientSecret"] = "test-client-secret",
+            ["Authentication:OpenIdConnect:CallbackPath"] = "/signin-oidc",
+            ["Authentication:OpenIdConnect:SignedOutCallbackPath"] = "/signout-callback-oidc",
+            ["Authentication:OpenIdConnect:NameClaimType"] = "preferred_username",
+            ["Authentication:OpenIdConnect:Scopes:0"] = "openid",
+            ["Authentication:OpenIdConnect:Scopes:1"] = "profile",
+            ["Authentication:OpenIdConnect:Scopes:2"] = "email"
         });
         var authenticationOptions = serviceProvider.GetRequiredService<IOptions<AuthenticationOptions>>().Value;
         Assert.Equal(CookieAuthenticationDefaults.AuthenticationScheme, authenticationOptions.DefaultScheme);
-        Assert.Equal(OpenIdConnectDefaults.AuthenticationScheme, authenticationOptions.DefaultChallengeScheme);
+        Assert.Equal(ElfAuthSchemes.OpenIdConnect, authenticationOptions.DefaultChallengeScheme);
 
+        var oidcOptions = serviceProvider
+            .GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>()
+            .Get(ElfAuthSchemes.OpenIdConnect);
+
+        Assert.Equal("https://identity.example.com/", oidcOptions.Authority);
+        Assert.Equal("elf-admin", oidcOptions.ClientId);
+        Assert.Equal("/signin-oidc", oidcOptions.CallbackPath);
+        Assert.Equal("/signout-callback-oidc", oidcOptions.SignedOutCallbackPath);
+        Assert.Equal(OpenIdConnectResponseType.Code, oidcOptions.ResponseType);
+        Assert.True(oidcOptions.UsePkce);
+        Assert.True(oidcOptions.RequireHttpsMetadata);
+        Assert.True(oidcOptions.GetClaimsFromUserInfoEndpoint);
+        Assert.False(oidcOptions.SaveTokens);
+        Assert.False(oidcOptions.MapInboundClaims);
+        Assert.Equal("preferred_username", oidcOptions.TokenValidationParameters.NameClaimType);
+        Assert.Equal(["openid", "profile", "email"], oidcOptions.Scope);
+    }
+
+    [Fact]
+    public async Task AdminPolicy_WhenProviderIsOpenIdConnect_RequiresExactAllowedSubject()
+    {
+        using var serviceProvider = BuildServiceProvider(new Dictionary<string, string>
+        {
+            ["Authentication:Provider"] = "OpenIdConnect",
+            ["Authentication:OpenIdConnect:Authority"] = "https://identity.example.com/",
+            ["Authentication:OpenIdConnect:ClientId"] = "elf-admin",
+            ["Authentication:OpenIdConnect:ClientSecret"] = "test-client-secret",
+            ["Authentication:OpenIdConnect:AllowedSubjects:0"] = "admin-subject"
+        });
         var authorizationService = serviceProvider.GetRequiredService<IAuthorizationService>();
 
-        var allowedUser = CreatePrincipal("admin@example.com");
-        var otherUser = CreatePrincipal("user@example.com");
+        var allowedUser = CreatePrincipal("admin@example.com", subject: "admin-subject");
+        var otherUser = CreatePrincipal("admin@example.com", subject: "other-subject");
+        var caseVariant = CreatePrincipal("admin@example.com", subject: "ADMIN-SUBJECT");
 
         Assert.True((await authorizationService.AuthorizeAsync(
             allowedUser,
@@ -83,27 +118,48 @@ public class ElfAdminAuthenticationRegistrationTests
             otherUser,
             null,
             ElfAuthorizationPolicies.Admin)).Succeeded);
+        Assert.False((await authorizationService.AuthorizeAsync(
+            caseVariant,
+            null,
+            ElfAuthorizationPolicies.Admin)).Succeeded);
     }
 
     [Fact]
-    public async Task AdminPolicy_WhenProviderIsEntraIdAndAllowedUsersEmpty_AllowsAuthenticatedUsers()
+    public async Task AdminPolicy_WhenProviderIsOpenIdConnectAndAllowedSubjectsEmpty_DeniesAuthenticatedUsers()
     {
         using var serviceProvider = BuildServiceProvider(new Dictionary<string, string>
         {
-            ["Authentication:Provider"] = "EntraID",
-            ["Authentication:EntraID:Instance"] = "https://login.microsoftonline.com/",
-            ["Authentication:EntraID:TenantId"] = "00000000-0000-0000-0000-000000000000",
-            ["Authentication:EntraID:ClientId"] = "11111111-1111-1111-1111-111111111111",
-            ["Authentication:EntraID:CallbackPath"] = "/signin-oidc"
+            ["Authentication:Provider"] = "OpenIdConnect",
+            ["Authentication:OpenIdConnect:Authority"] = "https://identity.example.com/",
+            ["Authentication:OpenIdConnect:ClientId"] = "elf-admin",
+            ["Authentication:OpenIdConnect:ClientSecret"] = "test-client-secret"
         });
         var authorizationService = serviceProvider.GetRequiredService<IAuthorizationService>();
 
-        var user = CreatePrincipal("user@example.com");
+        var user = CreatePrincipal("user@example.com", subject: "user-subject");
 
-        Assert.True((await authorizationService.AuthorizeAsync(
+        Assert.False((await authorizationService.AuthorizeAsync(
             user,
             null,
             ElfAuthorizationPolicies.Admin)).Succeeded);
+    }
+
+    [Fact]
+    public async Task AdminPolicy_WhenProviderIsExternal_AllowsAnonymousRequestsForUpstreamProtection()
+    {
+        using var serviceProvider = BuildServiceProvider(new Dictionary<string, string>
+        {
+            ["Authentication:Provider"] = "External"
+        });
+        var authorizationService = serviceProvider.GetRequiredService<IAuthorizationService>();
+        var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
+
+        var result = await authorizationService.AuthorizeAsync(
+            anonymousUser,
+            null,
+            ElfAuthorizationPolicies.Admin);
+
+        Assert.True(result.Succeeded);
     }
 
     [Fact]
@@ -134,7 +190,10 @@ public class ElfAdminAuthenticationRegistrationTests
             .AddInMemoryCollection(settings)
             .Build();
 
-    private static ClaimsPrincipal CreatePrincipal(string userName, string[] roles = null)
+    private static ClaimsPrincipal CreatePrincipal(
+        string userName,
+        string[] roles = null,
+        string subject = null)
     {
         var claims = new List<Claim>
         {
@@ -143,6 +202,11 @@ public class ElfAdminAuthenticationRegistrationTests
             new(ClaimTypes.Upn, userName),
             new("preferred_username", userName)
         };
+
+        if (subject is not null)
+        {
+            claims.Add(new Claim("sub", subject));
+        }
 
         if (roles is not null)
         {

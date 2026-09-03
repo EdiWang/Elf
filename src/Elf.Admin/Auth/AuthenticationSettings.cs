@@ -8,7 +8,7 @@ public class AuthenticationSettings
 
     public TotpAuthenticationSettings Totp { get; set; } = new();
 
-    public EntraIdAuthenticationSettings EntraID { get; set; } = new();
+    public OpenIdConnectAuthenticationSettings OpenIdConnect { get; set; } = new();
 }
 
 public class LocalAuthenticationSettings
@@ -25,11 +25,9 @@ public class TotpAuthenticationSettings
     public string Issuer { get; set; } = "Elf";
 }
 
-public class EntraIdAuthenticationSettings
+public class OpenIdConnectAuthenticationSettings
 {
-    public string Instance { get; set; } = "https://login.microsoftonline.com/";
-
-    public string TenantId { get; set; } = string.Empty;
+    public string Authority { get; set; } = string.Empty;
 
     public string ClientId { get; set; } = string.Empty;
 
@@ -37,5 +35,11 @@ public class EntraIdAuthenticationSettings
 
     public string CallbackPath { get; set; } = "/signin-oidc";
 
-    public string[] AllowedUsers { get; set; } = [];
+    public string SignedOutCallbackPath { get; set; } = "/signout-callback-oidc";
+
+    public string NameClaimType { get; set; } = "name";
+
+    public string[] Scopes { get; set; } = ["openid", "profile", "email"];
+
+    public string[] AllowedSubjects { get; set; } = [];
 }
