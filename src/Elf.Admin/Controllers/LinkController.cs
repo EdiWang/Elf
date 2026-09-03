@@ -1,9 +1,11 @@
-﻿using Elf.Admin.Features;
+﻿using Elf.Admin.Auth;
+using Elf.Admin.Features;
 using Elf.Admin.Models;
 using Elf.Shared;
 using Elf.Shared.Models;
 using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.FeatureManagement;
@@ -12,6 +14,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Elf.Admin.Controllers;
 
 [ApiController]
+[Authorize(Policy = ElfAuthorizationPolicies.Admin)]
 [Route("api/[controller]")]
 public class LinkController(
         ILinkVerifier linkVerifier,

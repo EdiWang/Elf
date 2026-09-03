@@ -64,7 +64,14 @@ public class Program
             });
         });
 
-        services.AddRazorPages();
+        services.AddRazorPages(options =>
+        {
+            options.Conventions.AuthorizePage("/Index", ElfAuthorizationPolicies.Admin);
+            options.Conventions.AuthorizePage("/Report", ElfAuthorizationPolicies.Admin);
+            options.Conventions.AuthorizePage("/Tags", ElfAuthorizationPolicies.Admin);
+            options.Conventions.AuthorizePage("/Account", ElfAuthorizationPolicies.Admin);
+            options.Conventions.AuthorizePage("/Error", ElfAuthorizationPolicies.Admin);
+        });
         services.AddControllers(options =>
         {
             options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
@@ -183,25 +190,13 @@ public class Program
         app.UseAuthorization();
         app.UseRateLimiter();
 
-        var razorPages = app.MapRazorPages();
-        var controllers = app.MapControllers();
-
-        if (UseInAppAuthorization(app.Configuration))
-        {
-            razorPages.RequireAuthorization();
-            controllers.RequireAuthorization();
-        }
+        app.MapRazorPages();
+        app.MapControllers();
 
         app.MapHealthChecks("/health", new()
         {
             ResponseWriter = PingEndpoint.WriteResponse
         });
-    }
-
-    private static bool UseInAppAuthorization(IConfiguration configuration)
-    {
-        var provider = configuration.GetValue("Authentication:Provider", AuthenticationProvider.Local);
-        return provider != AuthenticationProvider.External;
     }
 
     private static string GetRateLimitPartitionKey(HttpContext httpContext)

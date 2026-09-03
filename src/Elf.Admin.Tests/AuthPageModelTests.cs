@@ -146,13 +146,13 @@ public class AuthPageModelTests
     }
 
     [Fact]
-    public async Task SignIn_OnGetAsync_WhenProviderIsEntraId_ReturnsOpenIdConnectChallenge()
+    public async Task SignIn_OnGetAsync_WhenProviderIsOpenIdConnect_ReturnsOpenIdConnectChallenge()
     {
         var model = CreateSignInModel(
             new FakeLocalAccountStore(null),
             new LocalAccountPasswordService(),
             CreateAuthenticationService(),
-            new AuthenticationSettings { Provider = AuthenticationProvider.EntraID });
+            new AuthenticationSettings { Provider = AuthenticationProvider.OpenIdConnect });
 
         var result = await model.OnGetAsync();
 
@@ -272,16 +272,102 @@ public class AuthPageModelTests
     }
 
     [Fact]
-    public async Task AuthController_SignOutAsync_WhenProviderIsEntraId_ReturnsSignOutResult()
+    public async Task AuthController_SignOutAsync_WhenProviderIsOpenIdConnect_ReturnsSignOutResult()
     {
-        var controller = CreateAuthController(new AuthenticationSettings { Provider = AuthenticationProvider.EntraID });
+        var controller = CreateAuthController(new AuthenticationSettings
+        {
+            Provider = AuthenticationProvider.OpenIdConnect
+        });
 
         var result = await controller.SignOutAsync();
 
         var signOut = Assert.IsType<SignOutResult>(result);
+        Assert.Equal("/", signOut.Properties?.RedirectUri);
         Assert.Equal(
-            [CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme],
+            [CookieAuthenticationDefaults.AuthenticationScheme, ElfAuthSchemes.OpenIdConnect],
             signOut.AuthenticationSchemes);
+    }
+
+    [Fact]
+    public void AuthController_Identity_WhenOidcClaimsExist_ReturnsStableIdentity()
+    {
+        var controller = CreateAuthController(new AuthenticationSettings
+        {
+            Provider = AuthenticationProvider.OpenIdConnect
+        });
+        controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+        [
+            new Claim("iss", "https://identity.example.com/"),
+            new Claim("sub", "admin-subject"),
+            new Claim(ClaimTypes.Name, "Admin User")
+        ],
+        ElfAuthSchemes.OpenIdConnect));
+
+        var result = controller.Identity();
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(
+            "https://identity.example.com/",
+            ok.Value!.GetType().GetProperty("Issuer")!.GetValue(ok.Value));
+        Assert.Equal(
+            "admin-subject",
+            ok.Value.GetType().GetProperty("Subject")!.GetValue(ok.Value));
+        Assert.Equal(
+            "Admin User",
+            ok.Value.GetType().GetProperty("DisplayName")!.GetValue(ok.Value));
+    }
+
+    [Fact]
+    public void AuthController_Identity_WhenIssuerClaimIsMissing_UsesSubjectClaimIssuer()
+    {
+        var controller = CreateAuthController(new AuthenticationSettings
+        {
+            Provider = AuthenticationProvider.OpenIdConnect
+        });
+        controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+        [
+            new Claim(
+                "sub",
+                "admin-subject",
+                ClaimValueTypes.String,
+                "https://identity.example.com/")
+        ],
+        ElfAuthSchemes.OpenIdConnect));
+
+        var result = controller.Identity();
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(
+            "https://identity.example.com/",
+            ok.Value!.GetType().GetProperty("Issuer")!.GetValue(ok.Value));
+    }
+
+    [Fact]
+    public void AuthController_Identity_WhenProviderIsNotOpenIdConnect_ReturnsNotFound()
+    {
+        var controller = CreateAuthController(new AuthenticationSettings
+        {
+            Provider = AuthenticationProvider.Local
+        });
+
+        var result = controller.Identity();
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public void AuthController_Identity_WhenRequiredClaimsAreMissing_ReturnsProblem()
+    {
+        var controller = CreateAuthController(new AuthenticationSettings
+        {
+            Provider = AuthenticationProvider.OpenIdConnect
+        });
+
+        var result = controller.Identity();
+
+        var problem = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(StatusCodes.Status500InternalServerError, problem.StatusCode);
+        Assert.IsType<ProblemDetails>(problem.Value);
     }
 
     [Fact]
@@ -406,7 +492,7 @@ public class AuthPageModelTests
     {
         var model = new AccountModel(Options.Create(new AuthenticationSettings
         {
-            Provider = AuthenticationProvider.EntraID
+            Provider = AuthenticationProvider.OpenIdConnect
         }));
 
         var result = model.OnGet();

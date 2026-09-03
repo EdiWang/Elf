@@ -1,9 +1,14 @@
 using Elf.Admin.Auth;
+using Elf.Admin.Controllers;
 using Elf.Admin.Pages.Auth;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
 using System.Reflection;
@@ -108,6 +113,33 @@ public class AdminAuthorizationIntegrationTests
     }
 
     [Fact]
+    public async Task AdminAndIdentityEndpoints_UseExpectedAuthorizationPolicies()
+    {
+        using var factory = CreateFactory(AuthenticationProvider.External);
+        using var client = factory.CreateClient();
+        await client.GetAsync("/health", TestContext.Current.CancellationToken);
+        var endpoints = factory.Services
+            .GetServices<EndpointDataSource>()
+            .SelectMany(source => source.Endpoints)
+            .OfType<RouteEndpoint>();
+
+        var adminEndpoint = Assert.Single(endpoints, candidate =>
+            candidate.RoutePattern.RawText == "api/Tag/list");
+        var adminAuthorizeData = adminEndpoint.Metadata.GetOrderedMetadata<IAuthorizeData>();
+
+        var adminPolicy = Assert.Single(adminAuthorizeData);
+        Assert.Equal(ElfAuthorizationPolicies.Admin, adminPolicy.Policy);
+
+        var identityEndpoint = Assert.Single(endpoints, candidate =>
+            candidate.Metadata.GetMetadata<ControllerActionDescriptor>()?.ActionName ==
+            nameof(AuthController.Identity));
+        var identityAuthorizeData = identityEndpoint.Metadata.GetOrderedMetadata<IAuthorizeData>();
+
+        var identityPolicy = Assert.Single(identityAuthorizeData);
+        Assert.Null(identityPolicy.Policy);
+    }
+
+    [Fact]
     public async Task Home_WhenRendered_ContainsAntiforgeryToken()
     {
         using var factory = CreateFactory(AuthenticationProvider.External);
@@ -172,14 +204,10 @@ public class AdminAuthorizationIntegrationTests
         new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
             {
-                builder.ConfigureAppConfiguration((_, config) =>
-                {
-                    config.AddInMemoryCollection(new Dictionary<string, string>
-                    {
-                        ["Authentication:Provider"] = provider.ToString(),
-                        ["ConnectionStrings:ElfDatabase"] = "Server=(localdb)\\MSSQLLocalDB;Database=elf-test;Trusted_Connection=True;"
-                    });
-                });
+                builder.UseSetting("Authentication:Provider", provider.ToString());
+                builder.UseSetting(
+                    "ConnectionStrings:ElfDatabase",
+                    "Server=(localdb)\\MSSQLLocalDB;Database=elf-test;Trusted_Connection=True;");
             });
 
     private static string InvokeGetRateLimitPartitionKey(HttpContext httpContext)
