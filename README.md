@@ -233,11 +233,16 @@ If you still have a valid Admin session, use the Account page to reset the authe
 
 If all authenticator access is lost, stop Admin, configure a temporary strong `Authentication__Local__BootstrapPassword`, and remove the `LocalAccount` row from `ElfConfiguration`. Restart Admin and sign in with the bootstrap account to create a new password hash and TOTP secret. Back up the database first; this resets only the local Admin account record.
 
-### Optional: Azure Cache for Redis
+### Optional: Redis Distributed Cache
 
-To use Redis, follow these steps:
+Elf supports any Redis-compatible service that can be reached with a standard Redis connection string. Redis is optional, but it is recommended when the Forwarder API runs on multiple instances or when cached links must be invalidated by the Admin application.
 
-1. Create an [Azure Cache for Redis instance](https://docs.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview?WT.mc_id=AZ-MVP-5002809)
-2. Copy the connection string in "Access keys"
-3. Set the connection string in `ConnectionStrings:RedisConnection` in `Elf.Api/appsettings.json` or environment variable
-4. Restart the application
+To use Redis:
+
+1. Create or select a Redis-compatible service.
+2. Configure the same connection string for both `Elf.Api` and `Elf.Admin` using `ConnectionStrings:RedisConnection` or the `ConnectionStrings__RedisConnection` environment variable.
+3. Restart both applications.
+
+If the connection string is omitted, each application uses its own in-memory cache. This is suitable for local development, but the caches are not shared: Admin changes cannot invalidate entries held by the Forwarder API, and multiple API instances cannot share cached links.
+
+Only links with a positive TTL are cached. A TTL of `0` disables caching for that link.
