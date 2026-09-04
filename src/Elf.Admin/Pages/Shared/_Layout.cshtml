@@ -34,6 +34,13 @@
                 <i class="bi bi-github" aria-hidden="true"></i>
                 @VersionHelper.AppVersionBasic
             </a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="edi-btn" href="/auth/signout">
+                    <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                    Sign out
+                </a>
+            }
         </div>
     </header>
     <div class="app-layout">
