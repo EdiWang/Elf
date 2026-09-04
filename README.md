@@ -93,80 +93,49 @@ Visit the Forwarder API URL for the first time to initialize the database. Then 
 
 The Bicep template configures Admin to use built-in local account authentication by default. Sign in with `adminLocalBootstrapUsername` and `adminLocalBootstrapPassword`, then complete the TOTP setup flow.
 
-### Manual Deployment by Docker
+### Local Deployment with Docker Compose
 
-#### Setup Database
+This starts PostgreSQL, the Forwarder API, and the Admin UI with images pulled from Docker Hub. The application images are not built locally.
 
-Elf supports SQL Server and PostgreSQL.
+Prerequisites:
 
-For SQL Server, [create an Azure SQL Database](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-single-database-get-started?WT.mc_id=AZ-MVP-5002809) or a SQL Server 2019+ database on premises.
+- [Docker](https://www.docker.com/) with Docker Compose v2
+- Local ports `5432`, `8080`, and `8081` available
 
-For PostgreSQL, create an empty PostgreSQL database. For example:
+Create the local environment file and replace both placeholder passwords with strong values:
 
-```bash
-docker run -d \
-  --name elf-postgres \
-  -e POSTGRES_USER=elf \
-  -e POSTGRES_PASSWORD="<Your PostgreSQL Password>" \
-  -e POSTGRES_DB=elf \
-  -p 5432:5432 \
-  postgres:latest
+```powershell
+Copy-Item .env.example .env
 ```
 
-`Database__Provider` controls the database provider:
+The Compose file uses `postgres:18-alpine`, `ediwang/elf:latest`, and `ediwang/elf-admin:latest`. It configures PostgreSQL, selects the `PostgreSql` provider, and enables the built-in `Local` Admin account authentication.
 
-- `SqlServer` (default)
-- `PostgreSql`
+Pull the Docker Hub images and start all services:
 
-Visit the Forwarder API URL for the first time to initialize an empty database schema before using Admin UI.
-
-#### Forwarder API
-
-SQL Server:
-
-```bash
-docker run -d -p 80:8080 -e ConnectionStrings__ElfDatabase="<Your SQL Server Connection String>" --name elf-api ediwang/elf:latest
+```powershell
+docker compose pull
+docker compose up -d
+docker compose ps
 ```
 
-PostgreSQL:
+The API initializes the empty database schema before the Admin UI starts. Open the services at:
 
-```bash
-docker run -d -p 80:8080 \
-  -e Database__Provider="PostgreSql" \
-  -e ConnectionStrings__ElfDatabase="Host=<Your PostgreSQL Host>;Port=5432;Database=elf;Username=elf;Password=<Your PostgreSQL Password>" \
-  --name elf-api ediwang/elf:latest
+- Forwarder API: <http://localhost:8080>
+- Admin UI: <http://localhost:8081>
+
+Sign in to Admin with `ELF_ADMIN_USERNAME` and `ELF_ADMIN_PASSWORD` from `.env`, then complete the required TOTP setup. `ELF_FORWARDER_BASE_URL` controls the public base URL used by Admin when it generates forward links.
+
+PostgreSQL data is stored in the named Docker volume `elf-postgres-data`. Stop the services while keeping the data with:
+
+```powershell
+docker compose down
 ```
 
-#### Manually Deploy Admin UI
+To remove the database volume and start over, run the following only when you intentionally want to delete the local database:
 
-Admin uses built-in local account authentication by default. The first local account is initialized from `Authentication__Local__BootstrapUsername` and `Authentication__Local__BootstrapPassword` when no `LocalAccount` exists in `ElfConfiguration`.
-
-SQL Server:
-
-```bash
-docker run -d -p 80:8080 \
-  -e ConnectionStrings__ElfDatabase="<Your SQL Server Connection String>" \
-  -e Authentication__Provider="Local" \
-  -e Authentication__Local__BootstrapUsername="admin" \
-  -e Authentication__Local__BootstrapPassword="<Your Strong Admin Password>" \
-  -e Authentication__Totp__Issuer="Elf" \
-  --name elf-admin ediwang/elf-admin:latest
+```powershell
+docker compose down -v
 ```
-
-PostgreSQL:
-
-```bash
-docker run -d -p 80:8080 \
-  -e Database__Provider="PostgreSql" \
-  -e ConnectionStrings__ElfDatabase="Host=<Your PostgreSQL Host>;Port=5432;Database=elf;Username=elf;Password=<Your PostgreSQL Password>" \
-  -e Authentication__Provider="Local" \
-  -e Authentication__Local__BootstrapUsername="admin" \
-  -e Authentication__Local__BootstrapPassword="<Your Strong Admin Password>" \
-  -e Authentication__Totp__Issuer="Elf" \
-  --name elf-admin ediwang/elf-admin:latest
-```
-
-If you deploy both `elf-api` and `elf-admin` on the same server, make sure to use different ports. You may [work 996](https://996.icu/) to figure out the correct network setup yourself. I am rich, I choose Azure!
 
 ### Setup Authentication
 

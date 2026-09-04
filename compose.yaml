@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${ELF_POSTGRES_DB:-elf}
+      POSTGRES_USER: ${ELF_POSTGRES_USER:-elf}
+      POSTGRES_PASSWORD: ${ELF_POSTGRES_PASSWORD:?Set ELF_POSTGRES_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - elf-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    image: ediwang/elf:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      Database__Provider: PostgreSql
+      ConnectionStrings__ElfDatabase: "Host=postgres;Port=5432;Database=${ELF_POSTGRES_DB:-elf};Username=${ELF_POSTGRES_USER:-elf};Password=${ELF_POSTGRES_PASSWORD:?Set ELF_POSTGRES_PASSWORD in .env}"
+      ASPNETCORE_HTTP_PORTS: "8080"
+    ports:
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/8080'"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  admin:
+    image: ediwang/elf-admin:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    environment:
+      Database__Provider: PostgreSql
+      ConnectionStrings__ElfDatabase: "Host=postgres;Port=5432;Database=${ELF_POSTGRES_DB:-elf};Username=${ELF_POSTGRES_USER:-elf};Password=${ELF_POSTGRES_PASSWORD:?Set ELF_POSTGRES_PASSWORD in .env}"
+      Authentication__Provider: Local
+      Authentication__Local__BootstrapUsername: ${ELF_ADMIN_USERNAME:-admin}
+      Authentication__Local__BootstrapPassword: ${ELF_ADMIN_PASSWORD:?Set ELF_ADMIN_PASSWORD in .env}
+      Authentication__Totp__Enabled: "true"
+      Authentication__Totp__Issuer: Elf
+      ForwarderBaseUrl: ${ELF_FORWARDER_BASE_URL:-http://localhost:8080}
+      ASPNETCORE_HTTP_PORTS: "8080"
+    ports:
+      - "127.0.0.1:8081:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/127.0.0.1/8080'"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+volumes:
+  elf-postgres-data:
