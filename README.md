@@ -184,6 +184,20 @@ Authentication__OpenIdConnect__Scopes__2=email
 
 Store the client secret in the deployment secret-management system, not in `appsettings.json` or source control.
 
+#### Reverse Proxy and Forwarded Headers
+
+When TLS is terminated by a reverse proxy, Kestrel receives the request as HTTP unless the proxy's forwarded headers are processed. `Elf.Admin` and `Elf.Api` enable `UseSmartXFFHeader()` when `ForwardedHeaders:Enabled` is `true`; forwarded headers are accepted only from trusted proxy addresses.
+
+Configure each proxy hop using the address as seen by the application or container, not necessarily the proxy's public address:
+
+```bash
+ForwardedHeaders__Enabled=true
+ForwardedHeaders__KnownProxies__0=203.0.113.10
+```
+
+Do not trust arbitrary client-supplied `X-Forwarded-*` headers. If the terminating proxy is not trusted, an OIDC challenge can generate an `http://.../signin-oidc` callback even when the browser uses HTTPS. The identity provider then rejects the request with a redirect URI mismatch (`AADSTS50011`). Verify the generated `redirect_uri` before changing the identity-provider registration.
+
+
 OIDC authentication does not automatically grant Admin access. Add each administrator's exact, stable `sub` claim to the allowlist:
 
 ```bash
