@@ -96,17 +96,21 @@ public class StartUpInitializer(
 
     private async Task<List<string>> GetExistingTablesAsync(CancellationToken cancellationToken)
     {
-        var tableNames = string.Join(", ", RequiredTables.Select(tableName => $"'{tableName.Replace("'", "''")}'"));
-        var schemaFilter = databaseOptions.Provider == ElfDatabaseProvider.PostgreSql
-            ? "AND TABLE_SCHEMA = 'public'"
-            : string.Empty;
-        var sql = $"""
-            SELECT TABLE_NAME
-            FROM INFORMATION_SCHEMA.TABLES
-            WHERE TABLE_TYPE = 'BASE TABLE'
-            AND TABLE_NAME IN ({tableNames})
-            {schemaFilter}
-            """;
+        var paramNames = RequiredTables.Select((_, i) => "@tableName" + i).ToArray();
+        var sql = databaseOptions.Provider == ElfDatabaseProvider.PostgreSql
+            ? """
+              SELECT TABLE_NAME
+              FROM INFORMATION_SCHEMA.TABLES
+              WHERE TABLE_TYPE = 'BASE TABLE'
+              AND TABLE_NAME IN (@tableName0, @tableName1, @tableName2, @tableName3, @tableName4)
+              AND TABLE_SCHEMA = 'public'
+              """
+            : """
+              SELECT TABLE_NAME
+              FROM INFORMATION_SCHEMA.TABLES
+              WHERE TABLE_TYPE = 'BASE TABLE'
+              AND TABLE_NAME IN (@tableName0, @tableName1, @tableName2, @tableName3, @tableName4)
+              """;
 
         var connection = dbContext.Database.GetDbConnection();
         var closeConnection = connection.State != ConnectionState.Open;
@@ -120,6 +124,14 @@ public class StartUpInitializer(
         {
             using var command = connection.CreateCommand();
             command.CommandText = sql;
+
+            for (var i = 0; i < RequiredTables.Length; i++)
+            {
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = paramNames[i];
+                parameter.Value = RequiredTables[i];
+                command.Parameters.Add(parameter);
+            }
 
             var tables = new List<string>();
             await using var reader = await command.ExecuteReaderAsync(cancellationToken);
