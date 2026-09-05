@@ -16,7 +16,6 @@
 - `Elf.Shared` contains cross-project helpers such as `LinkVerifier`, `PingEndpoint`, URL validation, private IP detection, and feature flag names.
 - `Elf.TokenGenerator` contains the `ITokenGenerator` implementation. The current token format is exactly 8 characters from a lowercase GUID prefix.
 - `Elf.Shared.Tests` and `Elf.TokenGenerator.Tests` use xUnit v3, Moq, and coverlet.
-- `deployment/main.bicep` deploys the API and Admin UI to Azure App Service with Linux containers and SQL Server.
 
 ## Architecture Guidelines
 - Keep `Elf.Api` optimized for high-frequency redirect traffic. Prefer Dapper and small SQL projections for forwarder reads/writes instead of adding EF Core to the API path.

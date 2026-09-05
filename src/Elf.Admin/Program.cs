@@ -29,7 +29,6 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        ConfigureLogging(builder);
         ConfigureServices(builder.Services, builder.Configuration, builder.Environment);
 
         var app = builder.Build();
@@ -37,14 +36,6 @@ public class Program
         ConfigureMiddleware(app);
 
         app.Run();
-    }
-
-    private static void ConfigureLogging(WebApplicationBuilder builder)
-    {
-        if (EnvironmentHelper.IsRunningOnAzureAppService())
-        {
-            builder.Logging.AddAzureWebAppDiagnostics();
-        }
     }
 
     private static void ConfigureServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)

@@ -110,31 +110,6 @@ To remove the database volume and start over, run the following only when you in
 docker compose down -v
 ```
 
-### Automated Deployment on Azure
-
-For hosted deployments, the [deployment script](./deployment/main.bicep) deploys both the Forwarder API and Admin UI to Azure App Service using Linux + Docker and Azure SQL Database. You need to provide a strong password for the SQL Server admin account.
-
-You need to install [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest&WT.mc_id=AZ-MVP-5002809) and log in to Azure first. Then clone this repo, `cd` to the `deployment` directory, and run:
-
-```powershell
-# Login to Azure
-az login
-
-# Create a resource group
-az group create --name elf-rg --location westus2
-
-# Create resources with Bicep
-az deployment group create `
-  --resource-group elf-rg `
-  --template-file main.bicep `
-  --parameters sqlAdminPassword=<Your Strong SQL Password> `
-               adminLocalBootstrapPassword=<Your Strong Admin Password>
-```
-
-Visit the Forwarder API URL for the first time to initialize the database. Then visit the Admin UI URL to create your first forward link.
-
-The Bicep template configures Admin to use built-in local account authentication by default. Sign in with `adminLocalBootstrapUsername` and `adminLocalBootstrapPassword`, then complete the TOTP setup flow.
-
 ### Setup Authentication
 
 Typically, `Elf.Api` should be publicly accessible, while `Elf.Admin` should be protected.

@@ -17,7 +17,6 @@ using System.Net;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Logging.AddAzureWebAppDiagnostics();
 
 ConfigureServices(builder.Services);
 
