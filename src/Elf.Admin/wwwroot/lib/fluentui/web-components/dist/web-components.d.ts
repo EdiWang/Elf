@@ -2403,7 +2403,6 @@ export declare class BaseMenuList extends FASTElement {
      * @public
      */
     focus(): void;
-    private static elementIndent;
     protected setItems(): void;
     /**
      * Method for Observable changes to the hidden attribute of child elements
@@ -2952,6 +2951,8 @@ export declare class BaseTablist extends FASTElement {
     }): void;
     /** @internal */
     handleFocusIn(event: FocusEvent): void;
+    /** @internal */
+    handleClick(event: PointerEvent): void;
     private changeTab;
     constructor();
     /**
@@ -3824,14 +3825,6 @@ declare class BaseTreeItem extends FASTElement {
      * @public
      */
     empty: boolean;
-    private styles;
-    /**
-     * The indent of the tree item element.
-     * This is not needed once css attr() is supported (--indent: attr(data-indent type(<number>)));
-     * @public
-     */
-    dataIndent: number | undefined;
-    protected dataIndentChanged(prev: number, next: number): void;
     /** @internal */
     childTreeItems: BaseTreeItem[] | undefined;
     /**
@@ -3841,15 +3834,11 @@ declare class BaseTreeItem extends FASTElement {
      */
     childTreeItemsChanged(): void;
     /**
-     * Updates the childrens indent
+     * Updates the children’s selected states.
      *
      * @public
      */
     updateChildTreeItems(): void;
-    /**
-     * Sets the indent for each item
-     */
-    private setIndent;
     /**
      * Toggle the expansion state of the tree item
      *

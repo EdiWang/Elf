@@ -21,10 +21,12 @@ export const styles = css `
     border-radius: ${borderRadiusMedium};
     gap: 4px;
   }
+
   :host .tab-content {
     display: inline-flex;
     flex-direction: column;
     padding: 0 2px;
+    grid-column: 3;
   }
 
   :host([aria-selected='true']) {
@@ -80,6 +82,14 @@ export const styles = css `
     background-color: ${colorNeutralForegroundDisabled};
   }
 
+  ::slotted([slot='start']) {
+    grid-column: 2;
+  }
+
+  ::slotted([slot='end']) {
+    grid-column: -1;
+  }
+
   ::slotted([slot='start']),
   ::slotted([slot='end']) {
     display: flex;
@@ -103,15 +113,6 @@ export const styles = css `
     border-radius: ${borderRadiusSmall};
     box-shadow: 0 0 0 3px ${colorStrokeFocus2};
     outline: 1px solid ${colorStrokeFocus1};
-  }
-
-  :host([data-hasIndent]) {
-    display: grid;
-    grid-template-columns: 20px 1fr auto;
-  }
-
-  :host([data-hasIndent]) .tab-content {
-    grid-column: 2;
   }
 
   @media (forced-colors: active) {

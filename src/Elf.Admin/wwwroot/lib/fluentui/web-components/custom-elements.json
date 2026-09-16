@@ -18577,25 +18577,6 @@
             },
             {
               "kind": "method",
-              "name": "elementIndent",
-              "privacy": "private",
-              "static": true,
-              "return": {
-                "type": {
-                  "text": "MenuItemColumnCount"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "el",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
               "name": "setItems",
               "privacy": "protected",
               "return": {
@@ -18796,29 +18777,6 @@
                 }
               },
               "description": "Focuses the first item in the menu.",
-              "inheritedFrom": {
-                "name": "BaseMenuList",
-                "module": "src/menu-list/menu-list.base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "elementIndent",
-              "privacy": "private",
-              "static": true,
-              "return": {
-                "type": {
-                  "text": "MenuItemColumnCount"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "el",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
               "inheritedFrom": {
                 "name": "BaseMenuList",
                 "module": "src/menu-list/menu-list.base.ts"
@@ -27628,42 +27586,6 @@
               "description": "When true, the control has no child tree items\nWhen true, the control has no child tree items\n\nHTML Attribute: empty"
             },
             {
-              "kind": "field",
-              "name": "styles",
-              "type": {
-                "text": "ElementStyles | undefined"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "dataIndent",
-              "type": {
-                "text": "number | undefined"
-              },
-              "privacy": "public",
-              "description": "The indent of the tree item element.\nThis is not needed once css attr() is supported (--indent: attr(data-indent type(<number>)));"
-            },
-            {
-              "kind": "method",
-              "name": "dataIndentChanged",
-              "privacy": "protected",
-              "parameters": [
-                {
-                  "name": "prev",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "next",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ]
-            },
-            {
               "kind": "method",
               "name": "childTreeItemsChanged",
               "privacy": "public",
@@ -27673,26 +27595,7 @@
               "kind": "method",
               "name": "updateChildTreeItems",
               "privacy": "public",
-              "description": "Updates the childrens indent"
-            },
-            {
-              "kind": "method",
-              "name": "setIndent",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "item",
-                  "type": {
-                    "text": "BaseTreeItem"
-                  }
-                }
-              ],
-              "description": "Sets the indent for each item"
+              "description": "Updates the children’s selected states."
             },
             {
               "kind": "method",
@@ -27751,14 +27654,6 @@
               "default": "false",
               "description": "When true, the control has no child tree items\nWhen true, the control has no child tree items\n\nHTML Attribute: empty",
               "fieldName": "empty"
-            },
-            {
-              "name": "data-indent",
-              "type": {
-                "text": "number | undefined"
-              },
-              "description": "The indent of the tree item element.\nThis is not needed once css attr() is supported (--indent: attr(data-indent type(<number>)));",
-              "fieldName": "dataIndent"
             }
           ],
           "superclass": {
@@ -27937,54 +27832,6 @@
               }
             },
             {
-              "kind": "field",
-              "name": "styles",
-              "type": {
-                "text": "ElementStyles | undefined"
-              },
-              "privacy": "private",
-              "inheritedFrom": {
-                "name": "BaseTreeItem",
-                "module": "src/tree-item/tree-item.base.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "dataIndent",
-              "type": {
-                "text": "number | undefined"
-              },
-              "privacy": "public",
-              "description": "The indent of the tree item element.\nThis is not needed once css attr() is supported (--indent: attr(data-indent type(<number>)));",
-              "inheritedFrom": {
-                "name": "BaseTreeItem",
-                "module": "src/tree-item/tree-item.base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "dataIndentChanged",
-              "privacy": "protected",
-              "parameters": [
-                {
-                  "name": "prev",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "next",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "BaseTreeItem",
-                "module": "src/tree-item/tree-item.base.ts"
-              }
-            },
-            {
               "kind": "method",
               "name": "childTreeItemsChanged",
               "privacy": "public",
@@ -27998,30 +27845,7 @@
               "kind": "method",
               "name": "updateChildTreeItems",
               "privacy": "public",
-              "description": "Updates the childrens indent",
-              "inheritedFrom": {
-                "name": "BaseTreeItem",
-                "module": "src/tree-item/tree-item.base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "setIndent",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "item",
-                  "type": {
-                    "text": "BaseTreeItem"
-                  }
-                }
-              ],
-              "description": "Sets the indent for each item",
+              "description": "Updates the children’s selected states.",
               "inheritedFrom": {
                 "name": "BaseTreeItem",
                 "module": "src/tree-item/tree-item.base.ts"
@@ -28130,18 +27954,6 @@
               "default": "false",
               "description": "When true, the control has no child tree items\nWhen true, the control has no child tree items\n\nHTML Attribute: empty",
               "fieldName": "empty",
-              "inheritedFrom": {
-                "name": "BaseTreeItem",
-                "module": "src/tree-item/tree-item.base.ts"
-              }
-            },
-            {
-              "name": "data-indent",
-              "type": {
-                "text": "number | undefined"
-              },
-              "description": "The indent of the tree item element.\nThis is not needed once css attr() is supported (--indent: attr(data-indent type(<number>)));",
-              "fieldName": "dataIndent",
               "inheritedFrom": {
                 "name": "BaseTreeItem",
                 "module": "src/tree-item/tree-item.base.ts"
@@ -28501,38 +28313,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/anchor-button/anchor-button.definition-async.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "declarativeDefinition",
-          "type": {
-            "text": "PartialFASTElementDefinition"
-          },
-          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
-          "description": "The async definition configuration for the `<fluent-anchor-button>` element.",
-          "privacy": "public"
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "declarativeDefinition",
-          "declaration": {
-            "name": "declarativeDefinition",
-            "module": "src/anchor-button/anchor-button.definition-async.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/anchor-button/define-async.ts",
-      "declarations": [],
-      "exports": []
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/accordion-item/accordion-item.definition-async.ts",
       "declarations": [
         {
@@ -28560,6 +28340,38 @@
     {
       "kind": "javascript-module",
       "path": "src/accordion-item/define-async.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/anchor-button/anchor-button.definition-async.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "declarativeDefinition",
+          "type": {
+            "text": "PartialFASTElementDefinition"
+          },
+          "default": "{ name: tagName, registry: FluentDesignSystem.registry, template: declarativeTemplate(), }",
+          "description": "The async definition configuration for the `<fluent-anchor-button>` element.",
+          "privacy": "public"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "declarativeDefinition",
+          "declaration": {
+            "name": "declarativeDefinition",
+            "module": "src/anchor-button/anchor-button.definition-async.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/anchor-button/define-async.ts",
       "declarations": [],
       "exports": []
     },

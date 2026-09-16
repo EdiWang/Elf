@@ -1,5 +1,5 @@
 import { __decorate } from "tslib";
-import { attr, css, FASTElement, observable } from '@microsoft/fast-element';
+import { attr, FASTElement, observable } from '@microsoft/fast-element';
 import { toggleState } from '../utils/element-internals.js';
 import { maybeSetAutoFocus } from '../utils/autofocus.js';
 import { isTreeItem } from './tree-item.options.js';
@@ -107,17 +107,6 @@ export class BaseTreeItem extends FASTElement {
             this.elementInternals.ariaSelected = next ? 'true' : 'false';
         }
     }
-    dataIndentChanged(prev, next) {
-        if (this.styles !== undefined) {
-            this.$fastController.removeStyles(this.styles);
-        }
-        this.styles = css `
-      :host {
-        --indent: ${next};
-      }
-    `;
-        this.$fastController.addStyles(this.styles);
-    }
     /**
      * Handles changes to the child tree items
      *
@@ -128,7 +117,7 @@ export class BaseTreeItem extends FASTElement {
         this.updateChildTreeItems();
     }
     /**
-     * Updates the childrens indent
+     * Updates the children’s selected states.
      *
      * @public
      */
@@ -140,16 +129,6 @@ export class BaseTreeItem extends FASTElement {
         if (!this.expanded) {
             this.expanded = Array.from(this.querySelectorAll('[selected]')).some(el => isTreeItem(el));
         }
-        this.childTreeItems.forEach(item => {
-            this.setIndent(item);
-        });
-    }
-    /**
-     * Sets the indent for each item
-     */
-    setIndent(item) {
-        const indent = this.dataIndent ?? 0;
-        item.dataIndent = indent + 1;
     }
     /**
      * Toggle the expansion state of the tree item
@@ -199,9 +178,6 @@ __decorate([
 __decorate([
     attr({ mode: 'boolean' })
 ], BaseTreeItem.prototype, "empty", void 0);
-__decorate([
-    attr({ attribute: 'data-indent' })
-], BaseTreeItem.prototype, "dataIndent", void 0);
 __decorate([
     observable
 ], BaseTreeItem.prototype, "childTreeItems", void 0);

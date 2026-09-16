@@ -5,9 +5,15 @@ export const styles = css `
   ${display('block')}
 
   :host {
+    --_subitem-padding-inline-start: ${spacingHorizontalXXL};
+
     outline: none;
     font-size: ${fontSizeBase300};
     line-height: ${lineHeightBase300};
+  }
+
+  :host([size='small']) {
+    --_subitem-padding-inline-start: ${spacingHorizontalM};
   }
 
   :host(:focus-visible) .positioning-region {
@@ -26,7 +32,6 @@ export const styles = css `
     justify-content: space-between;
     cursor: pointer;
     height: ${spacingVerticalXXXL};
-    padding-inline-start: calc(var(--indent) * ${spacingHorizontalXXL});
     padding-inline-end: ${spacingVerticalS};
     border-radius: ${borderRadiusMedium};
     background-color: ${colorSubtleBackground};
@@ -99,6 +104,7 @@ export const styles = css `
 
   .items {
     display: none;
+    padding-inline-start: var(--_subitem-padding-inline-start);
   }
 
   :host([expanded]) .items {
@@ -122,7 +128,7 @@ export const styles = css `
 
   :host([size='small']) .positioning-region {
     height: ${spacingVerticalXXL};
-    padding-inline-start: calc(var(--indent) * ${spacingHorizontalM});
+    padding-inline-start: ${spacingHorizontalM};
   }
 
   :host([appearance='subtle-alpha']) .positioning-region:hover {

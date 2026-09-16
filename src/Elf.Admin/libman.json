@@ -7,11 +7,11 @@
       "destination": "wwwroot/lib/fluentui/tokens/"
     },
     {
-      "library": "@fluentui/web-components@3.0.2",
+      "library": "@fluentui/web-components@3.1.2",
       "destination": "wwwroot/lib/fluentui/web-components/"
     },
     {
-      "library": "alpinejs@3.15.8",
+      "library": "alpinejs@3.17.3",
       "destination": "wwwroot/lib/alpinejs/",
       "files": [
         "dist/module.esm.min.js"

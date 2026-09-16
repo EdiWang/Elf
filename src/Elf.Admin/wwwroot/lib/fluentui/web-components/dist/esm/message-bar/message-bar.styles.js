@@ -1,5 +1,5 @@
 import { css } from '@microsoft/fast-element';
-import { borderRadiusMedium, colorNeutralBackground3, colorNeutralForeground3, colorNeutralStroke1, colorPaletteDarkOrangeBackground1, colorPaletteDarkOrangeBorder1, colorPaletteGreenBackground1, colorPaletteGreenBorder1, colorPaletteRedBackground1, colorPaletteRedBorder1, fontFamilyBase, fontSizeBase200, lineHeightBase200, spacingHorizontalM, spacingHorizontalS, spacingVerticalMNudge, spacingVerticalS, } from '../theme/design-tokens.js';
+import { borderRadiusMedium, colorNeutralBackground3, colorNeutralForeground3, colorNeutralStroke1, colorPaletteDarkOrangeBackground1, colorPaletteDarkOrangeBorder1, colorPaletteGreenBackground1, colorPaletteGreenBorder1, colorPaletteRedBackground1, colorPaletteRedBorder1, fontFamilyBase, fontSizeBase200, lineHeightBase200, spacingHorizontalM, spacingHorizontalS, spacingVerticalMNudge, } from '../theme/design-tokens.js';
 /**
  * Styles for the MessageBar component.
  *
@@ -55,7 +55,6 @@ export const styles = css `
 
   .content {
     grid-area: body;
-    max-width: 520px;
     padding-block: ${spacingVerticalMNudge};
     padding-inline: 0;
   }
@@ -98,7 +97,6 @@ export const styles = css `
   :host([layout='multiline']) ::slotted([slot='dismiss']) {
     align-items: start;
     height: 100%;
-    padding-block-start: ${spacingVerticalS};
   }
 
   ::slotted(*) {

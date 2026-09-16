@@ -106,33 +106,13 @@ export class BaseMenuList extends FASTElement {
     focus() {
         this.menuItems?.find(item => !item.disabled)?.focus();
     }
-    static elementIndent(el) {
-        const role = el.role;
-        const startSlot = el.querySelector('[slot=start]');
-        if (role && role !== MenuItemRole.menuitem) {
-            return startSlot ? 2 : 1;
-        }
-        return startSlot ? 1 : 0;
-    }
     setItems() {
         const children = Array.from(this.children);
         children.forEach((child) => {
             Observable.getNotifier(child).subscribe(this, 'hidden');
         });
         this.menuChildren = children.filter(child => !child.hasAttribute('hidden'));
-        /**
-         * Set the indent attribute on MenuItem elements based on their
-         * position in the MenuList. Each MenuItem element has a data-indent attribute that is
-         * used to set the indent of the element's start slot content.
-         */
         this.menuItems = this.menuChildren?.filter(this.isMenuItemElement);
-        const indent = this.menuItems?.reduce((accum, current) => {
-            const elementValue = BaseMenuList.elementIndent(current);
-            return Math.max(accum, elementValue);
-        }, 0);
-        this.menuItems?.forEach((item) => {
-            item.dataset.indent = `${indent}`;
-        });
     }
     /**
      * Method for Observable changes to the hidden attribute of child elements

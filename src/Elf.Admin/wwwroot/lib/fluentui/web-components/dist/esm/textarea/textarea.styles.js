@@ -1,7 +1,7 @@
 import { css } from '@microsoft/fast-element';
 import { borderRadiusMedium, colorCompoundBrandStroke, colorNeutralBackground1, colorNeutralBackground3, colorNeutralBackgroundInverted, colorNeutralForeground1, colorNeutralForeground4, colorNeutralForegroundDisabled, colorNeutralForegroundInverted, colorNeutralStroke1, colorNeutralStroke1Hover, colorNeutralStroke1Pressed, colorNeutralStrokeAccessible, colorNeutralStrokeAccessibleHover, colorNeutralStrokeAccessiblePressed, colorNeutralStrokeDisabled, colorPaletteRedBorder2, colorTransparentBackground, curveAccelerateMid, curveDecelerateMid, durationNormal, durationUltraFast, fontFamilyBase, fontSizeBase200, fontSizeBase300, fontSizeBase400, fontWeightRegular, lineHeightBase200, lineHeightBase300, lineHeightBase400, shadow2, spacingHorizontalM, spacingHorizontalMNudge, spacingHorizontalSNudge, spacingHorizontalXS, spacingHorizontalXXS, spacingVerticalS, spacingVerticalSNudge, spacingVerticalXS, strokeWidthThin, } from '../theme/design-tokens.js';
 import { display } from '../utils/display.js';
-import { userInvalidState } from '../styles/states/index.js';
+import { nativeDisabledState, userInvalidState } from '../styles/states/index.js';
 /**
  * Styles for the TextArea component.
  *
@@ -83,15 +83,15 @@ export const styles = css `
     --control-padding-inline: ${spacingHorizontalSNudge};
   }
 
-  :host([resize='both']:not(:disabled)) {
+  :host([resize='both']:not(${nativeDisabledState})) {
     --resize: both;
   }
 
-  :host([resize='horizontal']:not(:disabled)) {
+  :host([resize='horizontal']:not(${nativeDisabledState})) {
     --resize: horizontal;
   }
 
-  :host([resize='vertical']:not(:disabled)) {
+  :host([resize='vertical']:not(${nativeDisabledState})) {
     --resize: vertical;
   }
 
@@ -121,7 +121,7 @@ export const styles = css `
     --border-block-end-color: ${colorPaletteRedBorder2};
   }
 
-  :host(:disabled) {
+  :host(${nativeDisabledState}) {
     --color: ${colorNeutralForegroundDisabled};
     --background-color: ${colorTransparentBackground};
     --border-color: ${colorNeutralStrokeDisabled};
@@ -179,7 +179,7 @@ export const styles = css `
   }
 
   :host([readonly]) .root::after,
-  :host(:disabled) .root::after {
+  :host(${nativeDisabledState}) .root::after {
     content: none;
   }
 
@@ -258,7 +258,7 @@ export const styles = css `
       --border-block-end-color: Highlight;
     }
 
-    :host(:disabled) {
+    :host(${nativeDisabledState}) {
       --color: GrayText;
       --border-color: GrayText;
       --border-block-end-color: GrayText;

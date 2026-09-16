@@ -67,14 +67,6 @@ export declare class BaseTreeItem extends FASTElement {
      * @public
      */
     empty: boolean;
-    private styles;
-    /**
-     * The indent of the tree item element.
-     * This is not needed once css attr() is supported (--indent: attr(data-indent type(<number>)));
-     * @public
-     */
-    dataIndent: number | undefined;
-    protected dataIndentChanged(prev: number, next: number): void;
     /** @internal */
     childTreeItems: BaseTreeItem[] | undefined;
     /**
@@ -84,15 +76,11 @@ export declare class BaseTreeItem extends FASTElement {
      */
     childTreeItemsChanged(): void;
     /**
-     * Updates the childrens indent
+     * Updates the children’s selected states.
      *
      * @public
      */
     updateChildTreeItems(): void;
-    /**
-     * Sets the indent for each item
-     */
-    private setIndent;
     /**
      * Toggle the expansion state of the tree item
      *

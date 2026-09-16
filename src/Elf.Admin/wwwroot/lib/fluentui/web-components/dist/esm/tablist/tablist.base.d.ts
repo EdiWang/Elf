@@ -66,6 +66,8 @@ export declare class BaseTablist extends FASTElement {
     }): void;
     /** @internal */
     handleFocusIn(event: FocusEvent): void;
+    /** @internal */
+    handleClick(event: PointerEvent): void;
     private changeTab;
     constructor();
     /**

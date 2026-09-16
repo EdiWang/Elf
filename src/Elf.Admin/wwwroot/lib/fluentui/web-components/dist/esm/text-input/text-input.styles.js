@@ -1,4 +1,5 @@
 import { css } from '@microsoft/fast-element';
+import { nativeDisabledState } from '../styles/states/index.js';
 import { borderRadiusMedium, colorCompoundBrandStroke, colorCompoundBrandStrokePressed, colorNeutralBackground1, colorNeutralBackground3, colorNeutralBackgroundInverted, colorNeutralForeground1, colorNeutralForeground3, colorNeutralForeground4, colorNeutralForegroundDisabled, colorNeutralForegroundInverted, colorNeutralStroke1, colorNeutralStroke1Hover, colorNeutralStroke1Pressed, colorNeutralStrokeAccessible, colorNeutralStrokeAccessibleHover, colorNeutralStrokeAccessiblePressed, colorNeutralStrokeDisabled, colorPaletteRedBorder2, colorTransparentBackground, colorTransparentStroke, colorTransparentStrokeInteractive, curveAccelerateMid, curveDecelerateMid, durationNormal, durationUltraFast, fontFamilyBase, fontSizeBase200, fontSizeBase300, fontSizeBase400, fontSizeBase500, fontSizeBase600, fontWeightRegular, lineHeightBase200, lineHeightBase300, lineHeightBase400, shadow2, spacingHorizontalM, spacingHorizontalMNudge, spacingHorizontalS, spacingHorizontalSNudge, spacingHorizontalXS, spacingHorizontalXXS, spacingVerticalXS, strokeWidthThin, } from '../theme/design-tokens.js';
 import { display } from '../utils/display.js';
 /**
@@ -126,13 +127,13 @@ export const styles = css `
   :host(:focus-within) .control {
     color: ${colorNeutralForeground1};
   }
-  :host([disabled]) .root {
+  :host(${nativeDisabledState}) .root {
     background: ${colorTransparentBackground};
     border: ${strokeWidthThin} solid ${colorNeutralStrokeDisabled};
   }
-  :host([disabled]) .control::placeholder,
-  :host([disabled]) ::slotted([slot='start']),
-  :host([disabled]) ::slotted([slot='end']) {
+  :host(${nativeDisabledState}) .control::placeholder,
+  :host(${nativeDisabledState}) ::slotted([slot='start']),
+  :host(${nativeDisabledState}) ::slotted([slot='end']) {
     color: ${colorNeutralForegroundDisabled};
   }
   ::selection {
@@ -183,7 +184,7 @@ export const styles = css `
     border: 0;
     border-bottom-color: ${colorNeutralStrokeAccessiblePressed};
   }
-  :host([appearance='underline'][disabled]) .root {
+  :host([appearance='underline']${nativeDisabledState}) .root {
     border-bottom-color: ${colorNeutralStrokeDisabled};
   }
   :host([appearance='filled-lighter']) .root,

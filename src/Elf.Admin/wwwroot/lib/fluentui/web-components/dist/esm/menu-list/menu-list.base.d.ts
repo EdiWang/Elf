@@ -40,7 +40,6 @@ export declare class BaseMenuList extends FASTElement {
      * @public
      */
     focus(): void;
-    private static elementIndent;
     protected setItems(): void;
     /**
      * Method for Observable changes to the hidden attribute of child elements

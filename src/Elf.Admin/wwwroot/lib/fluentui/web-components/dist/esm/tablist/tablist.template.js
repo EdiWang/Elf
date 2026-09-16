@@ -6,6 +6,7 @@ export const template = html `
   <template
     role="tablist"
     focusgroup="tablist inline block"
+    @click="${(x, c) => x.handleClick(c.event)}"
     @focusin="${(x, c) => x.handleFocusIn(c.event)}"
   >
     <slot name="tab" ${slotted('slottedTabs')}></slot>

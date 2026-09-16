@@ -1,6 +1,6 @@
 import { css } from '@microsoft/fast-element';
 import { typographyBody1Styles, typographyCaption1Styles } from '../styles/partials/typography.partials.js';
-import { activeState, descriptionState, multipleState, selectedState } from '../styles/states/index.js';
+import { activeState, descriptionState, multipleState, nativeDisabledState, selectedState, } from '../styles/states/index.js';
 import { borderRadiusMedium, borderRadiusSmall, colorCompoundBrandBackground, colorCompoundBrandStroke, colorNeutralBackground1, colorNeutralBackground1Hover, colorNeutralBackground1Pressed, colorNeutralBackgroundDisabled, colorNeutralForeground2, colorNeutralForeground2Hover, colorNeutralForeground2Pressed, colorNeutralForeground3, colorNeutralForegroundDisabled, colorNeutralForegroundInverted, colorNeutralStrokeAccessible, colorNeutralStrokeDisabled, colorStrokeFocus2, spacingHorizontalSNudge, spacingHorizontalXS, strokeWidthThick, strokeWidthThin, } from '../theme/design-tokens.js';
 import { display } from '../utils/display.js';
 /**
@@ -47,7 +47,7 @@ export const styles = css `
     color: ${colorNeutralForeground2Pressed};
   }
 
-  :host(:disabled) {
+  :host(${nativeDisabledState}) {
     background-color: ${colorNeutralBackground1};
     color: ${colorNeutralForegroundDisabled};
     cursor: default;
@@ -93,11 +93,11 @@ export const styles = css `
     fill: ${colorNeutralForegroundInverted};
   }
 
-  :host(:disabled${multipleState}) .checkmark-12-regular {
+  :host(${nativeDisabledState}${multipleState}) .checkmark-12-regular {
     border-color: ${colorNeutralStrokeDisabled};
   }
 
-  :host(:disabled${multipleState}${selectedState}) .checkmark-12-regular {
+  :host(${nativeDisabledState}${multipleState}${selectedState}) .checkmark-12-regular {
     background-color: ${colorNeutralBackgroundDisabled};
   }
 
@@ -125,7 +125,7 @@ export const styles = css `
   }
 
   @media (forced-colors: active) {
-    :host(:disabled) {
+    :host(${nativeDisabledState}) {
       color: GrayText;
     }
   }

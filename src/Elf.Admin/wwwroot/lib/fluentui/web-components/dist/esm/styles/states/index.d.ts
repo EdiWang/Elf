@@ -28,6 +28,15 @@ export declare const descriptionState: ":state(description)" | "[state--descript
  */
 export declare const disabledState: ":state(disabled)" | "[state--disabled]";
 /**
+ * Selector for the native `disabled` state for elements that are
+ * form-associated, which supports the native `:disabled` pseudo class when
+ * the `disabled` attribute is present. The `disabled` attribute selector is
+ * for SSR support because `:disabled` is not supported before the element is
+ * defined (as a form-associated custom element).
+ * @public
+ */
+export declare const nativeDisabledState = ":is([disabled], :disabled)";
+/**
  * Selector for the `error` state.
  * @public
  */
