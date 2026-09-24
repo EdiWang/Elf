@@ -1,4 +1,4 @@
-import { getLinks, setLinkEnabled } from '/js/links.apiclient.mjs';
+import { getLinks, setLinkEnabled } from './links.apiclient.mjs';
 import { elements } from './index.dom.mjs';
 import { state, updateState, getOffset } from './index.state.mjs';
 import { updatePagination } from './index.pagination.mjs';
@@ -260,7 +260,7 @@ function handleReportAction() {
         return;
     }
 
-    window.open(`/Report?linkId=${state.selectedLink.id}`, '_blank');
+    window.open(new URL(`Report?linkId=${state.selectedLink.id}`, document.baseURI).href, '_blank');
 }
 
 function handleQrAction() {

@@ -19,7 +19,7 @@ public class AuthController(IOptions<AuthenticationSettings> authSettings) : Con
         {
             case AuthenticationProvider.OpenIdConnect:
                 return SignOut(
-                    new AuthenticationProperties { RedirectUri = "/" },
+                    new AuthenticationProperties { RedirectUri = Request.PathBase.Add(new PathString("/")).Value },
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     ElfAuthSchemes.OpenIdConnect);
             case AuthenticationProvider.Local:

@@ -116,7 +116,7 @@ Alpine.data('accountManager', () => ({
 
         try {
             await resetAuthenticator({ currentPassword });
-            window.location.assign('/auth/signin');
+            window.location.assign(new URL('auth/signin', document.baseURI));
         } catch (err) {
             console.error('Error resetting authenticator:', err);
             this.isResetting = false;

@@ -1,5 +1,5 @@
-import { createLink, editLink, getLink } from '/js/links.apiclient.mjs';
-import { getTags } from '/js/tags.apiclient.mjs';
+import { createLink, editLink, getLink } from './links.apiclient.mjs';
+import { getTags } from './tags.apiclient.mjs';
 import { elements } from './index.dom.mjs';
 import { state, updateState } from './index.state.mjs';
 import { loadLinks } from './index.links.mjs';

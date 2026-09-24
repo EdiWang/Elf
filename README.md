@@ -94,7 +94,7 @@ docker compose ps
 The API initializes the empty database schema before the Admin UI starts. Open the services at:
 
 - Forwarder API: <http://localhost:8080>
-- Admin UI: <http://localhost:8081>
+- Admin UI: <http://localhost:8081/admin>
 
 Sign in to Admin with `ELF_ADMIN_USERNAME` and `ELF_ADMIN_PASSWORD` from `.env`, then complete the required TOTP setup. `ELF_FORWARDER_BASE_URL` controls the public base URL used by Admin when it generates forward links.
 
@@ -138,8 +138,8 @@ The bootstrap password is used only when the `LocalAccount` record does not exis
 Configure Elf as a confidential web client in an OIDC provider that publishes discovery metadata over HTTPS. Register both callback URLs:
 
 ```text
-https://<your-admin-host>/signin-oidc
-https://<your-admin-host>/signout-callback-oidc
+https://<your-admin-host>/admin/signin-oidc
+https://<your-admin-host>/admin/signout-callback-oidc
 ```
 
 Configure Admin with:
@@ -157,6 +157,8 @@ Authentication__OpenIdConnect__Scopes__1=profile
 Authentication__OpenIdConnect__Scopes__2=email
 ```
 
+These callback path settings are relative to the app. The Admin app's `/admin` path base makes their public callback URLs `/admin/signin-oidc` and `/admin/signout-callback-oidc`.
+
 Store the client secret in the deployment secret-management system, not in `appsettings.json` or source control.
 
 #### Reverse Proxy and Forwarded Headers
@@ -170,7 +172,7 @@ ForwardedHeaders__Enabled=true
 ForwardedHeaders__KnownProxies__0=203.0.113.10
 ```
 
-Do not trust arbitrary client-supplied `X-Forwarded-*` headers. If the terminating proxy is not trusted, an OIDC challenge can generate an `http://.../signin-oidc` callback even when the browser uses HTTPS. The identity provider then rejects the request with a redirect URI mismatch (`AADSTS50011`). Verify the generated `redirect_uri` before changing the identity-provider registration.
+Do not trust arbitrary client-supplied `X-Forwarded-*` headers. If the terminating proxy is not trusted, an OIDC challenge can generate an `http://.../admin/signin-oidc` callback even when the browser uses HTTPS. The identity provider then rejects the request with a redirect URI mismatch (`AADSTS50011`). Verify the generated `redirect_uri` before changing the identity-provider registration.
 
 
 OIDC authentication does not automatically grant Admin access. Add each administrator's exact, stable `sub` claim to the allowlist:
@@ -180,7 +182,7 @@ Authentication__OpenIdConnect__AllowedSubjects__0=<administrator subject>
 Authentication__OpenIdConnect__AllowedSubjects__1=<another administrator subject>
 ```
 
-An empty allowlist denies Admin access to every OIDC identity. To bootstrap the first administrator, sign in through `/auth/signin`, open `/auth/identity` in the same browser session, copy the returned `subject` value into `AllowedSubjects`, restart Elf.Admin, and sign in again. Do not authorize by email, name, or preferred username because those values can change.
+An empty allowlist denies Admin access to every OIDC identity. To bootstrap the first administrator, sign in through `/admin/auth/signin`, open `/admin/auth/identity` in the same browser session, copy the returned `subject` value into `AllowedSubjects`, restart Elf.Admin, and sign in again. Do not authorize by email, name, or preferred username because those values can change.
 
 Microsoft Entra ID remains supported as a standard OIDC provider. Use a tenant-specific v2 authority:
 
@@ -204,7 +206,7 @@ az deployment group create `
 
 The OIDC settings are validated at startup. The authority must be an absolute HTTPS URL without a query or fragment, callback paths must be application-relative, and scopes must include `openid`. Access and refresh tokens are not persisted in the application cookie.
 
-Existing Entra-specific deployments must replace `Authentication__Provider=EntraID` and all `Authentication__EntraID__*` keys. Build the new `Authority` as `https://login.microsoftonline.com/<tenant-id>/v2.0`. Email-based `AllowedUsers` values cannot be migrated safely; bootstrap each administrator's OIDC `sub` through `/auth/identity` and configure it under `AllowedSubjects`.
+Existing Entra-specific deployments must replace `Authentication__Provider=EntraID` and all `Authentication__EntraID__*` keys. Build the new `Authority` as `https://login.microsoftonline.com/<tenant-id>/v2.0`. Email-based `AllowedUsers` values cannot be migrated safely; bootstrap each administrator's OIDC `sub` through `/admin/auth/identity` and configure it under `AllowedSubjects`.
 
 #### External Proxy Mode
 

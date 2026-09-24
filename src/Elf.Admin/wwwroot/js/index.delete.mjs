@@ -1,4 +1,4 @@
-import { deleteLink } from '/js/links.apiclient.mjs';
+import { deleteLink } from './links.apiclient.mjs';
 import { elements } from './index.dom.mjs';
 import { state, updateState } from './index.state.mjs';
 import { loadLinks } from './index.links.mjs';

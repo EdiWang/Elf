@@ -1,6 +1,6 @@
 import { ApiClient } from './apiClient.base.mjs';
 
-const tagClient = new ApiClient('/api/tag');
+const tagClient = new ApiClient('api/tag');
 
 export async function getTags() {
     return tagClient.get('/list');

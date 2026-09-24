@@ -1,4 +1,4 @@
-import { getLinksByTags } from '/js/links.apiclient.mjs';
+import { getLinksByTags } from './links.apiclient.mjs';
 import { elements } from './index.dom.mjs';
 import { state, getOffset } from './index.state.mjs';
 import { displayLinks, showLoading, showNoData } from './index.links.mjs';

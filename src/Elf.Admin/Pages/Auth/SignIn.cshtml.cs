@@ -41,7 +41,7 @@ public class SignInModel(
         {
             case AuthenticationProvider.OpenIdConnect:
                 return Challenge(
-                    new AuthenticationProperties { RedirectUri = "/" },
+                    new AuthenticationProperties { RedirectUri = Request.PathBase.Add(new PathString("/")).Value },
                     ElfAuthSchemes.OpenIdConnect);
             case AuthenticationProvider.Local:
                 await SignOutLocalCookiesAsync();
@@ -62,7 +62,7 @@ public class SignInModel(
                 break;
             case AuthenticationProvider.OpenIdConnect:
                 return Challenge(
-                    new AuthenticationProperties { RedirectUri = "/" },
+                    new AuthenticationProperties { RedirectUri = Request.PathBase.Add(new PathString("/")).Value },
                     ElfAuthSchemes.OpenIdConnect);
             case AuthenticationProvider.External:
                 return RedirectToPage("/Index");

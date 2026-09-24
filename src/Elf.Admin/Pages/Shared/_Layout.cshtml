@@ -10,6 +10,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="@Url.Content("~/")" />
+    <link rel="icon" href="@Url.Content("~/favicon.ico")" />
     <title>@ViewData["Title"] - Elf Admin</title>
     <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -36,7 +38,7 @@
             </a>
             @if (User.Identity?.IsAuthenticated == true)
             {
-                <a class="edi-btn" href="/auth/signout">
+                <a class="edi-btn" href="@Url.Content("~/auth/signout")">
                     <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
                     Sign out
                 </a>

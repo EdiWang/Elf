@@ -145,7 +145,15 @@ public class LinkController(
         var link = await queryMediator.QueryAsync(new GetLinkQuery(id));
         if (link is null) return NotFound();
 
-        return Ok(link);
+        return Ok(new LinkEditModel
+        {
+            OriginUrl = link.OriginUrl,
+            Note = link.Note,
+            AkaName = link.AkaName,
+            IsEnabled = link.IsEnabled,
+            TTL = link.TTL ?? 0,
+            Tags = link.Tags.Select(tag => tag.Name).ToArray()
+        });
     }
 
     [HttpDelete("{id:int}")]

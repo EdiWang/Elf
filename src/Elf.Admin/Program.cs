@@ -161,6 +161,20 @@ public class Program
 
     private static void ConfigureMiddleware(WebApplication app)
     {
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Path != "/health" &&
+                !context.Request.Path.StartsWithSegments("/admin"))
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                return;
+            }
+
+            await next();
+        });
+
+        app.UsePathBase("/admin");
+
         bool useXFFHeaders = app.Configuration.GetValue<bool>("ForwardedHeaders:Enabled");
         if (useXFFHeaders) app.UseSmartXFFHeader();
 

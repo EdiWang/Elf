@@ -1,6 +1,6 @@
 import { ApiClient, apiOperation, apiRequest, handleResponse } from './apiClient.base.mjs';
 
-const linkClient = new ApiClient('/api/link');
+const linkClient = new ApiClient('api/link');
 
 export async function createLink(linkData) {
     return linkClient.post('/create', linkData, 'Link created successfully');
@@ -12,7 +12,7 @@ export async function editLink(id, linkData) {
 
 export async function setLinkEnabled(id, isEnabled) {
     return apiOperation(async () => {
-        const response = await apiRequest(`/api/link/${id}/enable?isEnabled=${isEnabled}`, {
+        const response = await apiRequest(`api/link/${id}/enable?isEnabled=${isEnabled}`, {
             method: 'PUT'
         });
         

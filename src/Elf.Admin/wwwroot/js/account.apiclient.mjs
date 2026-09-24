@@ -1,6 +1,6 @@
 import { ApiClient } from './apiClient.base.mjs';
 
-const accountClient = new ApiClient('/api/account');
+const accountClient = new ApiClient('api/account');
 
 export async function getAccount() {
     return accountClient.get('');

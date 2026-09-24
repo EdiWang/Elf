@@ -1,6 +1,6 @@
 import { ApiClient, apiOperation } from './apiClient.base.mjs';
 
-const reportClient = new ApiClient('/api/report');
+const reportClient = new ApiClient('api/report');
 
 /**
  * Get recent requests with pagination
