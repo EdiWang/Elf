@@ -50,10 +50,60 @@ public class ForwardControllerResilienceTests
         Assert.IsType<NotFoundResult>(result);
     }
 
+    [Fact]
+    public async Task Forward_WhenTrackingIsEnabled_QueuesTrackingAndAddsResponseHeader()
+    {
+        var queue = new RecordingBackgroundTaskQueue();
+        var controller = CreateController(
+            new LinkEntity
+            {
+                Id = 1,
+                OriginUrl = "https://example.com",
+                FwToken = "abc12345",
+                IsEnabled = true
+            },
+            new SequenceLinkVerifier(LinkVerifyResult.Valid),
+            new Dictionary<string, string>(),
+            new DisabledFeatureManager(isEnabled: true),
+            queue);
+
+        var result = await controller.Forward("abc12345");
+
+        Assert.IsType<RedirectResult>(result);
+        Assert.True(controller.Response.Headers.ContainsKey("X-Elf-Tracking-For"));
+        Assert.NotNull(queue.WorkItem);
+    }
+
+    [Fact]
+    public async Task Forward_WhenTrackingIsDisabled_DoesNotQueueTracking()
+    {
+        var queue = new RecordingBackgroundTaskQueue();
+        var controller = CreateController(
+            new LinkEntity
+            {
+                Id = 1,
+                OriginUrl = "https://example.com",
+                FwToken = "abc12345",
+                IsEnabled = true
+            },
+            new SequenceLinkVerifier(LinkVerifyResult.Valid),
+            new Dictionary<string, string>(),
+            new DisabledFeatureManager(),
+            queue);
+
+        var result = await controller.Forward("abc12345");
+
+        Assert.IsType<RedirectResult>(result);
+        Assert.False(controller.Response.Headers.ContainsKey("X-Elf-Tracking-For"));
+        Assert.Null(queue.WorkItem);
+    }
+
     private static ForwardController CreateController(
         LinkEntity link,
         ILinkVerifier linkVerifier,
-        IReadOnlyDictionary<string, string> configurationValues)
+        IReadOnlyDictionary<string, string> configurationValues,
+        IFeatureManager featureManager = null,
+        IBackgroundTaskQueue backgroundTaskQueue = null)
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(configurationValues)
@@ -65,9 +115,9 @@ public class ForwardControllerResilienceTests
             new ShortGuidTokenGenerator(),
             CreateCache(),
             linkVerifier,
-            new DisabledFeatureManager(),
+            featureManager ?? new DisabledFeatureManager(),
             new StaticQueryMediator(link),
-            new NoopBackgroundTaskQueue());
+            backgroundTaskQueue ?? new NoopBackgroundTaskQueue());
 
         controller.ControllerContext = new ControllerContext
         {
@@ -106,13 +156,27 @@ public class ForwardControllerResilienceTests
         }
     }
 
-    private sealed class DisabledFeatureManager : IFeatureManager
+    private sealed class DisabledFeatureManager(bool isEnabled = false) : IFeatureManager
     {
         public IAsyncEnumerable<string> GetFeatureNamesAsync() => AsyncEnumerable.Empty<string>();
 
-        public Task<bool> IsEnabledAsync(string feature) => Task.FromResult(false);
+        public Task<bool> IsEnabledAsync(string feature) => Task.FromResult(isEnabled);
 
-        public Task<bool> IsEnabledAsync<TContext>(string feature, TContext context) => Task.FromResult(false);
+        public Task<bool> IsEnabledAsync<TContext>(string feature, TContext context) => Task.FromResult(isEnabled);
+    }
+
+    private sealed class RecordingBackgroundTaskQueue : IBackgroundTaskQueue
+    {
+        public Func<IServiceProvider, CancellationToken, ValueTask> WorkItem { get; private set; }
+
+        public bool TryQueue(Func<IServiceProvider, CancellationToken, ValueTask> workItem)
+        {
+            WorkItem = workItem;
+            return true;
+        }
+
+        public ValueTask<Func<IServiceProvider, CancellationToken, ValueTask>> DequeueAsync(CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
     }
 
     private sealed class NoopBackgroundTaskQueue : IBackgroundTaskQueue

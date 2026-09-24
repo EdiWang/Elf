@@ -1,12 +1,16 @@
 using Elf.Admin.Controllers;
 using Elf.Admin.Features;
+using Elf.Admin.Models;
 using Elf.Data;
 using Elf.Shared;
+using Elf.Shared.Models;
 using LiteBus.Commands;
 using LiteBus.Commands.Abstractions;
 using LiteBus.Extensions.Microsoft.DependencyInjection;
 using LiteBus.Messaging;
+using LiteBus.Queries;
 using LiteBus.Queries.Abstractions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
@@ -58,6 +62,42 @@ public class LinkControllerCacheInvalidationTests
         cache.Verify(c => c.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    [Fact]
+    public async Task Edit_WhenCommandReturnsToken_RemovesCachedLink()
+    {
+        var cache = new Mock<IDistributedCache>();
+        await using var serviceProvider = CreateServiceProvider(out var databaseName);
+        await SeedLinkAsync(databaseName);
+
+        var controller = CreateController(cache.Object, serviceProvider);
+
+        var result = await controller.Edit(1, new LinkEditModel
+        {
+            OriginUrl = "https://example.com/updated",
+            IsEnabled = true,
+            TTL = 60,
+            Tags = []
+        });
+
+        Assert.IsType<NoContentResult>(result);
+        cache.Verify(c => c.RemoveAsync("abc12345", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Delete_WhenLinkExists_RemovesCachedLink()
+    {
+        var cache = new Mock<IDistributedCache>();
+        await using var serviceProvider = CreateServiceProvider(out var databaseName);
+        await SeedLinkAsync(databaseName);
+
+        var controller = CreateController(cache.Object, serviceProvider);
+
+        var result = await controller.Delete(1);
+
+        Assert.IsType<OkResult>(result);
+        cache.Verify(c => c.RemoveAsync("abc12345", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     private static ServiceProvider CreateServiceProvider(out string databaseName)
     {
         var inMemoryDatabaseName = Guid.NewGuid().ToString();
@@ -74,9 +114,44 @@ public class LinkControllerCacheInvalidationTests
             {
                 module.RegisterFromAssembly(typeof(SetEnableCommand).Assembly);
             });
+
+            liteBus.AddQueries(module =>
+            {
+                module.RegisterFromAssembly(typeof(SetEnableCommand).Assembly);
+            });
         });
 
         return services.BuildServiceProvider();
+    }
+
+    private static LinkController CreateController(IDistributedCache cache, ServiceProvider serviceProvider)
+    {
+        var featureManager = new Mock<IFeatureManager>();
+        featureManager
+            .Setup(manager => manager.IsEnabledAsync(nameof(FeatureFlags.AllowSelfRedirection)))
+            .ReturnsAsync(false);
+
+        var linkVerifier = new Mock<ILinkVerifier>();
+        linkVerifier
+            .Setup(verifier => verifier.Verify(
+                It.IsAny<string>(),
+                It.IsAny<IUrlHelper>(),
+                It.IsAny<HttpRequest>(),
+                It.IsAny<bool>()))
+            .Returns(LinkVerifyResult.Valid);
+
+        return new LinkController(
+            linkVerifier.Object,
+            cache,
+            featureManager.Object,
+            serviceProvider.GetRequiredService<ICommandMediator>(),
+            serviceProvider.GetRequiredService<IQueryMediator>())
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
     }
 
     private static async Task SeedLinkAsync(string databaseName)

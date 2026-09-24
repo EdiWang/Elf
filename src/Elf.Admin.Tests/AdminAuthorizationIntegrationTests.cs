@@ -1,11 +1,16 @@
 using Elf.Admin.Auth;
 using Elf.Admin.Controllers;
+using Elf.Admin.Models;
 using Elf.Admin.Pages.Auth;
 using Elf.Api.Controllers;
+using Elf.Api.Features;
 using Elf.Api.Setup;
+using Elf.Data;
+using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.RateLimiting;
@@ -22,6 +27,7 @@ using Moq;
 using System.Net;
 using System.Net.Http.Json;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Elf.Admin.Tests;
 
@@ -270,6 +276,168 @@ public class AdminAuthorizationIntegrationTests
     }
 
     [Fact]
+    public async Task ForwardAndAka_WhenLinkIsValid_RedirectWithoutCaching()
+    {
+        using var factory = CreateFactory(AuthenticationProvider.External);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Elf integration test");
+
+        var mediator = factory.Services.GetRequiredService<TestQueryMediator>();
+        mediator.Link = new LinkEntity
+        {
+            OriginUrl = "https://example.com/destination",
+            FwToken = "a1b2c3d4",
+            AkaName = "good-name",
+            IsEnabled = true,
+            TTL = 60
+        };
+        mediator.AkaToken = "a1b2c3d4";
+
+        var forward = await client.GetAsync("/fw/a1b2c3d4", TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.Redirect, forward.StatusCode);
+        Assert.Equal("https://example.com/destination", forward.Headers.Location?.ToString());
+        Assert.Contains("no-store", forward.Headers.CacheControl?.ToString());
+
+        var aka = await client.GetAsync("/aka/good-name", TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.Redirect, aka.StatusCode);
+        Assert.Equal("https://example.com/destination", aka.Headers.Location?.ToString());
+        Assert.Contains("no-store", aka.Headers.CacheControl?.ToString());
+
+        var invalidAka = await client.GetAsync("/aka/-invalid", TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.NotFound, invalidAka.StatusCode);
+        Assert.Equal(1, mediator.AkaQueryCount);
+    }
+
+    [Fact]
+    public async Task Forward_WhenLinkIsMissingOrDisabled_UsesConfiguredFallback()
+    {
+        using var factory = CreateFactory(AuthenticationProvider.External);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Elf integration test");
+        var mediator = factory.Services.GetRequiredService<TestQueryMediator>();
+
+        var missing = await client.GetAsync("/fw/a1b2c3d4", TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.Redirect, missing.StatusCode);
+        Assert.Equal("https://fallback.example/not-found", missing.Headers.Location?.ToString());
+
+        mediator.Link = new LinkEntity
+        {
+            OriginUrl = "https://example.com/disabled",
+            FwToken = "a1b2c3d4",
+            IsEnabled = false,
+            TTL = 60
+        };
+        var disabled = await client.GetAsync("/fw/a1b2c3d4", TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.Redirect, disabled.StatusCode);
+        Assert.Equal("https://fallback.example/not-found", disabled.Headers.Location?.ToString());
+    }
+
+    [Theory]
+    [InlineData("not-a-url")]
+    [InlineData("http://127.0.0.1/private")]
+    [InlineData("https://go.edi.wang/fw/another-token")]
+    [InlineData("https://go.edi.wang/aka/another-name")]
+    public async Task Forward_WhenStoredOriginIsInvalidOrSelfReferential_UsesFallback(string originUrl)
+    {
+        using var factory = CreateFactory(AuthenticationProvider.External);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            BaseAddress = new Uri("https://go.edi.wang")
+        });
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Elf integration test");
+        factory.Services.GetRequiredService<TestQueryMediator>().Link = new LinkEntity
+        {
+            OriginUrl = originUrl,
+            FwToken = "a1b2c3d4",
+            IsEnabled = true,
+            TTL = 60
+        };
+
+        var response = await client.GetAsync("/fw/a1b2c3d4", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal("https://fallback.example/not-found", response.Headers.Location?.ToString());
+    }
+
+    [Theory]
+    [InlineData("https://go.edi.wang/fw/another-token")]
+    [InlineData("https://go.edi.wang/aka/another-name")]
+    public async Task AdminCreate_WhenOriginTargetsSameHostForwardEndpoint_IsRejected(string originUrl)
+    {
+        using var factory = CreateFactory(AuthenticationProvider.External);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            BaseAddress = new Uri("https://go.edi.wang")
+        });
+
+        var home = await client.GetAsync("/admin", TestContext.Current.CancellationToken);
+        var html = await home.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var antiforgeryToken = Regex.Match(html, "name=\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\"");
+        Assert.True(antiforgeryToken.Success, "Expected an antiforgery token on the Admin page.");
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/admin/api/link/create")
+        {
+            Content = JsonContent.Create(new LinkEditModel
+            {
+                OriginUrl = originUrl,
+                IsEnabled = true,
+                TTL = 60
+            })
+        };
+        request.Headers.Add("RequestVerificationToken", antiforgeryToken.Groups[1].Value);
+
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains("pointing to this site", body);
+    }
+
+    [Fact]
+    public async Task ForwarderRateLimit_GroupsIpv6ClientsBy64Subnet()
+    {
+        using var factory = CreateFactory(
+            AuthenticationProvider.Local,
+            settings: new Dictionary<string, string>
+            {
+                ["RateLimit:PermitLimit"] = "2",
+                ["RateLimit:WindowSeconds"] = "60"
+            },
+            configureTestServices: services => services.AddTransient<IStartupFilter, RemoteIpHeaderStartupFilter>());
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Elf integration test");
+
+        HttpResponseMessage response = null;
+        var addresses = new[]
+        {
+            "2001:db8:abcd:1234::1",
+            "2001:db8:abcd:1234::2",
+            "2001:db8:abcd:1234::3"
+        };
+        foreach (var address in addresses)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, "/fw/not-a-token");
+            request.Headers.Add("X-Test-Remote-IP", address);
+            response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+        }
+
+        Assert.NotNull(response);
+        Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
+        Assert.Equal("2", response.Headers.GetValues("x-ratelimit-limit").Single());
+    }
+
+    [Fact]
     public async Task UnsafeApiRequest_WhenAntiforgeryTokenIsMissing_ReturnsBadRequest()
     {
         using var factory = CreateFactory(AuthenticationProvider.External);
@@ -314,15 +482,33 @@ public class AdminAuthorizationIntegrationTests
         Assert.Equal(firstKey, secondKey);
     }
 
-    private static WebApplicationFactory<Program> CreateFactory(AuthenticationProvider provider) =>
+    private static WebApplicationFactory<Program> CreateFactory(
+        AuthenticationProvider provider,
+        IReadOnlyDictionary<string, string> settings = null,
+        Action<IServiceCollection> configureTestServices = null) =>
         new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
             {
                 builder.UseSetting("Authentication:Provider", provider.ToString());
+                builder.UseSetting("DefaultRedirectionUrl", "https://fallback.example/not-found");
+                builder.UseSetting("FeatureManagement:EnableTracking", "false");
                 builder.UseSetting(
                     "ConnectionStrings:ElfDatabase",
                     "Server=(localdb)\\MSSQLLocalDB;Database=elf-test;Trusted_Connection=True;");
-                builder.ConfigureTestServices(UseSuccessfulStartupInitializer);
+                foreach (var setting in settings ?? new Dictionary<string, string>())
+                {
+                    builder.UseSetting(setting.Key, setting.Value);
+                }
+
+                builder.ConfigureTestServices(services =>
+                {
+                    UseSuccessfulStartupInitializer(services);
+                    services.RemoveAll<IQueryMediator>();
+                    services.AddSingleton<TestQueryMediator>();
+                    services.AddSingleton<IQueryMediator>(serviceProvider =>
+                        serviceProvider.GetRequiredService<TestQueryMediator>());
+                    configureTestServices?.Invoke(services);
+                });
             });
 
     private static WebApplicationFactory<Program> CreateOpenIdConnectFactory()
@@ -352,6 +538,10 @@ public class AdminAuthorizationIntegrationTests
                         ElfAuthSchemes.OpenIdConnect,
                         options => options.ConfigurationManager = configurationManager.Object);
                     UseSuccessfulStartupInitializer(services);
+                    services.RemoveAll<IQueryMediator>();
+                    services.AddSingleton<TestQueryMediator>();
+                    services.AddSingleton<IQueryMediator>(serviceProvider =>
+                        serviceProvider.GetRequiredService<TestQueryMediator>());
                 });
             });
     }
@@ -366,6 +556,59 @@ public class AdminAuthorizationIntegrationTests
     {
         public Task<InitStartUpResult> InitStartUpAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(InitStartUpResult.Success);
+    }
+
+    private sealed class TestQueryMediator : IQueryMediator
+    {
+        public LinkEntity Link { get; set; }
+
+        public string AkaToken { get; set; }
+
+        public int AkaQueryCount { get; private set; }
+
+        public Task<TQueryResult> QueryAsync<TQueryResult>(
+            IQuery<TQueryResult> query,
+            QueryMediationSettings settings,
+            CancellationToken cancellationToken = default)
+        {
+            object result = query switch
+            {
+                GetLinkByTokenQuery => Link,
+                GetTokenByAkaNameQuery => QueryAkaToken(),
+                _ => null
+            };
+
+            return Task.FromResult(result is null ? default : (TQueryResult)result);
+        }
+
+        public IAsyncEnumerable<TQueryResult> StreamAsync<TQueryResult>(
+            IStreamQuery<TQueryResult> query,
+            QueryMediationSettings settings,
+            CancellationToken cancellationToken = default) =>
+            AsyncEnumerable.Empty<TQueryResult>();
+
+        private string QueryAkaToken()
+        {
+            AkaQueryCount++;
+            return AkaToken;
+        }
+    }
+
+    private sealed class RemoteIpHeaderStartupFilter : IStartupFilter
+    {
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => app =>
+        {
+            app.Use(async (context, nextRequest) =>
+            {
+                if (IPAddress.TryParse(context.Request.Headers["X-Test-Remote-IP"], out var ipAddress))
+                {
+                    context.Connection.RemoteIpAddress = ipAddress;
+                }
+
+                await nextRequest();
+            });
+            next(app);
+        };
     }
 
     private static string InvokeGetRateLimitPartitionKey(HttpContext httpContext)

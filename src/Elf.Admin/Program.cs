@@ -35,6 +35,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
         ConfigureServices(builder.Services, builder.Configuration, builder.Environment);
 
