@@ -1,4 +1,8 @@
 using Edi.AspNetCore.Utils;
+using Elf.Api;
+using Elf.Api.Controllers;
+using Elf.Api.Services;
+using Elf.Api.Setup;
 using Elf.Admin.Auth;
 using Elf.Admin.Services;
 using Elf.Data;
@@ -9,6 +13,8 @@ using LiteBus.Extensions.Microsoft.DependencyInjection;
 using LiteBus.Messaging;
 using LiteBus.Queries;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
@@ -17,6 +23,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.RateLimiting;
+using Polly;
 
 namespace Elf.Admin;
 
@@ -25,7 +32,7 @@ public class Program
     private const int AuthRateLimitPermitLimit = 8;
     private static readonly TimeSpan AuthRateLimitWindow = TimeSpan.FromMinutes(5);
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +40,7 @@ public class Program
 
         var app = builder.Build();
 
+        await app.InitStartUp();
         ConfigureMiddleware(app);
 
         app.Run();
@@ -47,11 +55,13 @@ public class Program
             liteBus.AddCommands(module =>
             {
                 module.RegisterFromAssembly(typeof(Program).Assembly);
+                module.RegisterFromAssembly(typeof(ForwardController).Assembly);
             });
 
             liteBus.AddQueries(module =>
             {
                 module.RegisterFromAssembly(typeof(Program).Assembly);
+                module.RegisterFromAssembly(typeof(ForwardController).Assembly);
             });
         });
 
@@ -66,7 +76,7 @@ public class Program
         services.AddControllers(options =>
         {
             options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
-        });
+        }).AddApplicationPart(typeof(ForwardController).Assembly);
         services.AddAntiforgery(options =>
         {
             options.HeaderName = "RequestVerificationToken";
@@ -74,17 +84,27 @@ public class Program
         services.AddElfAdminAuthentication(configuration);
         services.AddRateLimiter(options =>
         {
+            var forwarderRateLimitOptions = new RateLimitOptions();
+            configuration.GetSection(RateLimitOptions.RateLimit).Bind(forwarderRateLimitOptions);
+
             options.OnRejected = async (context, ct) =>
             {
+                var isForwarderLimit = context.HttpContext.GetEndpoint()?.Metadata
+                    .GetMetadata<EnableRateLimitingAttribute>()?.PolicyName == "fixed-ip";
+                var permitLimit = isForwarderLimit ? forwarderRateLimitOptions.PermitLimit : AuthRateLimitPermitLimit;
+                var window = isForwarderLimit
+                    ? TimeSpan.FromSeconds(forwarderRateLimitOptions.WindowSeconds)
+                    : AuthRateLimitWindow;
+
                 if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
                 {
                     context.HttpContext.Response.Headers.RetryAfter =
                         ((int)retryAfter.TotalSeconds).ToString(NumberFormatInfo.InvariantInfo);
                 }
 
-                context.HttpContext.Response.Headers["x-ratelimit-limit"] = AuthRateLimitPermitLimit.ToString(NumberFormatInfo.InvariantInfo);
+                context.HttpContext.Response.Headers["x-ratelimit-limit"] = permitLimit.ToString(NumberFormatInfo.InvariantInfo);
                 context.HttpContext.Response.Headers["x-ratelimit-remaining"] = "0";
-                context.HttpContext.Response.Headers["x-ratelimit-reset"] = DateTimeOffset.UtcNow.Add(AuthRateLimitWindow).ToUnixTimeSeconds().ToString(NumberFormatInfo.InvariantInfo);
+                context.HttpContext.Response.Headers["x-ratelimit-reset"] = DateTimeOffset.UtcNow.Add(window).ToUnixTimeSeconds().ToString(NumberFormatInfo.InvariantInfo);
 
                 context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
                 await context.HttpContext.Response.WriteAsync("Too Many Requests", ct);
@@ -99,6 +119,27 @@ public class Program
                         Window = AuthRateLimitWindow,
                         QueueLimit = 0
                     }));
+
+            options.AddPolicy("fixed-ip", httpContext =>
+            {
+                var remoteIpAddress = httpContext.Connection.RemoteIpAddress;
+                if (remoteIpAddress is null || IPAddress.IsLoopback(remoteIpAddress))
+                {
+                    return RateLimitPartition.GetNoLimiter(IPAddress.Loopback.ToString());
+                }
+
+                var partitionKey = remoteIpAddress.AddressFamily == AddressFamily.InterNetworkV6
+                    ? GetIPv6Subnet(remoteIpAddress)
+                    : remoteIpAddress.ToString();
+
+                return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
+                {
+                    AutoReplenishment = forwarderRateLimitOptions.AutoReplenishment,
+                    PermitLimit = forwarderRateLimitOptions.PermitLimit,
+                    Window = TimeSpan.FromSeconds(forwarderRateLimitOptions.WindowSeconds),
+                    QueueLimit = forwarderRateLimitOptions.QueueLimit
+                });
+            });
         });
         services.AddHealthChecks();
         services.AddOptions();
@@ -121,8 +162,20 @@ public class Program
 
         services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
         services.AddScoped<ILinkVerifier, LinkVerifier>();
+        services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+        services.AddHostedService<QueuedBackgroundService>();
+        services.AddHttpClient<IIPLocationService, IPLocationService>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(3);
+            })
+            .AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(
+                3,
+                retryCount => TimeSpan.FromSeconds(Math.Pow(2, retryCount))));
 
         var databaseProvider = GetDatabaseProvider(configuration);
+        services.AddSingleton(new ElfDatabaseOptions(databaseProvider));
+        services.AddScoped<IDatabaseSchemaRunner, DatabaseSchemaRunner>();
+        services.AddScoped<IStartUpInitializer, StartUpInitializer>();
         services.AddDbContext<ElfDbContext>(options =>
         {
             options.UseLazyLoadingProxies();
@@ -163,8 +216,11 @@ public class Program
     {
         app.Use(async (context, next) =>
         {
-            if (context.Request.Path != "/health" &&
-                !context.Request.Path.StartsWithSegments("/admin"))
+            var path = context.Request.Path;
+            if (path != "/" && path != "/health" &&
+                !path.StartsWithSegments("/admin") &&
+                !path.StartsWithSegments("/fw") &&
+                !path.StartsWithSegments("/aka"))
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
                 return;
@@ -178,16 +234,29 @@ public class Program
         bool useXFFHeaders = app.Configuration.GetValue<bool>("ForwardedHeaders:Enabled");
         if (useXFFHeaders) app.UseSmartXFFHeader();
 
+        var policyCollection = new HeaderPolicyCollection()
+            .AddFrameOptionsDeny()
+            .AddContentTypeOptionsNoSniff()
+            .RemoveServerHeader();
+        app.UseSecurityHeaders(policyCollection);
+
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Error");
+            app.UseHsts();
         }
 
         // Use response compression (must be before UseStaticFiles)
         app.UseResponseCompression();
 
         app.UseHttpsRedirection();
+        app.UseWhen(context => context.Request.PathBase == PathString.Empty && context.Request.Path == "/", branch =>
+            branch.UseHealthChecks("/", new HealthCheckOptions
+            {
+                ResponseWriter = PingEndpoint.WriteResponse
+            }));
+
         app.UseStaticFiles();
 
         app.UseRouting();
@@ -197,7 +266,6 @@ public class Program
 
         app.MapRazorPages();
         app.MapControllers();
-
         app.MapHealthChecks("/health", new()
         {
             ResponseWriter = PingEndpoint.WriteResponse

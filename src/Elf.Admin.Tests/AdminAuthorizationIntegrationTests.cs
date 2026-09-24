@@ -1,6 +1,8 @@
 using Elf.Admin.Auth;
 using Elf.Admin.Controllers;
 using Elf.Admin.Pages.Auth;
+using Elf.Api.Controllers;
+using Elf.Api.Setup;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -137,7 +140,6 @@ public class AdminAuthorizationIntegrationTests
     }
 
     [Theory]
-    [InlineData("/")]
     [InlineData("/api/tag/list")]
     [InlineData("/auth/signin")]
     [InlineData("/account/accessdenied")]
@@ -170,6 +172,9 @@ public class AdminAuthorizationIntegrationTests
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/admin/lib/alpinejs/dist/module.esm.min.js", TestContext.Current.CancellationToken)).StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/admin/favicon.ico", TestContext.Current.CancellationToken)).StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/health", TestContext.Current.CancellationToken)).StatusCode);
+        var rootHealth = await client.GetAsync("/", TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.OK, rootHealth.StatusCode);
+        Assert.Equal("DENY", rootHealth.Headers.GetValues("X-Frame-Options").Single());
     }
 
     [Fact]
@@ -233,6 +238,35 @@ public class AdminAuthorizationIntegrationTests
         Assert.Contains("__RequestVerificationToken", content);
         Assert.Contains("<base href=\"/admin/\"", content);
         Assert.Contains("/admin/js/main.mjs", content);
+        Assert.Contains("data-forwarder-base-url=\"https://go.edi.wang\"", content);
+    }
+
+    [Fact]
+    public async Task ForwarderRoutes_ArePublicAndAdminApiRemainsProtected()
+    {
+        using var factory = CreateFactory(AuthenticationProvider.Local);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Elf integration test");
+
+        var forwardResponse = await client.GetAsync("/fw/not-a-token", TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.BadRequest, forwardResponse.StatusCode);
+
+        var adminResponse = await client.GetAsync("/admin/api/tag/list", TestContext.Current.CancellationToken);
+        Assert.True(adminResponse.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Redirect);
+
+        var endpoints = factory.Services
+            .GetServices<EndpointDataSource>()
+            .SelectMany(source => source.Endpoints)
+            .OfType<RouteEndpoint>()
+            .Select(endpoint => endpoint.Metadata.GetMetadata<ControllerActionDescriptor>())
+            .Where(action => action?.ControllerTypeInfo.AsType() == typeof(ForwardController))
+            .ToList();
+
+        Assert.Contains(endpoints, action => action?.ActionName == nameof(ForwardController.Forward));
+        Assert.Contains(endpoints, action => action?.ActionName == nameof(ForwardController.Aka));
     }
 
     [Fact]
@@ -288,6 +322,7 @@ public class AdminAuthorizationIntegrationTests
                 builder.UseSetting(
                     "ConnectionStrings:ElfDatabase",
                     "Server=(localdb)\\MSSQLLocalDB;Database=elf-test;Trusted_Connection=True;");
+                builder.ConfigureTestServices(UseSuccessfulStartupInitializer);
             });
 
     private static WebApplicationFactory<Program> CreateOpenIdConnectFactory()
@@ -311,10 +346,26 @@ public class AdminAuthorizationIntegrationTests
                 builder.UseSetting(
                     "ConnectionStrings:ElfDatabase",
                     "Server=(localdb)\\MSSQLLocalDB;Database=elf-test;Trusted_Connection=True;");
-                builder.ConfigureTestServices(services => services.PostConfigure<OpenIdConnectOptions>(
-                    ElfAuthSchemes.OpenIdConnect,
-                    options => options.ConfigurationManager = configurationManager.Object));
+                builder.ConfigureTestServices(services =>
+                {
+                    services.PostConfigure<OpenIdConnectOptions>(
+                        ElfAuthSchemes.OpenIdConnect,
+                        options => options.ConfigurationManager = configurationManager.Object);
+                    UseSuccessfulStartupInitializer(services);
+                });
             });
+    }
+
+    private static void UseSuccessfulStartupInitializer(IServiceCollection services)
+    {
+        services.RemoveAll<IStartUpInitializer>();
+        services.AddScoped<IStartUpInitializer, SuccessfulStartupInitializer>();
+    }
+
+    private sealed class SuccessfulStartupInitializer : IStartUpInitializer
+    {
+        public Task<InitStartUpResult> InitStartUpAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(InitStartUpResult.Success);
     }
 
     private static string InvokeGetRateLimitPartitionKey(HttpContext httpContext)
