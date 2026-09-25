@@ -244,7 +244,14 @@ public class Program
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
-            app.UseExceptionHandler("/Error");
+            app.UseWhen(context => context.Request.PathBase.StartsWithSegments("/admin"), branch =>
+                branch.UseExceptionHandler("/Error"));
+            app.UseWhen(context => !context.Request.PathBase.StartsWithSegments("/admin"), branch =>
+                branch.UseExceptionHandler(error => error.Run(context =>
+                {
+                    context.Response.Headers.CacheControl = "no-store";
+                    return Results.Problem(statusCode: StatusCodes.Status500InternalServerError).ExecuteAsync(context);
+                })));
             app.UseHsts();
         }
 
