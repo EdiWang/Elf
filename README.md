@@ -1,7 +1,6 @@
 # Elf
 
-[![Forwarder API](https://github.com/EdiWang/Elf/actions/workflows/docker-api.yml/badge.svg)](https://github.com/EdiWang/Elf/actions/workflows/docker-api.yml) 
-[![Admin UI](https://github.com/EdiWang/Elf/actions/workflows/docker-admin.yml/badge.svg)](https://github.com/EdiWang/Elf/actions/workflows/docker-admin.yml)
+[![Elf Single Image](https://github.com/EdiWang/Elf/actions/workflows/docker-elf.yml/badge.svg)](https://github.com/EdiWang/Elf/actions/workflows/docker-elf.yml)
 
 
 The link forward service used by https://go.edi.wang. It generates static URLs for redirecting third party URLs. It's similar to, but **NOT a URL shorter**. 
@@ -68,12 +67,12 @@ flowchart TD
 
 ### Local Deployment with Docker Compose (Recommended)
 
-This starts PostgreSQL, the Forwarder API, and the Admin UI with images pulled from Docker Hub. The application images are not built locally.
+This starts PostgreSQL and one Elf application image. The same application serves public `/fw/*` and `/aka/*` redirects and the Admin UI under `/admin`.
 
 Prerequisites:
 
 - [Docker](https://www.docker.com/) with Docker Compose v2
-- Local ports `5432`, `8080`, and `8081` available
+- Local ports `5432` and `8080` available
 
 Create the local environment file and replace both placeholder passwords with strong values:
 
@@ -81,7 +80,9 @@ Create the local environment file and replace both placeholder passwords with st
 Copy-Item .env.example .env
 ```
 
-The Compose file uses `postgres:18-alpine`, `ediwang/elf:latest`, and `ediwang/elf-admin:latest`. It configures PostgreSQL, selects the `PostgreSql` provider, and enables the built-in `Local` Admin account authentication.
+Set `ELF_POSTGRES_PASSWORD` to a strong value containing only letters, digits, `_`, or `-`; Compose embeds it in the PostgreSQL connection string. Keep production passwords and OIDC client secrets in the deployment secret store.
+
+The Compose file uses `postgres:18-alpine` and `ediwang/elf:latest`. It configures PostgreSQL and the merged application with the `PostgreSql` provider and built-in `Local` Admin authentication. The application port is published only on `127.0.0.1`; a reverse proxy on the same host can reach it, while remote clients cannot bypass that proxy.
 
 Pull the Docker Hub images and start all services:
 
@@ -91,10 +92,11 @@ docker compose up -d
 docker compose ps
 ```
 
-The API initializes the empty database schema before the Admin UI starts. Open the services at:
+Elf initializes an empty database schema during startup. Open the application at:
 
-- Forwarder API: <http://localhost:8080>
-- Admin UI: <http://localhost:8081/admin>
+- Health: <http://localhost:8080/health>
+- Admin UI: <http://localhost:8080/admin>
+- Public redirects: <http://localhost:8080/fw/{token}> and <http://localhost:8080/aka/{akaName}>
 
 Sign in to Admin with `ELF_ADMIN_USERNAME` and `ELF_ADMIN_PASSWORD` from `.env`, then complete the required TOTP setup. `ELF_FORWARDER_BASE_URL` controls the public base URL used by Admin when it generates forward links.
 
@@ -104,6 +106,17 @@ PostgreSQL data is stored in the named Docker volume `elf-postgres-data`. Stop t
 docker compose down
 ```
 
+The CI workflow tests the solution, then publishes the merged image as `ediwang/elf:latest` and `ediwang/elf:<commit-sha>`; it does not deploy or change production traffic. To pin a tested build, set `ELF_IMAGE` in `.env` to its commit tag or registry digest before `docker compose pull`.
+
+To restore the prior two-container local deployment without deleting its PostgreSQL volume, stop the merged app and use the digest-pinned rollback file:
+
+```powershell
+docker compose stop elf
+docker compose -f compose.rollback.yaml up -d --remove-orphans
+```
+
+For production rollback, set `ELF_API_PORT=8002`, `ELF_ADMIN_PORT=8003`, and `ELF_FORWARDER_BASE_URL=https://go.edi.wang`, then restore the saved Caddy configuration and remaining environment values. The example defaults `ELF_API_PORT` and `ELF_ADMIN_PORT` to the prior local ports `8080` and `8081`. Never run `docker compose down -v` during rollback.
+
 To remove the database volume and start over, run the following only when you intentionally want to delete the local database:
 
 ```powershell
@@ -112,7 +125,7 @@ docker compose down -v
 
 ### Setup Authentication
 
-Typically, `Elf.Api` should be publicly accessible, while `Elf.Admin` should be protected.
+The `/fw/*` and `/aka/*` routes are public. Protect `/admin` and every path under it.
 
 `Elf.Admin` supports three authentication providers through `Authentication__Provider`:
 
@@ -218,6 +231,25 @@ Authentication__Provider=External
 
 In this mode, Elf does not challenge users or apply in-app authorization to Admin pages and API controllers. The external layer must deny anonymous traffic before it reaches `Elf.Admin`.
 
+For Caddy, match both the exact `/admin` path and its descendants. This example uses Basic Auth over Caddy-managed HTTPS; store the password hash and username in the Caddy service environment. Keep the application port bound to loopback as the Compose file does, and preserve the `/admin` prefix when proxying:
+
+```caddyfile
+go.edi.wang {
+	@admin path /admin /admin/*
+	handle @admin {
+		basic_auth {
+			{$ELF_PROXY_ADMIN_USERNAME} {$ELF_PROXY_ADMIN_PASSWORD_HASH}
+		}
+		reverse_proxy 127.0.0.1:8080
+	}
+	handle {
+		reverse_proxy 127.0.0.1:8080
+	}
+}
+```
+
+Generate the password hash with `caddy hash-password`, keep it in the proxy's secret store, and use `Authentication__Provider=External` only after both `/admin` and `/admin/*` require authentication. Do not publish the container port on a public interface. For OpenID Connect, register `https://go.edi.wang/admin/signin-oidc` and `https://go.edi.wang/admin/signout-callback-oidc` with the identity provider.
+
 #### TOTP Recovery
 
 If you still have a valid Admin session, use the Account page to reset the authenticator. This signs out the current session and forces TOTP setup on the next password login.
@@ -231,9 +263,9 @@ Elf supports any Redis-compatible service that can be reached with a standard Re
 To use Redis:
 
 1. Create or select a Redis-compatible service.
-2. Configure the same connection string for both `Elf.Api` and `Elf.Admin` using `ConnectionStrings:RedisConnection` or the `ConnectionStrings__RedisConnection` environment variable.
-3. Restart both applications.
+2. Set `ELF_REDIS_CONNECTION` in `.env` to its connection string.
+3. Restart each Elf application instance.
 
-If the connection string is omitted, each application uses its own in-memory cache. This is suitable for local development, but the caches are not shared: Admin changes cannot invalidate entries held by the Forwarder API, and multiple API instances cannot share cached links.
+If the connection string is omitted, the application uses an in-memory cache. This is suitable for a single instance. Multiple Elf instances must share Redis so an Admin change invalidates cached links across instances.
 
 Only links with a positive TTL are cached. A TTL of `0` disables caching for that link.

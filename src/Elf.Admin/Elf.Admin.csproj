@@ -20,7 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Elf.Api\Elf.Api.csproj" />
+	  <ProjectReference Include="..\Elf.Api\Elf.Api.csproj" AdditionalProperties="ElfAdminHost=true" />
 	  <ProjectReference Include="..\Elf.Data\Elf.Data.csproj" />
 	  <ProjectReference Include="..\Elf.Shared\Elf.Shared.csproj" />
 	  <ProjectReference Include="..\Elf.TokenGenerator\Elf.TokenGenerator.csproj" />

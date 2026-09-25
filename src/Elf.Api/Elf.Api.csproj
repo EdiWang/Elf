@@ -5,9 +5,20 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(ElfAdminHost)' == 'true'">
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <OutputPath>bin/ElfAdminHost/$(Configuration)/$(TargetFramework)/</OutputPath>
+        <IntermediateOutputPath>obj/ElfAdminHost/$(Configuration)/$(TargetFramework)/</IntermediateOutputPath>
+        <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+    </PropertyGroup>
+
     <ItemGroup>
       <None Remove="Setup\SQL\schema.sql" />
       <None Remove="Setup\SQL\schema.postgresql.sql" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(ElfAdminHost)' == 'true'">
+      <Content Update="appsettings*.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
     </ItemGroup>
 
     <ItemGroup>
@@ -29,9 +40,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Elf.Data\Elf.Data.csproj" />
-        <ProjectReference Include="..\Elf.Shared\Elf.Shared.csproj" />
-        <ProjectReference Include="..\Elf.TokenGenerator\Elf.TokenGenerator.csproj" />
+        <ProjectReference Include="..\Elf.Data\Elf.Data.csproj" GlobalPropertiesToRemove="ElfAdminHost" />
+        <ProjectReference Include="..\Elf.Shared\Elf.Shared.csproj" GlobalPropertiesToRemove="ElfAdminHost" />
+        <ProjectReference Include="..\Elf.TokenGenerator\Elf.TokenGenerator.csproj" GlobalPropertiesToRemove="ElfAdminHost" />
     </ItemGroup>
 
     <ItemGroup>
