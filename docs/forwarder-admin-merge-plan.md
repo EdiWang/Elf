@@ -11,7 +11,7 @@
 - 管理入口改为 `https://go.edi.wang/admin`。**所有**管理页面、管理 API、登录、OIDC 回调和后台静态资源均置于 `/admin` 路径下；不可遗留可访问的根路径管理接口。
 - 切换完成后直接停用旧的 `admin.go.edi.wang`；不要求旧管理域名跳转或并行服务期。切换前需准备恢复旧入口和旧服务的回退步骤。
 - 保留 `Local`、`OpenIdConnect`、`External` 三种 Admin 鉴权。`External` 依赖代理：代理须保护精确路径 `/admin` 及其子路径，且应用端口不得被外部绕过代理直连。默认部署仍须让 `/fw/*`、`/aka/*` 公开可用。
-- 用户要求先规划、分批执行、每批测试/提交/验收；研究或执行中遇到需要产品或部署取舍的问题，要先向用户说明建议并询问，不得代替用户决定。本轮用户已授权执行批次 0 和批次 1；后续代码合并和部署须按用户后续指示推进，生产入口切换仍须用户明确决定。
+- 用户要求先规划、分批执行、每批测试/提交/验收；本轮用户已授权执行批次 0–4，并明确允许直接切换唯一生产环境、接受宕机风险。批次 5 尚未授权。
 
 ## 现有仓库事实（接手时应重新核对）
 
@@ -32,7 +32,7 @@
 | 1. Admin 完整迁入 `/admin` | 已完成 | 宿主集成测试 100 通过；全量测试 217 通过；临时 LocalDB 浏览器回归通过 | 批次 1 Admin `/admin` 路径迁移提交 |
 | 2. 建立单应用宿主 | 已完成 | Admin 宿主测试 100 通过；全量测试 217 通过；同宿主公开/授权路由及根健康检查通过 | 批次 2 Forwarder 接入 Admin 宿主提交 |
 | 3. 合并后的回归与安全验证 | 已完成 | `dotnet test src/Elf.slnx`：230 通过、0 失败、0 跳过；SQL Server/PostgreSQL 实际启动读写、浏览器 CRUD、缓存、异步跟踪和清理验证通过 | 批次 3 回归、安全验证及本计划进度提交；External 代理验收留作切换阻断 |
-| 4. 部署准备与切换 | 进行中 | 单镜像、Compose、CI 和 README 已准备；本地新库/已有库、Local、External 代理与回退配置验证通过；真实域名/HTTPS/OIDC 和备份恢复安排仍待预发布确认 | 本次提交 |
+| 4. 部署准备与切换 | 进行中 | 生产已切换到单容器；公网健康 200、转发路由 400、OIDC 挑战 302 且回调 URI 正确；数据库备份和旧镜像回退配置已核验 | 生产切换和回退记录 |
 | 5. 清理旧 API 项目 | 未开始 | 未运行 | 未提交 |
 
 ## 批次 0：建立基线
@@ -120,12 +120,11 @@
 ## 批次 4：部署准备与切换
 
 - [x] 准备单镜像 Dockerfile、Compose、CI 和 README：一个应用服务、同一数据库及现有配置键；说明 Local/OIDC/External、`/admin` 代理规则、Redis 在多实例下的要求。
-- [ ] 在预发布环境验证全新数据库、已有数据库、真实域名/HTTPS、转发、Admin 登录与 OIDC 新回调。记录构建产物、环境变量、健康检查、代理规则和回退命令。
-- [x] 部署配置与文档提交，并更新本文件。**生产入口切换前向用户展示测试证据与回退方案，由用户决定是否切换。**
-- [ ] 获得用户明确的切换决定后，将 `go.edi.wang` 指向单应用，停用 `admin.go.edi.wang`；切换后复验公开链接、Admin、缓存失效、错误率、延迟和跟踪。失败则恢复旧入口和旧服务。
-- [ ] 将实际切换时间、结果、问题及回退状态写入本文件并提交。
-
-本轮完成本地部署工件和同机集成验证，但没有真实预发布域名、HTTPS 入口、OIDC IdP 注册或数据库备份/恢复负责人可供验收；因此第二项保持未完成，批次状态保持“进行中”，不得据此切换生产流量。
+- [x] 验证本地新库/已有库、Local 登录、Caddy 代理路径；经用户授权后在生产验证真实域名/HTTPS、公开转发、数据库连接及 OIDC 登录挑战的新回调 URI。
+- [x] 完成生产切换：单一 Elf 应用容器接管 `go.edi.wang`；应用端口只绑定回环地址；停用旧 Admin 容器和 `admin.go.edi.wang` Caddy 入口。
+- [x] 生产切换后复验公开健康、转发路由、OIDC 挑战与回调 URI；保存数据库备份、旧镜像 Compose 和原 Caddy 配置以便回退。
+- [ ] 完成一次交互式 OIDC 登录/登出与回调验证；观察生产错误率、延迟、跟踪和管理修改后的缓存失效，并执行数据库备份恢复演练。批次 4 在这些检查完成前保持“进行中”。
+- [x] 将实际切换结果和回退步骤写入本文件。
 
 ### 批次 4 执行记录（2026-09-25）
 
@@ -133,9 +132,11 @@
 - 配置与文档：`.env.example` 列出数据库、端口、Local/OIDC/External、转发地址、功能开关和 Redis 配置。README 说明三种鉴权方式、OIDC 新回调、Caddy 对精确 `/admin` 和其子路径的代理保护、回环端口、单实例内存缓存/多实例 Redis 及回退命令。回退 Compose 使用批次 0 核对过的旧 API/Admin 镜像摘要，并保留现有 `elf-postgres-data` 卷。
 - 构建/测试：本地镜像 `elf:batch4-check` 构建成功（镜像 ID `sha256:0c8c6da7bd7d1d957a5804d9bfde999ff946fd78b8e42ee18c8a1064a8f9237d`，未推送）；`dotnet publish src/Elf.Api/Elf.Api.csproj -c Release` 独立发布仍包含 API 的 `appsettings*.json`；合并发布排除了重复 API 设置文件。`dotnet test src/Elf.slnx`：230 通过、0 失败、0 跳过。主 Compose 与回退 Compose 均通过配置解析。
 - 本地容器验收：临时 PostgreSQL 新库初始化并通过容器健康检查；插入测试链接后重建/重启应用，`/fw/b4a10001` 和 `/aka/b4check` 均返回 302 到同一目标且 Forwarder 响应含 `no-store`，`/health` 返回 200。Local 模式 `/admin` 转到本地登录页且登录页 200。External 模式下 Caddy 对未认证 `/admin`、`/admin/`、`/admin/api/tag/list`、`/Admin` 和 `/ADMIN` 均返回 401；正确测试凭据可访问 Admin 与管理 API；`/fw` 公开可用；应用端口 HostIp 确认为 `127.0.0.1`。本地 Caddy/Compose 验收不能替代外部网络端口隔离或真实 HTTPS 预发布验证。
-- 回退：已解析 `compose.rollback.yaml`；未连接生产服务器、未启动旧生产镜像，也未恢复真实数据库。执行回退前仍需运维方确认可恢复数据库备份与责任人，并在服务器保存当前代理和环境配置。
-- 遗留/验收：没有真实预发布域名、HTTPS 证书/代理入口、身份提供方客户端及新回调注册条件；未能执行真实 OIDC 登录和登出回调。生产数据库备份/恢复负责人、最近可恢复备份及恢复演练步骤仍待确认。故真实预发布清单未通过、批次 4 保持进行中，所有生产流量与现有 Caddy 配置未变更。
-- 提交：单应用 Docker/Compose/CI/README 与本批次执行证据一并提交；生产切换另待用户在查看预发布证据和回退方案后明确决定。
+- 生产切换：用户明确授权直接变更唯一生产环境并接受宕机风险。GitHub Actions [构建成功](https://github.com/EdiWang/Elf/actions/runs/36108545057)；部署 `ediwang/elf:1be3ed50c8d897c530715ace24dc61670b3a0e49`（镜像 ID `sha256:e94a62d295fed7547d3e4b3b200535ab5148ae185ab93e413af340db6124e542`）。生产仅运行 `elf` 一个 Elf 应用容器，端口为 `127.0.0.1:8002`，连接既有 `shared-db-net` 与 PostgreSQL；旧 `elf-admin`、`elf-forwarder` 容器已停用，PostgreSQL 未重建。
+- 入口与鉴权：Caddy 将 `go.edi.wang` 转发到 `127.0.0.1:8002`；`admin.go.edi.wang` 站点已从当前 Caddy 配置移除。公网 `/health` 返回 200，`/fw/invalid` 返回 400，`/admin/auth/signin` 返回 302，生成的 OIDC `redirect_uri` 为 `https://go.edi.wang/admin/signin-oidc`。新登录/登出回调 URI 已登记。数据库口令与 OIDC 客户端密钥已轮换，旧 OIDC 密钥已撤销；新密钥预计于 2027-09-25 到期。秘密值未写入仓库。
+- 备份与回退：切换前生成 `/data/backups/elf/elfprod-premerge-20260925.dump`（232451 字节，权限 0600），`pg_restore --list` 校验通过；未做实际恢复演练。生产回退 Compose 为 `/opt/docker/elf/compose.rollback-1be3ed50.yaml`（权限 0600，固定到原 API/Admin 镜像摘要并使用已轮换凭据）；旧 Caddy 配置保存在 `/etc/caddy/Caddyfile.pre-elf-merge-1be3ed50`。回退时先运行 `sudo docker compose -p elf -f /opt/docker/elf/compose.rollback-1be3ed50.yaml up -d --remove-orphans --pull never elf-forwarder elf-admin`，再运行 `sudo cp -a /etc/caddy/Caddyfile.pre-elf-merge-1be3ed50 /etc/caddy/Caddyfile && sudo systemctl reload caddy`。没有恢复数据库备份，因为切换未要求回滚数据。
+- 遗留/验收：公网检查验证了健康、转发错误路由和 OIDC 挑战生成的回调地址，但没有执行交互式 OIDC 登录/登出；生产管理 CRUD、缓存失效、跟踪和运行期错误率/延迟尚待观察；数据库备份未做恢复演练。因此批次 4 保持进行中。
+- 提交：单应用部署工件已在前序提交中；本次补充生产切换及回退记录。
 
 **验收门槛：**新镜像在真实入口工作，旧公开链接不变，旧管理域名按决定停用，回退步骤可执行。未获切换决定时本批次保持“进行中”。
 
@@ -159,6 +160,6 @@
 | 2026-09-24 | 批次 1 | 已完成 | Admin 宿主测试 100 通过；全量测试 217 通过；隔离 LocalDB 浏览器回归覆盖登录/TOTP、CRUD、标签、导航、报表和资源路径；旧根路径管理 URL 404 | Admin `/admin` 路径迁移及浏览器发现问题修正 | 批次 2 未开始；批次 4 登记新的 OIDC 回调并确认数据库备份/恢复责任 |
 | 2026-09-24 | 批次 2 | 已完成 | Admin 宿主测试 100 通过；全量测试 217 通过；同宿主转发公开、管理授权、路由注册、健康检查和安全响应头验证通过 | Forwarder 接入 Admin 单应用宿主 | 批次 3 未开始；验证真实数据库初始化/读写及转发行为、安全边界 |
 | 2026-09-24 | 批次 3 | 已完成 | 全量测试 230 通过；SQL Server/PostgreSQL 启动读写、内存/Redis 缓存失效、异步跟踪与清理、同域自引用拒绝及 Admin 浏览器 CRUD 通过 | 回归、安全响应头修正并记录批次 3 验收 | 批次 4 切换前须验收 External 代理与端口隔离、OIDC 新回调及数据库备份/恢复安排 |
-| 2026-09-25 | 批次 4 | 进行中 | 合并镜像构建成功；全量测试 230 通过；本地 PostgreSQL 新/已有库、Local 登录入口、Caddy External 路径保护、公开转发和回环端口验证通过 | 单应用 Docker/Compose/CI/README 与执行记录提交 | 真实预发布域名/HTTPS/OIDC 回调、数据库备份/恢复责任和演练待提供；生产切换需用户明确决定 |
+| 2026-09-25 | 批次 4 | 生产切换完成；批次进行中 | GitHub Actions 构建成功；生产单容器、公网健康 200、转发 400、OIDC 挑战 302/新回调 URI、旧 Admin Caddy 入口停用；数据库 dump 可读且回退 Compose 校验通过 | 生产切换及回退步骤记录 | 待交互式 OIDC 登录/登出、生产缓存/跟踪/错误率与延迟观察、数据库恢复演练 |
 
 状态只使用“未开始 / 进行中 / 已完成 / 受阻”。未获用户决定的产品或部署选择记为待确认，并附建议；不要据此自行切换生产或清理回退路径。
