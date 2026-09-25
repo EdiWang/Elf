@@ -176,7 +176,7 @@ Store the client secret in the deployment secret-management system, not in `apps
 
 #### Reverse Proxy and Forwarded Headers
 
-When TLS is terminated by a reverse proxy, Kestrel receives the request as HTTP unless the proxy's forwarded headers are processed. `Elf.Admin` and `Elf.Api` enable `UseSmartXFFHeader()` when `ForwardedHeaders:Enabled` is `true`; forwarded headers are accepted only from trusted proxy addresses.
+When TLS is terminated by a reverse proxy, Kestrel receives the request as HTTP unless the proxy's forwarded headers are processed. The single `Elf.Admin` web host enables `UseSmartXFFHeader()` when `ForwardedHeaders:Enabled` is `true`; forwarded headers are accepted only from trusted proxy addresses.
 
 Configure each proxy hop using the address as seen by the application or container, not necessarily the proxy's public address:
 

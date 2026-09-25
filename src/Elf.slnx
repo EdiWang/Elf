@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/App/">
     <Project Path="Elf.Admin/Elf.Admin.csproj" />
+  </Folder>
+  <Folder Name="/Forwarder/">
     <Project Path="Elf.Api/Elf.Api.csproj" />
   </Folder>
   <Folder Name="/Shared/">
@@ -9,9 +11,7 @@
     <Project Path="Elf.TokenGenerator/Elf.TokenGenerator.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
-    <File Path="../.github/workflows/docker-admin.yml" />
-    <File Path="../.github/workflows/docker-api.yml" />
-    <File Path="../deployment/main.bicep" />
+    <File Path="../.github/workflows/docker-elf.yml" />
     <File Path="../README.md" />
     <File Path="Directory.Build.props" />
   </Folder>
