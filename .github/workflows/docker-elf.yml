@@ -40,7 +40,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: ./src
-          file: ./src/Elf.Admin/Dockerfile
+          file: ./src/Dockerfile
           push: true
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/elf:latest
