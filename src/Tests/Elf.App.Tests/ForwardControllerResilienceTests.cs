@@ -6,11 +6,9 @@ using Elf.TokenGenerator;
 using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 
 namespace Elf.App.Tests;
@@ -98,12 +96,63 @@ public class ForwardControllerResilienceTests
         Assert.Null(queue.WorkItem);
     }
 
+    [Fact]
+    public async Task Forward_WhenLinkHasPositiveTtl_CachesLink()
+    {
+        using var cache = CreateCache();
+        var controller = CreateController(
+            new LinkEntity
+            {
+                Id = 1,
+                OriginUrl = "https://example.com",
+                FwToken = "abc12345",
+                IsEnabled = true,
+                TTL = 30
+            },
+            new SequenceLinkVerifier(LinkVerifyResult.Valid),
+            new Dictionary<string, string>(),
+            cache: cache);
+
+        var result = await controller.Forward("abc12345");
+
+        Assert.IsType<RedirectResult>(result);
+        Assert.True(cache.TryGetValue("abc12345", out LinkEntity cachedLink));
+        Assert.Equal(1, cachedLink.Id);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task Forward_WhenLinkTtlIsNotPositive_DoesNotCacheLink(int? ttl)
+    {
+        using var cache = CreateCache();
+        var controller = CreateController(
+            new LinkEntity
+            {
+                Id = 1,
+                OriginUrl = "https://example.com",
+                FwToken = "abc12345",
+                IsEnabled = true,
+                TTL = ttl
+            },
+            new SequenceLinkVerifier(LinkVerifyResult.Valid),
+            new Dictionary<string, string>(),
+            cache: cache);
+
+        var result = await controller.Forward("abc12345");
+
+        Assert.IsType<RedirectResult>(result);
+        Assert.False(cache.TryGetValue("abc12345", out _));
+    }
+
     private static ForwardController CreateController(
         LinkEntity link,
         ILinkVerifier linkVerifier,
         IReadOnlyDictionary<string, string> configurationValues,
         IFeatureManager featureManager = null,
-        IBackgroundTaskQueue backgroundTaskQueue = null)
+        IBackgroundTaskQueue backgroundTaskQueue = null,
+        IMemoryCache cache = null)
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(configurationValues)
@@ -113,7 +162,7 @@ public class ForwardControllerResilienceTests
             NullLogger<ForwardController>.Instance,
             configuration,
             new ShortGuidTokenGenerator(),
-            CreateCache(),
+            cache ?? CreateCache(),
             linkVerifier,
             featureManager ?? new DisabledFeatureManager(),
             new StaticQueryMediator(link),
@@ -128,8 +177,7 @@ public class ForwardControllerResilienceTests
         return controller;
     }
 
-    private static IDistributedCache CreateCache() =>
-        new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
+    private static MemoryCache CreateCache() => new(new MemoryCacheOptions());
 
     private sealed class StaticQueryMediator(LinkEntity link) : IQueryMediator
     {

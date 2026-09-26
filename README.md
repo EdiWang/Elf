@@ -247,16 +247,8 @@ If you still have a valid Admin session, use the Account page to reset the authe
 
 If all authenticator access is lost, stop Admin, configure a temporary strong `Authentication__Local__BootstrapPassword`, and remove the `LocalAccount` row from `ElfConfiguration`. Restart Admin and sign in with the bootstrap account to create a new password hash and TOTP secret. Back up the database first; this resets only the local Admin account record.
 
-### Optional: Redis Distributed Cache
+### Deployment Topology
 
-Elf supports any Redis-compatible service that can be reached with a standard Redis connection string. Redis is optional, but it is recommended when the Forwarder API runs on multiple instances or when cached links must be invalidated by the Admin application.
-
-To use Redis:
-
-1. Create or select a Redis-compatible service.
-2. Set `ELF_REDIS_CONNECTION` in `.env` to its connection string.
-3. Restart each Elf application instance.
-
-If the connection string is omitted, the application uses an in-memory cache. This is suitable for a single instance. Multiple Elf instances must share Redis so an Admin change invalidates cached links across instances.
+Run Elf as a single application instance. Elf uses ASP.NET Core's process-local `IMemoryCache`; do not deploy multiple instances or replicas behind a load balancer. Cache invalidation from link edits, enable/disable changes, and deletes only affects the instance handling the Admin request, so another instance could continue serving a cached link until its TTL expires. Multi-instance deployment is unsupported.
 
 Only links with a positive TTL are cached. A TTL of `0` disables caching for that link.

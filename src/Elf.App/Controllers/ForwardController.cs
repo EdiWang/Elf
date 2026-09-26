@@ -10,7 +10,7 @@ using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using Microsoft.FeatureManagement;
 using System.Text.Json;
@@ -23,7 +23,7 @@ public class ForwardController(
         ILogger<ForwardController> logger,
         IConfiguration configuration,
         ITokenGenerator tokenGenerator,
-        IDistributedCache cache,
+        IMemoryCache cache,
         ILinkVerifier linkVerifier,
         IFeatureManager featureManager,
         IQueryMediator queryMediator,
@@ -88,7 +88,7 @@ public class ForwardController(
 
     private async Task<LinkEntity> GetOrCacheLinkAsync(string token, string validatedToken)
     {
-        var linkEntry = await cache.GetLink(token);
+        var linkEntry = cache.Get<LinkEntity>(token);
         if (linkEntry != null) return linkEntry;
 
         var link = await queryMediator.QueryAsync(new GetLinkByTokenQuery(validatedToken));
@@ -106,7 +106,10 @@ public class ForwardController(
         switch (verificationResult)
         {
             case LinkVerifyResult.Valid:
-                await CacheLinkAsync(token, link);
+                if (link.TTL is > 0)
+                {
+                    cache.Set(token, link, TimeSpan.FromSeconds(link.TTL.Value));
+                }
                 return link;
 
             case LinkVerifyResult.InvalidFormat:
@@ -125,15 +128,6 @@ public class ForwardController(
                 logger.LogError("Unexpected link verification result: {Result} for link ID: {LinkId}", verificationResult, link.Id);
                 throw new ArgumentOutOfRangeException(nameof(verificationResult), verificationResult, "Unexpected verification result");
         }
-    }
-
-    private async Task CacheLinkAsync(string token, LinkEntity link)
-    {
-        var cacheExpiration = link.TTL is > 0
-            ? TimeSpan.FromSeconds(link.TTL.Value)
-            : (TimeSpan?)null;
-
-        await cache.SetLink(token, link, cacheExpiration);
     }
 
     private async Task<IActionResult> HandleNotFoundLinkAsync()

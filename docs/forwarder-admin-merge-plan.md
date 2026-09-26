@@ -17,10 +17,10 @@
 
 - 解决方案：`src/Elf.slnx`。唯一应用项目和 Web 宿主是 `src/Elf.App/Elf.App.csproj`，管理与公开转发代码编译进同一程序集；共享项目为 `Elf.Data`、`Elf.Shared`、`Elf.TokenGenerator`。
 - `/` 与 `/health` 提供健康检查，管理页面只在 `/admin` 下。公开转发地址继续是 `/fw/{token}` 与 `/aka/{akaName}`。
-- 转发与管理功能共用 `ElfDbContext`/EF Core、缓存及应用配置；支持 SQL Server 与 PostgreSQL。转发控制器、处理器、后台服务及 schema 初始化均位于 `Elf.App`。
+- 转发与管理功能共用 `ElfDbContext`/EF Core、进程内 `IMemoryCache` 及应用配置；支持 SQL Server 与 PostgreSQL。Elf 仅支持单应用实例，不支持多实例部署。转发控制器、处理器、后台服务及 schema 初始化均位于 `Elf.App`。
 - 转发控制器位于 `src/Elf.App/Controllers/ForwardController.cs`，包含 token/aka 路由、`fixed-ip` 限流、目标 URL 验证、禁用链接、默认跳转、缓存、可选跟踪和无缓存响应。管理控制器使用授权策略和防伪保护。
 - 管理页面、API、OIDC 回调与静态资源均受 `/admin` PathBase 管理；`ForwarderBaseUrl` 用于管理页面生成公开转发链接。
-- 本地 `compose.yaml` 运行 PostgreSQL 与一个 Elf 应用容器；生产应用容器接入既有 PostgreSQL。唯一发布流程是 `.github/workflows/docker-elf.yml`，镜像为 `ediwang/elf`。单实例内存缓存可共享，但**多实例**仍需 Redis 等共享缓存，否则管理修改无法使其他实例的缓存立即失效。
+- 本地 `compose.yaml` 运行 PostgreSQL 与一个 Elf 应用容器；生产应用容器接入既有 PostgreSQL。唯一发布流程是 `.github/workflows/docker-elf.yml`，镜像为 `ediwang/elf`。Elf 使用进程内存缓存，只支持单实例部署，不支持多实例或横向扩展。
 - 单一 `src/Tests/Elf.App.Tests` 测试项目覆盖宿主集成、管理功能和转发服务；共享工具与 token generator 保留各自测试项目。
 
 ## 进度总览

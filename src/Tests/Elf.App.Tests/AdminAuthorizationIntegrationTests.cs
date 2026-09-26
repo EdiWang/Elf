@@ -17,7 +17,6 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Protocols;
@@ -272,29 +271,6 @@ public class AdminAuthorizationIntegrationTests
 
         Assert.Contains(endpoints, action => action?.ActionName == nameof(ForwardController.Forward));
         Assert.Contains(endpoints, action => action?.ActionName == nameof(ForwardController.Aka));
-    }
-
-    [Fact]
-    public async Task Forward_WhenCacheThrowsInProduction_ReturnsServerErrorWithoutLoginRedirect()
-    {
-        var cache = new Mock<IDistributedCache>();
-        cache.Setup(value => value.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new InvalidOperationException("Simulated cache failure"));
-
-        using var factory = CreateFactory(AuthenticationProvider.Local, configureTestServices: services =>
-        {
-            services.RemoveAll<IDistributedCache>();
-            services.AddSingleton(cache.Object);
-        }).WithWebHostBuilder(builder => builder.UseEnvironment("Production"));
-        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Elf integration test");
-
-        var response = await client.GetAsync("/fw/a1b2c3d4", TestContext.Current.CancellationToken);
-
-        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-        Assert.Null(response.Headers.Location);
-        Assert.Contains("no-store", response.Headers.CacheControl?.ToString());
-        Assert.DoesNotContain("Simulated cache failure", await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
     }
 
     [Fact]

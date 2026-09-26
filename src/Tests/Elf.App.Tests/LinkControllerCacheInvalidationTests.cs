@@ -13,7 +13,7 @@ using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
 using Moq;
@@ -25,7 +25,7 @@ public class LinkControllerCacheInvalidationTests
     [Fact]
     public async Task SetEnable_WhenCommandReturnsToken_RemovesCachedLink()
     {
-        var cache = new Mock<IDistributedCache>();
+        var cache = new Mock<IMemoryCache>();
         await using var serviceProvider = CreateServiceProvider(out var databaseName);
 
         await SeedLinkAsync(databaseName);
@@ -40,13 +40,13 @@ public class LinkControllerCacheInvalidationTests
         var result = await controller.SetEnable(1, false);
 
         Assert.IsType<NoContentResult>(result);
-        cache.Verify(c => c.RemoveAsync("abc12345", It.IsAny<CancellationToken>()), Times.Once);
+        cache.Verify(c => c.Remove("abc12345"), Times.Once);
     }
 
     [Fact]
     public async Task SetEnable_WhenCommandReturnsNull_DoesNotRemoveCachedLink()
     {
-        var cache = new Mock<IDistributedCache>();
+        var cache = new Mock<IMemoryCache>();
         await using var serviceProvider = CreateServiceProvider(out _);
 
         var controller = new LinkController(
@@ -59,13 +59,13 @@ public class LinkControllerCacheInvalidationTests
         var result = await controller.SetEnable(404, false);
 
         Assert.IsType<NoContentResult>(result);
-        cache.Verify(c => c.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        cache.Verify(c => c.Remove(It.IsAny<object>()), Times.Never);
     }
 
     [Fact]
     public async Task Edit_WhenCommandReturnsToken_RemovesCachedLink()
     {
-        var cache = new Mock<IDistributedCache>();
+        var cache = new Mock<IMemoryCache>();
         await using var serviceProvider = CreateServiceProvider(out var databaseName);
         await SeedLinkAsync(databaseName);
 
@@ -80,13 +80,13 @@ public class LinkControllerCacheInvalidationTests
         });
 
         Assert.IsType<NoContentResult>(result);
-        cache.Verify(c => c.RemoveAsync("abc12345", It.IsAny<CancellationToken>()), Times.Once);
+        cache.Verify(c => c.Remove("abc12345"), Times.Once);
     }
 
     [Fact]
     public async Task Delete_WhenLinkExists_RemovesCachedLink()
     {
-        var cache = new Mock<IDistributedCache>();
+        var cache = new Mock<IMemoryCache>();
         await using var serviceProvider = CreateServiceProvider(out var databaseName);
         await SeedLinkAsync(databaseName);
 
@@ -95,7 +95,7 @@ public class LinkControllerCacheInvalidationTests
         var result = await controller.Delete(1);
 
         Assert.IsType<OkResult>(result);
-        cache.Verify(c => c.RemoveAsync("abc12345", It.IsAny<CancellationToken>()), Times.Once);
+        cache.Verify(c => c.Remove("abc12345"), Times.Once);
     }
 
     private static ServiceProvider CreateServiceProvider(out string databaseName)
@@ -124,7 +124,7 @@ public class LinkControllerCacheInvalidationTests
         return services.BuildServiceProvider();
     }
 
-    private static LinkController CreateController(IDistributedCache cache, ServiceProvider serviceProvider)
+    private static LinkController CreateController(IMemoryCache cache, ServiceProvider serviceProvider)
     {
         var featureManager = new Mock<IFeatureManager>();
         featureManager

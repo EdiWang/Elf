@@ -146,15 +146,7 @@ public class Program
         }
         services.AddFeatureManagement();
 
-        var redisConn = configuration.GetConnectionString("RedisConnection");
-        if (!string.IsNullOrWhiteSpace(redisConn))
-        {
-            services.AddStackExchangeRedisCache(options => options.Configuration = redisConn);
-        }
-        else
-        {
-            services.AddDistributedMemoryCache();
-        }
+        services.AddMemoryCache();
 
         services.AddSingleton<ITokenGenerator, ShortGuidTokenGenerator>();
         services.AddScoped<ILinkVerifier, LinkVerifier>();

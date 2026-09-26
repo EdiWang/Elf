@@ -7,7 +7,7 @@ using LiteBus.Commands.Abstractions;
 using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.FeatureManagement;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,7 +18,7 @@ namespace Elf.App.Controllers;
 [Route("api/[controller]")]
 public class LinkController(
         ILinkVerifier linkVerifier,
-        IDistributedCache cache,
+        IMemoryCache cache,
         IFeatureManager featureManager,
         ICommandMediator commandMediator,
         IQueryMediator queryMediator) : ControllerBase
@@ -89,7 +89,7 @@ public class LinkController(
             return Conflict(ex.Message);
         }
 
-        if (token is not null) await cache.RemoveAsync(token);
+        if (token is not null) cache.Remove(token);
         return NoContent();
     }
 
@@ -98,7 +98,7 @@ public class LinkController(
     public async Task<IActionResult> SetEnable(int id, bool isEnabled)
     {
         var token = await commandMediator.SendAsync(new SetEnableCommand(id, isEnabled));
-        if (token is not null) await cache.RemoveAsync(token);
+        if (token is not null) cache.Remove(token);
         return NoContent();
     }
 
@@ -166,7 +166,7 @@ public class LinkController(
 
         await commandMediator.SendAsync(new DeleteLinkCommand(id));
 
-        await cache.RemoveAsync(link.FwToken);
+        cache.Remove(link.FwToken);
         return Ok();
     }
 }

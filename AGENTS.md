@@ -17,7 +17,7 @@
 - `Elf.Shared.Tests` and `Elf.TokenGenerator.Tests` use xUnit v3, Moq, and coverlet.
 
 ## Architecture Guidelines
-- Keep the public redirect path efficient. Management and forwarder features share the `Elf.App` host, `ElfDbContext`, and distributed cache; preserve the existing EF Core query behavior and cache invalidation.
+- Keep the public redirect path efficient. Management and forwarder features share the `Elf.App` host, `ElfDbContext`, and process-local `IMemoryCache`; preserve the existing EF Core query behavior and cache invalidation. Elf supports one application instance only; do not deploy multiple instances.
 - Use LiteBus records for business operations:
 	- Commands mutate state and are named like `CreateLinkCommand`, `EditLinkCommand`, `TrackSuccessRedirectionCommand`.
 	- Queries return data and are named like `GetLinkQuery`, `ListLinkQuery`, `GetLinkByTokenQuery`.
@@ -32,12 +32,12 @@
 - Self-reference blocking applies to forward endpoints (`/fw`, `/aka`) on the same scheme and host unless the `AllowSelfRedirection` feature flag is enabled.
 - Do not bypass rate limiting on public forward endpoints. The forwarder uses the `fixed-ip` policy and normalizes IPv6 callers to a `/64` subnet.
 - Keep redirect responses uncached unless there is an explicit product decision to change that behavior.
-- When changing cache behavior, remember link edits and deletes remove cached entries by token, while the forwarder caches successful enabled link lookups using `IDistributedCache`.
+- When changing cache behavior, remember link edits, enable/disable changes, and deletes remove cached entries by token, while the forwarder caches successful enabled link lookups using `IMemoryCache`.
 
 ## Data And Configuration
 - SQL Server and PostgreSQL are supported; the production deployment currently uses PostgreSQL. Application startup can create the initial schema through embedded SQL when the database is empty.
 - `ConnectionStrings:ElfDatabase` is required for the `Elf.App` host.
-- `ConnectionStrings:RedisConnection` is optional for `Elf.App`; if missing, it falls back to distributed memory cache.
+- The forwarder's `IMemoryCache` is process-local; deployment must use exactly one Elf application instance.
 - `DefaultRedirectionUrl` controls the forwarder fallback target when a token is not found.
 - `FeatureManagement:AllowSelfRedirection` and `FeatureManagement:EnableTracking` are the active feature flags.
 - `ForwardedHeaders:Enabled` controls whether `UseSmartXFFHeader()` is used behind proxies.

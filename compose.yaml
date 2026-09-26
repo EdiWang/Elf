@@ -28,7 +28,6 @@ services:
       ASPNETCORE_HTTP_PORTS: "8080"
       Database__Provider: PostgreSql
       ConnectionStrings__ElfDatabase: "Host=postgres;Port=5432;Database=${ELF_POSTGRES_DB:-elf};Username=${ELF_POSTGRES_USER:-elf};Password=${ELF_POSTGRES_PASSWORD:?Set ELF_POSTGRES_PASSWORD in .env}"
-      ConnectionStrings__RedisConnection: ${ELF_REDIS_CONNECTION:-}
       DefaultRedirectionUrl: ${ELF_DEFAULT_REDIRECTION_URL:-https://edi.wang}
       FeatureManagement__AllowSelfRedirection: ${ELF_ALLOW_SELF_REDIRECTION:-false}
       FeatureManagement__EnableTracking: ${ELF_ENABLE_TRACKING:-true}
