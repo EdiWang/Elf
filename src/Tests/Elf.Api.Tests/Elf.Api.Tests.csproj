@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Elf.Api\Elf.Api.csproj" />
-    <ProjectReference Include="..\Elf.Data\Elf.Data.csproj" />
+    <ProjectReference Include="..\..\Elf.Api\Elf.Api.csproj" />
+    <ProjectReference Include="..\..\Elf.Data\Elf.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>
