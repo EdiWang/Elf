@@ -108,15 +108,6 @@ docker compose down
 
 The CI workflow tests the solution, then publishes the merged image as `ediwang/elf:latest` and `ediwang/elf:<commit-sha>`; it does not deploy or change production traffic. To pin a tested build, set `ELF_IMAGE` in `.env` to its commit tag or registry digest before `docker compose pull`.
 
-To restore the prior two-container local deployment without deleting its PostgreSQL volume, stop the merged app and use the digest-pinned rollback file:
-
-```powershell
-docker compose stop elf
-docker compose -f compose.rollback.yaml up -d --remove-orphans
-```
-
-For production rollback, set `ELF_API_PORT=8002`, `ELF_ADMIN_PORT=8003`, and `ELF_FORWARDER_BASE_URL=https://go.edi.wang`, then restore the saved Caddy configuration and remaining environment values. The example defaults `ELF_API_PORT` and `ELF_ADMIN_PORT` to the prior local ports `8080` and `8081`. Never run `docker compose down -v` during rollback.
-
 To remove the database volume and start over, run the following only when you intentionally want to delete the local database:
 
 ```powershell

@@ -31,7 +31,7 @@
 | 1. Admin 完整迁入 `/admin` | 已完成 | 宿主集成测试 100 通过；全量测试 217 通过；临时 LocalDB 浏览器回归通过 | 批次 1 Admin `/admin` 路径迁移提交 |
 | 2. 建立单应用宿主 | 已完成 | Admin 宿主测试 100 通过；全量测试 217 通过；同宿主公开/授权路由及根健康检查通过 | 批次 2 Forwarder 接入 Admin 宿主提交 |
 | 3. 合并后的回归与安全验证 | 已完成 | `dotnet test src/Elf.slnx`：230 通过、0 失败、0 跳过；SQL Server/PostgreSQL 实际启动读写、浏览器 CRUD、缓存、异步跟踪和清理验证通过 | 批次 3 回归、安全验证及本计划进度提交；External 代理验收留作切换阻断 |
-| 4. 部署准备与切换 | 已完成 | 用户确认已手工验收 OIDC 登录、登出；生产单应用容器、入口与回退配置已记录 | 生产切换和回退记录 |
+| 4. 部署准备与切换 | 已完成 | 用户确认已手工验收 OIDC 登录、登出；生产单应用容器与入口已切换；回退材料于 2026-09-26 按用户要求清除 | 生产切换记录 |
 | 5. 清理旧 API 项目 | 已完成 | 全量测试 230 通过；唯一镜像构建成功；临时 PostgreSQL 的空库初始化和既有库重启/转发通过 | 批次 5 清理与最终进度更新 |
 | 6. 统一项目结构和命名 | 已完成 | `dotnet test src/Elf.slnx`：232 通过、0 失败、0 跳过；唯一 `Elf.App` Docker 镜像构建成功 | 批次 6 项目结构统一提交 |
 
@@ -134,7 +134,7 @@
 - 本地容器验收：临时 PostgreSQL 新库初始化并通过容器健康检查；插入测试链接后重建/重启应用，`/fw/b4a10001` 和 `/aka/b4check` 均返回 302 到同一目标且 Forwarder 响应含 `no-store`，`/health` 返回 200。Local 模式 `/admin` 转到本地登录页且登录页 200。External 模式下 Caddy 对未认证 `/admin`、`/admin/`、`/admin/api/tag/list`、`/Admin` 和 `/ADMIN` 均返回 401；正确测试凭据可访问 Admin 与管理 API；`/fw` 公开可用；应用端口 HostIp 确认为 `127.0.0.1`。本地 Caddy/Compose 验收不能替代外部网络端口隔离或真实 HTTPS 预发布验证。
 - 生产切换：用户明确授权直接变更唯一生产环境并接受宕机风险。GitHub Actions [构建成功](https://github.com/EdiWang/Elf/actions/runs/36108545057)；部署 `ediwang/elf:1be3ed50c8d897c530715ace24dc61670b3a0e49`（镜像 ID `sha256:e94a62d295fed7547d3e4b3b200535ab5148ae185ab93e413af340db6124e542`）。生产仅运行 `elf` 一个 Elf 应用容器，端口为 `127.0.0.1:8002`，连接既有 `shared-db-net` 与 PostgreSQL；旧 `elf-admin`、`elf-forwarder` 容器已停用，PostgreSQL 未重建。
 - 入口与鉴权：Caddy 将 `go.edi.wang` 转发到 `127.0.0.1:8002`；`admin.go.edi.wang` 站点已从当前 Caddy 配置移除。公网 `/health` 返回 200，`/fw/invalid` 返回 400，`/admin/auth/signin` 返回 302，生成的 OIDC `redirect_uri` 为 `https://go.edi.wang/admin/signin-oidc`。新登录/登出回调 URI 已登记。数据库口令与 OIDC 客户端密钥已轮换，旧 OIDC 密钥已撤销；新密钥预计于 2027-09-25 到期。秘密值未写入仓库。
-- 备份与回退：切换前生成 `/data/backups/elf/elfprod-premerge-20260925.dump`（232451 字节，权限 0600），`pg_restore --list` 校验通过；未做实际恢复演练。生产回退 Compose 为 `/opt/docker/elf/compose.rollback-1be3ed50.yaml`（权限 0600，固定到原 API/Admin 镜像摘要并使用已轮换凭据）；旧 Caddy 配置保存在 `/etc/caddy/Caddyfile.pre-elf-merge-1be3ed50`。回退时先运行 `sudo docker compose -p elf -f /opt/docker/elf/compose.rollback-1be3ed50.yaml up -d --remove-orphans --pull never elf-forwarder elf-admin`，再运行 `sudo cp -a /etc/caddy/Caddyfile.pre-elf-merge-1be3ed50 /etc/caddy/Caddyfile && sudo systemctl reload caddy`。没有恢复数据库备份，因为切换未要求回滚数据。
+- 备份与回退（历史）：切换前曾创建数据库导出并通过 `pg_restore --list` 校验，也曾保留固定镜像 Compose 与旧 Caddy 配置；未做实际恢复演练。2026-09-26 按用户要求清除全部 Elf 生产备份和回退材料，当前不保留数据库导出、Compose 回退副本或旧 Caddy 配置。
 - 遗留/验收：用户于 2026-09-25 确认批次验证完成并已推送，又于 2026-09-26 确认已手工试过 OIDC 登录、登出，明确决定关闭批次 4。生产错误率、延迟、跟踪和管理修改后的缓存失效尚无验收记录；数据库备份恢复演练未执行。这些事项保持开放，不记为已完成。
 - 提交：单应用部署工件已在前序提交中；本次补充生产切换及回退记录。
 
@@ -173,8 +173,14 @@
 - 结构：管理与转发源码、数据库初始化资源、配置和静态资源统一位于 `src/Elf.App`，程序集与命名空间统一为 `Elf.App`；删除独立 API 项目及旧项目路径。`Elf.Api`、`Elf.Admin` 的旧部署/迁移记录仅保留在历史执行记录中。
 - 测试：管理与转发测试合并至 `src/Tests/Elf.App.Tests`，共享与 token generator 测试仍单独保留。`dotnet test src/Elf.slnx`：232 通过、0 失败、0 跳过；无重复 using 警告。
 - 发布：更新 `src/Dockerfile`、解决方案及唯一 Docker 工作流使用 `Elf.App/Elf.App.csproj`，镜像入口为 `Elf.App.dll`；`docker build -f src/Dockerfile -t elf:app-unified-check src` 成功。宿主集成测试覆盖管理与公开转发路由。
-- 验收：仅有一个 Web 宿主项目 `Elf.App`；管理与转发编译在同一应用程序集、共享数据库与缓存，发布仍为单镜像。未部署生产；本地被 `.gitignore` 排除的旧 `bin/obj` 输出不属于源代码或提交内容。
+- 验收：仅有一个 Web 宿主项目 `Elf.App`；管理与转发编译在同一应用程序集、共享数据库与缓存，发布仍为单镜像。生产发布结果记录在下方 2026-09-26 运维记录；本地被 `.gitignore` 排除的旧 `bin/obj` 输出不属于源代码或提交内容。
 - 提交：批次 6 项目结构统一及本计划进度更新。
+
+## 2026-09-26：生产部署与清理备份/回退材料
+
+- 部署 `ediwang/elf:dd3bd12f44ca705590ef9e36bd7e888a37a611a1`（镜像摘要 `sha256:5c02c5edb9dce1234f947219c16ba1e284aebe31e2bec32cf87d5b8a908c893b`）；`elf` 容器运行，`/health` 为 200、`/fw` 无效 token 为 400、无效 AKA 格式为 404、Admin 登录挑战为 302，OIDC 回调为 `/admin/signin-oidc`。只重建 Elf 应用容器，PostgreSQL 与数据卷未重启/更改。
+- 按用户要求删除生产数据库备份、旧版和部署前 Compose 副本、旧 Caddy 配置副本，以及不再使用的旧 Elf Docker 镜像；保留当前运行镜像、生产 Compose、数据库数据卷和其他应用。
+- 从仓库删除 `compose.rollback.yaml` 与本机 Visual Studio 的旧文档布局备份文件，并移除 README 中引用已删除回退配置的步骤。仓库和 Elf 生产目录内不再留有备份/rollback 文件。
 
 ## 批次后修复
 
