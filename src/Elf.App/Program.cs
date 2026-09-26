@@ -9,18 +9,18 @@ using LiteBus.Commands;
 using LiteBus.Extensions.Microsoft.DependencyInjection;
 using LiteBus.Messaging;
 using LiteBus.Queries;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
+using Polly;
 using System.Globalization;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.RateLimiting;
-using Polly;
 
 namespace Elf.App;
 
