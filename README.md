@@ -127,7 +127,7 @@ docker compose down -v
 
 The `/fw/*` and `/aka/*` routes are public. Protect `/admin` and every path under it.
 
-`Elf.Admin` supports three authentication providers through `Authentication__Provider`:
+`Elf.App` supports three authentication providers through `Authentication__Provider`:
 
 - `Local`: built-in single administrator account with password + TOTP. This is the default.
 - `OpenIdConnect`: standards-based OpenID Connect login using authorization code flow with PKCE.
@@ -176,7 +176,7 @@ Store the client secret in the deployment secret-management system, not in `apps
 
 #### Reverse Proxy and Forwarded Headers
 
-When TLS is terminated by a reverse proxy, Kestrel receives the request as HTTP unless the proxy's forwarded headers are processed. The single `Elf.Admin` web host enables `UseSmartXFFHeader()` when `ForwardedHeaders:Enabled` is `true`; forwarded headers are accepted only from trusted proxy addresses.
+When TLS is terminated by a reverse proxy, Kestrel receives the request as HTTP unless the proxy's forwarded headers are processed. `Elf.App` enables `UseSmartXFFHeader()` when `ForwardedHeaders:Enabled` is `true`; forwarded headers are accepted only from trusted proxy addresses.
 
 Configure each proxy hop using the address as seen by the application or container, not necessarily the proxy's public address:
 
@@ -195,7 +195,7 @@ Authentication__OpenIdConnect__AllowedSubjects__0=<administrator subject>
 Authentication__OpenIdConnect__AllowedSubjects__1=<another administrator subject>
 ```
 
-An empty allowlist denies Admin access to every OIDC identity. To bootstrap the first administrator, sign in through `/admin/auth/signin`, open `/admin/auth/identity` in the same browser session, copy the returned `subject` value into `AllowedSubjects`, restart Elf.Admin, and sign in again. Do not authorize by email, name, or preferred username because those values can change.
+An empty allowlist denies Admin access to every OIDC identity. To bootstrap the first administrator, sign in through `/admin/auth/signin`, open `/admin/auth/identity` in the same browser session, copy the returned `subject` value into `AllowedSubjects`, restart Elf.App, and sign in again. Do not authorize by email, name, or preferred username because those values can change.
 
 Microsoft Entra ID remains supported as a standard OIDC provider. Use a tenant-specific v2 authority:
 
@@ -229,7 +229,7 @@ Use `External` only when another layer already enforces Admin authentication, fo
 Authentication__Provider=External
 ```
 
-In this mode, Elf does not challenge users or apply in-app authorization to Admin pages and API controllers. The external layer must deny anonymous traffic before it reaches `Elf.Admin`.
+In this mode, Elf does not challenge users or apply in-app authorization to Admin pages and API controllers. The external layer must deny anonymous traffic before it reaches `Elf.App`.
 
 For Caddy, match both the exact `/admin` path and its descendants. This example uses Basic Auth over Caddy-managed HTTPS; store the password hash and username in the Caddy service environment. Keep the application port bound to loopback as the Compose file does, and preserve the `/admin` prefix when proxying:
 

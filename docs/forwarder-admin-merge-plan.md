@@ -1,12 +1,12 @@
 # Elf Forwarder 与 Admin 合并：任务计划和进度追踪
 
-> 状态：批次 0–5 已完成。最后更新：2026-09-26。
+> 状态：批次 0–6 已完成。最后更新：2026-09-26。
 >
 > **每完成一个批次，必须在该批次的提交中更新本文件**：勾选完成项，填写测试结果、验收结果、提交说明、遗留问题和下一步。未通过验收时保持“进行中”，不要提前勾选。后续 AI 从新对话接手时，先读本文件、仓库根目录 `AGENTS.md` 和当前 `git status`，再继续尚未完成的批次。
 
 ## 目标与已确认的决定
 
-- 目标：将两个 ASP.NET Core 10 Web 应用合为**一个 Web 宿主、一个运行进程和一个部署镜像**，降低日常运维成本；转发业务代码保留在被宿主引用的 `Elf.Api` 类库中，不是重写业务或数据库。
+- 目标：将公开转发和管理功能整理为**一个名为 `Elf.App` 的 ASP.NET Core 10 Web 项目、一个运行进程和一个部署镜像**，不保留原项目边界；不是重写业务或数据库。
 - 公开地址继续使用 `https://go.edi.wang/fw/{token}` 与 `https://go.edi.wang/aka/{akaName}`；已发出的转发链接不得改变。
 - 管理入口改为 `https://go.edi.wang/admin`。**所有**管理页面、管理 API、登录、OIDC 回调和后台静态资源均置于 `/admin` 路径下；不可遗留可访问的根路径管理接口。
 - 切换完成后直接停用旧的 `admin.go.edi.wang`；不要求旧管理域名跳转或并行服务期。切换前需准备恢复旧入口和旧服务的回退步骤。
@@ -15,13 +15,13 @@
 
 ## 现有仓库事实（接手时应重新核对）
 
-- 解决方案：`src/Elf.slnx`。`src/Elf.Admin/Program.cs` 是唯一 Web 宿主；`Elf.Api` 是转发控制器、处理器及服务所在的类库，不再有独立启动入口。两者代码共同使用 `Elf.Data`、`Elf.Shared`、`Elf.TokenGenerator`。
-- 合并后的 `/` 与 `/health` 提供健康检查，管理页面只在 `/admin` 下。公开转发地址继续是 `/fw/{token}` 与 `/aka/{akaName}`。
-- Forwarder 与 Admin 共用 `ElfDbContext`/EF Core、缓存及单一应用配置；支持 SQL Server 与 PostgreSQL。转发查询、跟踪写入和启动数据库初始化代码仍在 `Elf.Api` 类库中。
-- 转发控制器位于 `src/Elf.Api/Controllers/ForwardController.cs`，包含 token/aka 路由、`fixed-ip` 限流、目标 URL 验证、禁用链接、默认跳转、缓存、可选跟踪和无缓存响应。Admin 控制器使用授权策略和防伪保护。不得在合并时放松这些行为。
-- Admin 当前有根路径引用：`/api/*`、`/auth/*`、`/signin-oidc`、`/signout-callback-oidc`、`/js/*`、`/lib/*`、`/css/*` 等。检查 Razor、JS 模块导入、fetch、Cookie 跳转、OIDC 回调、静态文件和链接生成。`ForwarderBaseUrl` 用于 Admin 中生成公开转发链接。
+- 解决方案：`src/Elf.slnx`。唯一应用项目和 Web 宿主是 `src/Elf.App/Elf.App.csproj`，管理与公开转发代码编译进同一程序集；共享项目为 `Elf.Data`、`Elf.Shared`、`Elf.TokenGenerator`。
+- `/` 与 `/health` 提供健康检查，管理页面只在 `/admin` 下。公开转发地址继续是 `/fw/{token}` 与 `/aka/{akaName}`。
+- 转发与管理功能共用 `ElfDbContext`/EF Core、缓存及应用配置；支持 SQL Server 与 PostgreSQL。转发控制器、处理器、后台服务及 schema 初始化均位于 `Elf.App`。
+- 转发控制器位于 `src/Elf.App/Controllers/ForwardController.cs`，包含 token/aka 路由、`fixed-ip` 限流、目标 URL 验证、禁用链接、默认跳转、缓存、可选跟踪和无缓存响应。管理控制器使用授权策略和防伪保护。
+- 管理页面、API、OIDC 回调与静态资源均受 `/admin` PathBase 管理；`ForwarderBaseUrl` 用于管理页面生成公开转发链接。
 - 本地 `compose.yaml` 运行 PostgreSQL 与一个 Elf 应用容器；生产应用容器接入既有 PostgreSQL。唯一发布流程是 `.github/workflows/docker-elf.yml`，镜像为 `ediwang/elf`。单实例内存缓存可共享，但**多实例**仍需 Redis 等共享缓存，否则管理修改无法使其他实例的缓存立即失效。
-- `Elf.Admin.Tests` 覆盖单宿主公开/受保护路由；`Elf.Api.Tests` 保留对转发控制器和辅助服务的测试。旧的独立 API 宿主与手动 Admin 发布流程已在批次 5 清理。
+- 单一 `src/Tests/Elf.App.Tests` 测试项目覆盖宿主集成、管理功能和转发服务；共享工具与 token generator 保留各自测试项目。
 
 ## 进度总览
 
@@ -33,6 +33,7 @@
 | 3. 合并后的回归与安全验证 | 已完成 | `dotnet test src/Elf.slnx`：230 通过、0 失败、0 跳过；SQL Server/PostgreSQL 实际启动读写、浏览器 CRUD、缓存、异步跟踪和清理验证通过 | 批次 3 回归、安全验证及本计划进度提交；External 代理验收留作切换阻断 |
 | 4. 部署准备与切换 | 已完成 | 用户确认已手工验收 OIDC 登录、登出；生产单应用容器、入口与回退配置已记录 | 生产切换和回退记录 |
 | 5. 清理旧 API 项目 | 已完成 | 全量测试 230 通过；唯一镜像构建成功；临时 PostgreSQL 的空库初始化和既有库重启/转发通过 | 批次 5 清理与最终进度更新 |
+| 6. 统一项目结构和命名 | 已完成 | `dotnet test src/Elf.slnx`：232 通过、0 失败、0 跳过；唯一 `Elf.App` Docker 镜像构建成功 | 批次 6 项目结构统一提交 |
 
 ## 批次 0：建立基线
 
@@ -157,6 +158,24 @@
 - 提交：批次 5 清理与本文件最终进度更新。
 - 遗留：生产数据库备份尚未进行恢复演练；回退材料继续保留。
 
+## 批次 6：统一项目结构和命名
+
+- [x] 将管理与转发实现、配置和资源整理到 `src/Elf.App/Elf.App.csproj`，删除旧项目边界并统一为 `Elf.App` 命名空间。
+- [x] 将管理与转发测试合并到单一 `Elf.App.Tests` 项目。
+- [x] 更新解决方案、Docker 发布入口、资源名及当前文档；删除重复的处理器和控制器程序集注册。
+- [x] 运行 `dotnet test src/Elf.slnx`，构建镜像并检查应用路由和发布产物。
+- [x] 提交代码与本文件最终进度。
+
+**验收门槛：**源码中仅有一个名为 `Elf.App` 的 Web 项目；应用源码、命名空间和测试布局不再暴露旧的项目边界；发布仍为单镜像。
+
+### 批次 6 执行记录（2026-09-26）
+
+- 结构：管理与转发源码、数据库初始化资源、配置和静态资源统一位于 `src/Elf.App`，程序集与命名空间统一为 `Elf.App`；删除独立 API 项目及旧项目路径。`Elf.Api`、`Elf.Admin` 的旧部署/迁移记录仅保留在历史执行记录中。
+- 测试：管理与转发测试合并至 `src/Tests/Elf.App.Tests`，共享与 token generator 测试仍单独保留。`dotnet test src/Elf.slnx`：232 通过、0 失败、0 跳过；无重复 using 警告。
+- 发布：更新 `src/Dockerfile`、解决方案及唯一 Docker 工作流使用 `Elf.App/Elf.App.csproj`，镜像入口为 `Elf.App.dll`；`docker build -f src/Dockerfile -t elf:app-unified-check src` 成功。宿主集成测试覆盖管理与公开转发路由。
+- 验收：仅有一个 Web 宿主项目 `Elf.App`；管理与转发编译在同一应用程序集、共享数据库与缓存，发布仍为单镜像。未部署生产；本地被 `.gitignore` 排除的旧 `bin/obj` 输出不属于源代码或提交内容。
+- 提交：批次 6 项目结构统一及本计划进度更新。
+
 ## 批次后修复
 
 - 2026-09-25，P1 公开转发异常处理：生产模式下，`/fw/*`、`/aka/*` 等公开路径的未处理异常改为返回不含异常细节、不可缓存的 HTTP 500；`/admin/*` 保留原有错误页。宿主测试模拟转发缓存故障和 Admin 查询故障。源码修复已完成，尚未部署到生产；上线后需复核响应行为。
@@ -175,5 +194,6 @@
 | 2026-09-25 | 批次 4 | 已完成 | GitHub Actions 构建成功；生产单容器、公网入口、OIDC 新回调、旧 Admin Caddy 入口停用；用户确认验证已完成并推送；数据库恢复演练未做 | 生产切换及回退步骤记录 | 保留生产回退材料；数据库恢复演练仍是运维事项 |
 | 2026-09-25 | 批次 5 | 已完成 | 全量测试 230 通过；唯一镜像构建成功；临时 PostgreSQL 空库初始化及已有库重启后的公开转发通过 | 清理独立 Web 宿主与旧发布配置，更新最终计划 | 生产数据库备份恢复演练未执行；生产回退材料保留 |
 | 2026-09-26 | 批次 4 | 已完成 | 用户确认已手工试过 OIDC 登录、登出，并明确决定关闭批次 4 | 修正批次 4 验收清单 | 生产错误率、延迟、跟踪和管理修改后的缓存失效尚无验收记录；数据库恢复演练未执行 |
+| 2026-09-26 | 批次 6 | 已完成 | 全量测试 232 通过；`Elf.App` 唯一应用镜像构建成功；宿主集成测试覆盖应用路由 | 合并管理与转发项目、命名空间及测试，并更新发布入口 | 未部署生产；生产数据库恢复演练未执行 |
 
 状态只使用“未开始 / 进行中 / 已完成 / 受阻”。未获用户决定的产品或部署选择记为待确认，并附建议；不要据此自行切换生产或清理回退路径。

@@ -10,18 +10,17 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Elf.Admin/Elf.Admin.csproj", "Elf.Admin/"]
-COPY ["Elf.Api/Elf.Api.csproj", "Elf.Api/"]
+COPY ["Elf.App/Elf.App.csproj", "Elf.App/"]
 COPY ["Elf.Data/Elf.Data.csproj", "Elf.Data/"]
 COPY ["Elf.Shared/Elf.Shared.csproj", "Elf.Shared/"]
 COPY ["Elf.TokenGenerator/Elf.TokenGenerator.csproj", "Elf.TokenGenerator/"]
-RUN dotnet restore "./Elf.Admin/Elf.Admin.csproj"
+RUN dotnet restore "./Elf.App/Elf.App.csproj"
 COPY . .
-WORKDIR "/src/Elf.Admin"
-RUN dotnet publish "./Elf.Admin.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --no-restore
+WORKDIR "/src/Elf.App"
+RUN dotnet publish "./Elf.App.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --no-restore
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "Elf.Admin.dll"]
+ENTRYPOINT ["dotnet", "Elf.App.dll"]
