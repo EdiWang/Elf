@@ -107,14 +107,21 @@ public class Program
             };
 
             options.AddPolicy(ElfRateLimitPolicies.Auth, httpContext =>
-                RateLimitPartition.GetFixedWindowLimiter(
+            {
+                if (!HttpMethods.IsPost(httpContext.Request.Method))
+                {
+                    return RateLimitPartition.GetNoLimiter("auth-read");
+                }
+
+                return RateLimitPartition.GetFixedWindowLimiter(
                     GetRateLimitPartitionKey(httpContext),
                     _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = AuthRateLimitPermitLimit,
                         Window = AuthRateLimitWindow,
                         QueueLimit = 0
-                    }));
+                    });
+            });
 
             options.AddPolicy("fixed-ip", httpContext =>
             {

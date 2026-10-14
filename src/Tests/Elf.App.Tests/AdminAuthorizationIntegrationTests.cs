@@ -93,6 +93,95 @@ public class AdminAuthorizationIntegrationTests
         Assert.Equal("Access Denied", await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task LocalSignIn_WhenTotpSucceeds_KeepsAdminAuthenticated(bool totpConfigured)
+    {
+        var account = new LocalAccountSettings
+        {
+            Username = "admin",
+            TotpSecret = new LocalAccountTotpService().GenerateSecret(),
+            IsTotpEnabled = totpConfigured
+        };
+        var passwordService = new LocalAccountPasswordService();
+        account.PasswordHash = passwordService.HashPassword(account, "test-password");
+        var store = new Mock<ILocalAccountStore>();
+        store.Setup(x => x.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(account);
+        store.Setup(x => x.GetOrCreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(account);
+        store.Setup(x => x.SaveAsync(It.IsAny<LocalAccountSettings>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        using var factory = CreateFactory(AuthenticationProvider.Local, new Dictionary<string, string>
+        {
+            ["Authentication:Totp:Enabled"] = "true"
+        }, configureTestServices: services =>
+        {
+            services.RemoveAll<ILocalAccountStore>();
+            services.AddSingleton(store.Object);
+        });
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            BaseAddress = new Uri("https://localhost")
+        });
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Elf-Auth-Test/1.0");
+        var ct = TestContext.Current.CancellationToken;
+        var signIn = await client.GetStringAsync("/admin/auth/signin", ct);
+        var passwordResponse = await client.PostAsync("/admin/auth/signin", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["Username"] = account.Username,
+            ["Password"] = "test-password",
+            ["__RequestVerificationToken"] = ReadAntiforgeryToken(signIn)
+        }), ct);
+        Assert.Equal(HttpStatusCode.Redirect, passwordResponse.StatusCode);
+
+        var totpPath = passwordResponse.Headers.Location!;
+        var totpPage = await client.GetStringAsync(totpPath, ct);
+        var code = new OtpNet.Totp(OtpNet.Base32Encoding.ToBytes(account.TotpSecret)).ComputeTotp();
+        var totpResponse = await client.PostAsync(totpPath, new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["AuthenticatorCode"] = code,
+            ["__RequestVerificationToken"] = ReadAntiforgeryToken(totpPage)
+        }), ct);
+        Assert.Equal(HttpStatusCode.Redirect, totpResponse.StatusCode);
+
+        var home = await client.GetAsync(totpResponse.Headers.Location, ct);
+        Assert.Equal(HttpStatusCode.OK, home.StatusCode);
+        var profile = await client.GetAsync("/admin/api/account", ct);
+        Assert.Equal(HttpStatusCode.OK, profile.StatusCode);
+    }
+
+    private static string ReadAntiforgeryToken(string page) => WebUtility.HtmlDecode(
+        Regex.Match(page, "name=\"__RequestVerificationToken\"[^>]*value=\"([^\"]+)\"").Groups[1].Value);
+
+    [Fact]
+    public async Task AuthSignIn_WhenBrowsingRepeatedly_DoesNotConsumeSubmissionLimit()
+    {
+        using var factory = CreateFactory(AuthenticationProvider.Local);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Elf-Auth-Test/1.0");
+        var ct = TestContext.Current.CancellationToken;
+
+        for (var i = 0; i < 9; i++)
+        {
+            using var get = await client.GetAsync("/admin/auth/signin", ct);
+            using var head = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, "/admin/auth/signin"), ct);
+            Assert.Equal(HttpStatusCode.OK, get.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, head.StatusCode);
+        }
+
+        var page = await client.GetStringAsync("/admin/auth/signin", ct);
+        var response = await client.PostAsync("/admin/auth/signin", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = ReadAntiforgeryToken(page)
+        }), ct);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     [Fact]
     public async Task AuthSignIn_WhenAuthRateLimitIsExceeded_ReturnsTooManyRequests()
     {
@@ -101,11 +190,22 @@ public class AdminAuthorizationIntegrationTests
         {
             AllowAutoRedirect = false
         });
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Elf-Auth-Test/1.0");
+        var ct = TestContext.Current.CancellationToken;
+        var page = await client.GetStringAsync("/admin/auth/signin", ct);
+        var token = ReadAntiforgeryToken(page);
 
         HttpResponseMessage response = null;
         for (var i = 0; i < 9; i++)
         {
-            response = await client.GetAsync("/admin/auth/signin", TestContext.Current.CancellationToken);
+            response = await client.PostAsync("/admin/auth/signin", new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["__RequestVerificationToken"] = token
+            }), ct);
+            if (i < 8)
+            {
+                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            }
         }
 
         Assert.NotNull(response);
@@ -113,6 +213,10 @@ public class AdminAuthorizationIntegrationTests
         Assert.Equal("0", response.Headers.GetValues("x-ratelimit-remaining").Single());
         Assert.Equal("8", response.Headers.GetValues("x-ratelimit-limit").Single());
         Assert.Equal("Too Many Requests", await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/admin/auth/signin", ct)).StatusCode);
+        using var head = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, "/admin/auth/signin"), ct);
+        Assert.Equal(HttpStatusCode.OK, head.StatusCode);
     }
 
     [Fact]
