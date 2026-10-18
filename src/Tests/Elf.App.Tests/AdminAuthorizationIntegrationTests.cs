@@ -138,6 +138,10 @@ public class AdminAuthorizationIntegrationTests
 
         var totpPath = passwordResponse.Headers.Location!;
         var totpPage = await client.GetStringAsync(totpPath, ct);
+        Assert.Equal(6, Regex.Matches(totpPage, "<fluent-text-input\\b").Count);
+        Assert.Equal(6, Regex.Matches(totpPage, "pattern=\"\\[0-9\\]\"").Count);
+        Assert.Contains("name=\"AuthenticatorCode\"", totpPage);
+        Assert.Contains("/admin/js/authenticator-code.mjs", totpPage);
         var code = new OtpNet.Totp(OtpNet.Base32Encoding.ToBytes(account.TotpSecret)).ComputeTotp();
         var totpResponse = await client.PostAsync(totpPath, new FormUrlEncodedContent(new Dictionary<string, string>
         {

@@ -634,6 +634,29 @@ main {
     justify-self: stretch;
 }
 
+.auth-code-digits {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+    max-width: 352px;
+    margin-top: 6px;
+}
+
+.auth-code-digits fluent-text-input {
+    min-width: 0;
+}
+
+.auth-code-digits fluent-text-input::part(root) {
+    height: 48px;
+    padding: 0;
+}
+
+.auth-code-digits fluent-text-input::part(control) {
+    text-align: center;
+    font-size: 24px;
+    font-variant-numeric: tabular-nums;
+}
+
 .auth-submit::part(control) {
     width: 100%;
 }

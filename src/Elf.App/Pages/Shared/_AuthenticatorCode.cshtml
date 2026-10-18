@@ -1,0 +1,16 @@
+<div class="auth-code" role="group" aria-labelledby="auth-code-label">
+    <span id="auth-code-label">Authenticator code</span>
+    <input type="hidden" id="AuthenticatorCode" name="AuthenticatorCode" />
+    <div class="auth-code-digits">
+        @for (var digit = 1; digit <= 6; digit++)
+        {
+            <fluent-text-input type="text"
+                               inputmode="numeric"
+                               autocomplete="@(digit == 1 ? "one-time-code" : "off")"
+                               aria-label="Digit @digit of 6"
+                               pattern="[0-9]"
+                               maxlength="6"
+                               required></fluent-text-input>
+        }
+    </div>
+</div>

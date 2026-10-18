@@ -41,15 +41,7 @@
             <form method="post" class="auth-form">
                 <div asp-validation-summary="All" class="auth-validation"></div>
 
-                <fluent-text-input id="AuthenticatorCode"
-                                   name="AuthenticatorCode"
-                                   type="text"
-                                   inputmode="numeric"
-                                   autocomplete="one-time-code"
-                                   pattern="[0-9]{6}"
-                                   minlength="6"
-                                   maxlength="6"
-                                   required>Authenticator code</fluent-text-input>
+                <partial name="_AuthenticatorCode" />
 
                 <fluent-button appearance="primary" type="submit" class="auth-submit">
                     <i class="bi bi-check-lg" aria-hidden="true"></i>
@@ -60,5 +52,6 @@
     </main>
 
     <script src="~/js/main.mjs" type="module" asp-append-version="true"></script>
+    <script src="~/js/authenticator-code.mjs" type="module" asp-append-version="true"></script>
 </body>
 </html>
