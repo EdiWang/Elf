@@ -11,7 +11,7 @@
       "destination": "wwwroot/lib/fluentui/web-components/"
     },
     {
-      "library": "alpinejs@3.17.3",
+      "library": "alpinejs@3.17.5",
       "destination": "wwwroot/lib/alpinejs/",
       "files": [
         "dist/module.esm.min.js"
