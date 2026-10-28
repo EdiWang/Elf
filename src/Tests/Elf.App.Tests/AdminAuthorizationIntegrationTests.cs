@@ -5,6 +5,7 @@ using Elf.App.Models;
 using Elf.App.Pages.Auth;
 using Elf.App.Setup;
 using Elf.Data;
+using LiteBus.Messaging.Abstractions;
 using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -703,6 +704,16 @@ public class AdminAuthorizationIntegrationTests
 
             return Task.FromResult(result is null ? default : (TQueryResult)result);
         }
+
+        public Task<MediationResult<TQueryResult>> TryQueryAsync<TQueryResult>(
+            IQuery<TQueryResult> query,
+            QueryMediationSettings settings = null,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public Task<MediationDecision> EvaluateAsync(
+            IQuery query,
+            QueryMediationSettings settings = null,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
 
         public IAsyncEnumerable<TQueryResult> StreamAsync<TQueryResult>(
             IStreamQuery<TQueryResult> query,

@@ -3,6 +3,7 @@ using Elf.App.Services;
 using Elf.Data;
 using Elf.Shared;
 using Elf.TokenGenerator;
+using LiteBus.Messaging.Abstractions;
 using LiteBus.Queries.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -185,6 +186,16 @@ public class ForwardControllerResilienceTests
         {
             return Task.FromResult((TQueryResult)(object)link);
         }
+
+        public Task<MediationResult<TQueryResult>> TryQueryAsync<TQueryResult>(
+            IQuery<TQueryResult> query,
+            QueryMediationSettings settings = null,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public Task<MediationDecision> EvaluateAsync(
+            IQuery query,
+            QueryMediationSettings settings = null,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
 
         public IAsyncEnumerable<TQueryResult> StreamAsync<TQueryResult>(IStreamQuery<TQueryResult> query, QueryMediationSettings settings, CancellationToken cancellationToken = default)
         {
